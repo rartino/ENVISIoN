@@ -34,7 +34,7 @@
 #include <inviwo/core/common/inviwo.h>
 #include <inviwo/core/processors/processor.h>
 #include <inviwo/core/properties/ordinalproperty.h>
-#include <inviwo/core/ports/imageport.h>
+#include <inviwo/core/ports/meshport.h>
 
 namespace inviwo {
 
@@ -69,8 +69,7 @@ public:
     virtual const ProcessorInfo getProcessorInfo() const override;
     static const ProcessorInfo processorInfo_;
 private:
-    ImageOutport outport_;
-    FloatVec3Property position_;
+    MeshOutport mesh_;
 };
 
 } // namespace

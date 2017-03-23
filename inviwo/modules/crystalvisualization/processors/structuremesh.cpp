@@ -45,11 +45,9 @@ const ProcessorInfo StructureMesh::getProcessorInfo() const {
 
 StructureMesh::StructureMesh()
     : Processor()
-    , outport_("outport")
-    , position_("position", "Position", vec3(0.0f), vec3(-100.0f), vec3(100.0f)) {
-    
-    addPort(outport_);
-    addProperty(position_);
+    , mesh_("mesh")
+{
+    addPort(mesh_);
 }
     
 void StructureMesh::process() {
