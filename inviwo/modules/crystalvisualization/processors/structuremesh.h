@@ -69,7 +69,10 @@ public:
     virtual const ProcessorInfo getProcessorInfo() const override;
     static const ProcessorInfo processorInfo_;
 private:
+    DataInport<std::vector<vec3>, 0> structure_;
     MeshOutport mesh_;
+    FloatVec4Property color_;
+    FloatProperty radius_;
 };
 
 } // namespace

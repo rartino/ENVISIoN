@@ -28,6 +28,7 @@
  *********************************************************************************/
 
 #include <modules/crystalvisualization/processors/structuremesh.h>
+#include <inviwo/core/datastructures/geometry/basicmesh.h>
 
 namespace inviwo {
 
@@ -35,7 +36,7 @@ namespace inviwo {
 const ProcessorInfo StructureMesh::processorInfo_{
     "org.inviwo.StructureMesh",      // Class identifier
     "Structure Mesh",                // Display name
-    "Undefined",              // Category
+    "Crystal",              // Category
     CodeState::Experimental,  // Code state
     Tags::None,               // Tags
 };
@@ -45,13 +46,27 @@ const ProcessorInfo StructureMesh::getProcessorInfo() const {
 
 StructureMesh::StructureMesh()
     : Processor()
+    , structure_("coordinates")
     , mesh_("mesh")
+    , color_("color", "Color", vec4(1.0f, 1.0f, 1.0f, 1.0f), vec4(0.0f), vec4(1.0f), vec4(0.01f),
+             InvalidationLevel::InvalidOutput, PropertySemantics::Color)
+    , radius_("radius", "Atom Radius", 1.0f)
 {
+    addPort(structure_);
     addPort(mesh_);
+    addProperty(color_);
+    addProperty(radius_);
 }
     
 void StructureMesh::process() {
-    //outport_.setData(myImage);
+    auto mesh = std::make_shared<BasicMesh>();
+    mesh_.setData(mesh);
+    for (const auto &strucs : structure_) {
+        for (long long j = 0; j < static_cast<long long>(strucs->size()); ++j) {
+            auto center = strucs->at(j);
+            BasicMesh::sphere(center, radius_, color_, mesh);
+        }
+    }
 }
 
 } // namespace
