@@ -29,11 +29,13 @@
 
 #include <modules/crystalvisualization/crystalvisualizationmodule.h>
 #include <modules/crystalvisualization/processors/structuremesh.h>
+#include <modules/crystalvisualization/processors/coordinatereader.h>
 
 namespace inviwo {
 
 crystalvisualizationModule::crystalvisualizationModule(InviwoApplication* app) : InviwoModule(app, "crystalvisualization") {   
     registerProcessor<StructureMesh>();
+    registerProcessor<CoordinateReader>();
     // Add a directory to the search path of the Shadermanager
     // ShaderManager::getPtr()->addShaderSearchPath(getPath(ModulePath::GLSL));
 

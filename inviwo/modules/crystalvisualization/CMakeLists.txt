@@ -6,6 +6,7 @@ ivw_module(crystalvisualization)
 # Add header files
 set(HEADER_FILES
     #${CMAKE_CURRENT_SOURCE_DIR}/crystalvisualizationprocessor.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/processors/coordinatereader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/processors/structuremesh.h
 )
 ivw_group("Header Files" ${HEADER_FILES})
@@ -14,6 +15,7 @@ ivw_group("Header Files" ${HEADER_FILES})
 # Add source files
 set(SOURCE_FILES
     #${CMAKE_CURRENT_SOURCE_DIR}/crystalvisualizationprocessor.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/processors/coordinatereader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/processors/structuremesh.cpp
 )
 ivw_group("Source Files" ${SOURCE_FILES})
