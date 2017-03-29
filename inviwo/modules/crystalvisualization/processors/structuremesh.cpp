@@ -48,24 +48,37 @@ StructureMesh::StructureMesh()
     : Processor()
     , structure_("coordinates")
     , mesh_("mesh")
-    , color_("color", "Color", vec4(1.0f, 1.0f, 1.0f, 1.0f), vec4(0.0f), vec4(1.0f), vec4(0.01f),
-             InvalidationLevel::InvalidOutput, PropertySemantics::Color)
-    , radius_("radius", "Atom Radius", 1.0f)
+
 {
     addPort(structure_);
     addPort(mesh_);
-    addProperty(color_);
-    addProperty(radius_);
+    
+    structure_.onChange([&](){
+        const auto data = structure_.getVectorData();
+        for(int i = colors_.size(); i < data.size(); ++i) {
+            colors_.push_back(std::make_unique<FloatVec4Property>("color" + toString(i), "Color " + toString(i),
+                                                vec4(1.0f, 1.0f, 1.0f, 1.0f), vec4(0.0f), vec4(1.0f), vec4(0.01f),
+                                                InvalidationLevel::InvalidOutput, PropertySemantics::Color));
+            addProperty(colors_.back().get(), false);
+
+            radii_.push_back(std::make_unique<FloatProperty>("radius"+ toString(i), "Atom Radius"+ toString(i), 1.0f));
+            addProperty(radii_.back().get(), false);
+        }          
+
+    });
+
 }
     
 void StructureMesh::process() {
     auto mesh = std::make_shared<BasicMesh>();
     mesh_.setData(mesh);
+    size_t ind = 0;
     for (const auto &strucs : structure_) {
         for (long long j = 0; j < static_cast<long long>(strucs->size()); ++j) {
             auto center = strucs->at(j);
-            BasicMesh::sphere(center, radius_, color_, mesh);
+            BasicMesh::sphere(center, radii_[ind]->get(), colors_[ind]->get(), mesh);
         }
+        ++ind;
     }
 }
 

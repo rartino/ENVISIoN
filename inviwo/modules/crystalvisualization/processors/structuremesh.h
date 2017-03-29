@@ -71,8 +71,10 @@ public:
 private:
     DataInport<std::vector<vec3>, 0> structure_;
     MeshOutport mesh_;
-    FloatVec4Property color_;
-    FloatProperty radius_;
+
+    std::vector<std::unique_ptr<FloatVec4Property>> colors_;
+    std::vector<std::unique_ptr<FloatProperty>> radii_;
+
 };
 
 } // namespace
