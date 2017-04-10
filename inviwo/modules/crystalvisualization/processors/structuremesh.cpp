@@ -48,10 +48,12 @@ StructureMesh::StructureMesh()
     : Processor()
     , structure_("coordinates")
     , mesh_("mesh")
+    , scalingFactor_("scalingFactor", "Scaling factor", 1.f)
 
 {
     addPort(structure_);
     addPort(mesh_);
+    addProperty(scalingFactor_);
     
     structure_.onChange([&](){
         const auto data = structure_.getVectorData();
@@ -75,7 +77,7 @@ void StructureMesh::process() {
     size_t ind = 0;
     for (const auto &strucs : structure_) {
         for (long long j = 0; j < static_cast<long long>(strucs->size()); ++j) {
-            auto center = strucs->at(j);
+            auto center = scalingFactor_.get()*strucs->at(j);
             BasicMesh::sphere(center, radii_[ind]->get(), colors_[ind]->get(), mesh);
         }
         ++ind;
