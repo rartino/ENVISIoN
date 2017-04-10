@@ -35,7 +35,7 @@ namespace inviwo {
 const ProcessorInfo CoordinateReader::processorInfo_{
     "org.inviwo.CoordinateReader",      // Class identifier
     "Coordinate Reader",                // Display name
-    "Undefined",              // Category
+    "Crystal",              // Category
     CodeState::Experimental,  // Code state
     Tags::None,               // Tags
 };
@@ -46,12 +46,14 @@ const ProcessorInfo CoordinateReader::getProcessorInfo() const {
 CoordinateReader::CoordinateReader()
     : Processor()
     , outport_("outport")
-    , position_("position", "Position", vec3(0.0f), vec3(-100.0f), vec3(100.0f)) {
-    
+    , inport_("inport")
+    , path_("path", "Path", "", InvalidationLevel::InvalidOutput, PropertySemantics::Default) {
+
     addPort(outport_);
-    addProperty(position_);
+    addPort(inport_);
+    addProperty(path_);
 }
-    
+
 void CoordinateReader::process() {
     //outport_.setData(myImage);
 }
