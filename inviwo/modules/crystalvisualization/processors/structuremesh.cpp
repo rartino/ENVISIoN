@@ -49,12 +49,15 @@ StructureMesh::StructureMesh()
     , structure_("coordinates")
     , mesh_("mesh")
     , scalingFactor_("scalingFactor", "Scaling factor", 1.f)
+    , fullMesh_("fullMesh", "Full mesh", false)
+
 
 {
     addPort(structure_);
     addPort(mesh_);
     addProperty(scalingFactor_);
-    
+    addProperty(fullMesh_);
+
     structure_.onChange([&](){
         const auto data = structure_.getVectorData();
         for(int i = colors_.size(); i < data.size(); ++i) {
@@ -65,22 +68,60 @@ StructureMesh::StructureMesh()
 
             radii_.push_back(std::make_unique<FloatProperty>("radius"+ toString(i), "Atom Radius"+ toString(i), 1.0f));
             addProperty(radii_.back().get(), false);
-        }          
+        }
 
     });
 
 }
-    
+
 void StructureMesh::process() {
-    auto mesh = std::make_shared<BasicMesh>();
-    mesh_.setData(mesh);
-    size_t ind = 0;
-    for (const auto &strucs : structure_) {
-        for (long long j = 0; j < static_cast<long long>(strucs->size()); ++j) {
-            auto center = scalingFactor_.get()*strucs->at(j);
-            BasicMesh::sphere(center, radii_[ind]->get(), colors_[ind]->get(), mesh);
+    if (fullMesh_.get()) {
+	auto mesh = std::make_shared<BasicMesh>();
+	mesh_.setData(mesh);
+	size_t ind = 0;
+	for (const auto &strucs : structure_) {
+	    for (long long j = 0; j < static_cast<long long>(strucs->size()); ++j) {
+		auto center = scalingFactor_.get()*strucs->at(j);
+		BasicMesh::sphere(center, radii_[ind]->get(), colors_[ind]->get(), mesh);
+	    }
+	    ++ind;
+	}
+    } else {
+        int numSpheres = 0;
+        for (const auto &strucs : structure_)
+            numSpheres += strucs->size();
+
+            auto mesh = std::make_shared<Mesh>(DrawType::Points, ConnectivityType::None);
+
+        auto vertexRAM = std::make_shared<BufferRAMPrecision<vec3>>(numSpheres);
+        auto colorRAM = std::make_shared<BufferRAMPrecision<vec4>>(numSpheres);
+        auto radiiRAM = std::make_shared<BufferRAMPrecision<float>>(numSpheres);
+
+        mesh->addBuffer(Mesh::BufferInfo(BufferType::PositionAttrib),
+                        std::make_shared<Buffer<vec3>>(vertexRAM));
+        mesh->addBuffer(Mesh::BufferInfo(BufferType::ColorAttrib),
+                        std::make_shared<Buffer<vec4>>(colorRAM));
+        mesh->addBuffer(Mesh::BufferInfo(BufferType::NumberOfBufferTypes, 5),
+                        std::make_shared<Buffer<float>>(radiiRAM));
+
+        auto& vertices = vertexRAM->getDataContainer();
+        auto& colors = colorRAM->getDataContainer();
+        auto& radii = radiiRAM->getDataContainer();
+
+
+        mesh_.setData(mesh);
+        size_t portInd = 0;
+        size_t sphereInd = 0;
+        for (const auto &strucs : structure_) {
+            for (long long j = 0; j < static_cast<long long>(strucs->size()); ++j) {
+                auto center = strucs->at(j);
+                vertices[sphereInd] = scalingFactor_.get()*center;
+                colors[sphereInd] = colors_[portInd]->get();
+                radii[sphereInd] = radii_[portInd]->get();
+                ++sphereInd;
+            }
+            ++portInd;
         }
-        ++ind;
     }
 }
 

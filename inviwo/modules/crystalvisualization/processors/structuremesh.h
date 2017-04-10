@@ -34,7 +34,9 @@
 #include <inviwo/core/common/inviwo.h>
 #include <inviwo/core/processors/processor.h>
 #include <inviwo/core/properties/ordinalproperty.h>
+#include <inviwo/core/properties/boolproperty.h>
 #include <inviwo/core/ports/meshport.h>
+#include <inviwo/core/datastructures/buffer/bufferramprecision.h>
 
 namespace inviwo {
 
@@ -63,7 +65,7 @@ class IVW_MODULE_CRYSTALVISUALIZATION_API StructureMesh : public Processor {
 public:
     StructureMesh();
     virtual ~StructureMesh() = default;
-     
+
     virtual void process() override;
 
     virtual const ProcessorInfo getProcessorInfo() const override;
@@ -72,6 +74,7 @@ private:
     DataInport<std::vector<vec3>, 0> structure_;
     MeshOutport mesh_;
     FloatProperty scalingFactor_;
+    BoolProperty fullMesh_;
     std::vector<std::unique_ptr<FloatVec4Property>> colors_;
     std::vector<std::unique_ptr<FloatProperty>> radii_;
 
