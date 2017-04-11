@@ -30,6 +30,11 @@
 #include <modules/crystalvisualization/processors/structuremesh.h>
 #include <inviwo/core/datastructures/geometry/basicmesh.h>
 
+#include <inviwo/core/interaction/events/pickingevent.h>
+#include <inviwo/core/interaction/events/mouseevent.h>
+#include <inviwo/core/datastructures/buffer/bufferramprecision.h>
+#include <inviwo/core/datastructures/buffer/buffer.h>
+
 namespace inviwo {
 
 // The Class Identifier has to be globally unique. Use a reverse DNS naming scheme
@@ -50,6 +55,8 @@ StructureMesh::StructureMesh()
     , mesh_("mesh")
     , scalingFactor_("scalingFactor", "Scaling factor", 1.f)
     , fullMesh_("fullMesh", "Full mesh", false)
+    , spherePicking_(
+          this, 0, [&](PickingEvent* p) { handlePicking(p); })
 
 
 {
@@ -69,6 +76,10 @@ StructureMesh::StructureMesh()
             radii_.push_back(std::make_unique<FloatProperty>("radius"+ toString(i), "Atom Radius"+ toString(i), 1.0f));
             addProperty(radii_.back().get(), false);
         }
+        int numSpheres = 0;
+        for (const auto &strucs : structure_)
+            numSpheres += strucs->size();
+        spherePicking_.resize(numSpheres);
 
     });
 
@@ -91,7 +102,7 @@ void StructureMesh::process() {
         for (const auto &strucs : structure_)
             numSpheres += strucs->size();
 
-            auto mesh = std::make_shared<Mesh>(DrawType::Points, ConnectivityType::None);
+        auto mesh = std::make_shared<Mesh>(DrawType::Points, ConnectivityType::None);
 
         auto vertexRAM = std::make_shared<BufferRAMPrecision<vec3>>(numSpheres);
         auto colorRAM = std::make_shared<BufferRAMPrecision<vec4>>(numSpheres);
@@ -108,7 +119,6 @@ void StructureMesh::process() {
         auto& colors = colorRAM->getDataContainer();
         auto& radii = radiiRAM->getDataContainer();
 
-
         mesh_.setData(mesh);
         size_t portInd = 0;
         size_t sphereInd = 0;
@@ -122,8 +132,19 @@ void StructureMesh::process() {
             }
             ++portInd;
         }
+
+        auto pickingRAM = std::make_shared<BufferRAMPrecision<uint32_t>>(numSpheres);
+        auto& data = pickingRAM->getDataContainer();
+        // fill in picking IDs
+        std::iota(data.begin(), data.end(), static_cast<uint32_t>(spherePicking_.getPickingId(0)));
+
+        mesh->addBuffer(Mesh::BufferInfo(BufferType::NumberOfBufferTypes, 4),
+                        std::make_shared<Buffer<uint32_t>>(pickingRAM));
     }
 }
+
+
+void StructureMesh::handlePicking(PickingEvent* p) {}
 
 } // namespace
 

@@ -37,6 +37,7 @@
 #include <inviwo/core/properties/boolproperty.h>
 #include <inviwo/core/ports/meshport.h>
 #include <inviwo/core/datastructures/buffer/bufferramprecision.h>
+#include <inviwo/core/interaction/pickingmapper.h>
 
 namespace inviwo {
 
@@ -71,13 +72,14 @@ public:
     virtual const ProcessorInfo getProcessorInfo() const override;
     static const ProcessorInfo processorInfo_;
 private:
+    void handlePicking(PickingEvent* p);
     DataInport<std::vector<vec3>, 0> structure_;
     MeshOutport mesh_;
     FloatProperty scalingFactor_;
     BoolProperty fullMesh_;
     std::vector<std::unique_ptr<FloatVec4Property>> colors_;
     std::vector<std::unique_ptr<FloatProperty>> radii_;
-
+    PickingMapper spherePicking_;
 };
 
 } // namespace
