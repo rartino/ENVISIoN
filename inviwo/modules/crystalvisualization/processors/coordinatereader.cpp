@@ -28,6 +28,8 @@
  *********************************************************************************/
 
 #include <modules/crystalvisualization/processors/coordinatereader.h>
+#include <modules/hdf5/datastructures/hdf5handle.h>
+#include <modules/hdf5/datastructures/hdf5path.h>
 
 namespace inviwo {
 
@@ -35,7 +37,7 @@ namespace inviwo {
 const ProcessorInfo CoordinateReader::processorInfo_{
     "org.inviwo.CoordinateReader",      // Class identifier
     "Coordinate Reader",                // Display name
-    "Crystal",              // Category
+    "Crystal",                          // Category
     CodeState::Experimental,  // Code state
     Tags::None,               // Tags
 };
@@ -55,7 +57,11 @@ CoordinateReader::CoordinateReader()
 }
 
 void CoordinateReader::process() {
-    //outport_.setData(myImage);
+    const auto h5path = hdf5::Path(path_.get());
+    const auto data = inport_.getData();
+    auto vecs = data->getVectorOfVec3AtPath<float>(h5path);
+    auto vecptr = std::make_shared<std::vector<vec3>>(data->getVectorOfVec3AtPath<float>(h5path));
+    outport_.setData(vecptr);
 }
 
 } // namespace
