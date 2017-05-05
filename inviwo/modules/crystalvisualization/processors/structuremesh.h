@@ -74,6 +74,7 @@ private:
     DataInport<std::vector<vec3>, 0> structure_;
     MeshOutport mesh_;
     FloatProperty scalingFactor_;
+    FloatMat3Property basis_;
     BoolProperty fullMesh_;
     std::vector<std::unique_ptr<FloatVec4Property>> colors_;
     std::vector<std::unique_ptr<FloatProperty>> radii_;

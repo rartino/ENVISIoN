@@ -49,6 +49,7 @@ StructureMesh::StructureMesh()
     , structure_("coordinates")
     , mesh_("mesh")
     , scalingFactor_("scalingFactor", "Scaling factor", 1.f)
+    , basis_("basis", "Basis", glm::mat3x3())
     , fullMesh_("fullMesh", "Full mesh", false)
 
 
@@ -56,6 +57,7 @@ StructureMesh::StructureMesh()
     addPort(structure_);
     addPort(mesh_);
     addProperty(scalingFactor_);
+    addProperty(basis_);
     addProperty(fullMesh_);
 
     structure_.onChange([&](){
@@ -81,7 +83,7 @@ void StructureMesh::process() {
 	size_t ind = 0;
 	for (const auto &strucs : structure_) {
 	    for (long long j = 0; j < static_cast<long long>(strucs->size()); ++j) {
-		auto center = scalingFactor_.get()*strucs->at(j);
+		auto center = scalingFactor_.get() * basis_.get() * strucs->at(j) - 0.5f * (basis_.get()[0] + basis_.get()[1] + basis_.get()[2]);
 		BasicMesh::sphere(center, radii_[ind]->get(), colors_[ind]->get(), mesh);
 	    }
 	    ++ind;
@@ -114,8 +116,8 @@ void StructureMesh::process() {
         size_t sphereInd = 0;
         for (const auto &strucs : structure_) {
             for (long long j = 0; j < static_cast<long long>(strucs->size()); ++j) {
-                auto center = strucs->at(j);
-                vertices[sphereInd] = scalingFactor_.get()*center;
+                auto center = scalingFactor_.get() * basis_.get() * strucs->at(j) - 0.5f * (basis_.get()[0] + basis_.get()[1] + basis_.get()[2]);
+                vertices[sphereInd] = center;
                 colors[sphereInd] = colors_[portInd]->get();
                 radii[sphereInd] = radii_[portInd]->get();
                 ++sphereInd;
