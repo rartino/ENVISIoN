@@ -73,6 +73,7 @@ public:
     static const ProcessorInfo processorInfo_;
 private:
     void handlePicking(PickingEvent* p);
+
     DataInport<std::vector<vec3>, 0> structure_;
     MeshOutport mesh_;
     FloatProperty scalingFactor_;
@@ -80,6 +81,8 @@ private:
     std::vector<std::unique_ptr<FloatVec4Property>> colors_;
     std::vector<std::unique_ptr<FloatProperty>> radii_;
     PickingMapper spherePicking_;
+    IntProperty index_;
+    std::shared_ptr<BufferRAMPrecision<vec4>> colorBuffer_;
 };
 
 } // namespace

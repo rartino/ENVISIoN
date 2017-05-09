@@ -55,8 +55,8 @@ StructureMesh::StructureMesh()
     , mesh_("mesh")
     , scalingFactor_("scalingFactor", "Scaling factor", 1.f)
     , fullMesh_("fullMesh", "Full mesh", false)
-    , spherePicking_(
-          this, 0, [&](PickingEvent* p) { handlePicking(p); })
+    , spherePicking_(this, 0, [&](PickingEvent* p) { handlePicking(p); })
+    , index_("index", "Picked atom")
 
 
 {
@@ -64,6 +64,7 @@ StructureMesh::StructureMesh()
     addPort(mesh_);
     addProperty(scalingFactor_);
     addProperty(fullMesh_);
+    addProperty(index_);
 
     structure_.onChange([&](){
         const auto data = structure_.getVectorData();
@@ -98,53 +99,87 @@ void StructureMesh::process() {
 	    ++ind;
 	}
     } else {
-        int numSpheres = 0;
-        for (const auto &strucs : structure_)
-            numSpheres += strucs->size();
 
-        auto mesh = std::make_shared<Mesh>(DrawType::Points, ConnectivityType::None);
+        const bool changed = std::any_of(radii_.begin(), radii_.end(), 
+                                         [](const std::unique_ptr<FloatProperty>& property){
+                                            return property->isModified();
+                                            }) ||
+                              std::any_of(colors_.begin(), colors_.end(), 
+                                         [](const std::unique_ptr<FloatVec4Property>& property){
+                                            return property->isModified();
+                                            });
 
-        auto vertexRAM = std::make_shared<BufferRAMPrecision<vec3>>(numSpheres);
-        auto colorRAM = std::make_shared<BufferRAMPrecision<vec4>>(numSpheres);
-        auto radiiRAM = std::make_shared<BufferRAMPrecision<float>>(numSpheres);
+        if (structure_.isChanged() || scalingFactor_.isModified() || changed) {
+        
+            int numSpheres = 0;
+            for (const auto &strucs : structure_)
+                numSpheres += strucs->size();
 
-        mesh->addBuffer(Mesh::BufferInfo(BufferType::PositionAttrib),
-                        std::make_shared<Buffer<vec3>>(vertexRAM));
-        mesh->addBuffer(Mesh::BufferInfo(BufferType::ColorAttrib),
-                        std::make_shared<Buffer<vec4>>(colorRAM));
-        mesh->addBuffer(Mesh::BufferInfo(BufferType::NumberOfBufferTypes, 5),
-                        std::make_shared<Buffer<float>>(radiiRAM));
+            auto mesh = std::make_shared<Mesh>(DrawType::Points, ConnectivityType::None);
 
-        auto& vertices = vertexRAM->getDataContainer();
-        auto& colors = colorRAM->getDataContainer();
-        auto& radii = radiiRAM->getDataContainer();
+            auto vertexRAM = std::make_shared<BufferRAMPrecision<vec3>>(numSpheres);
+            auto colorRAM = std::make_shared<BufferRAMPrecision<vec4>>(numSpheres);
+            auto radiiRAM = std::make_shared<BufferRAMPrecision<float>>(numSpheres);
 
-        mesh_.setData(mesh);
-        size_t portInd = 0;
-        size_t sphereInd = 0;
-        for (const auto &strucs : structure_) {
-            for (long long j = 0; j < static_cast<long long>(strucs->size()); ++j) {
-                auto center = strucs->at(j);
-                vertices[sphereInd] = scalingFactor_.get()*center;
-                colors[sphereInd] = colors_[portInd]->get();
-                radii[sphereInd] = radii_[portInd]->get();
-                ++sphereInd;
+            colorBuffer_ = colorRAM;
+
+            mesh->addBuffer(Mesh::BufferInfo(BufferType::PositionAttrib),
+                            std::make_shared<Buffer<vec3>>(vertexRAM));
+            mesh->addBuffer(Mesh::BufferInfo(BufferType::ColorAttrib),
+                            std::make_shared<Buffer<vec4>>(colorRAM));
+            mesh->addBuffer(Mesh::BufferInfo(BufferType::NumberOfBufferTypes, 5),
+                            std::make_shared<Buffer<float>>(radiiRAM));
+
+            auto& vertices = vertexRAM->getDataContainer();
+            auto& colors = colorRAM->getDataContainer();
+            auto& radii = radiiRAM->getDataContainer();
+
+            mesh_.setData(mesh);
+            size_t portInd = 0;
+            size_t sphereInd = 0;
+            for (const auto &strucs : structure_) {
+                for (long long j = 0; j < static_cast<long long>(strucs->size()); ++j) {
+                    auto center = strucs->at(j);
+                    vertices[sphereInd] = scalingFactor_.get()*center;
+                    colors[sphereInd] = colors_[portInd]->get();
+                    radii[sphereInd] = radii_[portInd]->get();
+                    ++sphereInd;
+                }
+                ++portInd;
             }
-            ++portInd;
+            
+            //Set alpha-layer of picked atom
+            colors[index_.get()].w = 0.5;
+
+            auto pickingRAM = std::make_shared<BufferRAMPrecision<uint32_t>>(numSpheres);
+            auto& data = pickingRAM->getDataContainer();
+            // fill in picking IDs
+            std::iota(data.begin(), data.end(), static_cast<uint32_t>(spherePicking_.getPickingId(0)));
+
+            mesh->addBuffer(Mesh::BufferInfo(BufferType::NumberOfBufferTypes, 4),
+                            std::make_shared<Buffer<uint32_t>>(pickingRAM));
         }
 
-        auto pickingRAM = std::make_shared<BufferRAMPrecision<uint32_t>>(numSpheres);
-        auto& data = pickingRAM->getDataContainer();
-        // fill in picking IDs
-        std::iota(data.begin(), data.end(), static_cast<uint32_t>(spherePicking_.getPickingId(0)));
-
-        mesh->addBuffer(Mesh::BufferInfo(BufferType::NumberOfBufferTypes, 4),
-                        std::make_shared<Buffer<uint32_t>>(pickingRAM));
     }
 }
 
 
-void StructureMesh::handlePicking(PickingEvent* p) {}
+void StructureMesh::handlePicking(PickingEvent* p) {
+    if (p->getState() == PickingState::Updated &&
+        p->getEvent()->hash() == MouseEvent::chash()) {
+        auto me = p->getEventAs<MouseEvent>();
+        if (me->buttonState() & MouseButton::Left) {
+            auto& color = colorBuffer_->getDataContainer();
+            color[index_.get()].w = 1;
+            index_.set(p->getPickedId());
+            color[index_.get()].w = 0.5;
+            colorBuffer_->getOwner()->invalidateAllOther(colorBuffer_.get());
+            invalidate(InvalidationLevel::InvalidOutput);
+            p->markAsUsed();
+        }
+    }
+
+}
 
 } // namespace
 
