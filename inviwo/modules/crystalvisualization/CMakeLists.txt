@@ -8,6 +8,7 @@ set(HEADER_FILES
     #${CMAKE_CURRENT_SOURCE_DIR}/crystalvisualizationprocessor.h
     ${CMAKE_CURRENT_SOURCE_DIR}/processors/coordinatereader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/processors/structuremesh.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/properties/intvectorproperty.h
 )
 ivw_group("Header Files" ${HEADER_FILES})
 
@@ -17,6 +18,7 @@ set(SOURCE_FILES
     #${CMAKE_CURRENT_SOURCE_DIR}/crystalvisualizationprocessor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/processors/coordinatereader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/processors/structuremesh.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/properties/intvectorproperty.cpp
 )
 ivw_group("Source Files" ${SOURCE_FILES})
 
