@@ -56,15 +56,12 @@ StructureMesh::StructureMesh()
     , scalingFactor_("scalingFactor", "Scaling factor", 1.f)
     , fullMesh_("fullMesh", "Full mesh", false)
     , spherePicking_(this, 0, [&](PickingEvent* p) { handlePicking(p); })
-    , index_("index", "Picked atom")
-
-
-{
+    , inds_("inds", "Picked atoms") {
     addPort(structure_);
     addPort(mesh_);
     addProperty(scalingFactor_);
     addProperty(fullMesh_);
-    addProperty(index_);
+    addProperty(inds_);
 
     structure_.onChange([&](){
         const auto data = structure_.getVectorData();
@@ -148,8 +145,12 @@ void StructureMesh::process() {
                 ++portInd;
             }
             
-            //Set alpha-layer of picked atom
-            colors[index_.get()].w = 0.5;
+            //Set alpha-layer of picked atoms
+            if(!inds_.get().empty()) {
+                for (const auto &ind : inds_.get()) {
+                    colors[ind].w = 0.5;
+                }
+            }
 
             auto pickingRAM = std::make_shared<BufferRAMPrecision<uint32_t>>(numSpheres);
             auto& data = pickingRAM->getDataContainer();
@@ -170,9 +171,18 @@ void StructureMesh::handlePicking(PickingEvent* p) {
         auto me = p->getEventAs<MouseEvent>();
         if (me->buttonState() & MouseButton::Left) {
             auto& color = colorBuffer_->getDataContainer();
-            color[index_.get()].w = 1;
-            index_.set(p->getPickedId());
-            color[index_.get()].w = 0.5;
+            std::vector<int> temp = inds_.get();
+            auto picked = p->getPickedId();
+
+            if( std::none_of(temp.begin(), temp.end(), [&](unsigned int i){return i == picked;}) ) {
+                temp.push_back(picked);
+                color[picked].w = 0.5;
+            } else {
+                temp.erase(std::remove(temp.begin(), temp.end(), picked), temp.end());
+                color[picked].w = 1;
+            }
+            inds_.set(temp);
+
             colorBuffer_->getOwner()->invalidateAllOther(colorBuffer_.get());
             invalidate(InvalidationLevel::InvalidOutput);
             p->markAsUsed();

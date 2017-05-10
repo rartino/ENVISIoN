@@ -38,6 +38,7 @@
 #include <inviwo/core/ports/meshport.h>
 #include <inviwo/core/datastructures/buffer/bufferramprecision.h>
 #include <inviwo/core/interaction/pickingmapper.h>
+#include <modules/crystalvisualization/properties/intvectorproperty.h>
 
 namespace inviwo {
 
@@ -81,7 +82,7 @@ private:
     std::vector<std::unique_ptr<FloatVec4Property>> colors_;
     std::vector<std::unique_ptr<FloatProperty>> radii_;
     PickingMapper spherePicking_;
-    IntProperty index_;
+    IntVectorProperty inds_;
     std::shared_ptr<BufferRAMPrecision<vec4>> colorBuffer_;
 };
 
