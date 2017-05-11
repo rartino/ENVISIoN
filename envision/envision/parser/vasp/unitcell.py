@@ -27,8 +27,9 @@
 
 import os
 import re
+import numpy as np
 import h5py
-from ..h5writer import _write_unitcell
+from ..h5writer import _write_basis, _write_coordinates
 
 # Define coordinates regex.
 coordinates_re = re.compile(r' +'.join([r'(-?[0-9]+\.[0-9]+)'] * 3))
@@ -98,12 +99,14 @@ def _parse_lattice(f):
             'cartesian'      : cartesian}
             
 
-def _parse_coordinates(f,count):
+def _parse_coordinates(f,count, transform, matrix):
     match = _find_line(coordinates_re, f)
     try:
         coords_list = []
         while match:
             coords = [float(coordinate) for coordinate in match.groups()]
+            if transform:
+                coords = np.dot(matrix, coords)
             coords_list.append(coords)
             match = coordinates_re.search(next(f))
     except StopIteration:
@@ -139,15 +142,31 @@ def unitcell(h5file, vasp_dir, elements=None):
     try:
         with open(os.path.join(vasp_dir,'POSCAR'), "r") as f:
             pdata = _parse_lattice(f)
-            elements = _find_elements(elements, pdata['elements'], vasp_dir, len(pdata['atom_count']))
-            coords_list = _parse_coordinates(f,sum(pdata['atom_count']))
-            _write_unitcell(h5file,
-                            pdata['scaling_factor'],
-                            pdata['basis'], 
-                            pdata['atom_count'], 
-                            coords_list, 
-                            elements, 
-                            pdata['cartesian'])
+            elements = _find_elements(
+                elements,
+                pdata['elements'],
+                vasp_dir,
+                len(pdata['atom_count'])
+            )
+            coords_list = _parse_coordinates(
+                f,
+                sum(pdata['atom_count']),
+                pdata['cartesian'],
+                np.linalg.inv(
+                    pdata['scaling_factor']*np.asarray(pdata['basis'])
+                )
+            )
+            _write_basis(
+                h5file,
+                pdata['scaling_factor']*np.asarray(pdata['basis'])
+            )
+            _write_coordinates(
+                h5file,
+                pdata['atom_count'],
+                coords_list,
+                elements,
+                '/UnitCell'
+            )
             return True
     except FileNotFoundError:
         print("POSCAR file not found.")
