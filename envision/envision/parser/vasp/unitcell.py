@@ -100,9 +100,10 @@ def _parse_lattice(f):
             
 
 def _parse_coordinates(f,count, transform, matrix):
-    match = _find_line(coordinates_re, f)
+    match = False
     try:
         coords_list = []
+        match = _find_line(coordinates_re, f)
         while match:
             coords = [float(coordinate) for coordinate in match.groups()]
             if transform:
@@ -112,7 +113,7 @@ def _parse_coordinates(f,count, transform, matrix):
     except StopIteration:
         pass # if EOF is reached here
     
-    if len(coords_list) != count:
+    if match and len(coords_list) != count:
         raise Exception('Incorrect number of coordinates.')
 
     return coords_list
