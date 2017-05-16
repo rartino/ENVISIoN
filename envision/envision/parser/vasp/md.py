@@ -30,7 +30,7 @@ import re
 import h5py
 import numpy as np
 from .unitcell import _parse_lattice, _find_elements, _parse_coordinates
-from ..h5writer import _write_basis, _write_coordinates
+from ..h5writer import _write_basis, _write_md
 
 def md(h5_path, vasp_dir, elements=None):
     if os.path.isfile(h5_path):
@@ -65,12 +65,12 @@ def md(h5_path, vasp_dir, elements=None):
                 )
                 if not coords_list:
                     break
-                _write_coordinates(
+                _write_md(
                     h5_path,
                     pdata['atom_count'],
                     coords_list,
                     elements,
-                    '/MD/Steps/'+format(step,'08d')
+                    step
                 )
                 step += 1
             return True
