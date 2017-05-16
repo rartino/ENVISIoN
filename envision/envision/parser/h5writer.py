@@ -44,3 +44,25 @@ def _write_md(h5file, atom_count, coordinates_list, elements, step):
                 dataset[start:] = np.asarray(coordinates_list[p:atom_count[n]+p])
                 p=p+atom_count[n]
     return
+	
+def _write_bandstruct(h5file, eigenval, kval_list):
+    with h5py.File(h5file, "w") as h5:
+        h5.create_dataset('Bandstructure/KPoints', data=np.reshape(kval_list, (40, 3)), dtype = np.float32)
+        for band in eigenval:
+            h5.create_dataset('Bandstructure/Bands/{}'.format(eigenval.index(band)), data=np.array(band), dtype = np.float32)
+			
+			
+def _write_dos(h5file, total, partial, total_data, partial_list):
+	i = 0
+	with h5py.File(h5file, "w") as h5:
+		for element in total_data:
+			h5.create_dataset('Total/' + total[i], data=np.array(element), dtype = np.float32)
+			i += 1		
+		for partial_data in partial_list:
+			u = 0
+			for element in partial_data:
+				h5.create_dataset('Partial/{}'.format(partial_list.index(partial_data)) + '/' + partial[u], data=np.array(element), dtype = np.float32)
+				u += 1
+
+def _write_volume(h5, i, array, data, volume):
+	h5.create_dataset(volume +'/{}'.format(i,'04d'), data = np.reshape(array, (data[2],data[1],data[0])), dtype=np.float32)
