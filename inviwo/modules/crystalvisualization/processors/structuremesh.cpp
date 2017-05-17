@@ -173,7 +173,7 @@ void StructureMesh::handlePicking(PickingEvent* p) {
         if (p->getState() == PickingState::Updated &&
             p->getEvent()->hash() == MouseEvent::chash()) {
             auto me = p->getEventAs<MouseEvent>();
-            if (me->buttonState() & MouseButton::Left) {
+            if ((me->buttonState() & MouseButton::Left) && me->state() != MouseState::Move) {
                 auto& color = colorBuffer_->getDataContainer();
                 std::vector<int> temp = inds_.get();
                 auto picked = p->getPickedId();
