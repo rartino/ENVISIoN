@@ -106,7 +106,8 @@ void StructureMesh::process() {
                               std::any_of(colors_.begin(), colors_.end(), 
                                          [](const std::unique_ptr<FloatVec4Property>& property){
                                             return property->isModified();
-                                            });
+                                            }) ||
+                              enablePicking_.isModified();
 
         if (structure_.isChanged() || scalingFactor_.isModified() || changed) {
         
@@ -146,21 +147,21 @@ void StructureMesh::process() {
                 }
                 ++portInd;
             }
-            
-            //Set alpha-layer of picked atoms
-            if(!inds_.get().empty()) {
-                for (const auto &ind : inds_.get()) {
-                    colors[ind].w = 0.5;
+            if (enablePicking_.get()) {
+                //Set alpha-layer of picked atoms
+                if(!inds_.get().empty()) {
+                    for (const auto &ind : inds_.get()) {
+                        colors[ind].w = 0.5;
+                    }
                 }
+                auto pickingRAM = std::make_shared<BufferRAMPrecision<uint32_t>>(numSpheres);
+                auto& data = pickingRAM->getDataContainer();
+                // fill in picking IDs
+                std::iota(data.begin(), data.end(), static_cast<uint32_t>(spherePicking_.getPickingId(0)));
+
+                mesh->addBuffer(Mesh::BufferInfo(BufferType::NumberOfBufferTypes, 4),
+                                std::make_shared<Buffer<uint32_t>>(pickingRAM));
             }
-
-            auto pickingRAM = std::make_shared<BufferRAMPrecision<uint32_t>>(numSpheres);
-            auto& data = pickingRAM->getDataContainer();
-            // fill in picking IDs
-            std::iota(data.begin(), data.end(), static_cast<uint32_t>(spherePicking_.getPickingId(0)));
-
-            mesh->addBuffer(Mesh::BufferInfo(BufferType::NumberOfBufferTypes, 4),
-                            std::make_shared<Buffer<uint32_t>>(pickingRAM));
         }
 
     }
@@ -168,26 +169,28 @@ void StructureMesh::process() {
 
 
 void StructureMesh::handlePicking(PickingEvent* p) {
-    if (p->getState() == PickingState::Updated &&
-        p->getEvent()->hash() == MouseEvent::chash()) {
-        auto me = p->getEventAs<MouseEvent>();
-        if (me->buttonState() & MouseButton::Left) {
-            auto& color = colorBuffer_->getDataContainer();
-            std::vector<int> temp = inds_.get();
-            auto picked = p->getPickedId();
+    if (enablePicking_.get()) { 
+        if (p->getState() == PickingState::Updated &&
+            p->getEvent()->hash() == MouseEvent::chash()) {
+            auto me = p->getEventAs<MouseEvent>();
+            if (me->buttonState() & MouseButton::Left) {
+                auto& color = colorBuffer_->getDataContainer();
+                std::vector<int> temp = inds_.get();
+                auto picked = p->getPickedId();
 
-            if( std::none_of(temp.begin(), temp.end(), [&](unsigned int i){return i == picked;}) ) {
-                temp.push_back(picked);
-                color[picked].w = 0.5;
-            } else {
-                temp.erase(std::remove(temp.begin(), temp.end(), picked), temp.end());
-                color[picked].w = 1;
+                if( std::none_of(temp.begin(), temp.end(), [&](unsigned int i){return i == picked;}) ) {
+                    temp.push_back(picked);
+                    color[picked].w = 0.5;
+                } else {
+                    temp.erase(std::remove(temp.begin(), temp.end(), picked), temp.end());
+                    color[picked].w = 1;
+                }
+                inds_.set(temp);
+
+                colorBuffer_->getOwner()->invalidateAllOther(colorBuffer_.get());
+                invalidate(InvalidationLevel::InvalidOutput);
+                p->markAsUsed();
             }
-            inds_.set(temp);
-
-            colorBuffer_->getOwner()->invalidateAllOther(colorBuffer_.get());
-            invalidate(InvalidationLevel::InvalidOutput);
-            p->markAsUsed();
         }
     }
 
