@@ -55,12 +55,14 @@ StructureMesh::StructureMesh()
     , mesh_("mesh")
     , scalingFactor_("scalingFactor", "Scaling factor", 1.f)
     , fullMesh_("fullMesh", "Full mesh", false)
+    , enablePicking_("enablePicking", "Enable Picking", false)
     , spherePicking_(this, 0, [&](PickingEvent* p) { handlePicking(p); })
     , inds_("inds", "Picked atoms") {
     addPort(structure_);
     addPort(mesh_);
     addProperty(scalingFactor_);
     addProperty(fullMesh_);
+    addProperty(enablePicking_);
     addProperty(inds_);
 
     structure_.onChange([&](){

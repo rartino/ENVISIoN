@@ -79,6 +79,8 @@ private:
     MeshOutport mesh_;
     FloatProperty scalingFactor_;
     BoolProperty fullMesh_;
+    BoolProperty enablePicking_;
+
     std::vector<std::unique_ptr<FloatVec4Property>> colors_;
     std::vector<std::unique_ptr<FloatProperty>> radii_;
     PickingMapper spherePicking_;
