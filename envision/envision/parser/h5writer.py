@@ -56,9 +56,10 @@ def _write_bandstruct(h5file, eigenval, kval_list):
             dataset.attrs['VariableName'] = 'Band {}'.format(eigenval.index(band))
             dataset.attrs['VariableSymbol'] = 'B{}'.format(eigenval.index(band))
 
-def _write_dos(h5file, total, partial, total_data, partial_list):
+def _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy):
 	i = 0
 	with h5py.File(h5file, "w") as h5:
+		h5.create_dataset('FermiEnergy', data = np.array(fermi_energy), dtype = np.float32)
 		for element in total_data:
 			h5.create_dataset('Total/' + total[i], data=np.array(element), dtype = np.float32)
 			i += 1		

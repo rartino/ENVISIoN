@@ -39,7 +39,6 @@ def dos_line(f, ndos, line):
         for element in line.split():
             data[i].append(float(element))
             i+=1
-    print(len(data))
     return data, line
 
 def parse_doscar(doscar_file, h5file):
@@ -78,11 +77,11 @@ def parse_doscar(doscar_file, h5file):
             partial_data, line = dos_line(f, header["ndos"], line)
             partial_list.append(partial_data)
 
-    return total, partial, total_data, partial_list
+    return total, partial, total_data, partial_list, header["Fermi energy"]
 
 def doscar(h5file, doscar_file, incarh5):
     try:
-        total, partial, total_data, partial_list = parse_doscar(doscar_file,incarh5)
+        total, partial, total_data, partial_list, fermi_energy = parse_doscar(doscar_file,incarh5)
     except FileNotFoundError:
         print("DOSCAR file not found.")
         return
@@ -90,7 +89,7 @@ def doscar(h5file, doscar_file, incarh5):
         print("DOSCAR Parsing failed because there is no INCAR.")
         return
     try:
-        _write_dos(h5file, total, partial, total_data, partial_list)
+        _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy)
     except Exception:
         print("DOS dataset already exists.")
         return
