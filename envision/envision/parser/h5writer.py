@@ -49,9 +49,13 @@ def _write_bandstruct(h5file, eigenval, kval_list):
     with h5py.File(h5file, "w") as h5:
         h5.create_dataset('Bandstructure/KPoints', data=np.reshape(kval_list, (40, 3)), dtype = np.float32)
         for band in eigenval:
-            h5.create_dataset('Bandstructure/Bands/{}'.format(eigenval.index(band)), data=np.array(band), dtype = np.float32)
-			
-			
+            dataset = h5.create_dataset('Bandstructure/Bands/{}'.format(eigenval.index(band)), data=np.array(band), dtype = np.float32)
+            dataset.attrs['Unit'] = 'eV'
+            dataset.attrs['QuantitySymbol'] = 'E'
+            dataset.attrs['QuantityName'] = 'Energy'
+            dataset.attrs['VariableName'] = 'Band {}'.format(eigenval.index(band))
+            dataset.attrs['VariableSymbol'] = 'B{}'.format(eigenval.index(band))
+
 def _write_dos(h5file, total, partial, total_data, partial_list):
 	i = 0
 	with h5py.File(h5file, "w") as h5:
