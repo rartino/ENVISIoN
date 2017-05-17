@@ -46,7 +46,7 @@ def _write_md(h5file, atom_count, coordinates_list, elements, step):
     return
 	
 def _write_bandstruct(h5file, eigenval, kval_list):
-    with h5py.File(h5file, "w") as h5:
+    with h5py.File(h5file, "a") as h5:
         h5.create_dataset('Bandstructure/KPoints', data=np.reshape(kval_list, (40, 3)), dtype = np.float32)
         for band in eigenval:
             dataset = h5.create_dataset('Bandstructure/Bands/{}'.format(eigenval.index(band)), data=np.array(band), dtype = np.float32)
@@ -58,7 +58,7 @@ def _write_bandstruct(h5file, eigenval, kval_list):
 
 def _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy):
 	i = 0
-	with h5py.File(h5file, "w") as h5:
+	with h5py.File(h5file, "a") as h5:
 		h5.create_dataset('FermiEnergy', data = np.array(fermi_energy), dtype = np.float32)
 		for element in total_data:
 			h5.create_dataset('Total/' + total[i], data=np.array(element), dtype = np.float32)
