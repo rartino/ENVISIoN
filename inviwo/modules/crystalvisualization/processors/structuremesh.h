@@ -76,9 +76,11 @@ private:
     FloatProperty scalingFactor_;
     FloatMat3Property basis_;
     BoolProperty fullMesh_;
+    BoolProperty animation_;
+    IntProperty timestep_;
     std::vector<std::unique_ptr<FloatVec4Property>> colors_;
     std::vector<std::unique_ptr<FloatProperty>> radii_;
-
+    std::vector<std::unique_ptr<IntProperty>> species_;
 };
 
 } // namespace

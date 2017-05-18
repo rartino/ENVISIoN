@@ -51,6 +51,8 @@ StructureMesh::StructureMesh()
     , scalingFactor_("scalingFactor", "Scaling factor", 1.f)
     , basis_("basis", "Basis", glm::mat3x3())
     , fullMesh_("fullMesh", "Full mesh", false)
+    , animation_("animation", "Animation", false)
+    , timestep_("timestep", "Time step", false)
 
 
 {
@@ -59,6 +61,8 @@ StructureMesh::StructureMesh()
     addProperty(scalingFactor_);
     addProperty(basis_);
     addProperty(fullMesh_);
+    addProperty(animation_);
+    addProperty(timestep_);
 
     structure_.onChange([&](){
         const auto data = structure_.getVectorData();
@@ -70,6 +74,8 @@ StructureMesh::StructureMesh()
 
             radii_.push_back(std::make_unique<FloatProperty>("radius"+ toString(i), "Atom Radius"+ toString(i), 1.0f));
             addProperty(radii_.back().get(), false);
+            species_.push_back(std::make_unique<IntProperty>("atoms" + toString(i), "Atoms" + toString(i), 0));
+            addProperty(species_.back().get(), false);
         }
 
     });
@@ -115,7 +121,14 @@ void StructureMesh::process() {
         size_t portInd = 0;
         size_t sphereInd = 0;
         for (const auto &strucs : structure_) {
-            for (long long j = 0; j < static_cast<long long>(strucs->size()); ++j) {
+            long long j_start, j_stop;
+            j_start = 0;
+            j_stop = static_cast<long long>(strucs->size());
+            if (animation_.get()) {
+                j_start = species_[portInd]->get() * timestep_.get();
+                j_stop = species_[portInd]->get() * (timestep_.get() + 1);
+            }
+            for (long long j = j_start; j < j_stop ; ++j) {
                 auto center = scalingFactor_.get() * basis_.get() * strucs->at(j) - 0.5f * (basis_.get()[0] + basis_.get()[1] + basis_.get()[2]);
                 vertices[sphereInd] = center;
                 colors[sphereInd] = colors_[portInd]->get();
