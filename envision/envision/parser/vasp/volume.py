@@ -30,6 +30,8 @@ import h5py
 import re
 import numpy as np
 from ..h5writer import _write_volume
+from ..h5writer import _write_basis
+from .unitcell import _parse_lattice
 
 line_reg_int = re.compile(r'^( *[+-]?[0-9]+){3} *$')
 line_reg_float = re.compile(r'( *[+-]?[0-9]*\.[0-9]+(?:[eE][+-]?[0-9]+)? *)+')
@@ -40,6 +42,10 @@ def parse_volume(f, h5_path, volume):
     Keyword arguments:
 
     """
+    
+    basis = _parse_lattice(f)
+    _write_basis(h5_path, basis)
+    
     array = []
     datasize = None
     data = None
