@@ -49,30 +49,51 @@ def _write_steps(h5file, steps):
     with h5py.File(h5file, "a") as h5:
         h5['/MD'].attrs["steps"] = steps
     return
-	
+    
 def _write_bandstruct(h5file, eigenval, kval_list):
     with h5py.File(h5file, "a") as h5:
-        h5.create_dataset('Bandstructure/KPoints', data=np.reshape(kval_list, (40, 3)), dtype = np.float32)
+        h5.create_dataset('Bandstructure/KPoints', data=np.array(kval_list), dtype = np.float32)
         for band in eigenval:
-            dataset = h5.create_dataset('Bandstructure/Bands/{}'.format(eigenval.index(band)), data=np.array(band), dtype = np.float32)
+            dataset = h5.create_dataset('Bandstructure/Bands/{}'.format(eigenval.index(band)) + '/Energy', data=np.array(band), dtype = np.float32)
             dataset.attrs['Unit'] = 'eV'
-            dataset.attrs['QuantitySymbol'] = 'E'
+            dataset.attrs['QuantitySymbol'] = '$E$'
             dataset.attrs['QuantityName'] = 'Energy'
-            dataset.attrs['VariableName'] = 'Band {}'.format(eigenval.index(band))
-            dataset.attrs['VariableSymbol'] = 'B{}'.format(eigenval.index(band))
+            dataset.attrs['VariableName'] = 'Band  {}'.format(eigenval.index(band))
+            dataset.attrs['VariableSymbol'] = '$B_{}$'.format(eigenval.index(band))
 
 def _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy):
-	i = 0
-	with h5py.File(h5file, "a") as h5:
-		h5.create_dataset('FermiEnergy', data = np.array(fermi_energy), dtype = np.float32)
-		for element in total_data:
-			h5.create_dataset('Total/' + total[i], data=np.array(element), dtype = np.float32)
-			i += 1		
-		for partial_data in partial_list:
-			u = 0
-			for element in partial_data:
-				h5.create_dataset('Partial/{}'.format(partial_list.index(partial_data)) + '/' + partial[u], data=np.array(element), dtype = np.float32)
-				u += 1
+    
+    def set_attrs(dataset, VariableName = '', VariableSymbol = '', QuantityName = '', QuantitySymbol = '', Unit = ''):
+        dataset.attrs.update({
+            'VariableName' : VariableName,
+            'VariableSymbol' : VariableSymbol,
+            'QuantityName' : QuantityName,
+            'QuantitySymbol' : QuantitySymbol,        
+            'Unit' : Unit
+        })
+        
+    with h5py.File(h5file, "a") as h5:
+        dataset = h5.create_dataset('FermiEnergy', data = np.array(fermi_energy), dtype = np.float32)
+        set_attrs(dataset, 'Fermi Energy', '$E_f$', 'Energy', '$E$', Unit = 'eV')
+        for i, (name, data) in enumerate(zip(total, total_data)):
+            dataset = h5.create_dataset('Total/{}'.format(name), data=np.array(data), dtype = np.float32)
+            if name == 'energy':
+                set_attrs(dataset, 'Energy', '$E$', 'Energy', '$E$', 'eV')
+            else:
+                if name.startswith('integrated'):
+                    set_attrs(dataset, name, '', 'Integrated Density of States', '$\int D$', 'states')
+                else:
+                    set_attrs(dataset, name, '', 'Density of States', '$D$', 'states/energy')    
+        for i, partial_data in enumerate(partial_list):
+            for (name, data) in zip(partial, partial_data):
+                dataset = h5.create_dataset('Partial/{}/{}'.format(i, name), data=np.array(data), dtype = np.float32)
+                if name == 'energy':
+                    set_attrs(dataset, 'Energy', '$E$', 'Energy', '$E$', 'eV')
+                else:
+                    if name.startswith('integrated'):
+                        set_attrs(dataset, name, '', 'Integrated Density of States', '$\int D$', 'states')
+                    else:
+                        set_attrs(dataset, name, '', 'Density of States', '$D$', 'states/energy')
 
 def _write_volume(h5, i, array, data, volume):
-	h5.create_dataset(volume +'/{}'.format(i,'04d'), data = np.reshape(array, (data[2],data[1],data[0])), dtype=np.float32)
+    h5.create_dataset(volume +'/{}'.format(i,'04d'), data = np.reshape(array, (data[2],data[1],data[0])), dtype=np.float32)
