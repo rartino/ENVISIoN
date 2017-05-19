@@ -31,6 +31,7 @@
 #include <modules/crystalvisualization/processors/structuremesh.h>
 #include <modules/crystalvisualization/processors/coordinatereader.h>
 #include <modules/crystalvisualization/properties/intvectorproperty.h>
+#include <modules/crystalvisualization/intvectorpropertywidgetqt.h>
 
 namespace inviwo {
 
@@ -61,6 +62,9 @@ crystalvisualizationModule::crystalvisualizationModule(InviwoApplication* app) :
 
     // PropertyWidgets
     // registerPropertyWidget<crystalvisualizationPropertyWidget, crystalvisualizationProperty>("Default");
+
+    registerPropertyWidget<IntVectorPropertyWidgetQt, IntVectorProperty>("Default");
+    
     
     // Dialogs
     // registerDialog<crystalvisualizationDialog>(crystalvisualizationOutport);
