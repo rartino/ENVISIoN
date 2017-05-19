@@ -51,8 +51,8 @@ def bandstruct_parse(eigen_file):
                 eigenval = [[] for _ in range(data[2])]
             if data and match_float:
                 kval = []
-                for _ in range(3):
-                    kval.append(float(line.split()[i]))
+                for u in range(3):
+                    kval.append(float(line.split()[u]))
             elif kval and data:
                 eigenval[i].append(float(line.split()[1]))
                 i += 1
@@ -70,7 +70,7 @@ def bandstructure(eigen_file, h5_path):
         print("EIGENVAL file not found.")
         return
     try:
-        _write_dos(h5_path, eigenval, kval_list)
+        _write_bandstruct(h5_path, eigenval, kval_list)
     except Exception:
         print("Bandstructure dataset already exists.")
         return
