@@ -151,7 +151,9 @@ void StructureMesh::process() {
                 //Set alpha-layer of picked atoms
                 if(!inds_.get().empty()) {
                     for (const auto &ind : inds_.get()) {
+                        if (ind < sphereInd) {
                         colors[ind].w = 0.5;
+                        }
                     }
                 }
                 auto pickingRAM = std::make_shared<BufferRAMPrecision<uint32_t>>(numSpheres);
