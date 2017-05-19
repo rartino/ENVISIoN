@@ -32,7 +32,7 @@ import h5py
 from ..h5writer import _write_basis, _write_coordinates
 
 # Define coordinates regex.
-coordinates_re = re.compile(r' +'.join([r'(-?[0-9]+\.[0-9]+)'] * 3))
+coordinates_re = re.compile(r' +'.join([r'([+-]?[0-9]+\.[0-9]+)'] * 3))
 
 def _find_line(rgx, f):
     match = None
@@ -57,49 +57,27 @@ def _parse_lattice(f):
     header = next(f)
 
     # Read scaling factor
-    scaling_factor = float(next(f))
+    scaling_factor = float(next(f).split()[0])
 
     # Read lattice vectors
     basis = []
-    basis.append([float(n) for n in next(f).split()])
-    basis.append([float(n) for n in next(f).split()])
-    basis.append([float(n) for n in next(f).split()])
+    basis.append([float(n) for n in next(f).split()[:3]])
+    basis.append([float(n) for n in next(f).split()[:3]])
+    basis.append([float(n) for n in next(f).split()[:3]])
 
-    # Atom species
-    atomcount_re=re.compile('^ *(([0-9]+) *)+$')
-    last_comment = None
-    elements = []
-    while True:
-        atoms_per_species = next(f)
-        match = atomcount_re.match(atoms_per_species)
-        if match:
-            break
-        last_comment = atoms_per_species
-    if last_comment:
-        elements = last_comment.split()   
+    return scaling_factor * np.array(basis)
 
-    # Number of atoms
-    atom_count = [int(n) for n in atoms_per_species.split()]
-    if len(elements) != len(atom_count):
-        elements = []
-
+def _cartesian(fileobj):
     # Cartesian or direct coordinates
     coord_re = re.compile(r'^[cCkKdD]')
-    coord_type = _find_line(coord_re,f)
+    coord_type = _find_line(coord_re,fileobj)
     if (coord_type.group() == 'd') or (coord_type.group() == 'D'):
-        cartesian = False
+        return False
     else:
-        cartesian = True
-
-    return {'header'         : header,
-            'scaling_factor' : scaling_factor,
-            'basis'          : basis, 
-            'atom_count'     : atom_count,
-            'elements'       : elements,
-            'cartesian'      : cartesian}
+        return True
             
 
-def _parse_coordinates(f,count, transform, matrix):
+def _parse_coordinates(f,count, transform=False, matrix=None):
     match = False
     try:
         coords_list = []
@@ -113,12 +91,28 @@ def _parse_coordinates(f,count, transform, matrix):
     except StopIteration:
         pass # if EOF is reached here
     
-    if match and len(coords_list) != count:
+    if len(coords_list) != count:
         raise Exception('Incorrect number of coordinates.')
 
     return coords_list
 
-def _find_elements(elements, poscar_elements, vasp_dir, n_species):
+def _find_elements(fileobj, elements, vasp_dir):
+    # Atom species
+    atomcount_re=re.compile('^ *(([0-9]+) *)+$')
+    last_comment = None
+    poscar_elements = []
+    while True:
+        atoms_per_species = next(fileobj)
+        match = atomcount_re.match(atoms_per_species)
+        if match:
+            break
+        last_comment = atoms_per_species
+    if last_comment:
+        poscar_elements = last_comment.split()
+
+    # Number of atoms
+    atom_count = [int(n) for n in atoms_per_species.split()]
+ 
     if not elements:
         try:
             elements = _parse_potcar(os.path.join(vasp_dir, 'POTCAR'))
@@ -128,9 +122,10 @@ def _find_elements(elements, poscar_elements, vasp_dir, n_species):
     if not elements:
         raise Exception('Element symbols not found.')
 
-    if len(elements) != n_species:
+    if len(elements) != len(atom_count):
         raise Exception('Incorrect number of elements.')
-    return elements
+
+    return [atom_count, elements]
 
     
 def unitcell(h5file, vasp_dir, elements=None):
@@ -142,30 +137,20 @@ def unitcell(h5file, vasp_dir, elements=None):
         
     try:
         with open(os.path.join(vasp_dir,'POSCAR'), "r") as f:
-            pdata = _parse_lattice(f)
-            elements = _find_elements(
-                elements,
-                pdata['elements'],
-                vasp_dir,
-                len(pdata['atom_count'])
-            )
+            basis = _parse_lattice(f)
+            elements = _find_elements(f, elements, vasp_dir)
             coords_list = _parse_coordinates(
                 f,
-                sum(pdata['atom_count']),
-                pdata['cartesian'],
-                np.linalg.inv(
-                    pdata['scaling_factor']*np.asarray(pdata['basis'])
-                )
+                sum(elements[0]),
+                _cartesian(f),
+                np.linalg.inv(basis)
             )
-            _write_basis(
-                h5file,
-                pdata['scaling_factor']*np.asarray(pdata['basis'])
-            )
+            _write_basis(h5file, basis)
             _write_coordinates(
                 h5file,
-                pdata['atom_count'],
+                elements[0],
                 coords_list,
-                elements,
+                elements[1],
                 '/UnitCell'
             )
             return True
