@@ -44,6 +44,11 @@ def _write_md(h5file, atom_count, coordinates_list, elements, step):
                 dataset[start:] = np.asarray(coordinates_list[p:atom_count[n]+p])
                 p=p+atom_count[n]
     return
+
+def _write_steps(h5file, steps):
+    with h5py.File(h5file, "a") as h5:
+        h5['/MD'].attrs["steps"] = steps
+    return
 	
 def _write_bandstruct(h5file, eigenval, kval_list):
     with h5py.File(h5file, "a") as h5:

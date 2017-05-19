@@ -30,7 +30,7 @@ import re
 import h5py
 import numpy as np
 from .unitcell import _parse_lattice, _find_elements, _parse_coordinates
-from ..h5writer import _write_basis, _write_md
+from ..h5writer import _write_basis, _write_md, _write_steps
 
 def md(h5_path, vasp_dir, elements=None):
     if os.path.isfile(h5_path):
@@ -73,6 +73,7 @@ def md(h5_path, vasp_dir, elements=None):
                     step
                 )
                 step += 1
+            _write_steps(h5_path, step)
             return True
     except FileNotFoundError:
         print("XDATCAR file not found.")
