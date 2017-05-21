@@ -52,18 +52,18 @@ def _parse_potcar(potcar_file):
                 elements.append(match.group().split()[3].split('_')[0])
     return elements
 
-def _parse_lattice(f):
+def _parse_lattice(fileobj):
     # Read header.
-    header = next(f)
+    header = next(fileobj)
 
     # Read scaling factor
-    scaling_factor = float(next(f).split()[0])
+    scaling_factor = float(next(fileobj).split()[0])
 
     # Read lattice vectors
     basis = []
-    basis.append([float(n) for n in next(f).split()[:3]])
-    basis.append([float(n) for n in next(f).split()[:3]])
-    basis.append([float(n) for n in next(f).split()[:3]])
+    basis.append([float(n) for n in next(fileobj).split()[:3]])
+    basis.append([float(n) for n in next(fileobj).split()[:3]])
+    basis.append([float(n) for n in next(fileobj).split()[:3]])
 
     return scaling_factor * np.array(basis)
 
@@ -77,17 +77,17 @@ def _cartesian(fileobj):
         return True
             
 
-def _parse_coordinates(f,count, transform=False, matrix=None):
+def _parse_coordinates(fileobj, count, transform=False, matrix=None):
     match = False
     try:
         coords_list = []
-        match = _find_line(coordinates_re, f)
+        match = _find_line(coordinates_re, fileobj)
         while match:
             coords = [float(coordinate) for coordinate in match.groups()]
             if transform:
                 coords = np.dot(matrix, coords)
             coords_list.append(coords)
-            match = coordinates_re.search(next(f))
+            match = coordinates_re.search(next(fileobj))
     except StopIteration:
         pass # if EOF is reached here
     
@@ -97,7 +97,6 @@ def _parse_coordinates(f,count, transform=False, matrix=None):
     return coords_list
 
 def _find_elements(fileobj, elements, vasp_dir):
-    # Atom species
     atomcount_re=re.compile('^ *(([0-9]+) *)+$')
     last_comment = None
     poscar_elements = []
@@ -111,7 +110,7 @@ def _find_elements(fileobj, elements, vasp_dir):
         poscar_elements = last_comment.split()
 
     # Number of atoms
-    atom_count = [int(n) for n in atoms_per_species.split()]
+    atoms = [int(n) for n in atoms_per_species.split()]
  
     if not elements:
         try:
@@ -122,10 +121,10 @@ def _find_elements(fileobj, elements, vasp_dir):
     if not elements:
         raise Exception('Element symbols not found.')
 
-    if len(elements) != len(atom_count):
+    if len(elements) != len(atoms):
         raise Exception('Incorrect number of elements.')
 
-    return [atom_count, elements]
+    return elements, atoms
 
     
 def unitcell(h5file, vasp_dir, elements=None):
@@ -138,19 +137,19 @@ def unitcell(h5file, vasp_dir, elements=None):
     try:
         with open(os.path.join(vasp_dir,'POSCAR'), "r") as f:
             basis = _parse_lattice(f)
-            elements = _find_elements(f, elements, vasp_dir)
+            elements, atoms = _find_elements(f, elements, vasp_dir)
             coords_list = _parse_coordinates(
                 f,
-                sum(elements[0]),
+                sum(atoms),
                 _cartesian(f),
                 np.linalg.inv(basis)
             )
             _write_basis(h5file, basis)
             _write_coordinates(
                 h5file,
-                elements[0],
+                atoms,
                 coords_list,
-                elements[1],
+                elements,
                 '/UnitCell'
             )
             return True
