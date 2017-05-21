@@ -1,3 +1,8 @@
+"""Functions for parsing lattice vecors, unit cell data from POSCAR
+and element symbols from POTCAR.
+
+"""
+
 #
 #  ENVISIoN
 #
@@ -41,6 +46,18 @@ def _find_line(rgx, f):
     return match
 
 def _parse_potcar(potcar_file):
+    """Looks for element sybols in POTCAR
+
+    Parameters
+    ----------
+    potcar_file : str
+        Path to POTCAR file
+
+    Returns
+    -------
+    elements : list of str
+        List of element symbols
+    """
     # Look for elements in POTCAR
     elements = []
     with open(potcar_file, "r") as f:
@@ -53,6 +70,21 @@ def _parse_potcar(potcar_file):
     return elements
 
 def _parse_lattice(fileobj):
+    """Reads lattice vectors and returns matrix
+
+    Reads lattice vectors as a matrix and multiplies this matrix by the
+    scaling factor on line 2. First line is ignored.
+
+    Parameters
+    ----------
+    fileobj : file object
+        File to be parsed
+
+    Returns
+    -------
+    ndarray
+        3x3 matrix
+    """
     # Read header.
     header = next(fileobj)
 
@@ -68,6 +100,18 @@ def _parse_lattice(fileobj):
     return scaling_factor * np.array(basis)
 
 def _cartesian(fileobj):
+    """Checks if positions are given as cartesian coordinates
+
+    Parameters
+    ----------
+    fileobj : file object
+        File to be parsed
+
+    Returns
+    -------
+    bool
+        True if coordinates are cartesian
+    """
     # Cartesian or direct coordinates
     coord_re = re.compile(r'^[cCkKdD]')
     coord_type = _find_line(coord_re,fileobj)
@@ -75,9 +119,32 @@ def _cartesian(fileobj):
         return False
     else:
         return True
-            
+
 
 def _parse_coordinates(fileobj, count, transform=False, matrix=None):
+    """Reads coordinates from file and transforms them
+
+    Parameters
+    ----------
+    fileobj : file object
+        File to be parsed
+
+    count : int
+        Expected number of coordinates
+
+    transform : bool
+         (Default value = False)
+        If True, coordinates will be transformed
+
+    matrix : ndarray
+         (Default value = None)
+        3x3 matrix used to transform coordinates
+
+    Returns
+    -------
+    coords_list : list of float
+        List of coordinates
+    """
     match = False
     try:
         coords_list = []
@@ -97,6 +164,31 @@ def _parse_coordinates(fileobj, count, transform=False, matrix=None):
     return coords_list
 
 def _find_elements(fileobj, elements, vasp_dir):
+    """Finds the number of atoms per species and corresponding symbols
+
+    Reads the number of atoms per species and looks for corresponding element symbols.
+    If no list is given, the POTCAR file is used. If no POTCAR is found, the parsed
+    file is assumed to contain a comment with symbols.
+    If the correct number of symbols was not found, an exceptions is raised.
+
+    Parameters
+    ----------
+    fileobj : file object
+        File to be parsed
+
+    elements : list of str
+        Element symbols
+
+    vasp_dir : str
+        Path to directory containing POTCAR
+
+    Returns
+    -------
+    elements : list of str
+        Element symbols
+    atoms : list of int
+        Number of atoms per species
+    """
     atomcount_re=re.compile('^ *(([0-9]+) *)+$')
     last_comment = None
     poscar_elements = []
@@ -128,6 +220,31 @@ def _find_elements(fileobj, elements, vasp_dir):
 
     
 def unitcell(h5file, vasp_dir, elements=None):
+    """POTCAR parser
+
+    Reads lattice vectors and atom positions from POSCAR file and writes data to an HDF5 file.
+    If no element symbols are given as an argument, the parser looks for them in the POTCAR file,
+    or in POSCAR if no POTCAR file is found.
+    If POSCAR uses cartesian coordinates, they will be transformed.
+    If the given HDF5 file already contains unit cell data, nothing is parsed.
+
+    Parameters
+    ----------
+    h5file : str
+        Path to HDF5 file
+
+    vasp_dir : str
+        Path to directory containing POSCAR file
+
+    elements : list of str
+         (Default value = None)
+        List of element symbols
+
+    Returns
+    -------
+    bool
+        True if POSCAR was parsed, False otherwise.
+    """
     if os.path.isfile(h5file):
         with h5py.File(h5file, 'r') as h5:
             if "/UnitCell" in h5:
