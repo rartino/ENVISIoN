@@ -25,6 +25,7 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+import os
 import itertools
 import h5py
 import re
@@ -36,70 +37,64 @@ from .unitcell import _parse_lattice
 line_reg_int = re.compile(r'^( *[+-]?[0-9]+){3} *$')
 line_reg_float = re.compile(r'( *[+-]?[0-9]*\.[0-9]+(?:[eE][+-]?[0-9]+)? *)+')
 
-def parse_volume(f, h5_path, volume):
-    """Parse a volume.
+def parse_volume(vasp_file, volume):
+	"""Parse a volume.
 
-    Keyword arguments:
+	Keyword arguments:
 
-    """
-    
-    basis = _parse_lattice(f)
-    _write_basis(h5_path, basis)
-    
-    array = []
-    datasize = None
-    data = None
+	"""
+	array = []
+	datasize = None
+	data = None
 
-    for line in f:
-        match_float = line_reg_float.match(line)
-        match_int = line_reg_int.match(line)
+	for line in vasp_file:
+		match_float = line_reg_float.match(line)
+		match_int = line_reg_int.match(line)
 
-        if match_int:
-            data = ([int(v) for v in line.split()])
-            datasize = data[0]*data[1]*data[2]
+		if match_int:
+			data = ([int(v) for v in line.split()])
+			datasize = data[0]*data[1]*data[2]
 
-        elif data and match_float:
-            for element in line.split():
-                array.append(float(element))
-                if len(array) == datasize:
-                    return array, data
-        else:
-            data = None
-    return None, None
+		elif data and match_float:
+			for element in line.split():
+				array.append(float(element))
+				if len(array) == datasize:
+					return array, data
+		else:
+			data = None
+	return None, None
 
+def volume(h5file, hdfgroup, vasp_dir, vasp_file):
+	
+	if not '/{}'.format('Basis') in h5file:
+		try:
+			with open(os.path.join(vasp_dir,'POSCAR'), 'r') as f:
+				basis = _parse_lattice(f)
+				_write_basis(h5file, basis)
+				print('Basis was parsed successfully.')
+		except FileNotFoundError:
+			print("POSCAR file not found.")
 
-def charge(chg_file, h5_path):
-    try:
-        with open(chg_file, 'r') as f:
-            try:
-                with h5py.File(h5_path, 'a') as h5:
-                    for i in itertools.count():
-                        array, data = parse_volume(f, h5_path, "CHG")
-                        if not array:
-                            break
-                        _write_volume(h5, i, array, data, "CHG")
-                    h5['CHG/final'] = h5py.SoftLink('CHG/{}'.format(i-1,'04d'))
-            except Exception:
-                print("CHG dataset already exists.")
-                return
-    except FileNotFoundError:
-        print("CHG file not found.")
-        return
+	try:
+		with open(os.path.join(vasp_dir, vasp_file), "r") as f:
+			with h5py.File(h5file, 'a') as h5:
+				if '/{}'.format(hdfgroup) in h5:
+					print(hdfgroup + ' already parsed. Skipping.')
+					return False
+				for i in itertools.count():
+					array, data = parse_volume(f, hdfgroup)
+					if not array:
+						break
+					_write_volume(h5, i, array, data, hdfgroup)
+				h5['{}/final'.format(hdfgroup)] = h5py.SoftLink('{}/{}'.format(hdfgroup,i-1))
+	except FileNotFoundError:
+		print(vaspfile + ' not in directory. Skipping.')
+		return False
+	print(vasp_file + ' was parsed successfully.')
+	return True
 
-def elf(elf_file, h5_path):
-    try:
-        with open(chg_file, 'r') as f:
-            try:
-                with h5py.File(h5_path, 'a') as h5:
-                    for i in itertools.count():
-                        array, data = parse_volume(f, h5_path, "ELF")
-                        if not array:
-                            break
-                        _write_volume(h5, i, array, data, "ELF")
-                    h5['ELF/final'] = h5py.SoftLink('ELF/{}'.format(i-1,'04d'))
-            except Exception:
-                print("ELF dataset already exists.")
-                return
-    except FileNotFoundError:
-        print("ELF file not found.")
-        return
+def charge(h5file, vasp_dir):
+	return volume(h5file, 'CHG', vasp_dir, 'CHG')
+
+def elf(h5file, vasp_dir):
+	return volume(h5file, 'ELF', vasp_dir, 'ELFCAR')
