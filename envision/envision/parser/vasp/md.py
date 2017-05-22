@@ -33,6 +33,30 @@ from .unitcell import _parse_lattice, _find_elements, _parse_coordinates, _carte
 from ..h5writer import _write_basis, _write_md, _write_steps
 
 def md(h5_path, vasp_dir, elements=None):
+    """XDATCAR parser
+
+    Reads atom positions for each time step and lattice vectors from XDATCAR file and writes data 
+    to an HDF5 file. If no element symbols are given as an argument, the parser looks for them
+    in the POTCAR file, or in XDATCAR if no POTCAR file is found.
+    If the given HDF5 file already contains molecular dynamics data, nothing is parsed.
+
+    Parameters
+    ----------
+    h5_path : str
+        Path to HDF5 file
+        
+    vasp_dir : str
+        Path to directory containing XDATCAR file
+        
+    elements : list of str
+         (Default value = None)
+        List of element symbols
+
+    Returns
+    -------
+    bool
+        True if XDATCAR was parsed, False otherwise.
+    """
     if os.path.isfile(h5_path):
         with h5py.File(h5_path, 'r') as h5:
             if "/MD" in h5:
