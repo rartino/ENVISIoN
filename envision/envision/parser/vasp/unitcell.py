@@ -97,7 +97,7 @@ def _parse_lattice(fileobj):
     basis.append([float(n) for n in next(fileobj).split()[:3]])
     basis.append([float(n) for n in next(fileobj).split()[:3]])
 
-    return scaling_factor * np.array(basis)
+    return scaling_factor, np.array(basis)
 
 def _cartesian(fileobj):
     """Checks if positions are given as cartesian coordinates
@@ -253,7 +253,7 @@ def unitcell(h5file, vasp_dir, elements=None):
         
     try:
         with open(os.path.join(vasp_dir,'POSCAR'), "r") as f:
-            basis = _parse_lattice(f)
+            scaling_factor, basis = _parse_lattice(f)
             elements, atoms = _find_elements(f, elements, vasp_dir)
             coords_list = _parse_coordinates(
                 f,
@@ -261,7 +261,7 @@ def unitcell(h5file, vasp_dir, elements=None):
                 _cartesian(f),
                 np.linalg.inv(basis)
             )
-            _write_basis(h5file, basis)
+            _write_basis(h5file, scaling_factor * basis)
             _write_coordinates(
                 h5file,
                 atoms,
