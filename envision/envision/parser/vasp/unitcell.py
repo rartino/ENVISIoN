@@ -159,7 +159,7 @@ def _parse_coordinates(fileobj, count, transform=False, matrix=None):
         pass # if EOF is reached here
     
     if len(coords_list) != count:
-        raise Exception('Incorrect number of coordinates.')
+        raise Exception('Incorrect number of coordinates.', len(coords_list))
 
     return coords_list
 
