@@ -29,10 +29,34 @@ import os
 import re
 import h5py
 import numpy as np
-from .unitcell import _parse_lattice, _find_elements, _parse_coordinates
+from .unitcell import _parse_lattice, _find_elements, _parse_coordinates, _cartesian
 from ..h5writer import _write_basis, _write_md, _write_steps
 
 def md(h5_path, vasp_dir, elements=None):
+    """XDATCAR parser
+
+    Reads atom positions for each time step and lattice vectors from XDATCAR file and writes data 
+    to an HDF5 file. If no element symbols are given as an argument, the parser looks for them
+    in the POTCAR file, or in XDATCAR if no POTCAR file is found.
+    If the given HDF5 file already contains molecular dynamics data, nothing is parsed.
+
+    Parameters
+    ----------
+    h5_path : str
+        Path to HDF5 file
+        
+    vasp_dir : str
+        Path to directory containing XDATCAR file
+        
+    elements : list of str
+         (Default value = None)
+        List of element symbols
+
+    Returns
+    -------
+    bool
+        True if XDATCAR was parsed, False otherwise.
+    """
     if os.path.isfile(h5_path):
         with h5py.File(h5_path, 'r') as h5:
             if "/MD" in h5:
@@ -41,33 +65,24 @@ def md(h5_path, vasp_dir, elements=None):
 
     try:
         with open(os.path.join(vasp_dir,'XDATCAR'), "r") as f:
-            pdata = _parse_lattice(f)
-            elements = _find_elements(
-                    elements,
-                    pdata['elements'],
-                    vasp_dir,
-                    len(pdata['atom_count'])
-            )
-            _write_basis(
-                h5_path,
-                pdata['scaling_factor']*np.asarray(pdata['basis'])
-            )
+            scaling_factor, basis = _parse_lattice(f)
+            elements, atoms = _find_elements(f, elements, vasp_dir)
+            _write_basis(h5_path, scaling_factor * basis)
 
             step = 0
             while True:
-                coords_list = _parse_coordinates(
-                    f,
-                    sum(pdata['atom_count']),
-                    pdata['cartesian'],
-                    np.linalg.inv(
-                        pdata['scaling_factor']*np.asarray(pdata['basis'])
-                    )
-                )
+                coords_list = []
+                try:
+                    coords_list = _parse_coordinates(f,sum(atoms))
+                except Exception as instance:
+                    text, length = instance.args
+                    if length != 0:
+                    	raise
                 if not coords_list:
                     break
                 _write_md(
                     h5_path,
-                    pdata['atom_count'],
+                    atoms,
                     coords_list,
                     elements,
                     step
