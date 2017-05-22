@@ -81,6 +81,9 @@ private:
     std::vector<std::unique_ptr<FloatVec4Property>> colors_;
     std::vector<std::unique_ptr<FloatProperty>> radii_;
     std::vector<std::unique_ptr<IntProperty>> species_;
+    std::shared_ptr<BufferRAMPrecision<vec4>> colorRAM_;
+    std::shared_ptr<BufferRAMPrecision<vec3>> vertexRAM_;
+    std::shared_ptr<BufferRAMPrecision<float>> radiiRAM_;
 };
 
 } // namespace

@@ -95,29 +95,42 @@ void StructureMesh::process() {
 	    ++ind;
 	}
     } else {
-        int numSpheres = 0;
-        for (const auto &strucs : structure_)
-            numSpheres += strucs->size();
+        if (structure_.isChanged() || animation_.isModified() || std::any_of(species_.begin(), species_.end(),
+            [](const std::unique_ptr<IntProperty>& property) {
+            return property->isModified();
+            })) {
+            int numSpheres = 0;
+            size_t pInd = 0;
+            for (const auto &strucs : structure_) {
+                if (animation_.get()) {
+                    numSpheres += species_[pInd]->get();
+                    ++pInd;
+                }
+                else {
+                    numSpheres += strucs->size();
+                }
 
+            }
             auto mesh = std::make_shared<Mesh>(DrawType::Points, ConnectivityType::None);
 
-        auto vertexRAM = std::make_shared<BufferRAMPrecision<vec3>>(numSpheres);
-        auto colorRAM = std::make_shared<BufferRAMPrecision<vec4>>(numSpheres);
-        auto radiiRAM = std::make_shared<BufferRAMPrecision<float>>(numSpheres);
+            vertexRAM_ = std::make_shared<BufferRAMPrecision<vec3>>(numSpheres);
+            colorRAM_ = std::make_shared<BufferRAMPrecision<vec4>>(numSpheres);
+            radiiRAM_ = std::make_shared<BufferRAMPrecision<float>>(numSpheres);
 
-        mesh->addBuffer(Mesh::BufferInfo(BufferType::PositionAttrib),
-                        std::make_shared<Buffer<vec3>>(vertexRAM));
-        mesh->addBuffer(Mesh::BufferInfo(BufferType::ColorAttrib),
-                        std::make_shared<Buffer<vec4>>(colorRAM));
-        mesh->addBuffer(Mesh::BufferInfo(BufferType::NumberOfBufferTypes, 5),
-                        std::make_shared<Buffer<float>>(radiiRAM));
+            mesh->addBuffer(Mesh::BufferInfo(BufferType::PositionAttrib),
+                std::make_shared<Buffer<vec3>>(vertexRAM_));
+            mesh->addBuffer(Mesh::BufferInfo(BufferType::ColorAttrib),
+                std::make_shared<Buffer<vec4>>(colorRAM_));
+            mesh->addBuffer(Mesh::BufferInfo(BufferType::NumberOfBufferTypes, 5),
+                std::make_shared<Buffer<float>>(radiiRAM_));
 
-        auto& vertices = vertexRAM->getDataContainer();
-        auto& colors = colorRAM->getDataContainer();
-        auto& radii = radiiRAM->getDataContainer();
+            mesh_.setData(mesh);
+        }
 
+        auto& vertices = vertexRAM_->getDataContainer();
+        auto& colors = colorRAM_->getDataContainer();
+        auto& radii = radiiRAM_->getDataContainer();
 
-        mesh_.setData(mesh);
         size_t portInd = 0;
         size_t sphereInd = 0;
         for (const auto &strucs : structure_) {
@@ -137,6 +150,10 @@ void StructureMesh::process() {
             }
             ++portInd;
         }
+        colorRAM_->getOwner()->invalidateAllOther(colorRAM_.get());
+        vertexRAM_->getOwner()->invalidateAllOther(vertexRAM_.get());
+        radiiRAM_->getOwner()->invalidateAllOther(radiiRAM_.get());
+        invalidate(InvalidationLevel::InvalidOutput);
     }
 }
 
