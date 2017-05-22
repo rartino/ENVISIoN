@@ -59,7 +59,6 @@ CoordinateReader::CoordinateReader()
 void CoordinateReader::process() {
     const auto h5path = hdf5::Path(path_.get());
     const auto data = inport_.getData();
-    auto vecs = data->getVectorOfVec3AtPath<float>(h5path);
     auto vecptr = std::make_shared<std::vector<vec3>>(data->getVectorOfVec3AtPath<float>(h5path));
     outport_.setData(vecptr);
 }
