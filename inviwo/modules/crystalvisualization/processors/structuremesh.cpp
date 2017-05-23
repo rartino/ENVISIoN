@@ -30,6 +30,11 @@
 #include <modules/crystalvisualization/processors/structuremesh.h>
 #include <inviwo/core/datastructures/geometry/basicmesh.h>
 
+#include <inviwo/core/interaction/events/pickingevent.h>
+#include <inviwo/core/interaction/events/mouseevent.h>
+#include <inviwo/core/datastructures/buffer/bufferramprecision.h>
+#include <inviwo/core/datastructures/buffer/buffer.h>
+
 namespace inviwo {
 
 // The Class Identifier has to be globally unique. Use a reverse DNS naming scheme
@@ -53,9 +58,9 @@ StructureMesh::StructureMesh()
     , fullMesh_("fullMesh", "Full mesh", false)
     , animation_("animation", "Animation", false)
     , timestep_("timestep", "Time step", false)
-
-
-{
+    , enablePicking_("enablePicking", "Enable Picking", false)
+    , spherePicking_(this, 0, [&](PickingEvent* p) { handlePicking(p); })
+    , inds_("inds", "Picked atoms") {
     addPort(structure_);
     addPort(mesh_);
     addProperty(scalingFactor_);
@@ -63,6 +68,8 @@ StructureMesh::StructureMesh()
     addProperty(fullMesh_);
     addProperty(animation_);
     addProperty(timestep_);
+    addProperty(enablePicking_);
+    addProperty(inds_);
 
     structure_.onChange([&](){
         const auto data = structure_.getVectorData();
@@ -74,9 +81,13 @@ StructureMesh::StructureMesh()
 
             radii_.push_back(std::make_unique<FloatProperty>("radius"+ toString(i), "Atom Radius"+ toString(i), 1.0f));
             addProperty(radii_.back().get(), false);
-            species_.push_back(std::make_unique<IntProperty>("atoms" + toString(i), "Atoms" + toString(i), 0));
-            addProperty(species_.back().get(), false);
+            num_.push_back(std::make_unique<IntProperty>("atoms" + toString(i), "Atoms" + toString(i), 0));
+            addProperty(num_.back().get(), false);
         }
+        int numSpheres = 0;
+        for (const auto &strucs : structure_)
+            numSpheres += strucs->size();
+        spherePicking_.resize(numSpheres);
 
     });
 
@@ -95,28 +106,25 @@ void StructureMesh::process() {
 	    ++ind;
 	}
     } else {
-        if (structure_.isChanged() || animation_.isModified() || std::any_of(species_.begin(), species_.end(),
+        if (structure_.isChanged() || animation_.isModified() || std::any_of(num_.begin(), num_.end(),
             [](const std::unique_ptr<IntProperty>& property) {
             return property->isModified();
-            })) {
+            }) || enablePicking_.isModified()) {
             int numSpheres = 0;
             size_t pInd = 0;
             for (const auto &strucs : structure_) {
                 if (animation_.get()) {
-                    numSpheres += species_[pInd]->get();
+                    numSpheres += num_[pInd]->get();
                     ++pInd;
                 }
                 else {
                     numSpheres += strucs->size();
                 }
-
             }
-            auto mesh = std::make_shared<Mesh>(DrawType::Points, ConnectivityType::None);
-
             vertexRAM_ = std::make_shared<BufferRAMPrecision<vec3>>(numSpheres);
             colorRAM_ = std::make_shared<BufferRAMPrecision<vec4>>(numSpheres);
             radiiRAM_ = std::make_shared<BufferRAMPrecision<float>>(numSpheres);
-
+            auto mesh = std::make_shared<Mesh>(DrawType::Points, ConnectivityType::None);
             mesh->addBuffer(Mesh::BufferInfo(BufferType::PositionAttrib),
                 std::make_shared<Buffer<vec3>>(vertexRAM_));
             mesh->addBuffer(Mesh::BufferInfo(BufferType::ColorAttrib),
@@ -125,7 +133,19 @@ void StructureMesh::process() {
                 std::make_shared<Buffer<float>>(radiiRAM_));
 
             mesh_.setData(mesh);
+
+            if (enablePicking_.get()) {
+                auto pickingRAM = std::make_shared<BufferRAMPrecision<uint32_t>>(numSpheres);
+                auto& data = pickingRAM->getDataContainer();
+                // fill in picking IDs
+                std::iota(data.begin(), data.end(), static_cast<uint32_t>(spherePicking_.getPickingId(0)));
+
+                mesh->addBuffer(Mesh::BufferInfo(BufferType::NumberOfBufferTypes, 4),
+                    std::make_shared<Buffer<uint32_t>>(pickingRAM));
+            }
         }
+
+
 
         auto& vertices = vertexRAM_->getDataContainer();
         auto& colors = colorRAM_->getDataContainer();
@@ -138,8 +158,8 @@ void StructureMesh::process() {
             j_start = 0;
             j_stop = static_cast<long long>(strucs->size());
             if (animation_.get()) {
-                j_start = species_[portInd]->get() * timestep_.get();
-                j_stop = species_[portInd]->get() * (timestep_.get() + 1);
+                j_start = num_[portInd]->get() * timestep_.get();
+                j_stop = num_[portInd]->get() * (timestep_.get() + 1);
             }
             for (long long j = j_start; j < j_stop ; ++j) {
                 auto center = scalingFactor_.get() * basis_.get() * strucs->at(j) - 0.5f * (basis_.get()[0] + basis_.get()[1] + basis_.get()[2]);
@@ -150,11 +170,52 @@ void StructureMesh::process() {
             }
             ++portInd;
         }
+        if (enablePicking_.get()) {
+            //Set alpha-layer of picked atoms
+            if (!inds_.get().empty()) {
+                for (const auto &ind : inds_.get()) {
+                    if (ind < sphereInd) {
+                        colors[ind].w = 0.5;
+                    }
+                }
+            }
+        }
         colorRAM_->getOwner()->invalidateAllOther(colorRAM_.get());
         vertexRAM_->getOwner()->invalidateAllOther(vertexRAM_.get());
         radiiRAM_->getOwner()->invalidateAllOther(radiiRAM_.get());
         invalidate(InvalidationLevel::InvalidOutput);
     }
+
+    
+}
+
+
+void StructureMesh::handlePicking(PickingEvent* p) {
+    if (enablePicking_.get()) { 
+        if (p->getState() == PickingState::Updated &&
+            p->getEvent()->hash() == MouseEvent::chash()) {
+            auto me = p->getEventAs<MouseEvent>();
+            if ((me->buttonState() & MouseButton::Left) && me->state() != MouseState::Move) {
+                auto& color = colorRAM_->getDataContainer();
+                std::vector<int> temp = inds_.get();
+                auto picked = p->getPickedId();
+
+                if( std::none_of(temp.begin(), temp.end(), [&](unsigned int i){return i == picked;}) ) {
+                    temp.push_back(picked);
+                    color[picked].w = 0.5;
+                } else {
+                    temp.erase(std::remove(temp.begin(), temp.end(), picked), temp.end());
+                    color[picked].w = 1;
+                }
+                inds_.set(temp);
+
+                colorRAM_->getOwner()->invalidateAllOther(colorRAM_.get());
+                invalidate(InvalidationLevel::InvalidOutput);
+                p->markAsUsed();
+            }
+        }
+    }
+
 }
 
 } // namespace
