@@ -76,7 +76,7 @@ def _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy):
         dataset = h5.create_dataset('FermiEnergy', data = np.array(fermi_energy), dtype = np.float32)
         set_attrs(dataset, 'Fermi Energy', '$E_f$', 'Energy', '$E$', Unit = 'eV')
         for i, (name, data) in enumerate(zip(total, total_data)):
-            dataset = h5.create_dataset('Total/{}'.format(name), data=np.array(data), dtype = np.float32)
+            dataset = h5.create_dataset('DOS/Total/{}'.format(name), data=np.array(data), dtype = np.float32)
             if name == 'energy':
                 set_attrs(dataset, 'Energy', '$E$', 'Energy', '$E$', 'eV')
             else:
@@ -86,7 +86,7 @@ def _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy):
                     set_attrs(dataset, name, '', 'Density of States', '$D$', 'states/energy')    
         for i, partial_data in enumerate(partial_list):
             for (name, data) in zip(partial, partial_data):
-                dataset = h5.create_dataset('Partial/{}/{}'.format(i, name), data=np.array(data), dtype = np.float32)
+                dataset = h5.create_dataset('DOS/Partial/{}/{}'.format(i, name), data=np.array(data), dtype = np.float32)
                 if name == 'energy':
                     set_attrs(dataset, 'Energy', '$E$', 'Energy', '$E$', 'eV')
                 else:

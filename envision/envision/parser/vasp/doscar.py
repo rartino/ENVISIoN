@@ -25,29 +25,33 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+import os
 import h5py
 import numpy as np
 from ..h5writer import _write_dos
 
-def dos_line(f, ndos, line):
+def dos_line(f, ndos):
     data = []
+    line_length = []
     for n in range(ndos):
         line = next(f)
+        if not line_length:
+            line_length = len(line.split())
         if len(data) != len(line.split()):
             data = [[] for i in range(len(line.split()))]
-        i = 0
-        for element in line.split():
+        for i, element in enumerate(line.split()):
             data[i].append(float(element))
-            i+=1
-    return data, line
+    return data, line_length
 
-def parse_doscar(doscar_file, h5file):
+def parse_doscar(h5file,vasp_file):
     """
     TODO
     """
-
+    total = []
+    partial = []
+    
     # Parse file.
-    with open(doscar_file, "r") as f:
+    with open(vasp_file, "r") as f:
 
         line = next(f)
         line = next(f)
@@ -57,39 +61,49 @@ def parse_doscar(doscar_file, h5file):
         line = next(f)
         header = {"Highest energy": float(line.split()[0]), "Lowest energy": float(line.split()[1]), "ndos": int(line.split()[2]), "Fermi energy": float(line.split()[3]), "weight": float(line.split()[4])}
 
-        with h5py.File(h5file,'r') as h:
+        if os.path.isfile(h5file):
+            with h5py.File(h5file,'r') as h5:
+                if 'indata_specific/vasp/incar' in h5:
+                    incar = h5.get('indata_specific/vasp/incar')
+                    if np.array(incar.get('LORBIT')) == '10':
+                        if np.array(incar.get('ISPIN')) == '1':
+                            total = ["Energy", "DOS", "Integrated DOS"]
+                            partial = ["Energy", "s-DOS", "p-DOS", "d-DOS", "f-DOS"]
+                        if np.array(incar.get('ISPIN')) == '2':
+                            total = ["Energy", "DOS(up)", "DOS(dwn)", "integrated DOS(up)", "integrated DOS(dwn)"]
+                            partial = ["Energy", "s-DOS(up)", "s-DOS(dwn)", "p-DOS(up)", "p-DOS(dwn)", "d-DOS(up)", "d-DOS(dwn)", "f-DOS(up)", "f-DOS(dwn)"]
+                    if np.array(incar.get('LORBIT')) == '11':
+                        total = ["Energy", "DOS", "Integrated DOS"]
+                        partial = ["Energy", "s-DOS", "p(x)-DOS", "p(y)-DOS", "p(z)-DOS", "d-DOS(xy)", "d-DOS(yz)", "d-DOS(z2)", "d-DOS(xz)", "d-DOS(x2y2)", "f-DOS(-3)", "f-DOS(-2)", "f-DOS(-1)", "f-DOS(0)", "f-DOS(1)", "f-DOS(2)", "f-DOS(3)"]
 
-            # sektionen 'indata_specific/vasp/incar' Beror egentligen på utseendet i h5-filen
-            incar = h.get('indata_specific/vasp/incar')
-
-
-            if np.array(incar.get('LORBIT')) == '10':
-                if np.array(incar.get('ISPIN')) == '1':
-                    total = ["energy", "DOS", "Integrated DOS"]
-                    partial = ["energy", "s-DOS", "p-DOS", "d-DOS", "f-DOS"]
-                if np.array(incar.get('ISPIN')) == '2':
-                    total = ["energy", "DOS(up)", "DOS(dwn)", "integrated DOS(up)", "integrated DOS(dwn)"]
-                    partial = ["energy", "s-DOS(up)", "s-DOS(dwn)", "p-DOS(up)", "p-DOS(dwn)", "d-DOS(up)", "d-DOS(dwn)", "f-DOS(up)", "f-DOS(dwn)"]
-
-        total_data, line = dos_line(f, header["ndos"], line)
+        total_data, line_length = dos_line(f, header["ndos"])
+        if not total:
+            print("Because INCAR data was not written to the hdf5 file the data of the DOS cannot be specified.")
+            total = ['Energy']
+            for _ in range(line_length - 1):
+                total.append('Unknown DOS {}'.format(_))
         partial_list = []
         for line in f:
-            partial_data, line = dos_line(f, header["ndos"], line)
+            partial_data, line_length = dos_line(f, header["ndos"])
             partial_list.append(partial_data)
-
+        if not partial:
+            partial = ['Energy']
+            for _ in range(line_length - 1):
+                partial.append('Unknown DOS {}'.format(_))
     return total, partial, total_data, partial_list, header["Fermi energy"]
 
-def doscar(h5file, doscar_file, incarh5):
+def dos(h5file, vasp_dir):
+    if os.path.isfile(h5file):
+        with h5py.File(h5file, 'r') as h5:
+            if '/FermiEnergy' and 'DOS/Total' and 'DOS/Partial' in h5:
+                print('Density of states data already parsed. Skipping.')
+                return False
     try:
-        total, partial, total_data, partial_list, fermi_energy = parse_doscar(doscar_file,incarh5)
+        vasp_file = os.path.join(vasp_dir, 'DOSCAR')
+        total, partial, total_data, partial_list, fermi_energy = parse_doscar(h5file, vasp_file)
     except FileNotFoundError:
-        print("DOSCAR file not found.")
-        return
-    except Exception:
-        print("DOSCAR Parsing failed because there is no INCAR.")
-        return
-    try:
-        _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy)
-    except Exception:
-        print("DOS dataset already exists.")
-        return
+        print('DOSCAR file not in directory. Skipping.')
+        return False
+    _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy)
+    print('Density of states data was parsed successfully.')
+    return True
