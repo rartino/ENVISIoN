@@ -49,9 +49,13 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
     # Add processor for Volume or ISO Raycaster based on if "iso" is assigned a value or not and give it correct name based on the string "volume" assigned a value in function "charge" or "elf". 
     if iso==None:
         Raycaster = _add_processor('org.inviwo.VolumeRaycaster', volume, xstart_pos, ystart_pos+300) 
+        inviwo.addPointToTransferFunction(Raycaster+'.transferFunction',(0.6,1.0),(0.0,1.0,1.0))
+        inviwo.addPointToTransferFunction(Raycaster+'.transferFunction',(0.45,0.0),(0.0,0.0,1.0))
+        inviwo.addPointToTransferFunction(Raycaster+'.transferFunction',(0.7,0.0),(0.0,0.0,0.0))
     else:
         Raycaster = _add_processor('org.inviwo.ISORaycaster', volume, xstart_pos, ystart_pos+300)
         inviwo.setPropertyValue(Raycaster+'.raycasting.isoValue', iso)
+        inviwo.setPropertyValue(Raycaster+'.surfaceColor', (0.0,0.0,1.0,0.5))
     # Add processors, connections and properties for slice function if slice=True and "iso" hasn't been assigned a value        
     if slice:
         if iso==None:
@@ -77,17 +81,14 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
             inviwo.setPropertyValue(Raycaster+'.positionindicator.plane2.enable', False)
             inviwo.setPropertyValue(Raycaster+'.positionindicator.plane3.enable', False)
             inviwo.setPropertyValue(Raycaster+'.positionindicator.plane1.color', (1.0,1.0,1.0,0.5))
-            inviwo.addPointToTransferFunction(Raycaster+'.transferFunction',(0.6,1.0),(0.0,1.0,1.0))
-            inviwo.addPointToTransferFunction(Raycaster+'.transferFunction',(0.45,0.0),(0.0,0.0,1.0))
-            inviwo.addPointToTransferFunction(Raycaster+'.transferFunction',(0.7,0.0),(0.0,0.0,0.0))
         else:
             print("Slice is not possible with ISO Raycasting, therefore no slice-function is showing.")
     # Add processors, connections and properties for no slice function if slice=False or "iso" has been assigned a value   
-    if not slice or (slice and iso != None):
+    if not slice or iso != None:
         Background = _add_processor('org.inviwo.Background', 'Background', xstart_pos, ystart_pos+375)
         Canvas = _add_processor('org.inviwo.CanvasGL', 'Canvas', xstart_pos, ystart_pos+450)
         inviwo.addConnection(Raycaster, 'outport', Background, 'inport') 
-        inviwo.setPropertyValue(Canvas+'.inputSize.dimensions', (300,300))            
+        inviwo.setPropertyValue(Canvas+'.inputSize.dimensions', (400,400))
     # Shared connections and properties between electron density and electron localisation function data
     inviwo.addConnection(MeshRenderer, 'image', Raycaster, 'bg')
     inviwo.addConnection(EntryExitPoints, 'entry', Raycaster, 'entry')
