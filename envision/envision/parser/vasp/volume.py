@@ -88,7 +88,7 @@ def volume(h5file, hdfgroup, vasp_dir, vasp_file):
 					_write_volume(h5, i, array, data, hdfgroup)
 				h5['{}/final'.format(hdfgroup)] = h5py.SoftLink('{}/{}'.format(hdfgroup,i-1))
 	except FileNotFoundError:
-		print(vaspfile + ' not in directory. Skipping.')
+		print(vasp_file + ' not in directory. Skipping.')
 		return False
 	print(vasp_file + ' was parsed successfully.')
 	return True
