@@ -58,8 +58,8 @@ def _write_bandstruct(h5file, band_data, kval_list):
             dataset.attrs['Unit'] = 'eV'
             dataset.attrs['QuantitySymbol'] = '$E$'
             dataset.attrs['QuantityName'] = 'Energy'
-            dataset.attrs['VariableName'] = 'Band  {}'.format(band_data.index(band))
-            dataset.attrs['VariableSymbol'] = '$B_{}$'.format(band_data.index(band))
+            dataset.attrs['VariableName'] = 'Band  {}'.format(i)
+            dataset.attrs['VariableSymbol'] = '$B_{}$'.format(i)
 
 def _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy):
     
