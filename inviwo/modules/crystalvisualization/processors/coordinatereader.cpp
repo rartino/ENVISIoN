@@ -35,7 +35,7 @@ namespace inviwo {
 
 // The Class Identifier has to be globally unique. Use a reverse DNS naming scheme
 const ProcessorInfo CoordinateReader::processorInfo_{
-    "org.inviwo.CoordinateReader",      // Class identifier
+    "envision.CoordinateReader",      // Class identifier
     "Coordinate Reader",                // Display name
     "Crystal",                          // Category
     CodeState::Experimental,  // Code state

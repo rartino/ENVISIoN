@@ -39,7 +39,7 @@ namespace inviwo {
 
 // The Class Identifier has to be globally unique. Use a reverse DNS naming scheme
 const ProcessorInfo StructureMesh::processorInfo_{
-    "org.inviwo.StructureMesh",      // Class identifier
+    "envision.StructureMesh",      // Class identifier
     "Structure Mesh",                // Display name
     "Crystal",              // Category
     CodeState::Experimental,  // Code state
