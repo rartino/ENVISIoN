@@ -158,5 +158,5 @@ def incar(h5file, vasp_dir):
         print('INCAR file not in directory. Skipping.')
         return False
     _write_incar(h5file, incar_data)
-	print('INCAR data was parsed successfully.')
+    print('INCAR data was parsed successfully.')
     return True

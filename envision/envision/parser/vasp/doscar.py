@@ -29,6 +29,7 @@ import os
 import h5py
 import numpy as np
 from ..h5writer import _write_dos
+from .incar import *
 
 def dos_line(f, ndos):
     data = []
@@ -63,8 +64,8 @@ def parse_doscar(h5file,vasp_file):
 
         if os.path.isfile(h5file):
             with h5py.File(h5file,'r') as h5:
-                if 'indata_specific/vasp/incar' in h5:
-                    incar = h5.get('indata_specific/vasp/incar')
+                if '/incar' in h5:
+                    incar = h5.get('/incar')
                     if np.array(incar.get('LORBIT')) == '10':
                         if np.array(incar.get('ISPIN')) == '1':
                             total = ["Energy", "DOS", "Integrated DOS"]
@@ -98,6 +99,8 @@ def dos(h5file, vasp_dir):
             if '/FermiEnergy' and 'DOS/Total' and 'DOS/Partial' in h5:
                 print('Density of states data already parsed. Skipping.')
                 return False
+
+    incar(h5file, vasp_dir)
     try:
         vasp_file = os.path.join(vasp_dir, 'DOSCAR')
         total, partial, total_data, partial_list, fermi_energy = parse_doscar(h5file, vasp_file)
