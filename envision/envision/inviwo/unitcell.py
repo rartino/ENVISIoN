@@ -7,7 +7,7 @@ from .data import atomic_radii, ionic_radii, element_names, element_colors
 
   
 def _cellnetwork(h5file, md=False, xpos=0, ypos=0):
-    HDFsource = _add_h5source(h5file)
+    HDFsource = _add_h5source(h5file, xpos, ypos)
     
     meshRend = _add_processor('org.inviwo.SphereRenderer', 'Unit Cell Renderer', xpos, ypos+300)
             
@@ -32,12 +32,12 @@ def _cellnetwork(h5file, md=False, xpos=0, ypos=0):
             inviwo.setPropertyValue(animator+'.property',8) # IntProperty
             inviwo.setPropertyValue(animator+'.OrgInviwoIntProperty',0)
             inviwo.setPropertyMinValue(animator+'.OrgInviwoIntProperty',0)
-            inviwo.setPropertyMaxValue(animator+'.OrgInviwoIntProperty',100)
+            inviwo.setPropertyMaxValue(animator+'.OrgInviwoIntProperty',timesteps)
             inviwo.setPropertyMaxValue(animator+'.delay',10)
             inviwo.addLink(animator+'.OrgInviwoIntProperty',strucMesh+'.timestep')
             inviwo.setPropertyValue(animator+'.OrgInviwoIntProperty-Delta',1)            
         inviwo.setPropertyMaxValue(strucMesh+'.timestep',timesteps)
-        
+
         species = len(h5[base_group + "/Atoms"].keys()) - 1
         for i,key in enumerate(list(h5[base_group + "/Atoms"].keys())):
             element = h5[base_group + "/Atoms/"+key].attrs['element']            

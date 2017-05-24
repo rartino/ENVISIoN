@@ -109,11 +109,11 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
         inviwo.setPropertyValue(HDFvolume+'.volumeSelection', '/ELF/final')
  
 # Function for building a volume network for electron density data
-def charge(h5file, iso, slice, xstart_pos, ystart_pos):
+def charge(h5file, iso=None, slice=False, xpos=0, ypos=0):
     volume='Charge raycaster'
-    volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos)
+    volume_network(h5file, volume, iso, slice, xpos, ypos)
 
 # Function for building a volume network for electron localisation function data
-def elf(h5file, iso, slice, xstart_pos, ystart_pos):
+def elf(h5file, iso=None, slice=False, xpos=0, ypos=0):
     volume='Elf raycaster'
-    volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos)
+    volume_network(h5file, volume, iso, slice, xpos, ypos)

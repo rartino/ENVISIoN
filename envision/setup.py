@@ -18,7 +18,7 @@ setup(
         long_description=long_description,
         keywords="inviwo vasp",
 
-        install_requires=['h5py'],
+        install_requires=['h5py','regex'],
 
         #author="",
         #author_email="",

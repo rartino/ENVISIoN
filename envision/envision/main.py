@@ -8,7 +8,7 @@ def parse_all(h5_path, dir):
         'molecular dynamics from VASP': parser.vasp.md,
         'charge from VASP': parser.vasp.charge,
         'ELF from VASP': parser.vasp.elf,
-        'DOS from VASP': parser.vasp.doscar,
+        'DOS from VASP': parser.vasp.dos,
         'bandstructure from VASP': parser.vasp.bandstructure
     }
     parsed_list = []
