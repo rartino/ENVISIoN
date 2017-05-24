@@ -25,6 +25,7 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+import os
 import re
 import h5py
 import numpy as np
@@ -34,43 +35,49 @@ line_reg_int = re.compile(r'^( *[+-]?[0-9]+){3} *$')
 line_reg_float = re.compile(r'( *[+-]?[0-9]*\.[0-9]+(?:[eE][+-]?[0-9]+)? *){4}')
 
 
-def bandstruct_parse(eigen_file):
-    data = None
-    kval = None
-    kval_list = []
-    eigenval = []
-    i = 0
-    with open(eigen_file, 'r') as f:
-        for line in f:
+def bandstruct_parse(file_object):
+	data = None
+	kval = None
+	kval_list = []
+	band_data = []
+	i = 0
 
-            match_float = line_reg_float.match(line)
-            match_int = line_reg_int.match(line)
+	for line in file_object:
+		match_float = line_reg_float.match(line)
+		match_int = line_reg_int.match(line)
 
-            if match_int:
-                data = [int(v) for v in line.split()]
-                eigenval = [[] for _ in range(data[2])]
-            if data and match_float:
-                kval = []
-                for u in range(3):
-                    kval.append(float(line.split()[u]))
-            elif kval and data:
-                eigenval[i].append(float(line.split()[1]))
-                i += 1
-            if i == len(eigenval) and kval:
-                kval_list.append(kval)
-                kval = None
-                i = 0
-        return eigenval, kval_list, data
+		if match_int:
+			data = [int(v) for v in line.split()]
+			band_data = [[] for _ in range(data[2])]
+		if data and match_float:
+			kval = []
+			for u in range(3):
+				kval.append(float(line.split()[u]))
+		elif kval and data:
+			band_data[i].append(float(line.split()[1]))
+			i += 1
+		if i == len(band_data) and kval:
+			kval_list.append(kval)
+			kval = None
+			i = 0
+	return band_data, kval_list
 
 
-def bandstructure(eigen_file, h5_path):
-    try:
-        eigenval, kval_list, data = bandstruct_parse(eigen_file)
-    except FileNotFoundError:
-        print("EIGENVAL file not found.")
-        return
-    try:
-        _write_bandstruct(h5_path, eigenval, kval_list)
-    except Exception:
-        print("Bandstructure dataset already exists.")
-        return
+def bandstructure(h5file, vasp_dir):
+	if os.path.isfile(h5file):
+		with h5py.File(h5file, 'r') as h5:
+			if '/Bandstructure' in h5:
+				print('Band structure data already parsed. Skipping.')
+				return False
+	try:
+		with open(os.path.join(vasp_dir, 'EIGENVAL'), 'r') as f:
+			band_data, kval_list = bandstruct_parse(f)
+			if not band_data:
+				print('EIGENVAL does not contain any data for band structure. Skipping.')
+				return False
+	except OSError:
+		print('EIGENVAL file not in directory. Skipping.')
+		return False
+	_write_bandstruct(h5file, band_data, kval_list)
+	print('Band structure data was parsed successfully.')
+	return True
