@@ -46,7 +46,7 @@ def _find_line(rgx, f):
     return match
 
 def _parse_potcar(potcar_file):
-    """Looks for element sybols in POTCAR
+    """Looks for element symbols in POTCAR
 
     Parameters
     ----------
@@ -70,10 +70,9 @@ def _parse_potcar(potcar_file):
     return elements
 
 def _parse_lattice(fileobj):
-    """Reads lattice vectors and returns matrix
+    """Reads lattice vectors
 
-    Reads lattice vectors as a matrix and multiplies this matrix by the
-    scaling factor on line 2. First line is ignored.
+    Returns scaling factor and lattice vectors. First line is ignored.
 
     Parameters
     ----------
@@ -220,7 +219,7 @@ def _find_elements(fileobj, elements, vasp_dir):
 
     
 def unitcell(h5file, vasp_dir, elements=None):
-    """POTCAR parser
+    """POSCAR parser
 
     Reads lattice vectors and atom positions from POSCAR file and writes data to an HDF5 file.
     If no element symbols are given as an argument, the parser looks for them in the POTCAR file,
