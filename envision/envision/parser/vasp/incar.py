@@ -35,8 +35,20 @@ from .util import *
 from ..h5writer import _write_incar
 
 def parse_incar(h5file, vasp_file):
-    """
-    TODO.
+ """
+	Parses set values from INCAR
+
+    Parameters
+    ----------
+	h5file : str
+		String containing path to HDF-file
+	vasp_file : str
+		String containing path to INCAR file
+		
+    Returns
+    -------
+    incar_data : dict
+		Dictionary containing all the data in INCAR
     """
 
     # This should be done more globally.
@@ -146,6 +158,21 @@ def parse_incar(h5file, vasp_file):
     return incar_data
 
 def incar(h5file, vasp_dir):
+ """
+	Parses set values from INCAR and writes to HDF5 file
+
+    Parameters
+    ----------
+	h5file : str
+		String containing path to HDF-file
+	vasp_dir : str
+		Path to directory containing INCAR file
+		
+    Returns
+    -------
+	bool
+		Return True if INCAR was parsed, False otherwise
+    """
     if os.path.isfile(h5file):
         with h5py.File(h5file, 'r') as h5:
             if '/incar' in h5:
