@@ -34,21 +34,23 @@
 #include <modules/graph2d/processors/hdf5pathselectionintvector.h>
 #include <modules/graph2d/processors/hdf5pathselectionallchildren.h>
 #include <modules/graph2d/processors/hdf5tofunction.h>
-#include <modules/graph2d/processors/functionoperation.h>
+#include <modules/graph2d/processors/functionoperationunary.h>
+#include <modules/graph2d/processors/functionoperationnary.h>
 #include <modules/graph2d/processors/plotter.h>
 
 namespace inviwo {
 
-graph2dModule::graph2dModule(InviwoApplication* app) : InviwoModule(app, "graph2d") {   
+graph2dModule::graph2dModule(InviwoApplication* app) : InviwoModule(app, "graph2d") {
 
     // Processors.
     registerProcessor<HDF5PathSelectionInt>();
     registerProcessor<HDF5PathSelectionIntVector>();
     registerProcessor<HDF5PathSelectionAllChildren>();
     registerProcessor<HDF5ToFunction>();
-    registerProcessor<FunctionOperation>();
+    registerProcessor<FunctionOperationUnary>();
+    registerProcessor<FunctionOperationNary>();
     registerProcessor<Plotter>();
-    
+
     // Ports.
     registerPort<DataOutport<Function>>("FunctionOutport");
     registerPort<DataInport<Function>>("FunctionInport");

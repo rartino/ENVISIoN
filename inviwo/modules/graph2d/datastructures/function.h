@@ -44,13 +44,26 @@ struct Function {
         std::string quantityName;
         std::string quantitySymbol;
         std::string unit;
+        std::string getDataInfo() const {
+            return
+                variableName
+                + " "
+                + "["
+                + std::to_string(data.size())
+                + "x"
+                + std::to_string(data.size())
+                + "]";
+        }
     };
 
-    Axis x;
-    Axis y;
+    Axis xAxis;
+    Axis yAxis;
 
     static const std::string CLASS_IDENTIFIER;
     static const uvec3 COLOR_CODE;
+    std::string getDataInfo() const {
+        return xAxis.getDataInfo() + " " + "vs" + " " + yAxis.getDataInfo();
+    }
 };
 
 }  // namespace

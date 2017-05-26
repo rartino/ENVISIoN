@@ -27,24 +27,24 @@
  *
  *********************************************************************************/
 
-#ifndef IVW_HDF5PATHSELECTIONINTVECTOR_H
-#define IVW_HDF5PATHSELECTIONINTVECTOR_H
+#ifndef IVW_FUNCTIONOPERATIONUNARY_H
+#define IVW_FUNCTIONOPERATIONUNARY_H
 
 #include <modules/graph2d/graph2dmoduledefine.h>
 
 #include <inviwo/core/common/inviwo.h>
 #include <inviwo/core/ports/datainport.h>
 #include <inviwo/core/processors/processor.h>
+#include <inviwo/core/properties/optionproperty.h>
+#include <inviwo/core/properties/boolproperty.h>
 #include <inviwo/core/properties/ordinalproperty.h>
 
-#include <modules/hdf5/datastructures/hdf5handle.h>
-
-#include <modules/crystalvisualization/properties/intvectorproperty.h>
+#include <modules/graph2d/datastructures/function.h>
 
 namespace inviwo {
 
-/** \docpage{org.inviwo.HDF5PathSelectionIntVector, HDF5PathSelectionIntVector}
- * ![](org.inviwo.HDF5PathSelectionIntVector.png?classIdentifier=org.inviwo.HDF5PathSelectionIntVector)
+/** \docpage{org.inviwo.FunctionOperationUnary, FunctionOperationUnary}
+ * ![](org.inviwo.FunctionOperationUnary.png?classIdentifier=org.inviwo.FunctionOperationUnary)
  * Explanation of how to use the processor.
  *
  * ### Inports
@@ -60,16 +60,24 @@ namespace inviwo {
 
 
 /**
- * \class HDF5PathSelectionIntVector
+ * \class FunctionOperationUnary
  * \brief VERY_BRIEFLY_DESCRIBE_THE_PROCESSOR
  * DESCRIBE_THE_PROCESSOR_FROM_A_DEVELOPER_PERSPECTIVE
  */
-class IVW_MODULE_GRAPH2D_API HDF5PathSelectionIntVector : public Processor {
+class IVW_MODULE_GRAPH2D_API FunctionOperationUnary : public Processor {
 
 public:
 
-    HDF5PathSelectionIntVector();
-    virtual ~HDF5PathSelectionIntVector() = default;
+    struct Operation {
+        std::string identifier;
+        std::string displayName;
+        std::string resultName;
+        std::string resultSymbol;
+        std::function<float(float)> apply;
+    };
+
+    FunctionOperationUnary();
+    virtual ~FunctionOperationUnary() = default;
 
     virtual void process() override;
 
@@ -78,15 +86,16 @@ public:
 
 private:
 
-    DataInport<hdf5::Handle> hdf5HandleInport_;
+    std::vector<Operation> operationVector_;
 
-    IntVectorProperty intVectorProperty_;
-    IntSizeTProperty zeroPadWidthProperty_;
+    DataInport<Function, 0, true> functionFlatMultiInport_;
 
-    DataOutport<std::vector<hdf5::Handle>> hdf5HandleVectorOutport_;
+    OptionPropertyString operationProperty_;
+
+    DataOutport<std::vector<Function>> functionVectorOutport_;
 };
 
 } // namespace
 
-#endif // IVW_HDF5PATHSELECTIONINTVECTOR_H
+#endif // IVW_FUNCTIONOPERATIONUNARY_H
 

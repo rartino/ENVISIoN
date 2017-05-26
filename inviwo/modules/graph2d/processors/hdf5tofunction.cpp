@@ -113,7 +113,7 @@ void HDF5ToFunction::pathSelectionOptionsReplace(OptionPropertyString& pathSelec
                                     return;
                                 const auto& childNdims =
                                     childDataSet.getSpace().getSimpleExtentNdims();
-                                if (childNdims != 1)
+                                if (childNdims > 1)
                                     return;
                                 pathOptionVector.push_back(childPath);
                                 break;
@@ -216,9 +216,9 @@ void HDF5ToFunction::process() {
                     !parentPath.empty() && parentCount != namePrependParentProperty.get();
                     parentPath = dirname(parentPath), ++parentCount
                 ) {
-                    name = basename(parentPath) //getAttributeString(parentPath, "VariableName", basename(parentPath))
-                        + " "
-                        + name;
+                    const auto parentBasename = basename(parentPath);
+                    if (!parentBasename.empty())
+                        name = parentBasename + " " + name;
                 }
                 name += getAttributeString(path, "VariableName", basename(path));
 

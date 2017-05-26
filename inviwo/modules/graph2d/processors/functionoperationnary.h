@@ -24,11 +24,11 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  *********************************************************************************/
 
-#ifndef IVW_FUNCTIONOPERATION_H
-#define IVW_FUNCTIONOPERATION_H
+#ifndef IVW_FUNCTIONOPERATIONNARY_H
+#define IVW_FUNCTIONOPERATIONNARY_H
 
 #include <modules/graph2d/graph2dmoduledefine.h>
 
@@ -36,15 +36,15 @@
 #include <inviwo/core/ports/datainport.h>
 #include <inviwo/core/processors/processor.h>
 #include <inviwo/core/properties/optionproperty.h>
+#include <inviwo/core/properties/boolproperty.h>
 #include <inviwo/core/properties/ordinalproperty.h>
-#include <inviwo/core/properties/stringproperty.h>
 
 #include <modules/graph2d/datastructures/function.h>
 
 namespace inviwo {
 
-/** \docpage{org.inviwo.FunctionOperation, FunctionOperation}
- * ![](org.inviwo.FunctionOperation.png?classIdentifier=org.inviwo.FunctionOperation)
+/** \docpage{org.inviwo.FunctionOperationNary, FunctionOperationNary}
+ * ![](org.inviwo.FunctionOperationNary.png?classIdentifier=org.inviwo.FunctionOperationNary)
  * Explanation of how to use the processor.
  *
  * ### Inports
@@ -52,7 +52,7 @@ namespace inviwo {
  *
  * ### Outports
  *   * __<Outport1>__ <description>.
- * 
+ *
  * ### Properties
  *   * __<Prop1>__ <description>.
  *   * __<Prop2>__ <description>
@@ -60,16 +60,24 @@ namespace inviwo {
 
 
 /**
- * \class FunctionOperation
+ * \class FunctionOperationNary
  * \brief VERY_BRIEFLY_DESCRIBE_THE_PROCESSOR
  * DESCRIBE_THE_PROCESSOR_FROM_A_DEVELOPER_PERSPECTIVE
  */
-class IVW_MODULE_GRAPH2D_API FunctionOperation : public Processor { 
+class IVW_MODULE_GRAPH2D_API FunctionOperationNary : public Processor {
 
 public:
 
-    FunctionOperation();
-    virtual ~FunctionOperation() = default;
+    struct Operation {
+        std::string identifier;
+        std::string displayName;
+        std::string resultName;
+        std::string resultSymbol;
+        std::function<float(float, float)> reducePartial;
+    };
+
+    FunctionOperationNary();
+    virtual ~FunctionOperationNary() = default;
 
     virtual void process() override;
 
@@ -78,18 +86,19 @@ public:
 
 private:
 
-    DataInport<Function> lhsFunctionInport_;
-    DataInport<Function, 0, true> rhsFunctionFlatMultiInport_;
+    std::vector<Operation> operationVector_;
+
+    DataInport<Function, 0, true> functionFlatMultiInport_;
 
     OptionPropertyString operationProperty_;
-    FloatProperty samplingEpsilonProperty_;
-    OptionPropertyString nameModificationTypeProperty_;
-    StringProperty nameModificationProperty_;
+    OptionPropertyString undefinedFallbackProperty_;
+    BoolProperty sampleFilterEnableProperty_;
+    FloatProperty sampleFilterEpsilonProperty_;
 
-    DataOutport<Function> functionOutport_;
+    DataOutport<std::vector<Function>> functionVectorOutport_;
 };
 
 } // namespace
 
-#endif // IVW_FUNCTIONOPERATION_H
+#endif // IVW_FUNCTIONOPERATIONNARY_H
 

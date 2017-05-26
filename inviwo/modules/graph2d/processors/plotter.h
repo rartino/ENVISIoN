@@ -24,7 +24,7 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  *********************************************************************************/
 
 #ifndef IVW_PLOTTER_H
@@ -36,6 +36,7 @@
 #include <inviwo/core/ports/imageport.h>
 #include <inviwo/core/processors/processor.h>
 #include <inviwo/core/properties/boolproperty.h>
+#include <inviwo/core/properties/minmaxproperty.h>
 
 #include <modules/graph2d/datastructures/function.h>
 
@@ -50,7 +51,7 @@ namespace inviwo {
  *
  * ### Outports
  *   * __<Outport1>__ <description>.
- * 
+ *
  * ### Properties
  *   * __<Prop1>__ <description>.
  *   * __<Prop2>__ <description>
@@ -62,7 +63,7 @@ namespace inviwo {
  * \brief VERY_BRIEFLY_DESCRIBE_THE_PROCESSOR
  * DESCRIBE_THE_PROCESSOR_FROM_A_DEVELOPER_PERSPECTIVE
  */
-class IVW_MODULE_GRAPH2D_API Plotter : public Processor { 
+class IVW_MODULE_GRAPH2D_API Plotter : public Processor {
 
 public:
 
@@ -77,9 +78,18 @@ public:
 private:
 
     DataInport<Function, 0, true> functionFlatMultiInport_;
+    DataInport<Function, 0, true> markXInport_;
+    DataInport<Function, 0, true> markYInport_;
 
     BoolProperty sortOnNameProperty_;
-    BoolProperty showLegendProperty_;
+    BoolProperty legendShowProperty_;
+    BoolProperty legendSymbolsProperty_;
+    BoolProperty markShiftToZeroXProperty_;
+    BoolProperty markShiftToZeroYProperty_;
+    BoolProperty axisLimitAutoAdjustXProperty_;
+    FloatMinMaxProperty axisLimitXProperty_;
+    BoolProperty axisLimitAutoAdjustYProperty_;
+    FloatMinMaxProperty axisLimitYProperty_;
 
     ImageOutport imageOutport_;
 };
