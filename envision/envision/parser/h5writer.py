@@ -58,8 +58,8 @@ def _write_bandstruct(h5file, band_data, kval_list):
             dataset.attrs['Unit'] = 'eV'
             dataset.attrs['QuantitySymbol'] = '$E$'
             dataset.attrs['QuantityName'] = 'Energy'
-            dataset.attrs['VariableName'] = 'Band  {}'.format(i)
-            dataset.attrs['VariableSymbol'] = '$B_{}$'.format(i)
+            dataset.attrs['VariableName'] = 'Band {}'.format(i)
+            dataset.attrs['VariableSymbol'] = '$B_{{{}}}$'.format(i)
 
 def _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy):
     
@@ -74,23 +74,23 @@ def _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy):
         
     with h5py.File(h5file, "a") as h5:
         dataset = h5.create_dataset('FermiEnergy', data = np.array(fermi_energy), dtype = np.float32)
-        set_attrs(dataset, 'Fermi Energy', '$E_f$', 'Energy', '$E$', Unit = 'eV')
+        set_attrs(dataset, 'Fermi Energy', '$E_f$', 'Energy', '$E$', 'eV')
         for i, (name, data) in enumerate(zip(total, total_data)):
             dataset = h5.create_dataset('DOS/Total/{}'.format(name), data=np.array(data), dtype = np.float32)
-            if name == 'energy':
+            if name == 'Energy':
                 set_attrs(dataset, 'Energy', '$E$', 'Energy', '$E$', 'eV')
             else:
-                if name.startswith('integrated'):
+                if name.startswith('Integrated'):
                     set_attrs(dataset, name, '', 'Integrated Density of States', '$\int D$', 'states')
                 else:
-                    set_attrs(dataset, name, '', 'Density of States', '$D$', 'states/energy')    
+                    set_attrs(dataset, name, '', 'Density of States', '$D$', 'states/eV')
         for i, partial_data in enumerate(partial_list):
             for (name, data) in zip(partial, partial_data):
                 dataset = h5.create_dataset('DOS/Partial/{}/{}'.format(i, name), data=np.array(data), dtype = np.float32)
-                if name == 'energy':
+                if name == 'Energy':
                     set_attrs(dataset, 'Energy', '$E$', 'Energy', '$E$', 'eV')
                 else:
-                    if name.startswith('integrated'):
+                    if name.startswith('Integrated'):
                         set_attrs(dataset, name, '', 'Integrated Density of States', '$\int D$', 'states')
                     else:
                         set_attrs(dataset, name, '', 'Density of States', '$D$', 'states/energy')
