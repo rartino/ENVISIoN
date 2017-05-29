@@ -41,7 +41,7 @@
 
 #include <modules/hdf5/datastructures/hdf5handle.h>
 
-#include <modules/graph2d/datastructures/function.h>
+#include <modules/graph2d/datastructures/graph2ddata.h>
 
 namespace inviwo {
 

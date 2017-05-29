@@ -27,24 +27,26 @@
  *
  *********************************************************************************/
 
-#ifndef IVW_PLOTTER_H
-#define IVW_PLOTTER_H
+#ifndef IVW_HDF5TOPOINT_H
+#define IVW_HDF5TOPOINT_H
 
 #include <modules/graph2d/graph2dmoduledefine.h>
 
 #include <inviwo/core/common/inviwo.h>
-#include <inviwo/core/ports/imageport.h>
+#include <inviwo/core/ports/datainport.h>
 #include <inviwo/core/processors/processor.h>
-#include <inviwo/core/properties/optionproperty.h>
 #include <inviwo/core/properties/boolproperty.h>
-#include <inviwo/core/properties/minmaxproperty.h>
+#include <inviwo/core/properties/optionproperty.h>
+#include <inviwo/core/properties/ordinalproperty.h>
+
+#include <modules/hdf5/datastructures/hdf5handle.h>
 
 #include <modules/graph2d/datastructures/graph2ddata.h>
 
 namespace inviwo {
 
-/** \docpage{org.inviwo.Plotter, Plotter}
- * ![](org.inviwo.Plotter.png?classIdentifier=org.inviwo.Plotter)
+/** \docpage{org.inviwo.HDF5ToPoint, HDF5ToPoint}
+ * ![](org.inviwo.HDF5ToPoint.png?classIdentifier=org.inviwo.HDF5ToPoint)
  * Explanation of how to use the processor.
  *
  * ### Inports
@@ -60,16 +62,16 @@ namespace inviwo {
 
 
 /**
- * \class Plotter
+ * \class HDF5ToPoint
  * \brief VERY_BRIEFLY_DESCRIBE_THE_PROCESSOR
  * DESCRIBE_THE_PROCESSOR_FROM_A_DEVELOPER_PERSPECTIVE
  */
-class IVW_MODULE_GRAPH2D_API Plotter : public Processor {
+class IVW_MODULE_GRAPH2D_API HDF5ToPoint : public Processor {
 
 public:
 
-    Plotter();
-    virtual ~Plotter() = default;
+    HDF5ToPoint();
+    virtual ~HDF5ToPoint() = default;
 
     virtual void process() override;
 
@@ -78,24 +80,18 @@ public:
 
 private:
 
-    DataInport<Function, 0, true> functionFlatMultiInport_;
-    DataInport<Point, 0, true> markXFlatMultiInport_;
-    DataInport<Point, 0, true> markYFlatMultiInport_;
+    DataInport<hdf5::Handle, 0, true> hdf5HandleFlatMultiInport_;
 
-    BoolProperty sortOnNameProperty_;
-    BoolProperty legendShowProperty_;
-    BoolProperty legendSymbolsProperty_;
-    OptionPropertyString markShiftToZeroXProperty_;
-    OptionPropertyString markShiftToZeroYProperty_;
-    BoolProperty axisLimitAutoAdjustXProperty_;
-    FloatMinMaxProperty axisLimitXProperty_;
-    BoolProperty axisLimitAutoAdjustYProperty_;
-    FloatMinMaxProperty axisLimitYProperty_;
+    OptionPropertyString pathSelectionProperty_;
+    BoolProperty pathFreezeProperty_;
+    IntSizeTProperty namePrependParentsProperty_;
 
-    ImageOutport imageOutport_;
+    DataOutport<std::vector<Point>> pointVectorOutport_;
+
+    void pathSelectionOptionsReplace(OptionPropertyString& pathSelectionProperty);
 };
 
 } // namespace
 
-#endif // IVW_PLOTTER_H
+#endif // IVW_HDF5TOPOINT_H
 

@@ -40,16 +40,19 @@
 #include <modules/python3/pythoninterface/pyvalueparser.h>
 #include <modules/python3/defaultinterface/utilities.h>
 
+#include <modules/graph2d/util/stringcomparenatural.h>
+
 namespace inviwo {
 
 // The Class Identifier has to be globally unique. Use a reverse DNS naming scheme
 const ProcessorInfo Plotter::processorInfo_{
-    "org.inviwo.Plotter",       // Class identifier
-    "Plotter",                  // Display name
-    "Graphing",                 // Category
-    CodeState::Stable,          // Code state
-    Tags::None,                 // Tags
-};
+        "org.inviwo.Plotter",       // Class identifier
+        "Plotter",                  // Display name
+        "Graphing",                 // Category
+        CodeState::Stable,          // Code state
+        Tags::None,                 // Tags
+    };
+
 const ProcessorInfo Plotter::getProcessorInfo() const {
     return processorInfo_;
 }
@@ -57,13 +60,13 @@ const ProcessorInfo Plotter::getProcessorInfo() const {
 Plotter::Plotter()
     : Processor()
     , functionFlatMultiInport_("functionFlatMultiInport")
-    , markXInport_("markXInport")
-    , markYInport_("markYInport")
+    , markXFlatMultiInport_("markXFlatMultiInport")
+    , markYFlatMultiInport_("markYFlatMultiInport")
     , sortOnNameProperty_("sortOnName", "Sort on name", true)
     , legendShowProperty_("legendShowProperty", "Show legend", true)
     , legendSymbolsProperty_("legendSymbolsProperty", "Use symbols in legend", false)
-    , markShiftToZeroXProperty_("markShiftToZeroXProperty", "Shift x mark to zero", false)
-    , markShiftToZeroYProperty_("markShiftToZeroYProperty", "Shift y mark to zero", false)
+    , markShiftToZeroXProperty_("markShiftToZeroXProperty", "Shift x mark to zero")
+    , markShiftToZeroYProperty_("markShiftToZeroYProperty", "Shift y mark to zero")
     , axisLimitAutoAdjustXProperty_(
             "axisLimitAutoAdjustXProperty",
             "Auto adjust x axis limit",
@@ -79,8 +82,8 @@ Plotter::Plotter()
     , imageOutport_("imageOutport", DataVec4UInt8::get())
 {
     addPort(functionFlatMultiInport_);
-    addPort(markXInport_);
-    addPort(markYInport_);
+    addPort(markXFlatMultiInport_);
+    addPort(markYFlatMultiInport_);
 
     addProperty(sortOnNameProperty_);
     addProperty(legendShowProperty_);
@@ -94,22 +97,42 @@ Plotter::Plotter()
 
     addPort(imageOutport_);
 
-    markXInport_.setOptional(true);
-    markYInport_.setOptional(true);
+    markXFlatMultiInport_.setOptional(true);
+    markYFlatMultiInport_.setOptional(true);
 
-    const auto& onMarkXInportChange = [this]() {
-            const auto& visible = !markXInport_.getVectorData().empty();
-            markShiftToZeroXProperty_.setVisible(visible);
-        };
-    onMarkXInportChange();
-    markXInport_.onChange(onMarkXInportChange);
+    const auto& onMarkXFlatMultiInportChange = [this]() {
+            std::vector<OptionPropertyStringOption> markShiftToZeroXPropertyOptionVector;
+            markShiftToZeroXPropertyOptionVector.emplace_back("<none>", "<None>", "<none");
+            for (const auto& markXSharedPtr : markXFlatMultiInport_.getVectorData()) {
+                const auto& variableName = markXSharedPtr->variableInfo.variableName;
+                markShiftToZeroXPropertyOptionVector.emplace_back(
+                        variableName,
+                        variableName,
+                        variableName
+                    );
+            }
+            markShiftToZeroXProperty_.replaceOptions(markShiftToZeroXPropertyOptionVector);
 
-    const auto& onMarkYInportChange = [this]() {
-            const auto& visible = !markYInport_.getVectorData().empty();
-            markShiftToZeroYProperty_.setVisible(visible);
         };
-    onMarkYInportChange();
-    markYInport_.onChange(onMarkYInportChange);
+    onMarkXFlatMultiInportChange();
+    markXFlatMultiInport_.onChange(onMarkXFlatMultiInportChange);
+
+    const auto& onMarkYFlatMultiInportChange = [this]() {
+            std::vector<OptionPropertyStringOption> markShiftToZeroYPropertyOptionVector;
+            markShiftToZeroYPropertyOptionVector.emplace_back("<none>", "<None>", "<none");
+            for (const auto& markYSharedPtr : markYFlatMultiInport_.getVectorData()) {
+                const auto& variableName = markYSharedPtr->variableInfo.variableName;
+                markShiftToZeroYPropertyOptionVector.emplace_back(
+                        variableName,
+                        variableName,
+                        variableName
+                    );
+            }
+            markShiftToZeroYProperty_.replaceOptions(markShiftToZeroYPropertyOptionVector);
+
+        };
+    onMarkYFlatMultiInportChange();
+    markYFlatMultiInport_.onChange(onMarkYFlatMultiInportChange);
 
     const auto& onaxisLimitAutoAdjustXPropertyChange = [this]() {
             const auto& visible = !axisLimitAutoAdjustXProperty_.get();
@@ -137,61 +160,105 @@ Plotter::Plotter()
 void Plotter::process() {
 
     auto functionSharedPtrVector = functionFlatMultiInport_.getVectorData();
-    auto markXSharedPtrVector = markXInport_.getVectorData();
-    auto markYSharedPtrVector = markYInport_.getVectorData();
+    auto markXSharedPtrVector = markXFlatMultiInport_.getVectorData();
+    auto markYSharedPtrVector = markYFlatMultiInport_.getVectorData();
 
     if (sortOnNameProperty_.get()) {
         std::sort(
                 functionSharedPtrVector.begin(),
                 functionSharedPtrVector.end(),
-                [](const auto& lhs, const auto& rhs) {
-                        return lhs->yAxis.variableName < rhs->yAxis.variableName;
+                [](const auto& lhs, const auto& rhs){
+                        return StringCompareNatural(
+                                lhs->yAxis.variableInfo.variableName,
+                                rhs->yAxis.variableInfo.variableName
+                            );
                     }
             );
         }
 
-    const auto& setAxis = [](const auto& functionPyDict, const auto& axisName, const auto& axis) {
-
-            const auto& axisPyDict = PyDict_New();
-            const auto& setList = [&axisPyDict](const char* name, auto value) {
-                    auto valuePyList = utilpy::makePyList(value);
-                    PyDict_SetItemString(axisPyDict, name, valuePyList);
-                    Py_DecRef(valuePyList);
-                };
-            const auto& setValue = [&axisPyDict](const char* name, auto value) {
-                    const auto& valuePyObject = PyValueParser::toPyObject(value);
-                    PyDict_SetItemString(axisPyDict, name, valuePyObject);
-                    Py_DecRef(valuePyObject);
-                };
-            setList("data", axis.data);
-            setValue("variable_name", axis.variableName);
-            setValue("variable_symbol", axis.variableSymbol);
-            setValue("quantity_name", axis.quantityName);
-            setValue("quantity_symbol", axis.quantitySymbol);
-            setValue("unit", axis.unit);
-            PyDict_SetItemString(functionPyDict, axisName, axisPyDict);
-            Py_DecRef(axisPyDict);
-
+    const auto& setPyValue = [](
+            const auto& pyDict, const auto& name, const auto& value
+        ) {
+            const auto& valuePyObject = PyValueParser::toPyObject(value);
+            PyDict_SetItemString(pyDict, name, valuePyObject);
+            Py_DecRef(valuePyObject);
         };
+
+    const auto& setPyList = [](
+            const auto& pyDict, const auto& name, const auto& value
+        ){
+            auto valuePyList = utilpy::makePyList(value);
+            PyDict_SetItemString(pyDict, name, valuePyList);
+            Py_DecRef(valuePyList);
+        };
+
+    const auto& createVariableInfoPyDict = [&setPyValue](const auto& variableInfo) {
+            const auto& variableInfoPyDict = PyDict_New();
+            setPyValue(variableInfoPyDict, "variable_name", variableInfo.variableName);
+            setPyValue(variableInfoPyDict, "variable_symbol", variableInfo.variableSymbol);
+            setPyValue(variableInfoPyDict, "quantity_name", variableInfo.quantityName);
+            setPyValue(variableInfoPyDict, "quantity_symbol", variableInfo.quantitySymbol);
+            setPyValue(variableInfoPyDict, "unit", variableInfo.unit);
+            return variableInfoPyDict;
+        };
+
+    const auto& createPointPyDict = [&setPyValue, &createVariableInfoPyDict](
+            const auto& point
+        ) {
+            const auto& pointPyDict = PyDict_New();
+            const auto& variableInfoPyDict = createVariableInfoPyDict(point.variableInfo);
+            PyDict_SetItemString(pointPyDict, "variable_info", variableInfoPyDict);
+            Py_DecRef(variableInfoPyDict);
+            setPyValue(pointPyDict, "value", point.value);
+            return pointPyDict;
+        };
+
+    const auto& createMarkPyDictPyList = [&createPointPyDict](
+            const auto& markAxisSharedPtrVector
+        ) {
+            const auto& markPyDictPyList = PyList_New(0);
+            for (const auto& markAxisSharedPtr : markAxisSharedPtrVector) {
+                const auto& markPyDict = createPointPyDict(*markAxisSharedPtr);
+                PyList_Append(markPyDictPyList, markPyDict);
+                Py_DecRef(markPyDict);
+            }
+            return markPyDictPyList;
+        };
+
+    const auto& createAxisPyDict = [&setPyList, &createVariableInfoPyDict](const auto& axis) {
+            const auto& axisPyDict = PyDict_New();
+            const auto& variableInfoPyDict = createVariableInfoPyDict(axis.variableInfo);
+            PyDict_SetItemString(axisPyDict, "variable_info", variableInfoPyDict);
+            Py_DecRef(variableInfoPyDict);
+            setPyList(axisPyDict, "value_list", axis.valueVector);
+            return axisPyDict;
+        };
+
+    const auto& createFunctionPyDict = [&createAxisPyDict](const auto& function) {
+            const auto& functionPyDict = PyDict_New();
+            const auto& xAxisPyDict = createAxisPyDict(function.xAxis);
+            const auto& yAxisPyDict = createAxisPyDict(function.yAxis);
+            PyDict_SetItemString(functionPyDict, "x_axis", xAxisPyDict);
+            PyDict_SetItemString(functionPyDict, "y_axis", yAxisPyDict);
+            Py_DecRef(xAxisPyDict);
+            Py_DecRef(yAxisPyDict);
+            return functionPyDict;
+        };
+
+    const auto& markPyDictPyListPyDict = PyDict_New();
+    const auto& markXAxisPyDictPyList = createMarkPyDictPyList(markXSharedPtrVector);
+    const auto& markYAxisPyDictPyList = createMarkPyDictPyList(markYSharedPtrVector);
+    PyDict_SetItemString(markPyDictPyListPyDict, "x_axis", markXAxisPyDictPyList);
+    PyDict_SetItemString(markPyDictPyListPyDict, "y_axis", markYAxisPyDictPyList);
+    Py_DecRef(markXAxisPyDictPyList);
+    Py_DecRef(markYAxisPyDictPyList);
 
     const auto& functionListPyList = PyList_New(0);
     for (const auto& functionSharedPtr : functionSharedPtrVector) {
-        const auto& functionPyDict = PyDict_New();
-        setAxis(functionPyDict, "xAxis", functionSharedPtr->xAxis);
-        setAxis(functionPyDict, "yAxis", functionSharedPtr->yAxis);
+        const auto& functionPyDict = createFunctionPyDict(*functionSharedPtr);
         PyList_Append(functionListPyList, functionPyDict);
         Py_DecRef(functionPyDict);
     }
-
-    const auto& markPyDict = PyDict_New();
-    if (markXSharedPtrVector.empty())
-        PyDict_SetItemString(markPyDict, "xAxis", Py_None);
-    else
-        setAxis(markPyDict, "xAxis", markXSharedPtrVector.front()->yAxis);
-    if (markYSharedPtrVector.empty())
-        PyDict_SetItemString(markPyDict, "yAxis", Py_None);
-    else
-        setAxis(markPyDict, "yAxis", markYSharedPtrVector.front()->yAxis);
 
     const auto& legendShow = legendShowProperty_.get();
     const auto& legendShowPyObject = PyValueParser::toPyObject(legendShow);
@@ -200,34 +267,44 @@ void Plotter::process() {
     const auto& legendSymbolsPyObject = PyValueParser::toPyObject(legendSymbols);
 
     const auto& markShiftToZeroPyDict = PyDict_New();
-    const auto& markShiftToZeroX = markShiftToZeroXProperty_.get();
-    const auto& markShiftToZeroXPyObject = PyValueParser::toPyObject(markShiftToZeroX);
-    PyDict_SetItemString(markShiftToZeroPyDict, "xAxis", markShiftToZeroXPyObject);
-    const auto& markShiftToZeroY = markShiftToZeroYProperty_.get();
-    const auto& markShiftToZeroYPyObject = PyValueParser::toPyObject(markShiftToZeroY);
-    PyDict_SetItemString(markShiftToZeroPyDict, "yAxis", markShiftToZeroYPyObject);
+    if (markShiftToZeroXProperty_.getSelectedIdentifier() == "<none>") {
+        PyDict_SetItemString(markShiftToZeroPyDict, "x_axis", Py_None);
+    } else {
+        const auto& index = markShiftToZeroXProperty_.getSelectedIndex() - 1;
+        const auto& markPyDict = createPointPyDict(*markXFlatMultiInport_.getVectorData()[index]);
+        PyDict_SetItemString(markShiftToZeroPyDict, "x_axis", markPyDict);
+        Py_DecRef(markPyDict);
+    }
+    if (markShiftToZeroYProperty_.getSelectedIdentifier() == "<none>") {
+        PyDict_SetItemString(markShiftToZeroPyDict, "y_axis", Py_None);
+    } else {
+        const auto& index = markShiftToZeroYProperty_.getSelectedIndex() - 1;
+        const auto& markPyDict = createPointPyDict(*markYFlatMultiInport_.getVectorData()[index]);
+        PyDict_SetItemString(markShiftToZeroPyDict, "y_axis", markPyDict);
+        Py_DecRef(markPyDict);
+    }
 
     const auto& axisLimitPyDict = PyDict_New();
     if (axisLimitAutoAdjustXProperty_.get()) {
-        PyDict_SetItemString(axisLimitPyDict, "xAxis", Py_None);
+        PyDict_SetItemString(axisLimitPyDict, "x_axis", Py_None);
     } else {
         const auto& axisLimitX = axisLimitXProperty_.get();
         const auto& axisLimitXPythonList = utilpy::makePyList<float>({
                 axisLimitX[0],
                 axisLimitX[1],
             });
-        PyDict_SetItemString(axisLimitPyDict, "xAxis", axisLimitXPythonList);
+        PyDict_SetItemString(axisLimitPyDict, "x_axis", axisLimitXPythonList);
         Py_DecRef(axisLimitXPythonList);
     }
     if (axisLimitAutoAdjustYProperty_.get()) {
-        PyDict_SetItemString(axisLimitPyDict, "yAxis", Py_None);
+        PyDict_SetItemString(axisLimitPyDict, "y_axis", Py_None);
     } else {
         const auto& axisLimitY = axisLimitYProperty_.get();
         const auto& axisLimitYPythonList = utilpy::makePyList<float>({
                 axisLimitY[0],
                 axisLimitY[1]
             });
-        PyDict_SetItemString(axisLimitPyDict, "yAxis", axisLimitYPythonList);
+        PyDict_SetItemString(axisLimitPyDict, "y_axis", axisLimitYPythonList);
         Py_DecRef(axisLimitYPythonList);
     }
 
@@ -236,7 +313,7 @@ void Plotter::process() {
 
     PythonScript::VariableMap variableMap {
             { "function_list", functionListPyList },
-            { "mark", markPyDict },
+            { "mark_list_dict", markPyDictPyListPyDict },
             { "legend_show", legendShowPyObject },
             { "legend_symbols", legendSymbolsPyObject },
             { "mark_shift_to_zero", markShiftToZeroPyDict },
@@ -279,76 +356,81 @@ void Plotter::process() {
             "fig, ax = plt.subplots()\n"
             "\n"
             "line_func = {\n"
-            "    \"xAxis\" : ax.axvline,\n"
-            "    \"yAxis\" : ax.axhline,\n"
+            "    \"x_axis\" : ax.axvline,\n"
+            "    \"y_axis\" : ax.axhline,\n"
             "}\n"
-            "mark_shift = {\n"
-            "    axis : (\n"
-            "        mark[axis][\"data\"][0]\n"
-            "        if mark_shift_to_zero[axis] and mark[axis]\n"
-            "        else 0\n"
-            "    )\n"
-            "    for axis in [\"xAxis\", \"yAxis\"]\n"
-            "}\n"
-            "for axis in [\"xAxis\", \"yAxis\"]:\n"
-            "    if mark[axis]:\n"
+            "for axis in [\"x_axis\", \"y_axis\"]:\n"
+            "    for mark in mark_list_dict[axis]:\n"
+            "        label = mark[\"variable_info\"][\n"
+            "            \"variable_symbol\" if legend_symbols else \"variable_name\"\n"
+            "        ]\n"
             "        line_func[axis](\n"
-            "            mark[axis][\"data\"][0] - mark_shift[axis],\n"
-            "            color='red',\n"
+            "            mark[\"value\"] - (\n"
+            "                mark_shift_to_zero[axis][\"value\"]\n"
+            "                    if mark_shift_to_zero[axis]\n"
+            "                    else 0\n"
+            "            ),\n"
             "            linestyle='dashed',\n"
-            "            label=mark[axis][\n"
-            "                \"variable_symbol\"\n"
-            "                    if legend_symbols\n"
-            "                    else \"variable_name\"\n"
-            "            ]\n"
+            "            label=label\n"
             "        )\n"
             "\n"
             "for function in function_list:\n"
-            "    label = function[\"yAxis\"][\n"
+            "    label = function[\"y_axis\"][\"variable_info\"][\n"
             "        \"variable_symbol\" if legend_symbols else \"variable_name\"\n"
             "    ]\n"
             "    ax.plot(\n"
             "        *[\n"
-            "            [value - mark_shift[axis] for value in function[axis][\"data\"]]\n"
-            "            for axis in [\"xAxis\", \"yAxis\"]\n"
+            "            [\n"
+            "                value - (\n"
+            "                    mark_shift_to_zero[axis][\"value\"]\n"
+            "                        if mark_shift_to_zero[axis]\n"
+            "                        else 0\n"
+            "                )\n"
+            "                for value in function[axis][\"value_list\"]\n"
+            "            ]\n"
+            "            for axis in [\"x_axis\", \"y_axis\"]\n"
             "        ],\n"
             "        label=label\n"
             "    )\n"
             "\n"
             "set_label_func = {\n"
-            "    \"xAxis\" : ax.set_xlabel,\n"
-            "    \"yAxis\" : ax.set_ylabel,\n"
+            "    \"x_axis\" : ax.set_xlabel,\n"
+            "    \"y_axis\" : ax.set_ylabel,\n"
             "}\n"
             "if function_list:\n"
-            "    for axis in [\"xAxis\", \"yAxis\"]:\n"
+            "    for axis in [\"x_axis\", \"y_axis\"]:\n"
             "        set_label_func[axis](join_iterator_unique(\"\\n\", [\n"
             "            join_iterator_if(\" \", [\n"
             "                join_iterator_if(\", \", [\n"
-            "                    function[axis][\"quantity_name\"],\n"
+            "                    function[axis][\"variable_info\"][\"quantity_name\"],\n"
             "                    join_iterator_if(\"-\", [\n"
-            "                        function[axis][\"quantity_symbol\"],\n"
-            "                        mark[axis][\"variable_symbol\"]\n"
-            "                            if mark_shift_to_zero[axis] and mark[axis]\n"
+            "                        function[axis][\"variable_info\"][\"quantity_symbol\"],\n"
+            "                        mark_shift_to_zero[axis][\"variable_info\"][\n"
+            "                            \"variable_symbol\"]\n"
+            "                            if mark_shift_to_zero[axis]\n"
             "                            else \"\"\n"
             "                    ])\n"
             "                ]),\n"
-            "                format_value_if(\"[{}]\", function[axis][\"unit\"]),\n"
+            "                format_value_if(\n"
+            "                    \"[{}]\",\n"
+            "                    function[axis][\"variable_info\"][\"unit\"]\n"
+            "                ),\n"
             "            ])\n"
             "            for function in function_list\n"
             "        ]))\n"
             "\n"
-            "if legend_show:\n"
+            "if legend_show and (function_list or mark_list):\n"
             "    ax.legend()\n"
             "\n"
             "set_lim_func = {\n"
-            "    \"xAxis\" : ax.set_xlim,\n"
-            "    \"yAxis\" : ax.set_ylim,\n"
+            "    \"x_axis\" : ax.set_xlim,\n"
+            "    \"y_axis\" : ax.set_ylim,\n"
             "}\n"
             "get_lim_func = {\n"
-            "    \"xAxis\" : ax.get_xlim,\n"
-            "    \"yAxis\" : ax.get_ylim,\n"
+            "    \"x_axis\" : ax.get_xlim,\n"
+            "    \"y_axis\" : ax.get_ylim,\n"
             "}\n"
-            "for axis in [\"xAxis\", \"yAxis\"]:\n"
+            "for axis in [\"x_axis\", \"y_axis\"]:\n"
             "    if axis_limit[axis]:\n"
             "        set_lim_func[axis](*axis_limit[axis])\n"
             "    axis_limit[axis] = get_lim_func[axis]()\n"
@@ -380,7 +462,7 @@ void Plotter::process() {
 
             const auto& axisLimitPyDict = PyDict_GetItemString(variablesDict, "axis_limit");
             if (axisLimitAutoAdjustXProperty_.get()) {
-                const auto& axisLimitXPyTuple = PyDict_GetItemString(axisLimitPyDict, "xAxis");
+                const auto& axisLimitXPyTuple = PyDict_GetItemString(axisLimitPyDict, "x_axis");
                 const auto& axisLimitX = glm::vec2 {
                         PyFloat_AsDouble(PyTuple_GetItem(axisLimitXPyTuple, 0)),
                         PyFloat_AsDouble(PyTuple_GetItem(axisLimitXPyTuple, 1)),
@@ -391,7 +473,7 @@ void Plotter::process() {
                 axisLimitXProperty_.setRangeMax(axisLimitX[1] + widthHalfX);
             }
             if (axisLimitAutoAdjustYProperty_.get()) {
-                const auto& axisLimitYPyTuple = PyDict_GetItemString(axisLimitPyDict, "yAxis");
+                const auto& axisLimitYPyTuple = PyDict_GetItemString(axisLimitPyDict, "y_axis");
                 const auto& axisLimitY = glm::vec2 {
                         PyFloat_AsDouble(PyTuple_GetItem(axisLimitYPyTuple, 0)),
                         PyFloat_AsDouble(PyTuple_GetItem(axisLimitYPyTuple, 1)),

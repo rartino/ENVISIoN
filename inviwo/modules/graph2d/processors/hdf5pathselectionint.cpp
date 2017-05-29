@@ -68,8 +68,9 @@ void HDF5PathSelectionInt::process() {
     const auto& hdf5HandleSharedPtr = hdf5HandleInport_.getData();
 
     std::ostringstream ostringstream;
-    if (zeroPadWidthProperty_.get() != 0)
-        ostringstream << std::setfill('0') << std::setw(4);
+    const auto& zeroPadWidth = zeroPadWidthProperty_.get();
+    if (zeroPadWidth != 0)
+        ostringstream << std::setfill('0') << std::setw(zeroPadWidth);
     ostringstream << intProperty_.get();
     const auto& hdf5Path = ostringstream.str();
 

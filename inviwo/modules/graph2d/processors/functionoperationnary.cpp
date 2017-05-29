@@ -31,6 +31,8 @@
 
 #include <inviwo/core/common/inviwo.h>
 
+#include <modules/graph2d/util/stringcomparenatural.h>
+
 namespace inviwo {
 
 const ProcessorInfo FunctionOperationNary::processorInfo_ {
@@ -122,16 +124,30 @@ void FunctionOperationNary::process() {
     if (!functionSharedPtrVector.empty()) {
 
         // Define x axis.
-        Function::Axis xAxis;
+        Axis xAxis;
 
-        // Set x axis properties.
-        // TODO: We just assume all the properties are the same for all the inputs.
-        const auto& functionXAxis = functionSharedPtrVector.front()->xAxis;
-        xAxis.variableName = functionXAxis.variableName;
-        xAxis.variableSymbol = functionXAxis.variableSymbol;
-        xAxis.quantityName = functionXAxis.quantityName;
-        xAxis.quantitySymbol = functionXAxis.quantitySymbol;
-        xAxis.unit = functionXAxis.unit;
+        // Set x axis variable info.
+        xAxis.variableInfo = functionSharedPtrVector.front()->xAxis.variableInfo;
+        if (!std::all_of(
+                functionSharedPtrVector.begin(),
+                functionSharedPtrVector.end(),
+                [&xAxis](const auto& functionSharedPtr) {
+                        return
+                            functionSharedPtr->xAxis.variableInfo.variableName ==
+                                xAxis.variableInfo.variableName
+                            && functionSharedPtr->xAxis.variableInfo.variableSymbol ==
+                                xAxis.variableInfo.variableSymbol
+                            && functionSharedPtr->xAxis.variableInfo.quantityName ==
+                                xAxis.variableInfo.quantityName
+                            && functionSharedPtr->xAxis.variableInfo.quantitySymbol ==
+                                xAxis.variableInfo.quantitySymbol
+                            && functionSharedPtr->xAxis.variableInfo.unit ==
+                                xAxis.variableInfo.unit;
+                    }
+            )
+        ) {
+            LogProcessorWarn("Not all functions have the same x axis variable info");
+        }
 
         // Gather x axis data.
         std::vector<float> xAxisData;
@@ -140,13 +156,13 @@ void FunctionOperationNary::process() {
                 functionSharedPtrVector.end(),
                 0,
                 [](const auto& size, const auto& functionSharedPtr) {
-                        return size + functionSharedPtr->xAxis.data.size();
+                        return size + functionSharedPtr->xAxis.valueVector.size();
                     }
             ));
         for (const auto& functionSharedPtr : functionSharedPtrVector) {
             std::copy(
-                    functionSharedPtr->xAxis.data.begin(),
-                    functionSharedPtr->xAxis.data.end(),
+                    functionSharedPtr->xAxis.valueVector.begin(),
+                    functionSharedPtr->xAxis.valueVector.end(),
                     std::back_inserter(xAxisData)
                 );
         }
@@ -154,14 +170,14 @@ void FunctionOperationNary::process() {
 
         // Filter x axis data.
         if (!sampleFilterEnableProperty_.get()) {
-            xAxis.data.swap(xAxisData);
+            xAxis.valueVector.swap(xAxisData);
         } else {
             const auto& sampleFilterEpsilon = sampleFilterEpsilonProperty_.get();
             auto lastValue = -std::numeric_limits<float>::infinity();
             std::copy_if(
                     xAxisData.begin(),
                     xAxisData.end(),
-                    std::back_inserter(xAxis.data),
+                    std::back_inserter(xAxis.valueVector),
                     [&sampleFilterEpsilon, &lastValue](const auto& value) {
                             if (value <= lastValue + sampleFilterEpsilon)
                                 return false;
@@ -172,7 +188,7 @@ void FunctionOperationNary::process() {
         }
 
         // Define y axis.
-        Function::Axis yAxis;
+        Axis yAxis;
 
         // Define help functions.
         const auto& tokenize = [](const auto& string) {
@@ -205,7 +221,7 @@ void FunctionOperationNary::process() {
                 functionSharedPtrVector.end(),
                 std::back_inserter(variableNameTokenVectorVector),
                 [&tokenize](const auto& functionSharedPtr) {
-                        return tokenize(functionSharedPtr->yAxis.variableName);
+                        return tokenize(functionSharedPtr->yAxis.variableInfo.variableName);
                     }
             );
         std::vector<std::string> resultVariableNameTokenVector;
@@ -215,38 +231,32 @@ void FunctionOperationNary::process() {
                 referenceVariableNameTokenVector.end(),
                 std::back_inserter(resultVariableNameTokenVector),
                 [&variableNameTokenVectorVector, indexBase = size_t(0)](
-                        const auto& referenceVariableWord
+                        const auto& referenceVariableNameToken
                     ) mutable {
                         const auto& index = indexBase++;
                         return std::all_of(
                                 variableNameTokenVectorVector.begin(),
                                 variableNameTokenVectorVector.end(),
-                                [&referenceVariableWord, &index](const auto& variableWordVector) {
+                                [&referenceVariableNameToken, &index](
+                                        const auto& variableNameTokenVector
+                                    ) {
                                         return
-                                            index < variableWordVector.size()
-                                            && variableWordVector[index] == referenceVariableWord;
+                                            index < variableNameTokenVector.size()
+                                            && variableNameTokenVector[index] ==
+                                                referenceVariableNameToken;
                                     }
                             );
                     }
             );
-        if (std::all_of(
-                resultVariableNameTokenVector.begin(),
-                resultVariableNameTokenVector.end(),
-                [](const auto& resultVariableNameToken) {
-                        return !resultVariableNameToken.empty();
-                    }
-            )
-        ) {
-            std::string last;
-            for (const auto& token : resultVariableNameTokenVector) {
-                if (!((last == "" || last == "-" || last == " ") && (token == "-" || token == " ")))
-                    yAxis.variableName += token;
-                last = token;
-            }
-            if (!yAxis.variableName.empty())
-                yAxis.variableName += " ";
-            yAxis.variableName += operation.resultName;
+        std::string last;
+        for (const auto& token : resultVariableNameTokenVector) {
+            if (!((last == "" || last == "-" || last == " ") && (token == "-" || token == " ")))
+                yAxis.variableInfo.variableName += token;
+            last = token;
         }
+        if (!yAxis.variableInfo.variableName.empty())
+            yAxis.variableInfo.variableName += " ";
+        yAxis.variableInfo.variableName += operation.resultName;
 
         // Set y axis variable symbol.
         std::vector<std::string> variableSymbolVector;
@@ -255,7 +265,7 @@ void FunctionOperationNary::process() {
                 functionSharedPtrVector.end(),
                 std::back_inserter(variableSymbolVector),
                 [](const auto& functionSharedPtr) {
-                        return functionSharedPtr->yAxis.variableSymbol;
+                        return functionSharedPtr->yAxis.variableInfo.variableSymbol;
                     }
             );
         if (std::all_of(
@@ -267,26 +277,50 @@ void FunctionOperationNary::process() {
             )
         ) {
             for (const auto& variableSymbol : variableSymbolVector) {
-                if (!yAxis.variableSymbol.empty())
-                    yAxis.variableSymbol += " " + operation.resultSymbol + " ";
-                yAxis.variableSymbol += variableSymbol;
+                if (!yAxis.variableInfo.variableSymbol.empty())
+                    yAxis.variableInfo.variableSymbol += " " + operation.resultSymbol + " ";
+                yAxis.variableInfo.variableSymbol += variableSymbol;
             }
         }
 
         // Set other y axis properties.
-        // TODO: We just assume all the properties are the same for all the inputs.
         if (operation.identifier == "add") {
-            const auto& functionYAxis = functionSharedPtrVector.front()->yAxis;
-            yAxis.quantityName = functionYAxis.quantityName;
-            yAxis.quantitySymbol = functionYAxis.quantitySymbol;
-            yAxis.unit = functionYAxis.unit;
+            yAxis.variableInfo.quantityName =
+                functionSharedPtrVector.front()->yAxis.variableInfo.quantityName;
+            yAxis.variableInfo.quantitySymbol =
+                functionSharedPtrVector.front()->yAxis.variableInfo.quantitySymbol;
+            yAxis.variableInfo.unit =
+                functionSharedPtrVector.front()->yAxis.variableInfo.unit;
+            if (!std::all_of(
+                    functionSharedPtrVector.begin(),
+                    functionSharedPtrVector.end(),
+                    [&yAxis](const auto& functionSharedPtr) {
+                            return
+                                functionSharedPtr->yAxis.variableInfo.quantityName ==
+                                    yAxis.variableInfo.quantityName
+                                && functionSharedPtr->yAxis.variableInfo.quantitySymbol ==
+                                    yAxis.variableInfo.quantitySymbol
+                                && functionSharedPtr->yAxis.variableInfo.unit ==
+                                    yAxis.variableInfo.unit;
+                        }
+                )
+            ) {
+                LogProcessorWarn("Not all functions have the same y axis variable info");
+            }
+        } else {
+            LogProcessorInfo(
+                    std::string()
+                    + "Dropped variable info for"
+                    + " "
+                    + yAxis.variableInfo.variableName
+                );
         }
 
         // Define help functions.
         const auto& undefinedFallback = undefinedFallbackProperty_.getSelectedIdentifier();
         const auto& evaluate = [&undefinedFallback](const Function& function, const float& xValue) {
-                const auto& xData = function.xAxis.data;
-                const auto& yData = function.yAxis.data;
+                const auto& xData = function.xAxis.valueVector;
+                const auto& yData = function.yAxis.valueVector;
                 const auto& lower_iter = std::lower_bound(xData.begin(), xData.end(), xValue);
                 const auto& upper_iter = std::upper_bound(xData.begin(), xData.end(), xValue);
                 if (lower_iter == xData.end()) {
@@ -305,15 +339,15 @@ void FunctionOperationNary::process() {
             };
 
         // Calculate y axis data.
-        yAxis.data.reserve(xAxis.data.size());
+        yAxis.valueVector.reserve(xAxis.valueVector.size());
         std::generate_n(
-                std::back_inserter(yAxis.data),
-                xAxis.data.size(),
+                std::back_inserter(yAxis.valueVector),
+                xAxis.valueVector.size(),
                 [
                         &operation,
                         &evaluate,
                         &functionSharedPtrVector,
-                        xDataIter = xAxis.data.begin()
+                        xDataIter = xAxis.valueVector.begin()
                     ]() mutable {
                         const auto& xValue = *xDataIter++;
                         return std::accumulate(

@@ -31,6 +31,8 @@
 
 #include <inviwo/core/common/inviwo.h>
 
+#include <modules/graph2d/util/stringcomparenatural.h>
+
 namespace inviwo {
 
 const ProcessorInfo HDF5PathSelectionIntVector::processorInfo_ {
@@ -68,15 +70,16 @@ void HDF5PathSelectionIntVector::process() {
     const auto& hdf5HandleSharedPtr = hdf5HandleInport_.getData();
 
     std::vector<std::string> hdf5PathVector;
-    for (const auto& selectedIndex : intVectorProperty_.get()) {
+    for (const auto& int_ : intVectorProperty_.get()) {
         std::ostringstream ostringstream;
-        if (zeroPadWidthProperty_.get() != 0)
-            ostringstream << std::setfill('0') << std::setw(4);
-        ostringstream << selectedIndex;
+        const auto& zeroPadWidth = zeroPadWidthProperty_.get();
+        if (zeroPadWidth != 0)
+            ostringstream << std::setfill('0') << std::setw(zeroPadWidth);
+        ostringstream << int_;
         hdf5PathVector.push_back(ostringstream.str());
     }
 
-    std::sort(hdf5PathVector.begin(), hdf5PathVector.end());
+    std::sort(hdf5PathVector.begin(), hdf5PathVector.end(), StringCompareNatural);
 
     for (const auto& hdf5Path : hdf5PathVector) {
         // WORKAROUND: `getHandleForPath` should really return a value not a pointer...

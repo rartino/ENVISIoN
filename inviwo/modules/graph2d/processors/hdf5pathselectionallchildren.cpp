@@ -31,6 +31,8 @@
 
 #include <inviwo/core/common/inviwo.h>
 
+#include <modules/graph2d/util/stringcomparenatural.h>
+
 namespace inviwo {
 
 const ProcessorInfo HDF5PathSelectionAllChildren::processorInfo_ {
@@ -70,7 +72,7 @@ void HDF5PathSelectionAllChildren::process() {
             hdf5PathVector.push_back(childName);
     }
 
-    std::sort(hdf5PathVector.begin(), hdf5PathVector.end());
+    std::sort(hdf5PathVector.begin(), hdf5PathVector.end(), StringCompareNatural);
 
     for (const auto& hdf5Path : hdf5PathVector) {
         // WORKAROUND: `getHandleForPath` should really return a value not a pointer...

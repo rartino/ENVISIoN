@@ -102,38 +102,45 @@ void FunctionOperationUnary::process() {
 
     for (const auto& functionSharedPtr : functionSharedPtrVector) {
 
-        Function::Axis xAxis;
+        Axis xAxis = functionSharedPtr->xAxis;
 
-        const auto& functionXAxis = functionSharedPtr->xAxis;
-        xAxis.variableName = functionXAxis.variableName;
-        xAxis.variableSymbol = functionXAxis.variableSymbol;
-        xAxis.quantityName = functionXAxis.quantityName;
-        xAxis.quantitySymbol = functionXAxis.quantitySymbol;
-        xAxis.unit = functionXAxis.unit;
-        xAxis.data = functionXAxis.data;
+        Axis yAxis;
 
-        Function::Axis yAxis;
-
-        const auto& functionYAxis = functionSharedPtr->yAxis;
-        if (!functionYAxis.variableName.empty())
-            yAxis.variableName = functionYAxis.variableName + " " + operation.resultName;
-        if (!functionYAxis.variableSymbol.empty())
-            yAxis.variableSymbol = operation.resultSymbol + functionYAxis.variableSymbol;
-        if (operation.identifier == "negate") {
-            yAxis.quantityName = functionYAxis.quantityName;
-            yAxis.quantitySymbol = functionYAxis.quantitySymbol;
-            yAxis.unit = functionYAxis.unit;
+        if (!functionSharedPtr->yAxis.variableInfo.variableName.empty()) {
+            yAxis.variableInfo.variableName =
+                functionSharedPtr->yAxis.variableInfo.variableName + " " + operation.resultName;
         }
-        yAxis.data = functionYAxis.data;
-        for (auto&& value : yAxis.data)
+        if (!functionSharedPtr->yAxis.variableInfo.variableSymbol.empty()) {
+            yAxis.variableInfo.variableSymbol =
+                operation.resultSymbol + functionSharedPtr->yAxis.variableInfo.variableSymbol;
+        }
+        if (operation.identifier == "negate") {
+            yAxis.variableInfo.quantityName =
+                functionSharedPtr->yAxis.variableInfo.quantityName;
+            yAxis.variableInfo.quantitySymbol =
+                functionSharedPtr->yAxis.variableInfo.quantitySymbol;
+            yAxis.variableInfo.unit =
+                functionSharedPtr->yAxis.variableInfo.unit;
+        } else {
+            LogProcessorInfo(
+                    std::string()
+                    + "Dropped variable info for"
+                    + " "
+                    + yAxis.variableInfo.variableName
+                );
+        }
+
+        yAxis.valueVector = functionSharedPtr->yAxis.valueVector;
+        for (auto&& value : yAxis.valueVector)
             value = operation.apply(value);
 
         functionVectorSharedPtr->emplace_back(Function {
                 std::move(xAxis),
-                std::move(yAxis)
+                std::move(yAxis),
             });
 
     }
+
 }
 
 } // namespace

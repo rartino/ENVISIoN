@@ -39,7 +39,7 @@
 #include <inviwo/core/properties/boolproperty.h>
 #include <inviwo/core/properties/ordinalproperty.h>
 
-#include <modules/graph2d/datastructures/function.h>
+#include <modules/graph2d/datastructures/graph2ddata.h>
 
 namespace inviwo {
 

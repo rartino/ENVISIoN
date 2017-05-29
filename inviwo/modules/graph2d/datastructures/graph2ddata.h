@@ -2,7 +2,7 @@
  *
  * Inviwo - Interactive Visualization Workshop
  *
- * Copyright (c) 2017 Inviwo Foundation
+ * Copyright (c) 2014-2017 Inviwo Foundation
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,37 +27,46 @@
  *
  *********************************************************************************/
 
-#include <modules/graph2d/graph2dmodule.h>
+#ifndef IVW_FUNCTION_H
+#define IVW_FUNCTION_H
 
-#include <modules/graph2d/datastructures/graph2ddata.h>
-#include <modules/graph2d/processors/hdf5pathselectionint.h>
-#include <modules/graph2d/processors/hdf5pathselectionintvector.h>
-#include <modules/graph2d/processors/hdf5pathselectionallchildren.h>
-#include <modules/graph2d/processors/hdf5topoint.h>
-#include <modules/graph2d/processors/hdf5tofunction.h>
-#include <modules/graph2d/processors/functionoperationunary.h>
-#include <modules/graph2d/processors/functionoperationnary.h>
-#include <modules/graph2d/processors/plotter.h>
+#include <modules/graph2d/graph2dmoduledefine.h>
+
+#include <inviwo/core/common/inviwo.h>
 
 namespace inviwo {
 
-graph2dModule::graph2dModule(InviwoApplication* app) : InviwoModule(app, "graph2d") {
+struct VariableInfo {
+    std::string variableName;
+    std::string variableSymbol;
+    std::string quantityName;
+    std::string quantitySymbol;
+    std::string unit;
+};
 
-    // Processors.
-    registerProcessor<HDF5PathSelectionInt>();
-    registerProcessor<HDF5PathSelectionIntVector>();
-    registerProcessor<HDF5PathSelectionAllChildren>();
-    registerProcessor<HDF5ToPoint>();
-    registerProcessor<HDF5ToFunction>();
-    registerProcessor<FunctionOperationUnary>();
-    registerProcessor<FunctionOperationNary>();
-    registerProcessor<Plotter>();
+struct Point {
+    VariableInfo variableInfo;
+    float value;
 
-    // Ports.
-    registerPort<DataOutport<Point>>("PointOutport");
-    registerPort<DataInport<Point>>("PointInport");
-    registerPort<DataOutport<Function>>("FunctionOutport");
-    registerPort<DataInport<Function>>("FunctionInport");
-}
+    static const std::string CLASS_IDENTIFIER;
+    static const uvec3 COLOR_CODE;
+    std::string getDataInfo() const;
+};
 
-} // namespace
+struct Axis {
+    VariableInfo variableInfo;
+    std::vector<float> valueVector;
+};
+
+struct Function {
+    Axis xAxis;
+    Axis yAxis;
+
+    static const std::string CLASS_IDENTIFIER;
+    static const uvec3 COLOR_CODE;
+    std::string getDataInfo() const;
+};
+
+}  // namespace
+
+#endif  // IVW_FUNCTION_H

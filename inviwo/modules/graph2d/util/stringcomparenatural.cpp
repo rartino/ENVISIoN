@@ -2,7 +2,7 @@
  *
  * Inviwo - Interactive Visualization Workshop
  *
- * Copyright (c) 2014-2017 Inviwo Foundation
+ * Copyright (c) 2017 Inviwo Foundation
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,45 +27,46 @@
  *
  *********************************************************************************/
 
-#ifndef IVW_FUNCTION_H
-#define IVW_FUNCTION_H
+#ifndef IVW_STRINGCOMPARENATURAL_H
+#define IVW_STRINGCOMPARENATURAL_H
 
-#include <modules/graph2d/graph2dmoduledefine.h>
+#include <modules/graph2d/util/stringcomparenatural.h>
 
 #include <inviwo/core/common/inviwo.h>
 
 namespace inviwo {
 
-struct Function {
-    struct Axis {
-        std::vector<float> data;
-        std::string variableName;
-        std::string variableSymbol;
-        std::string quantityName;
-        std::string quantitySymbol;
-        std::string unit;
-        std::string getDataInfo() const {
-            return
-                variableName
-                + " "
-                + "["
-                + std::to_string(data.size())
-                + "x"
-                + std::to_string(data.size())
-                + "]";
-        }
-    };
+bool StringCompareNatural(const std::string string1, const std::string string2) {
+    if (string1.empty() || (std::isdigit(string1[0]) && !std::isdigit(string2[0])))
+        return true;
+    if (string2.empty() || (!std::isdigit(string1[0]) && std::isdigit(string2[0])))
+        return false;
 
-    Axis xAxis;
-    Axis yAxis;
-
-    static const std::string CLASS_IDENTIFIER;
-    static const uvec3 COLOR_CODE;
-    std::string getDataInfo() const {
-        return xAxis.getDataInfo() + " " + "vs" + " " + yAxis.getDataInfo();
+    if (!std::isdigit(string1[0]) && !std::isdigit(string2[0])) {
+        int upper1 = std::toupper(string1[0]);
+        int upper2 = std::toupper(string2[0]);
+        if (upper1 == upper2)
+            return StringCompareNatural(string1.substr(1), string2.substr(1));
+        return (upper1 < upper2);
     }
-};
 
-}  // namespace
+    std::istringstream stream1(string1);
+    std::istringstream stream2(string2);
 
-#endif  // IVW_FUNCTION_H
+    unsigned long long1;
+    unsigned long long2;
+    stream1 >> long1;
+    stream2 >> long2;
+    if (long1 != long2)
+        return long1 < long2;
+
+    std::string stringResidual1;
+    std::string stringResidual2;
+    std::getline(stream1, stringResidual1);
+    std::getline(stream2, stringResidual2);
+    return StringCompareNatural(stringResidual1, stringResidual2);
+}
+
+} // namespace
+
+#endif // IVW_STRINGCOMPARENATURAL_H

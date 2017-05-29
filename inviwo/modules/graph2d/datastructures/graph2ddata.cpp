@@ -2,7 +2,7 @@
  *
  * Inviwo - Interactive Visualization Workshop
  *
- * Copyright (c) 2017 Inviwo Foundation
+ * Copyright (c) 2014-2017 Inviwo Foundation
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,37 +27,19 @@
  *
  *********************************************************************************/
 
-#include <modules/graph2d/graph2dmodule.h>
-
 #include <modules/graph2d/datastructures/graph2ddata.h>
-#include <modules/graph2d/processors/hdf5pathselectionint.h>
-#include <modules/graph2d/processors/hdf5pathselectionintvector.h>
-#include <modules/graph2d/processors/hdf5pathselectionallchildren.h>
-#include <modules/graph2d/processors/hdf5topoint.h>
-#include <modules/graph2d/processors/hdf5tofunction.h>
-#include <modules/graph2d/processors/functionoperationunary.h>
-#include <modules/graph2d/processors/functionoperationnary.h>
-#include <modules/graph2d/processors/plotter.h>
+
+#include <inviwo/core/common/inviwo.h>
 
 namespace inviwo {
 
-graph2dModule::graph2dModule(InviwoApplication* app) : InviwoModule(app, "graph2d") {
+const std::string Function::CLASS_IDENTIFIER = "org.envision.Function";
+const uvec3 Function::COLOR_CODE = { 255, 0, 0 };
+std::string Function::getDataInfo() const { return "Function"; }
 
-    // Processors.
-    registerProcessor<HDF5PathSelectionInt>();
-    registerProcessor<HDF5PathSelectionIntVector>();
-    registerProcessor<HDF5PathSelectionAllChildren>();
-    registerProcessor<HDF5ToPoint>();
-    registerProcessor<HDF5ToFunction>();
-    registerProcessor<FunctionOperationUnary>();
-    registerProcessor<FunctionOperationNary>();
-    registerProcessor<Plotter>();
+const std::string Point::CLASS_IDENTIFIER = "org.envision.Point";
+const uvec3 Point::COLOR_CODE = { 0, 255, 0 };
+std::string Point::getDataInfo() const { return "Point"; }
 
-    // Ports.
-    registerPort<DataOutport<Point>>("PointOutport");
-    registerPort<DataInport<Point>>("PointInport");
-    registerPort<DataOutport<Function>>("FunctionOutport");
-    registerPort<DataInport<Function>>("FunctionInport");
-}
+}  // namespace
 
-} // namespace

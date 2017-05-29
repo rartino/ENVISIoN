@@ -31,6 +31,8 @@
 
 #include <inviwo/core/common/inviwo.h>
 
+#include <modules/graph2d/util/stringcomparenatural.h>
+
 namespace inviwo {
 
 const ProcessorInfo HDF5ToFunction::processorInfo_ {
@@ -109,11 +111,11 @@ void HDF5ToFunction::pathSelectionOptionsReplace(OptionPropertyString& pathSelec
                             case H5G_DATASET: {
                                 const auto& childDataSet = group.openDataSet(childName);
                                 const auto& childTypeClass = childDataSet.getTypeClass();
-                                if (childTypeClass != H5T_INTEGER && childTypeClass != H5T_FLOAT)
+                                if (childTypeClass != H5T_FLOAT)
                                     return;
                                 const auto& childNdims =
                                     childDataSet.getSpace().getSimpleExtentNdims();
-                                if (childNdims > 1)
+                                if (childNdims != 1)
                                     return;
                                 pathOptionVector.push_back(childPath);
                                 break;
@@ -124,7 +126,7 @@ void HDF5ToFunction::pathSelectionOptionsReplace(OptionPropertyString& pathSelec
                     }
                 };
         fill(hdf5HandleSharedPtr->getGroup(), "");
-        std::sort(pathOptionVector.begin(), pathOptionVector.end());
+        std::sort(pathOptionVector.begin(), pathOptionVector.end(), StringCompareNatural);
         pathOptionVectorVector.push_back(std::move(pathOptionVector));
     }
 
@@ -182,7 +184,7 @@ void HDF5ToFunction::process() {
 
         const auto& createAxis = [&hdf5HandleSharedPtr, &groupPath](
                 const auto& pathSelectionProperty,
-                const auto& namePrependParentProperty
+                const auto& namePrependParentsProperty
             ) {
 
                 const auto& basename = [](const auto& pathString) {
@@ -208,34 +210,43 @@ void HDF5ToFunction::process() {
 
                 const auto& path = groupPath + "/" + pathSelectionProperty.getSelectedValue();
 
-                std::string name = "";
+                std::string variableName = "";
                 std::string parentPath;
                 size_t parentCount;
                 for(
                     parentPath = groupPath, parentCount = 0;
-                    !parentPath.empty() && parentCount != namePrependParentProperty.get();
+                    !parentPath.empty() && parentCount != namePrependParentsProperty.get();
                     parentPath = dirname(parentPath), ++parentCount
                 ) {
                     const auto parentBasename = basename(parentPath);
                     if (!parentBasename.empty())
-                        name = parentBasename + " " + name;
+                        variableName = parentBasename + " " + variableName;
                 }
-                name += getAttributeString(path, "VariableName", basename(path));
+                variableName += getAttributeString(path, "VariableName", basename(path));
 
-                return Function::Axis {
-                        hdf5HandleSharedPtr->getVectorAtPath<float>(path),
-                        name,
-                        getAttributeString(path, "VariableSymbol"),
-                        getAttributeString(path, "QuantityName"),
-                        getAttributeString(path, "QuantitySymbol"),
-                        getAttributeString(path, "Unit"),
+                std::vector<float> valueVector;
+                hsize_t dimensions;
+                const auto& dataSet = hdf5HandleSharedPtr->getGroup().openDataSet(path);
+                dataSet.getSpace().getSimpleExtentDims(&dimensions);
+                valueVector.resize(dimensions);
+                dataSet.read(valueVector.data(), dataSet.getDataType());
+
+                return Axis {
+                        {
+                                variableName,
+                                getAttributeString(path, "VariableSymbol"),
+                                getAttributeString(path, "QuantityName"),
+                                getAttributeString(path, "QuantitySymbol"),
+                                getAttributeString(path, "Unit"),
+                            },
+                        std::move(valueVector),
                     };
             };
 
         const auto& createAxisImplicit = [](const auto& otherAxis) {
-                Function::Axis axis;
-                axis.data.resize(otherAxis.data.size());
-                std::iota(axis.data.begin(), axis.data.end(), 0);
+                Axis axis;
+                axis.valueVector.resize(otherAxis.valueVector.size());
+                std::iota(axis.valueVector.begin(), axis.valueVector.end(), 0);
                 return axis;
             };
 
@@ -243,6 +254,27 @@ void HDF5ToFunction::process() {
         const auto& xAxis = implicitXProperty_.get()
             ? createAxisImplicit(yAxis)
             : createAxis(xPathSelectionProperty_, xNamePrependParentsProperty_);
+
+        if (xAxis.valueVector.size() != yAxis.valueVector.size()) {
+            LogProcessorWarn(
+                    std::string()
+                    + "Tried to create function from datasets of different size: "
+                    + xAxis.variableInfo.variableName
+                    + " "
+                    + "["
+                    + std::to_string(xAxis.valueVector.size())
+                    + "]"
+                    + ", "
+                    + yAxis.variableInfo.variableName
+                    +
+                    " "
+                    +
+                    "["
+                    + std::to_string(yAxis.valueVector.size())
+                    + "]"
+                );
+            continue;
+        }
 
         functionVectorSharedPtr->emplace_back(Function {
                 std::move(xAxis),

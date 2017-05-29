@@ -2,7 +2,7 @@
  *
  * Inviwo - Interactive Visualization Workshop
  *
- * Copyright (c) 2014-2017 Inviwo Foundation
+ * Copyright (c) 2017 Inviwo Foundation
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,15 +27,17 @@
  *
  *********************************************************************************/
 
-#include <modules/graph2d/datastructures/function.h>
+#ifndef IVW_STRINGCOMPARENATURAL_H
+#define IVW_STRINGCOMPARENATURAL_H
+
+#include <modules/graph2d/graph2dmoduledefine.h>
 
 #include <inviwo/core/common/inviwo.h>
 
 namespace inviwo {
 
-const std::string Function::CLASS_IDENTIFIER = "Function";
+bool StringCompareNatural(const std::string string1, const std::string string2);
 
-const uvec3 Function::COLOR_CODE = { 255, 0, 0 };
+} // namespace
 
-}  // namespace
-
+#endif // IVW_STRINGCOMPARENATURAL_H
