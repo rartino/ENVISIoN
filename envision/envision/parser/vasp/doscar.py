@@ -32,22 +32,23 @@ from ..h5writer import _write_dos
 from .incar import *
 
 def dos_line(f, ndos):
- """
-	Parses density of states data from DOSCAR
+    """
+        Parses density of states data from DOSCAR
 
-    Parameters
-    ----------
-	f : file object
-		File object containing data in DOSCAR file
-	ndos: int
+        Parameters
+        ----------
+        f : file object
+	    File object containing data in DOSCAR file
+        ndos: int
 		Number of lines in f to be parsed
 		
-    Returns
-    -------
-    data : list
+        Returns
+        -------
+        data : list
 		List of density of states data
-	line_length : float
+        line_length : float
 		Amount of column in each line
+
     """
     data = []
     line_length = []
@@ -62,27 +63,28 @@ def dos_line(f, ndos):
     return data, line_length
 
 def parse_doscar(h5file,vasp_file):
- """
+    """
 	Parses density of states data from DOSCAR
 
     Parameters
     ----------
-	h5file : str
-		String containing path to HDF-file
-	vasp_file : str
-		String containing path to DOSCAR file
+    h5file : str
+	String containing path to HDF-file
+    vasp_file : str
+	String containing path to DOSCAR file
 		
     Returns
     -------
     total : list
         List of names for total datasets
-	partial : list
-		List of names for partial datasets
-	total_data : list
-		List containing all the data for total density of states
-	partial_list : list
-		List containing all the data for partial density of states
-	fermi_energy : float
+    partial : list
+	List of names for partial datasets
+    total_data : list
+	List containing all the data for total density of states
+    partial_list : list
+	List containing all the data for partial density of states
+    fermi_energy : float
+
     """
     total = []
     partial = []
@@ -130,7 +132,7 @@ def parse_doscar(h5file,vasp_file):
     return total, partial, total_data, partial_list, header["Fermi energy"]
 
 def dos(h5file, vasp_dir):
- """
+    """
 	Parses density of states data from DOSCAR
 
     Parameters
@@ -144,6 +146,7 @@ def dos(h5file, vasp_dir):
     -------
     bool
 		Return True if DOSCAR was parsed, False otherwise
+
     """
     if os.path.isfile(h5file):
         with h5py.File(h5file, 'r') as h5:

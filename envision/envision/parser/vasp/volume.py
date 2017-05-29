@@ -38,20 +38,20 @@ line_reg_int = re.compile(r'^( *[+-]?[0-9]+){3} *$')
 line_reg_float = re.compile(r'( *[+-]?[0-9]*\.[0-9]+(?:[eE][+-]?[0-9]+)? *)+')
 
 def parse_volume(vasp_file, volume):
- """Parses volumetric data in a volume file from VASP
+	"""Parses volumetric data in a volume file from VASP
 
-    Parameters
-    ----------
-    vasp_file : file object
-        file object of volume file
+	Parameters
+	----------
+	vasp_file : file object
+		file object of volume file
 
-    Returns
-    -------
-    array : list of float
-        list of volumetric data
+	Returns
+	-------
+	array : list of float
+		list of volumetric data
 	data_dim : list of int
 		list of dimensions of the data
-    """
+	"""
 	array = []
 	datasize = None
 	data_dim = None
@@ -74,25 +74,25 @@ def parse_volume(vasp_file, volume):
 	return None, None
 
 def volume(h5file, hdfgroup, vasp_dir, vasp_file):
- """
+	"""
 	Reads volume data and stores it in an HDF-file.
 
-    Parameters
-    ----------
-    h5file : str
-        String that asserts which HDF-file to write to
-	hdfgroup : str
+	Parameters
+	----------
+	h5file : str
+		String that asserts which HDF-file to write to
+		hdfgroup : str
 		String that asserts which group to write to in HDF-file
-	vasp_dir : str
+		vasp_dir : str
 		Path to directory containing volume file
 	vasp_file : str
 		String that asserts which file to open in the directory
 
-    Returns
-    -------
-    bool
-        True if volume file was parsed, False otherwise.
-    """
+	Returns
+	-------
+	bool
+		True if volume file was parsed, False otherwise.
+	"""
 	
 	if os.path.isfile(h5file):
 		with h5py.File(h5file, 'r') as h5:
@@ -119,37 +119,37 @@ def volume(h5file, hdfgroup, vasp_dir, vasp_file):
 	return True
 
 def charge(h5file, vasp_dir):
- """
+	"""
 	Reads CHG and stores the data in an HDF-file.
 
-    Parameters
-    ----------
-    h5file : str
-        String that asserts which HDF-file to write to
+	Parameters
+	----------
+	h5file : str
+		String that asserts which HDF-file to write to
 	vasp_dir : str
 		Path to directory containing volume file
 
-    Returns
-    -------
-    bool
-        True if CHG file was parsed, False otherwise.
-    """
+	Returns
+	-------
+	bool
+		True if CHG file was parsed, False otherwise.
+	"""
 	return volume(h5file, 'CHG', vasp_dir, 'CHG')
 
 def elf(h5file, vasp_dir):
- """
+	"""
 	Reads ELFCAR and stores the data in an HDF-file.
 
-    Parameters
-    ----------
-    h5file : str
-        String that asserts which HDF-file to write to
+	Parameters
+	----------
+	h5file : str
+		String that asserts which HDF-file to write to
 	vasp_dir : str
 		Path to directory containing volume file
 
-    Returns
-    -------
-    bool
-        True if ELFCAR file was parsed, False otherwise.
-    """
+	Returns
+	-------
+	bool
+		True if ELFCAR file was parsed, False otherwise.
+	"""
 	return volume(h5file, 'ELF', vasp_dir, 'ELFCAR')

@@ -35,7 +35,7 @@ from .util import *
 from ..h5writer import _write_incar
 
 def parse_incar(h5file, vasp_file):
- """
+    """
 	Parses set values from INCAR
 
     Parameters
@@ -158,7 +158,7 @@ def parse_incar(h5file, vasp_file):
     return incar_data
 
 def incar(h5file, vasp_dir):
- """
+    """
 	Parses set values from INCAR and writes to HDF5 file
 
     Parameters
