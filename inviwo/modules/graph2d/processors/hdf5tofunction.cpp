@@ -143,7 +143,8 @@ void HDF5ToFunction::pathSelectionOptionsReplace(OptionPropertyString& pathSelec
                     pathOptionVector.end(),
                     pathOptionVectorVector.back().begin(),
                     pathOptionVectorVector.back().end(),
-                    std::back_inserter(buffer)
+                    std::back_inserter(buffer),
+                    StringCompareNatural
                 );
             swap(buffer, pathOptionVector);
             buffer.clear();
