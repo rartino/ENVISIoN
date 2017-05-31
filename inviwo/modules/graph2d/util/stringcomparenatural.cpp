@@ -37,6 +37,8 @@
 namespace inviwo {
 
 bool StringCompareNatural(const std::string string1, const std::string string2) {
+    if (string1.empty() && string2.empty())
+        return false;
     if (string1.empty() || (std::isdigit(string1[0]) && !std::isdigit(string2[0])))
         return true;
     if (string2.empty() || (!std::isdigit(string1[0]) && std::isdigit(string2[0])))
