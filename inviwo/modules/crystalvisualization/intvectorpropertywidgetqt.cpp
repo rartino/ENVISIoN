@@ -1,5 +1,7 @@
 /*********************************************************************************
  *
+ * Copyright (c) 2017 Denise Härnström
+ *
  * Inviwo - Interactive Visualization Workshop
  *
  * Copyright (c) 2017 Inviwo Foundation
@@ -35,7 +37,7 @@ namespace inviwo {
 IntVectorPropertyWidgetQt::IntVectorPropertyWidgetQt(IntVectorProperty* property)
     : PropertyWidgetQt(property)
     , property_(property){
-    
+
     generateWidget();
     updateFromProperty();
 }
@@ -59,7 +61,7 @@ void IntVectorPropertyWidgetQt::generateWidget() {
     hLayout->addWidget(lineEdit_);
 
     setLayout(hLayout);
-        
+
 }
 
 void IntVectorPropertyWidgetQt::updateFromProperty() {
@@ -77,4 +79,3 @@ void IntVectorPropertyWidgetQt::updateFromProperty() {
 }
 
 } // namespace
-

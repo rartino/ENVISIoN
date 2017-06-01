@@ -1,5 +1,7 @@
 /*********************************************************************************
  *
+ * Copyright (c) 2017 Denise Härnström
+ *
  * Inviwo - Interactive Visualization Workshop
  *
  * Copyright (c) 2017 Inviwo Foundation
@@ -41,7 +43,7 @@ namespace inviwo {
  * \brief VERY_BRIEFLY_DESCRIBE_THE_CLASS
  * DESCRIBE_THE_CLASS_FROM_A_DEVELOPER_PERSPECTIVE
  */
-class IVW_MODULE_CRYSTALVISUALIZATION_API IntVectorProperty : public TemplateProperty<std::vector<int>> { 
+class IVW_MODULE_CRYSTALVISUALIZATION_API IntVectorProperty : public TemplateProperty<std::vector<int>> {
 public:
     InviwoPropertyInfo();
 
@@ -54,4 +56,3 @@ public:
 } // namespace
 
 #endif // IVW_INTVECTORPROPERTY_H
-

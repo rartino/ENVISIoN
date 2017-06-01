@@ -1,5 +1,7 @@
 /*********************************************************************************
  *
+ * Copyright (c) 2017 Denise Härnström
+ *
  * Inviwo - Interactive Visualization Workshop
  *
  * Copyright (c) 2017 Inviwo Foundation
@@ -33,7 +35,7 @@ namespace inviwo {
 
 PropertyClassIdentifier(IntVectorProperty, "envision.IntVectorProperty");
 
-IntVectorProperty::IntVectorProperty(std::string identifier, std::string displayName, std::vector<int> value, 
+IntVectorProperty::IntVectorProperty(std::string identifier, std::string displayName, std::vector<int> value,
                                      InvalidationLevel invalidationLevel,
                                      PropertySemantics semantics)
     : TemplateProperty<std::vector<int>>(identifier, displayName, value, invalidationLevel, semantics)  {}
@@ -43,4 +45,3 @@ IntVectorProperty* IntVectorProperty::clone() const {
 }
 
 } // namespace
-

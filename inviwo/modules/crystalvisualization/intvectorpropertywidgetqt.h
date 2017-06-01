@@ -1,5 +1,7 @@
 /*********************************************************************************
  *
+ * Copyright (c) 2017 Denise Härnström
+ *
  * Inviwo - Interactive Visualization Workshop
  *
  * Copyright (c) 2017 Inviwo Foundation
@@ -46,7 +48,7 @@ namespace inviwo {
  * \brief VERY_BRIEFLY_DESCRIBE_THE_CLASS
  * DESCRIBE_THE_CLASS_FROM_A_DEVELOPER_PERSPECTIVE
  */
-class IVW_MODULE_CRYSTALVISUALIZATION_API IntVectorPropertyWidgetQt : public PropertyWidgetQt { 
+class IVW_MODULE_CRYSTALVISUALIZATION_API IntVectorPropertyWidgetQt : public PropertyWidgetQt {
 public:
     IntVectorPropertyWidgetQt(IntVectorProperty* property);
     virtual ~IntVectorPropertyWidgetQt() = default;
@@ -64,4 +66,3 @@ public:
 } // namespace
 
 #endif // IVW_INTVECTORPROPERTYWIDGETQT_H
-
