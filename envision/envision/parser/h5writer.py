@@ -81,7 +81,7 @@ def _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy):
                 set_attrs(dataset, 'Energy', '$E$', 'Energy', '$E$', 'eV')
             else:
                 if name.startswith('Integrated'):
-                    set_attrs(dataset, name, '', 'Integrated Density of States', '$\int D$', 'states')
+                    set_attrs(dataset, name, '', 'Integrated Density of States', '$\\int D$', 'states')
                 else:
                     set_attrs(dataset, name, '', 'Density of States', '$D$', 'states/eV')
         for i, partial_data in enumerate(partial_list):
@@ -91,9 +91,9 @@ def _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy):
                     set_attrs(dataset, 'Energy', '$E$', 'Energy', '$E$', 'eV')
                 else:
                     if name.startswith('Integrated'):
-                        set_attrs(dataset, name, '', 'Integrated Density of States', '$\int D$', 'states')
+                        set_attrs(dataset, name, '', 'Integrated Density of States', '$\\int D$', 'states')
                     else:
-                        set_attrs(dataset, name, '', 'Density of States', '$D$', 'states/energy')
+                        set_attrs(dataset, name, '', 'Density of States', '$D$', 'states/eV')
 
 def _write_volume(h5file, i, array, data_dim, hdfgroup):
     with h5py.File(h5file, "a") as h5:
