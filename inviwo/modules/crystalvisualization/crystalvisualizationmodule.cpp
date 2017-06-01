@@ -1,5 +1,7 @@
 /*********************************************************************************
  *
+ * Copyright (c) 2017 Josef Adamsson, Denise Härnström
+ *
  * Inviwo - Interactive Visualization Workshop
  *
  * Copyright (c) 2017 Inviwo Foundation
