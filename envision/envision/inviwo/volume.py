@@ -110,7 +110,7 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
  
 # Function for building a volume network for electron density data
 def charge(h5file, iso=None, slice=False, xpos=0, ypos=0):
-         """Creates an Inviwo network for electron charge density visualization
+    """Creates an Inviwo network for electron charge density visualization
     Parameters
     ----------
     h5file : str
