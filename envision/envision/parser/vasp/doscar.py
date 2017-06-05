@@ -161,6 +161,9 @@ def dos(h5file, vasp_dir):
     except FileNotFoundError:
         print('DOSCAR file not in directory. Skipping.')
         return False
+    except StopIteration:
+        print('DOSCAR file empty. Skipping')
+        return False
     _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy)
     print('Density of states data was parsed successfully.')
     return True
