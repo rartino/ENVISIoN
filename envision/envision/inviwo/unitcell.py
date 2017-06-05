@@ -29,7 +29,7 @@ import inviwoqt
 import numpy as np
 import h5py
 from .common import _add_processor, _add_h5source
-from .data import atomic_radii, ionic_radii, element_names, element_colors
+from .data import atomic_radii, element_names, element_colors
 
   
 def _cellnetwork(h5file, md=False, xpos=0, ypos=0):
@@ -69,7 +69,7 @@ def _cellnetwork(h5file, md=False, xpos=0, ypos=0):
             element = h5[base_group + "/Atoms/"+key].attrs['element']            
             name = element_names.get(element, 'Unknown')
             color = element_colors.get(element, (0.5, 0.5, 0.5, 1.0))
-            radius = atomic_radii.get(element, 0.5)/100
+            radius = atomic_radii.get(element, 0.5)
             coordReader = _add_processor('envision.CoordinateReader', '{0} {1}'.format(i,name), xpos+int((i-species/2)*200), ypos+100)
             inviwo.addConnection(HDFsource, 'outport', coordReader, 'inport')           
             inviwo.addConnection(coordReader, 'outport', strucMesh, 'coordinates')
