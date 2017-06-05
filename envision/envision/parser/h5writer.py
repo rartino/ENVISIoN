@@ -1,3 +1,29 @@
+#
+#  ENVISIoN
+#
+#  Copyright (c) 2017 Josef Adamsson, Robert Cranston, David Hartman, Denise Härnström, Fredrik Segerhammar
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#
+#  1. Redistributions of source code must retain the above copyright notice, this
+#  list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright notice,
+#  this list of conditions and the following disclaimer in the documentation
+#  and/or other materials provided with the distribution.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+#  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+#  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+#  ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+#  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
 import numpy as np
 import h5py
 
@@ -58,8 +84,8 @@ def _write_bandstruct(h5file, band_data, kval_list):
             dataset.attrs['Unit'] = 'eV'
             dataset.attrs['QuantitySymbol'] = '$E$'
             dataset.attrs['QuantityName'] = 'Energy'
-            dataset.attrs['VariableName'] = 'Band  {}'.format(i)
-            dataset.attrs['VariableSymbol'] = '$B_{}$'.format(i)
+            dataset.attrs['VariableName'] = 'Band {}'.format(i)
+            dataset.attrs['VariableSymbol'] = '$B_{{{}}}$'.format(i)
 
 def _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy):
     
@@ -74,26 +100,26 @@ def _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy):
         
     with h5py.File(h5file, "a") as h5:
         dataset = h5.create_dataset('FermiEnergy', data = np.array(fermi_energy), dtype = np.float32)
-        set_attrs(dataset, 'Fermi Energy', '$E_f$', 'Energy', '$E$', Unit = 'eV')
+        set_attrs(dataset, 'Fermi Energy', '$E_f$', 'Energy', '$E$', 'eV')
         for i, (name, data) in enumerate(zip(total, total_data)):
             dataset = h5.create_dataset('DOS/Total/{}'.format(name), data=np.array(data), dtype = np.float32)
-            if name == 'energy':
+            if name == 'Energy':
                 set_attrs(dataset, 'Energy', '$E$', 'Energy', '$E$', 'eV')
             else:
-                if name.startswith('integrated'):
-                    set_attrs(dataset, name, '', 'Integrated Density of States', '$\int D$', 'states')
+                if name.startswith('Integrated'):
+                    set_attrs(dataset, name, '', 'Integrated Density of States', '$\\int D$', 'states')
                 else:
-                    set_attrs(dataset, name, '', 'Density of States', '$D$', 'states/energy')    
+                    set_attrs(dataset, name, '', 'Density of States', '$D$', 'states/eV')
         for i, partial_data in enumerate(partial_list):
             for (name, data) in zip(partial, partial_data):
                 dataset = h5.create_dataset('DOS/Partial/{}/{}'.format(i, name), data=np.array(data), dtype = np.float32)
-                if name == 'energy':
+                if name == 'Energy':
                     set_attrs(dataset, 'Energy', '$E$', 'Energy', '$E$', 'eV')
                 else:
-                    if name.startswith('integrated'):
-                        set_attrs(dataset, name, '', 'Integrated Density of States', '$\int D$', 'states')
+                    if name.startswith('Integrated'):
+                        set_attrs(dataset, name, '', 'Integrated Density of States', '$\\int D$', 'states')
                     else:
-                        set_attrs(dataset, name, '', 'Density of States', '$D$', 'states/energy')
+                        set_attrs(dataset, name, '', 'Density of States', '$D$', 'states/eV')
 
 def _write_volume(h5file, i, array, data_dim, hdfgroup):
     with h5py.File(h5file, "a") as h5:

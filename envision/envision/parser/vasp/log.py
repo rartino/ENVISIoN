@@ -19,7 +19,21 @@ LOG_LEVEL_PRINT = LOG_ALL
 
 def log(log_level, file_path, line_nr, message, message_data=None):
     """
-    TODO.
+	Prints messages when something went wrong with the parsing
+
+    Parameters
+    ----------
+    log_level : int
+	Sets wwhich log level to use, whether there is no problem, error, warning or just info is needed
+    file_path : str
+	String containing path to file
+    line_nr : int
+	Integer that says which line is currently being parsed in the file
+    message : str
+	String containing the message to be printed
+    message_data
+	Data that may be needed to be printed
+
     """
     if message_data:
         message = "{}: \"{}\"".format(message, message_data)

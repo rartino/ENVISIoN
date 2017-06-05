@@ -13,7 +13,7 @@ description = "A Python library for parsing and visualizing electron structure d
 
 setup(
         name="envision",
-        version="0.0.0",
+        version="0.1.0",
         description=description,
         long_description=long_description,
         keywords="inviwo vasp",

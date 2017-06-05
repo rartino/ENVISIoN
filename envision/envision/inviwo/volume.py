@@ -110,10 +110,48 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
  
 # Function for building a volume network for electron density data
 def charge(h5file, iso=None, slice=False, xpos=0, ypos=0):
+    """Creates an Inviwo network for electron charge density visualization
+    Parameters
+    ----------
+    h5file : str
+        Path to HDF5 file
+    iso : int
+         (Default value = None)
+        Iso-value for ISO Raycaster processor. None otherwise
+    slice : bool
+         (Default value = False)
+        True if slice-function is enabled. False otherwise   
+    xpos : int
+         (Default value = 0)
+         X coordinate in Inviwo network editor
+    ypos : int
+         (Default value = 0)
+         Y coordinate in Inviwo network editor
+    """
+    
     volume='Charge raycaster'
     volume_network(h5file, volume, iso, slice, xpos, ypos)
 
 # Function for building a volume network for electron localisation function data
 def elf(h5file, iso=None, slice=False, xpos=0, ypos=0):
+    """Creates an Inviwo network for electron localization function data
+    Parameters
+    ----------
+    h5file : str
+        Path to HDF5 file
+    iso : int
+         (Default value = None)
+        Iso-value for ISO Raycaster processor. None otherwise
+    slice : bool
+         (Default value = False)
+        True if slice-function is enabled. False otherwise   
+    xpos : int
+         (Default value = 0)
+         X coordinate in Inviwo network editor
+    ypos : int
+         (Default value = 0)
+         Y coordinate in Inviwo network editor
+    """
+    
     volume='Elf raycaster'
     volume_network(h5file, volume, iso, slice, xpos, ypos)

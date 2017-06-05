@@ -10,7 +10,23 @@ RESTR_BOOL = r'\.TRUE\.|\.FALSE\.'
 
 def vasp_file_lines(vasp_file, line_continuation=False):
     """
-    TODO.
+	Parses one line of data in file
+
+    Parameters
+    ----------
+    vasp_file : str
+	String containing path to file
+    line_continuation : bool
+	True or False statement that asserts whether or not more lines should be read than one
+		
+		
+    Returns
+    -------
+    line_nr : float
+	Number that says which line is currently being parsed
+    line : line object
+	Object that says which line is being parsed
+	
     """
     vasp_file_stripped = (line.rstrip("\n") for line in vasp_file)
     line_nr = 0

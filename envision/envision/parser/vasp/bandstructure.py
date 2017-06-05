@@ -36,6 +36,22 @@ line_reg_float = re.compile(r'( *[+-]?[0-9]*\.[0-9]+(?:[eE][+-]?[0-9]+)? *){4}')
 
 
 def bandstruct_parse(file_object):
+	"""
+	Parses band structure data from EIGENVAL
+
+	Parameters
+	----------
+	file_object : file object
+		File object containing data in EIGENVAL
+
+	Returns
+	-------
+	band_data : list
+		list containing all the band data
+		kval_list : list
+		list containing all the K-points
+
+	"""
 	data = None
 	kval = None
 	kval_list = []
@@ -64,6 +80,22 @@ def bandstruct_parse(file_object):
 
 
 def bandstructure(h5file, vasp_dir):
+	"""
+	Parses band structure data from EIGENVAL
+
+	Parameters
+	----------
+	h5file : str
+		String that asserts which HDF-file to write to
+	vasp_dir : str
+		Path to directory containing EIGENVAL file
+
+	Returns
+	-------
+	bool
+		Return True if EIGENVAL was parsed, False otherwise
+
+	"""
 	if os.path.isfile(h5file):
 		with h5py.File(h5file, 'r') as h5:
 			if '/Bandstructure' in h5:
