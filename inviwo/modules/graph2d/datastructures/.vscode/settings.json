@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "array": "cpp",
+        "type_traits": "cpp"
+    }
+}
