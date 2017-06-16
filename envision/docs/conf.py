@@ -214,6 +214,10 @@ latex_elements = {
 # The font size ('10pt', '11pt' or '12pt').
 'pointsize': '12pt',
 
+'extraclassoptions': 'openany,oneside',
+
+'babel': '\\usepackage[shorthands=off]{babel}',
+
 # Additional stuff for the LaTeX preamble.
 #'preamble': '',
 
@@ -226,8 +230,8 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'ENVISIoN.tex', 'ENVISIoN Documentation',
-     'Josef Adamsson \\and Robert Cranston \\and David Hartman \\and Denise Härnström \\and Fredrik Segerhammar', 'manual'),
-#     '', 'manual'),
+#     'Josef Adamsson \\and Robert Cranston \\and David Hartman \\and Denise Härnström \\and Fredrik Segerhammar', 'manual', True),
+     '', 'manual', True),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
