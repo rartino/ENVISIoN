@@ -31,6 +31,7 @@
 
 #include <modules/crystalvisualization/intvectorpropertywidgetqt.h>
 #include <QLineEdit>
+#include <QHBoxLayout>
 
 namespace inviwo {
 
