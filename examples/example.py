@@ -20,7 +20,7 @@
 import os, sys
 
 # Configuration
-PATH_TO_ENVISION=os.path.expanduser("~/ENVISIoN/envision")
+PATH_TO_ENVISION=os.path.expanduser("~/ENVISIoN/ENVISIoN/envision")
 PATH_TO_VASP_CALC=os.path.expanduser("~/ENVISIoN/examples/data/TiPO4")
 PATH_TO_HDF5=os.path.expanduser("/tmp/envision_demo.hdf5")
 
