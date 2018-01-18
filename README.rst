@@ -137,7 +137,11 @@ Start eclipse::
 - Click Finish.
 - The project appear under inviwo-projects-Debug@inviwo.eclipse, in Project Explorer you'll find the source directory, i.e., inviwo.git, under '[Source directory]'. All modules, including the ENVISIoN ones show up under '[Subprojects]'.
 - Click 'Build All' and inviwo should build.
-
+- In the Project Explorer select bin/inviwo
+- In the toolbar, click the drop-down arrow next to the green 'play' button and 'Run configurations...', select C/C++Application, and press the 'new' icon (a document with a star).
+- The result should be a new Run configuration for bin/inviwo. Close the dialog.
+- Press the green 'play' button in the toolbar, and Inviwo should run.  
+  
 - Select File->New project. Select PyDev -> PyDev Project.
 - Set the name to ENVISIoN
 - For Project contents, unclick 'Use default', and browse to ENVISIoN/ENVISIoN in your home directory.
