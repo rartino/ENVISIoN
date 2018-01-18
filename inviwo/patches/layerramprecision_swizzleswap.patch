@@ -1,0 +1,24 @@
+diff --git a/include/inviwo/core/datastructures/image/layerramprecision.h b/include/inviwo/core/datastructures/image/layerramprecision.h
+index a178b1b62..ca7bfd2f0 100644
+--- a/include/inviwo/core/datastructures/image/layerramprecision.h
++++ b/include/inviwo/core/datastructures/image/layerramprecision.h
+@@ -137,12 +137,16 @@ LayerRAMPrecision<T>& LayerRAMPrecision<T>::operator=(const LayerRAMPrecision<T>
+     if (this != &that) {
+         LayerRAM::operator=(that);
+ 
+-        auto dim = that.dimensions_;
++	//Manual patching in from commit #8aeb56e2365e2e89f2c44026bd59b8af44807d47
++        //auto dim = that.dimensions_;
++        const auto dim = that.dimensions_;
+         auto data = util::make_unique<T[]>(dim.x * dim.y);
+         std::memcpy(data.get(), that.data_.get(), dim.x * dim.y * sizeof(T));
+         data_.swap(data);
+-        std::swap(dim, dimensions_);
+-        swizzleMask_.swap(that.swizzleMask_);
++        //std::swap(dim, dimensions_);
++        //swizzleMask_.swap(that.swizzleMask_);
++	dimensions_ = that.dimensions;
++	swizzleMask_ = that.swizzleMask_;
+     }
+ 
+     return *this;

@@ -1,0 +1,14 @@
+diff --git a/modules/python3/defaultinterface/utilities.h b/modules/python3/defaultinterface/utilities.h
+index 98dfe55..82586c3 100644
+--- a/modules/python3/defaultinterface/utilities.h
++++ b/modules/python3/defaultinterface/utilities.h
+@@ -58,6 +58,8 @@ PyObject* makePyList(std::vector<T> items) {
+         auto listitem = PyValueParser::toPyObject(item);
+         if (PyList_Append(list, listitem) != 0) {
+             LogInfoCustom("Python", "Error on list append");
++        } else {
++            Py_DECREF(listitem);
+         }
+     }
+     return list;
+

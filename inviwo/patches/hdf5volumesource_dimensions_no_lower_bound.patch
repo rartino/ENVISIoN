@@ -1,0 +1,15 @@
+diff --git a/modules/hdf5/processors/hdf5volumesource.cpp b/modules/hdf5/processors/hdf5volumesource.cpp
+index 3a002bd..d885fc7 100644
+--- a/modules/hdf5/processors/hdf5volumesource.cpp
++++ b/modules/hdf5/processors/hdf5volumesource.cpp
+@@ -244,9 +244,7 @@ void HDF5ToVolume::onDataChange() {
+         std::copy_if(metadata.begin(), metadata.end(), std::back_inserter(volumeMatches_),
+                      [](const MetaData& meta) {
+                          auto dims = meta.getColumnMajorDimensions();
+-                         return meta.type_ == MetaData::HDFType::DataSet && dims.size() >= 3ull &&
+-                                std::accumulate(dims.begin(), dims.end(), 1ull,
+-                                                std::multiplies<size_t>()) > 50000ull;
++                         return meta.type_ == MetaData::HDFType::DataSet && dims.size() >= 3ull;
+                      });
+ 
+         basisMatches_.clear();
