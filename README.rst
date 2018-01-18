@@ -57,7 +57,7 @@ Qt5 (Using specifically Qt5.6.1 is highly recommended)::
 Dependencies for ENVISIoN::
 
   sudo apt-get install doxygen python-sphinx-rtd-theme
-  sudo apt-get install python3-h5py python3-regex python3-numpy
+  sudo apt-get install python3-h5py python3-regex python3-numpy python3-matplotlib
 
 Download ENVISIoN
 ~~~~~~~~~~~~~~~~~
