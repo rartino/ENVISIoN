@@ -48,7 +48,9 @@ Qt5 (Using specifically Qt5.6.1 is highly recommended)::
 
   wget http://download.qt.io/official_releases/qt/5.6/5.6.1/qt-opensource-linux-x64-5.6.1.run
   chmod +x qt-opensource-linux-x64-5.6.1.run
+  [ "$XDG_SESSION_TYPE" == "wayland" ] && xhost si:localuser:root # enable sudo with gui if on Wayland
   sudo ./qt-opensource-linux-x64-5.6.1.run
+  [ "$XDG_SESSION_TYPE" == "wayland" ] && xhost -si:localuser:root 
   qtchooser -install Qt5.6.1 /opt/Qt5.6.1/5.6/gcc_64/bin/qmake
   export QT_SELECT=Qt5.6.1
 
