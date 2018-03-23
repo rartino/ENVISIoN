@@ -24,13 +24,14 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-import inviwo
-import inviwoqt
+import inviwopy
 import numpy as np
 import h5py
 from .common import _add_processor, _add_h5source
 from .data import atomic_radii, element_names, element_colors
 
+app = inviwopy.app
+network = app.network
 
 def _cellnetwork(h5file, md=False, xpos=0, ypos=0):
     HDFsource = _add_h5source(h5file, xpos, ypos)
@@ -38,10 +39,16 @@ def _cellnetwork(h5file, md=False, xpos=0, ypos=0):
     meshRend = _add_processor('org.inviwo.SphereRenderer', 'Unit Cell Renderer', xpos, ypos+300)
 
     canvas = _add_processor('org.inviwo.CanvasGL', 'Unit Cell Canvas', xpos, ypos+400)
-    inviwo.addConnection(meshRend, 'image', canvas, 'inport')
+    imageOutport = meshRend.getPort('image')
+    imageInport = canvas.getInport('inport')
+    network.addConnection(imageOutport, imageInport)
+
     strucMesh = _add_processor('envision.StructureMesh', 'Unit Cell Mesh', xpos, ypos+200)
-    inviwo.setPropertyValue(strucMesh+'.fullMesh', False)
-    inviwo.addConnection(strucMesh, 'mesh', meshRend, 'geometry')
+    fullMesh = strucMesh.getPropertyByIdentifier('fullMesh')
+    fullMesh.value = False
+    meshPort = strucMesh.getOutport('mesh')
+    geometryPort = meshRend.getInport('geometry')
+    network.addConnection(meshPort, geometryPort)
 
     with h5py.File(h5file,"r") as h5:
         basis_matrix = np.array(h5["/basis"], dtype='d')
