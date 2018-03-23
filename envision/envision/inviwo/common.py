@@ -24,20 +24,29 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-import inviwo
+import inviwopy
+import inviwopy.glm as glm
 import os
 
+app = inviwopy.app
+network = app.network
 
 def _add_processor(id,name,xpos=0,ypos=0):
-    new_name = inviwo.addProcessor(id, name)
-    inviwo.setProcessorPosition(new_name,(xpos, ypos))
-    inviwo.setProcessorSelected(new_name, True)
-    return new_name
+    factory = app.processorFactory
+    new_processor = factory.create(id, glm.ivec2(xpos, ypos))
+    new_processor.identifier = name
+    network.addProcessor(new_processor)
+    return new_processor
 
 def _add_h5source(h5file, xpos=0, ypos=0):
     name = os.path.splitext(os.path.basename(h5file))[0]
-    if not (name in inviwo.getProcessors()):
-        name = _add_processor('org.inviwo.hdf5.Source', name, xpos, ypos)
-        inviwo.setPropertyValue(name+'.filename', h5file)
-    return name
+    processor = network.getProcessorByIdentifier(name)
+
+    if processor is None:
+        new_processor = _add_processor('org.inviwo.hdf5.Source', name, xpos, ypos)
+        filename = new_processor.getPropertyByIdentifier('filename')
+        filename.value = h5file
+        processor = new_processor
+
+    return processor
 

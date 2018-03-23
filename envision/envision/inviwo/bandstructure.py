@@ -25,7 +25,7 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-import inviwo
+import inviwopy
 import numpy as np
 import h5py
 from .common import _add_h5source, _add_processor

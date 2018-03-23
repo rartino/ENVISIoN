@@ -2,6 +2,10 @@
 # Inviwo crystalvisualization Module
 ivw_module(crystalvisualization)
 
+find_package(Qt5Core QUIET REQUIRED)
+find_package(Qt5Gui QUIET REQUIRED)
+find_package(Qt5Widgets QUIET REQUIRED)
+
 #--------------------------------------------------------------------
 # Add header files
 set(HEADER_FILES
@@ -43,6 +47,8 @@ ivw_add_unittest(${TEST_FILES})
 #--------------------------------------------------------------------
 # Create module
 ivw_create_module(${SOURCE_FILES} ${HEADER_FILES} ${SHADER_FILES})
+target_link_libraries(inviwo-module-crystalvisualization PRIVATE Qt5::Core Qt5::Gui Qt5::Widgets)
+ivw_make_package(InviwocrystalvisualizationModule inviwo-module-crystalvisualization)
 
 #--------------------------------------------------------------------
 # Add shader directory to pack
