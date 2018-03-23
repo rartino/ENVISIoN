@@ -25,8 +25,7 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-import inviwo 
-import inviwoqt
+import inviwopy
 import numpy as np
 import h5py
 from .common import _add_h5source, _add_processor
@@ -35,7 +34,9 @@ from .common import _add_h5source, _add_processor
 def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
     # Shared processors, processor positions and base vectors between electron density and electron localisation function data
     HDFsource = _add_h5source(h5file, xstart_pos, ystart_pos)
-    inviwo.setPropertyValue(HDFsource+'.filename', h5file)
+    filenameProperty = HDFsource.getPropertyByIdentifier('filename')
+    filenameProperty.value = h5file
+
     HDFvolume = _add_processor('org.inviwo.hdf5.ToVolume', 'HDF5 To Volume', xstart_pos, ystart_pos+75)  
     # Read base vectors
     with h5py.File(h5file,"r") as h5:

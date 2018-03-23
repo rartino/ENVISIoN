@@ -24,28 +24,35 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-import inviwo 
-import inviwoqt
+import inviwopy
 import numpy as np
 import h5py
 from .common import _add_processor, _add_h5source
 from .data import atomic_radii, element_names, element_colors
 
-  
+app = inviwopy.app
+network = app.network
+
 def _cellnetwork(h5file, md=False, xpos=0, ypos=0):
     HDFsource = _add_h5source(h5file, xpos, ypos)
-    
+
     meshRend = _add_processor('org.inviwo.SphereRenderer', 'Unit Cell Renderer', xpos, ypos+300)
-            
+
     canvas = _add_processor('org.inviwo.CanvasGL', 'Unit Cell Canvas', xpos, ypos+400)
-    inviwo.addConnection(meshRend, 'image', canvas, 'inport')
+    imageOutport = meshRend.getPort('image')
+    imageInport = canvas.getInport('inport')
+    network.addConnection(imageOutport, imageInport)
+
     strucMesh = _add_processor('envision.StructureMesh', 'Unit Cell Mesh', xpos, ypos+200)
-    inviwo.setPropertyValue(strucMesh+'.fullMesh', False)
-    inviwo.addConnection(strucMesh, 'mesh', meshRend, 'geometry')
-    
+    fullMesh = strucMesh.getPropertyByIdentifier('fullMesh')
+    fullMesh.value = False
+    meshPort = strucMesh.getOutport('mesh')
+    geometryPort = meshRend.getInport('geometry')
+    network.addConnection(meshPort, geometryPort)
+
     with h5py.File(h5file,"r") as h5:
         basis_matrix = np.array(h5["/basis"], dtype='d')
-        inviwo.setPropertyValue(strucMesh+'.basis', tuple(map(tuple, basis_matrix)))        
+        inviwo.setPropertyValue(strucMesh+'.basis', tuple(map(tuple, basis_matrix)))
         inviwo.setPropertyValue(strucMesh+'.timestep',0)
         inviwo.setPropertyMinValue(strucMesh+'.timestep',0)
         timesteps=0
@@ -61,17 +68,17 @@ def _cellnetwork(h5file, md=False, xpos=0, ypos=0):
             inviwo.setPropertyMaxValue(animator+'.OrgInviwoIntProperty',timesteps)
             inviwo.setPropertyMaxValue(animator+'.delay',10)
             inviwo.addLink(animator+'.OrgInviwoIntProperty',strucMesh+'.timestep')
-            inviwo.setPropertyValue(animator+'.OrgInviwoIntProperty-Delta',1)            
+            inviwo.setPropertyValue(animator+'.OrgInviwoIntProperty-Delta',1)
         inviwo.setPropertyMaxValue(strucMesh+'.timestep',timesteps)
 
         species = len(h5[base_group + "/Atoms"].keys()) - 1
         for i,key in enumerate(list(h5[base_group + "/Atoms"].keys())):
-            element = h5[base_group + "/Atoms/"+key].attrs['element']            
+            element = h5[base_group + "/Atoms/"+key].attrs['element']
             name = element_names.get(element, 'Unknown')
             color = element_colors.get(element, (0.5, 0.5, 0.5, 1.0))
             radius = atomic_radii.get(element, 0.5)
             coordReader = _add_processor('envision.CoordinateReader', '{0} {1}'.format(i,name), xpos+int((i-species/2)*200), ypos+100)
-            inviwo.addConnection(HDFsource, 'outport', coordReader, 'inport')           
+            inviwo.addConnection(HDFsource, 'outport', coordReader, 'inport')
             inviwo.addConnection(coordReader, 'outport', strucMesh, 'coordinates')
             inviwo.setPropertyValue(coordReader+'.path', base_group + '/Atoms/'+key)
             inviwo.setPropertyValue(strucMesh+'.radius{0}'.format(i), radius)
@@ -83,7 +90,7 @@ def _cellnetwork(h5file, md=False, xpos=0, ypos=0):
             inviwo.setPropertyValue(strucMesh+'.atoms{0}'.format(i), atoms)
             inviwo.setPropertyMinValue(strucMesh+'.atoms{0}'.format(i), atoms)
             inviwo.setPropertyMaxValue(strucMesh+'.atoms{0}'.format(i), atoms)
-  
+
 def md(h5file, xpos=0, ypos=0):
     """Creates an Inviwo network for MD visualization
 
@@ -100,7 +107,7 @@ def md(h5file, xpos=0, ypos=0):
 
     """
     _cellnetwork(h5file, True, xpos, ypos)
-    
+
 def unitcell(h5file, xpos=0, ypos=0):
     """Creates an Inviwo network for unit cell visualization
 
