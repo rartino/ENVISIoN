@@ -78,7 +78,7 @@ def _write_steps(h5file, steps):
     
 def _write_bandstruct(h5file, band_data, kval_list):
     with h5py.File(h5file, "a") as h5:
-        h5.create_dataset('Bandstructure/KPoints', data=np.array(kval_list), dtype = np.float32)
+        h5.create_dataset('BandStructure/KPoints', data=np.array(kval_list), dtype = np.float32)
         for i, band in enumerate(band_data):
             dataset = h5.create_dataset('Bandstructure/Bands/{}/{}'.format(i, 'Energy'), data=np.array(band), dtype = np.float32)
             dataset.attrs['Unit'] = 'eV'
@@ -86,6 +86,19 @@ def _write_bandstruct(h5file, band_data, kval_list):
             dataset.attrs['QuantityName'] = 'Energy'
             dataset.attrs['VariableName'] = 'Band {}'.format(i)
             dataset.attrs['VariableSymbol'] = '$B_{{{}}}$'.format(i)
+
+def _write_fermisurface(h5file, band_data, kval_list, fermi_energy):
+    with h5py.File(h5file,"a") as h5:
+        h5.create_dataset('FermiSurface/KPoints', data=np.array(kval_list), dtype = np.float32)
+        h5.create_dataset('FermiSurface/Fermi_energy',data=np.float(fermi_energy), dtype = np.float32)
+        for i, band in enumerate(band_data):
+            dataset = h5.create_dataset('FermiSurface/Bands/{}/{}'.format(i, 'Energy'), data=np.array(band), dtype = np.float32)
+            dataset.attrs['Unit'] = 'eV'
+            dataset.attrs['QuantitySymbol'] = '$E$'
+            dataset.attrs['QuantityName'] = 'Energy'
+            dataset.attrs['VariableName'] = 'Band {}'.format(i)
+            dataset.attrs['VariableSymbol'] = '$B_{{{}}}$'.format(i)
+
 
 def _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy):
     
