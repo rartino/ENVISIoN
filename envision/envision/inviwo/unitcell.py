@@ -50,6 +50,7 @@ def _cellnetwork(h5file, md=False, xpos=0, ypos=0):
     geometryPort = meshRend.getInport('geometry')
     network.addConnection(meshPort, geometryPort)
 
+    #Commented lines are old code replaced by lines directly above
     with h5py.File(h5file,"r") as h5:
         basis_matrix = np.array(h5["/basis"], dtype='d')
         strucMesh_basis_property = strucMesh.getPropertyByIdentifier('basis')
@@ -66,7 +67,17 @@ def _cellnetwork(h5file, md=False, xpos=0, ypos=0):
             base_group = "/MD"
             animator = _add_processor('org.inviwo.OrdinalPropertyAnimator','MD animation', xpos+200, ypos+200)
             timesteps = h5[base_group].attrs['steps']
-            inviwo.setPropertyValue(strucMesh+'.animation', True)
+            strucMesh_animation_property = strucMesh.getPropertyByIdentifier('animation')
+            strucMesh_animation_property.value = True
+            #inviwo.setPropertyValue(strucMesh+'.animation', True)
+            #Build or redesign add_property using propertyFactory. Current idea:
+            #property_factory = app.propertyFactory
+            #int_property = property_factory.create('org.inviwo.OrdinalAnimationProperty.Int')
+            #animator.addProperty(int_property)
+            #int_property_value = int_property.getPropertyByIdentifier('value')
+            #int_property_value.value = 0
+            #int_property_value.minValue = 0
+            #int_property_value.maxValue = timesteps
             inviwo.setPropertyValue(animator+'.property',8) # IntProperty
             inviwo.setPropertyValue(animator+'.OrgInviwoIntProperty',0)
             inviwo.setPropertyMinValue(animator+'.OrgInviwoIntProperty',0)
