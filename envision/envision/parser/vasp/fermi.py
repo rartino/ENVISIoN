@@ -8,6 +8,14 @@ from ..h5writer import _write_fermisurface
 line_reg_int = re.compile(r'^( *[+-]?[0-9]+){3} *$')
 line_reg_float = re.compile(r'( *[+-]?[0-9]*\.[0-9]+(?:[eE][+-]?[0-9]+)? *){4}')
 
+# Class representing a point in K-space.
+# Contains its coordinates in three dimensions
+# as well as a list of energies associated with
+# the point.
+class KPoint:
+    def __init__(self):
+        self.coordinates = list()
+        self.energies = list()
 
 def fermi_parse(vasp_dir):
     """
@@ -20,8 +28,7 @@ def fermi_parse(vasp_dir):
 
     Returns
     -------
-    band_data : list
-        list containing all the band data
+
     kval_list : list
         list containing all the K-points
     fermi_energy: float
@@ -31,7 +38,7 @@ def fermi_parse(vasp_dir):
     data = None
     kval = None
     kval_list = []
-    band_data = []
+    energy_count = 0
     i = 0
 
     eigenval_file = os.path.join(vasp_dir, 'EIGENVAL')
@@ -42,21 +49,21 @@ def fermi_parse(vasp_dir):
                 match_int = line_reg_int.match(line)
                 if match_int:
                      data = [int(v) for v in line.split()]
-                     band_data = [[] for _ in range(data[2])]
+                     energy_count = int(data[2])
                 if data and match_float:
-                     kval = []
+                     kval = KPoint()
                      for u in range(3):
-                        kval.append(float(line.split()[u]))
+                        kval.coordinates.append(float(line.split()[u]))
                 elif kval and data:
-                      band_data[i].append(float(line.split()[1]))
+                      kval.energies.append(float(line.split()[1]))
                       i += 1
-                if i == len(band_data) and kval:
+                if i == energy_count and kval:
                        kval_list.append(kval)
                        kval = None
                        i = 0
     except OSError:
         print('EIGENVAL file not in directory. Skipping.')
-        return [], [], 0
+        return [], 0
 
     #Parses fermi energy from DOSCAR
     #with open( '/home/marian/ENVISIoN/data/ZnS/VASP/DOSCAR',"r") as f:
@@ -73,9 +80,9 @@ def fermi_parse(vasp_dir):
 
     except OSError:
         print('DOSCAR file not in directory. Skipping.')
-        return [], [], 0
+        return [], 0
 
-    return band_data, kval_list, fermi_energy
+    return kval_list, fermi_energy
 
 def fermi_surface(h5file, vasp_dir):
     """
@@ -100,11 +107,11 @@ def fermi_surface(h5file, vasp_dir):
                 print('Fermi surface data already parsed. Skipping.')
                 return False
 
-    band_data, kval_list, fermi_energy = fermi_parse(vasp_dir)
-    if not band_data or not kval_list:
+    kval_list, fermi_energy = fermi_parse(vasp_dir)
+    if not kval_list:
         print('Something went wrong when parsing Fermi surface data in folder {}'.format(vasp_dir))
         return False
 
-    _write_fermisurface(h5file, band_data, kval_list, fermi_energy)
+    _write_fermisurface(h5file, kval_list, fermi_energy)
     print('Fermi surface data was parsed successfully.')
     return True
