@@ -52,9 +52,14 @@ def _cellnetwork(h5file, md=False, xpos=0, ypos=0):
 
     with h5py.File(h5file,"r") as h5:
         basis_matrix = np.array(h5["/basis"], dtype='d')
-        inviwo.setPropertyValue(strucMesh+'.basis', tuple(map(tuple, basis_matrix)))
-        inviwo.setPropertyValue(strucMesh+'.timestep',0)
-        inviwo.setPropertyMinValue(strucMesh+'.timestep',0)
+        strucMesh_basis_property = strucMesh.getPropertyByIdentifier('basis')
+        strucMesh_basis_property.value = basis_matrix
+        #inviwo.setPropertyValue(strucMesh+'.basis', tuple(map(tuple, basis_matrix)))
+        strucMesh_timestep_property = strucMesh.getPropertyByIdentifier('timestep')
+        strucMesh_timestep_property.value = 0
+        strucMesh_timestep_property.minValue = 0
+        #inviwo.setPropertyValue(strucMesh+'.timestep',0)
+        #inviwo.setPropertyMinValue(strucMesh+'.timestep',0)
         timesteps=0
         base_group = "/UnitCell"
         if md:
