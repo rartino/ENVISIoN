@@ -27,7 +27,7 @@
 import inviwopy
 import numpy as np
 import h5py
-from .common import _add_processor, _add_h5source
+from .common import _add_processor, _add_h5source, _add_property
 from .data import atomic_radii, element_names, element_colors
 
 app = inviwopy.app
@@ -70,22 +70,25 @@ def _cellnetwork(h5file, md=False, xpos=0, ypos=0):
             strucMesh_animation_property = strucMesh.getPropertyByIdentifier('animation')
             strucMesh_animation_property.value = True
             #inviwo.setPropertyValue(strucMesh+'.animation', True)
-            #Build or redesign add_property using propertyFactory. Current idea:
-            #property_factory = app.propertyFactory
-            #int_property = property_factory.create('org.inviwo.OrdinalAnimationProperty.Int')
-            #animator.addProperty(int_property)
-            #int_property_value = int_property.getPropertyByIdentifier('value')
-            #int_property_value.value = 0
-            #int_property_value.minValue = 0
-            #int_property_value.maxValue = timesteps
-            inviwo.setPropertyValue(animator+'.property',8) # IntProperty
-            inviwo.setPropertyValue(animator+'.OrgInviwoIntProperty',0)
-            inviwo.setPropertyMinValue(animator+'.OrgInviwoIntProperty',0)
-            inviwo.setPropertyMaxValue(animator+'.OrgInviwoIntProperty',timesteps)
-            inviwo.setPropertyMaxValue(animator+'.delay',10)
-            inviwo.addLink(animator+'.OrgInviwoIntProperty',strucMesh+'.timestep')
-            inviwo.setPropertyValue(animator+'.OrgInviwoIntProperty-Delta',1)
-        inviwo.setPropertyMaxValue(strucMesh+'.timestep',timesteps)
+            int_property = _add_property('org.inviwo.OrdinalAnimationProperty.Int', 'intProperty', animator)
+            int_property_value = int_property.getPropertyByIdentifier('value')
+            int_property_value.value = 0
+            int_property_value.minValue = 0
+            int_property_value.maxValue = timesteps
+            #inviwo.setPropertyValue(animator+'.property',8) # IntProperty
+            #inviwo.setPropertyValue(animator+'.OrgInviwoIntProperty',0)
+            #inviwo.setPropertyMinValue(animator+'.OrgInviwoIntProperty',0)
+            #inviwo.setPropertyMaxValue(animator+'.OrgInviwoIntProperty',timesteps)
+            animator_delay_property = animator.getPropertyByIdentifier('delay')
+            animator_delay_property.maxValue = 10
+            #inviwo.setPropertyMaxValue(animator+'.delay',10)
+            network.addLink(animator.getPropertyByIdentifier(''), strucMesh.getPropertyByIdentifier('timestep'))
+            #inviwo.addLink...
+            int_property_delta = int_property.getPropertyByIdentifier('delta')
+            int_property_delta.value = 1
+            #inviwo.setPropertyValue(animator+'.OrgInviwoIntProperty-Delta',1)
+        strucMesh_timestep_property.maxValue = timesteps
+        #inviwo.setPropertyMaxValue(strucMesh+'.timestep',timesteps)
 
         species = len(h5[base_group + "/Atoms"].keys()) - 1
         for i,key in enumerate(list(h5[base_group + "/Atoms"].keys())):
@@ -94,18 +97,29 @@ def _cellnetwork(h5file, md=False, xpos=0, ypos=0):
             color = element_colors.get(element, (0.5, 0.5, 0.5, 1.0))
             radius = atomic_radii.get(element, 0.5)
             coordReader = _add_processor('envision.CoordinateReader', '{0} {1}'.format(i,name), xpos+int((i-species/2)*200), ypos+100)
-            inviwo.addConnection(HDFsource, 'outport', coordReader, 'inport')
-            inviwo.addConnection(coordReader, 'outport', strucMesh, 'coordinates')
-            inviwo.setPropertyValue(coordReader+'.path', base_group + '/Atoms/'+key)
-            inviwo.setPropertyValue(strucMesh+'.radius{0}'.format(i), radius)
-            inviwo.setPropertyValue(strucMesh+'.color{0}'.format(i), color)
+            network.addConnection(HDFsource.getOutport('outport'), coordReader.getInport('inport'))
+            #inviwo.addConnection(HDFsource, 'outport', coordReader, 'inport')
+            network.addConnection(coordReader.getOutport('outport'), structMesh.getInport('coordinates'))
+            #inviwo.addConnection(coordReader, 'outport', strucMesh, 'coordinates')
+            coordReader_path_property = coordReader.getPropertyByIdentifier('path')
+            coordReader_path_property.value = base_group + '/Atoms/' + key
+            #inviwo.setPropertyValue(coordReader+'.path', base_group + '/Atoms/'+key)
+            sphereRenderer = network.getProcessorByIdentifier('Unit Cell Renderer')
+            sphereRenderer_radius_property = sphereRenderer.getPropertyByIdentifier('sphereProperties').getPropertyByIdentifier('customRadius')
+            sphereRenderer_radius_property.value = radius
+            #inviwo.setPropertyValue(strucMesh+'.radius{0}'.format(i), radius)
+            sphereRenderer_color_property = sphereRenderer.getPropertyByIdentifier('sphereProperties').getPropertyByIdentifier('customColor')
+            sphereRenderer_color_property.value = color
+            #inviwo.setPropertyValue(strucMesh+'.color{0}'.format(i), color)
             if md:
                 atoms = int(h5["/MD/Atoms/"+key].attrs['atoms'])
             else:
                 atoms = 0
-            inviwo.setPropertyValue(strucMesh+'.atoms{0}'.format(i), atoms)
-            inviwo.setPropertyMinValue(strucMesh+'.atoms{0}'.format(i), atoms)
-            inviwo.setPropertyMaxValue(strucMesh+'.atoms{0}'.format(i), atoms)
+
+            #NOT YET UPDATED. Sets the value, including upper and lower bounds thereof, of a property not in strucMesh.
+            #inviwo.setPropertyValue(strucMesh+'.atoms{0}'.format(i), atoms)
+            #inviwo.setPropertyMinValue(strucMesh+'.atoms{0}'.format(i), atoms)
+            #inviwo.setPropertyMaxValue(strucMesh+'.atoms{0}'.format(i), atoms)
 
 def md(h5file, xpos=0, ypos=0):
     """Creates an Inviwo network for MD visualization
