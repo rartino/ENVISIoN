@@ -14,8 +14,9 @@ set(HEADER_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/processors/hdf5tofunction.h
     ${CMAKE_CURRENT_SOURCE_DIR}/processors/functionoperationunary.h
     ${CMAKE_CURRENT_SOURCE_DIR}/processors/functionoperationnary.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/processors/plotter.h
-)
+    )
+    #${CMAKE_CURRENT_SOURCE_DIR}/processors/plotter.h
+
 ivw_group("Header Files" ${HEADER_FILES})
 
 #--------------------------------------------------------------------
@@ -30,8 +31,9 @@ set(SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/processors/hdf5tofunction.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/processors/functionoperationunary.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/processors/functionoperationnary.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/processors/plotter.cpp
-)
+    )
+    #${CMAKE_CURRENT_SOURCE_DIR}/processors/plotter.cpp
+
 ivw_group("Source Files" ${SOURCE_FILES})
 
 
