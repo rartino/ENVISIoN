@@ -56,10 +56,13 @@ def dos_line(f, ndos):
         line = next(f)
         if not line_length:
             line_length = len(line.split())
+
         if len(data) != len(line.split()):
             data = [[] for i in range(len(line.split()))]
+
         for i, element in enumerate(line.split()):
             data[i].append(float(element))
+
     return data, line_length
 
 def parse_doscar(h5file,vasp_file):
@@ -91,14 +94,17 @@ def parse_doscar(h5file,vasp_file):
     
     # Parse file.
     with open(vasp_file, "r") as f:
-
         line = next(f)
         line = next(f)
         ediff = next(f)
         coord = next(f)
         system = next(f)
         line = next(f)
-        header = {"Highest energy": float(line.split()[0]), "Lowest energy": float(line.split()[1]), "ndos": int(line.split()[2]), "Fermi energy": float(line.split()[3]), "weight": float(line.split()[4])}
+        header = { "Highest energy": float(line.split()[0]),
+                   "Lowest energy": float(line.split()[1]),
+                   "ndos": int(line.split()[2]),
+                   "Fermi energy": float(line.split()[3]),
+                   "weight": float(line.split()[4]) }
 
         if os.path.isfile(h5file):
             with h5py.File(h5file,'r') as h5:
@@ -106,29 +112,48 @@ def parse_doscar(h5file,vasp_file):
                     incar = h5.get('/incar')
                     if np.array(incar.get('LORBIT')) == '10':
                         if np.array(incar.get('ISPIN')) == '1':
-                            total = ["Energy", "DOS", "Integrated DOS"]
-                            partial = ["Energy", "s-DOS", "p-DOS", "d-DOS", "f-DOS"]
-                        if np.array(incar.get('ISPIN')) == '2':
-                            total = ["Energy", "DOS(up)", "DOS(dwn)", "Integrated DOS(up)", "Integrated DOS(dwn)"]
-                            partial = ["Energy", "s-DOS(up)", "s-DOS(dwn)", "p-DOS(up)", "p-DOS(dwn)", "d-DOS(up)", "d-DOS(dwn)", "f-DOS(up)", "f-DOS(dwn)"]
-                    if np.array(incar.get('LORBIT')) == '11':
-                        total = ["Energy", "DOS", "Integrated DOS"]
-                        partial = ["Energy", "s-DOS", "p-DOS(x)", "p-DOS(y)", "p-DOS(z)", "d-DOS(xy)", "d-DOS(yz)", "d-DOS(z2)", "d-DOS(xz)", "d-DOS(x2y2)", "f-DOS(-3)", "f-DOS(-2)", "f-DOS(-1)", "f-DOS(0)", "f-DOS(1)", "f-DOS(2)", "f-DOS(3)"]
+                            total = [ "Energy", "DOS", "Integrated DOS" ]
+                            partial = [ "Energy", "s-DOS", "p-DOS", "d-DOS", "f-DOS" ]
 
+                        if np.array(incar.get('ISPIN')) == '2':
+                            total = [ "Energy", "DOS(up)", "DOS(dwn)", "Integrated DOS(up)", "Integrated DOS(dwn)" ]
+                            partial = [ "Energy", "s-DOS(up)", "s-DOS(dwn)", "p-DOS(up)",
+                                        "p-DOS(dwn)", "d-DOS(up)", "d-DOS(dwn)", "f-DOS(up)", "f-DOS(dwn)" ]
+
+                    if np.array(incar.get('LORBIT')) == '11':
+                        if np.array(incar.get('ISPIN')) == '1':
+                            total = [ "Energy", "DOS", "Integrated DOS" ]
+                            partial = [ "Energy", "s-DOS", "p-DOS(x)", "p-DOS(y)", "p-DOS(z)", "d-DOS(xy)",
+                                         "d-DOS(yz)", "d-DOS(z2)", "d-DOS(xz)", "d-DOS(x2y2)", "f-DOS(-3)",
+                                         "f-DOS(-2)", "f-DOS(-1)", "f-DOS(0)", "f-DOS(1)", "f-DOS(2)", "f-DOS(3)" ]
+                        if np.array(incar.get('ISPIN')) == '2':
+                            total = [ "Energy", "DOS(up)", "DOS(dwn)", "Integrated DOS(up)", "Integrated DOS(dwn)" ]
+                            partial = [ "Energy", "s-DOS(dwn)", "s-DOS(up)", "p-DOS(x)(up)", "p-DOS(x)(dwn)",
+                                        "p-DOS(y)(up)", "p-DOS(y)(dwn)", "p-DOS(z)(up)", "p-DOS(z)(dwn)",
+                                        "d-DOS(xy)(up)", "d-DOS(xy)(dwn)", "d-DOS(yz)(up)", "d-DOS(yz)(dwn)",
+                                        "d-DOS(z2)(up)", "d-DOS(z2)(dwn)", "d-DOS(xz)(up)", "d-DOS(xz)(dwn)",
+                                        "d-DOS(x2y2)(up)", "d-DOS(x2y2)(dwn)", "f-DOS(-3)(up)", "f-DOS(-3)(dwn)",
+                                        "f-DOS(-2)(up)", "f-DOS(-2)(dwn)", "f-DOS(-1)(up)", "f-DOS(-1)(dwn)",
+                                        "f-DOS(0)(up)", "f-DOS(0)(dwn)", "f-DOS(1)(up)", "f-DOS(1)(dwn)",
+                                        "f-DOS(2)(up)", "f-DOS(2)(dwn)", "f-DOS(3)(up)", "f-DOS(3)(dwn)" ]
+                                        
         total_data, line_length = dos_line(f, header["ndos"])
         if not total:
             print("Because INCAR data was not written to the hdf5 file the data of the DOS cannot be specified.")
             total = ['Energy']
             for _ in range(line_length - 1):
                 total.append('Unknown DOS {}'.format(_))
+
         partial_list = []
         for line in f:
             partial_data, line_length = dos_line(f, header["ndos"])
             partial_list.append(partial_data)
+
         if not partial:
             partial = ['Energy']
             for _ in range(line_length - 1):
                 partial.append('Unknown DOS {}'.format(_))
+
     return total, partial, total_data, partial_list, header["Fermi energy"]
 
 def dos(h5file, vasp_dir):
