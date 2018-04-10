@@ -120,7 +120,7 @@ def dos(h5file, xpos=0, ypos=0):
 
                 totalpartial_source_hdf5outport = totalpartial_pick_processor.getOutport('hdf5HandleVectorOutport')
                 down_type_processor_hdf5inport = down_type_processor.getInport('hdf5HandleFlatMultiInport')
-                network.addConnection(totalpartial_source_hdf5outport, down-type_processor_hdf5inport)
+                network.addConnection(totalpartial_source_hdf5outport, down_type_processor_hdf5inport)
 
                 xpos_down += 200
 
@@ -148,7 +148,7 @@ def dos(h5file, xpos=0, ypos=0):
                 other_type_y_name_property.value = y_name_prepend_parents
 
                 totalpartial_outport = totalpartial_processor.getOutport('outport')
-                other_type_hdf5inport = up_type_processor.getInport('hdf5HandleFlatMultiInport')
+                other_type_hdf5inport = other_type_processor.getInport('hdf5HandleFlatMultiInport')
                 network.addConnection(totalpartial_outport, other_type_hdf5inport)
 
                 xpos_other += 200
@@ -184,7 +184,8 @@ def dos(h5file, xpos=0, ypos=0):
 
                 other_add_inport = other_add_processor.getInport('functionFlatMultiInport')
                 for other_type in other_type_list:
-                    other_outport = other_type.getOutport('functionVectorOutport')
+                    other_type_processor = network.getProcessorByIdentifier(other_type)
+                    other_outport = other_type_processor.getOutport('functionVectorOutport')
                     network.addConnection(other_outport, other_add_inport)
                 plotter_source_list.append(other_add_processor)
 
@@ -197,7 +198,7 @@ def dos(h5file, xpos=0, ypos=0):
                 down_negate_operation_property.value = 'negate'
 
                 down_negate_inport = down_negate_processor.getInport('functionFlatMultiInport')
-                down_add_outport = down-add_processor.getOutport('functionVectorOutport')
+                down_add_outport = down_add_processor.getOutport('functionVectorOutport')
                 network.addConnection(down_add_outport, down_negate_inport)
                 plotter_source_list.append(down_negate_processor)
                 ypos += 100
@@ -218,7 +219,7 @@ def dos(h5file, xpos=0, ypos=0):
             else:
                 fermi_energy_processor = _add_processor("org.inviwo.HDF5ToPoint", "Fermi Energy", xpos, ypos)
                 h5source_outport = h5source_processor.getOutport('outport')
-                fermi_energy_inport = fermi_energy_processor.getInport('hdf5HandleflatMultiInport')
+                fermi_energy_inport = fermi_energy_processor.getInport('hdf5HandleFlatMultiInport')
                 network.addConnection(h5source_outport, fermi_energy_inport)
                 ypos += 100
 
@@ -288,22 +289,22 @@ def dos(h5file, xpos=0, ypos=0):
 
             ypos += 100
 
-            for partial_pick_all_child in partial_pick_all_child_list:
-                inviwopy.addConnection(partial_pick_processor, "hdf5HandleVectorOutport", partial_pick_all_child, "hdf5HandleFlatMultiInport")
-            for partial_pick_all_parent in partial_pick_all_parent_list:
-                inviwopy.addConnection(partial_pick_all_parent, "outport", partial_pick_processor, "hdf5HandleInport")
+            #for partial_pick_all_child in partial_pick_all_child_list:
+                #inviwopy.addConnection(partial_pick_processor, "hdf5HandleVectorOutport", partial_pick_all_child, "hdf5HandleFlatMultiInport")
+            #for partial_pick_all_parent in partial_pick_all_parent_list:
+                #inviwopy.addConnection(partial_pick_all_parent, "outport", partial_pick_processor, "hdf5HandleInport")
             inviwopy.addLink(".".join(["Unit Cell Mesh", "inds"]), ".".join(["Partial Pick", "intVectorProperty"]))
             inviwopy.setPropertyValue(".".join(["Unit Cell Mesh", "enablePicking"]), True)
 
             dos_unitcell_layout_processor = _add_processor("org.inviwo.ImageLayoutGL", "DOS UnitCell Layout", xpos, ypos)
-            inviwopy.addConnection("Unit Cell Renderer", "image", dos_unitcell_layout_processor, "multiinport")
-            inviwopy.addConnection("DOS Plotter", "imageOutport", dos_unitcell_layout_processor, "multiinport")
+            #inviwopy.addConnection("Unit Cell Renderer", "image", dos_unitcell_layout_processor, "multiinport")
+            #inviwopy.addConnection("DOS Plotter", "imageOutport", dos_unitcell_layout_processor, "multiinport")
 
             ypos += 100
 
             dos_unitcell_canvas_processor = _add_processor("org.inviwo.CanvasGL", "DOS UnitCell Canvas", xpos, ypos)
-            inviwopy.setPropertyValue(".".join([dos_unitcell_canvas_processor, "inputSize", "dimensions"]), (2 * 640, 480))
-            inviwopy.addConnection(dos_unitcell_layout_processor, "outport", dos_unitcell_canvas_processor, "inport")
+            #inviwopy.setPropertyValue(".".join([dos_unitcell_canvas_processor, "inputSize", "dimensions"]), (2 * 640, 480))
+            #inviwopy.addConnection(dos_unitcell_layout_processor, "outport", dos_unitcell_canvas_processor, "inport")
 
             ypos += 100
 
