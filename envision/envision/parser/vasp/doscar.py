@@ -126,7 +126,7 @@ def parse_doscar(h5file,vasp_file):
                             partial = [ "Energy", "s-DOS", "p-DOS(x)", "p-DOS(y)", "p-DOS(z)", "d-DOS(xy)",
                                          "d-DOS(yz)", "d-DOS(z2)", "d-DOS(xz)", "d-DOS(x2y2)", "f-DOS(-3)",
                                          "f-DOS(-2)", "f-DOS(-1)", "f-DOS(0)", "f-DOS(1)", "f-DOS(2)", "f-DOS(3)" ]
-                        # TODO: Verify with example data.
+                        # TODO: As of now this only creates the first 19 directories in the list. Figure out why it cuts off.
                         if np.array(incar.get('ISPIN')) == '2':
                             total = [ "Energy", "DOS(up)", "DOS(dwn)", "Integrated DOS(up)", "Integrated DOS(dwn)" ]
                             partial = [ "Energy", "s-DOS(dwn)", "s-DOS(up)", "p-DOS(x)(up)", "p-DOS(x)(dwn)",
