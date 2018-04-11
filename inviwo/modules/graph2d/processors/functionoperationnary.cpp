@@ -31,7 +31,7 @@
 
 #include <modules/graph2d/util/stringcomparenatural.h>
 
-using inviwo::plot::createDataFrame;
+using inviwo::plot::TemplateColumn;
 
 namespace inviwo {
 
@@ -363,20 +363,19 @@ void FunctionOperationNary::process() {
                     }
             );
 
-        std::string xValues;
+        std::shared_ptr<DataFrame> frame = std::make_shared<DataFrame>(0);
+        std::shared_ptr<TemplateColumn<float> > x = frame->addColumn<float>("X", 0);
         for (float value : xAxis.valueVector) {
-            xValues.append(std::to_string(value));
-            xValues.append(" ");
+            x->add(value);
         }
 
-        std::string yValues;
+        std::shared_ptr<TemplateColumn<float> > y = frame->addColumn<float>("Y", 0);
         for (float value : yAxis.valueVector) {
-            yValues.append(std::to_string(value));
-            yValues.append(" ");
+            y->add(value);
         }
 
-        std::shared_ptr<DataFrame> data = createDataFrame({xValues, yValues}, {"X", "Y"});
-        dataframeOutport_.setData(data);
+
+        dataframeOutport_.setData(frame);
     }
 }
 
