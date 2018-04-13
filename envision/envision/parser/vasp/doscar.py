@@ -123,14 +123,15 @@ def parse_doscar(h5file,vasp_file):
                     if np.array(incar.get('LORBIT')) == '11':
                         if np.array(incar.get('ISPIN')) == '1':
                             total = [ "Energy", "DOS", "Integrated DOS" ]
-                            partial = [ "Energy", "s-DOS", "p-DOS(x)", "p-DOS(y)", "p-DOS(z)", "d-DOS(xy)",
+                            # Note that p-DOS is in order y, z, x to match DOSCAR file.
+                            partial = [ "Energy", "s-DOS", "p-DOS(y)", "p-DOS(z)", "p-DOS(x)", "d-DOS(xy)",
                                          "d-DOS(yz)", "d-DOS(z2)", "d-DOS(xz)", "d-DOS(x2y2)", "f-DOS(-3)",
                                          "f-DOS(-2)", "f-DOS(-1)", "f-DOS(0)", "f-DOS(1)", "f-DOS(2)", "f-DOS(3)" ]
-                        # TODO: As of now this only creates the first 19 directories in the list. Figure out why it cuts off.
+                        # Covers all possible electron configurations, but only the ones found will be written.
                         if np.array(incar.get('ISPIN')) == '2':
                             total = [ "Energy", "DOS(up)", "DOS(dwn)", "Integrated DOS(up)", "Integrated DOS(dwn)" ]
-                            partial = [ "Energy", "s-DOS(dwn)", "s-DOS(up)", "p-DOS(x)(up)", "p-DOS(x)(dwn)",
-                                        "p-DOS(y)(up)", "p-DOS(y)(dwn)", "p-DOS(z)(up)", "p-DOS(z)(dwn)",
+                            partial = [ "Energy", "s-DOS(up)", "s-DOS(dwn)", "p-DOS(y)(up)", "p-DOS(y)(dwn)",
+                                        "p-DOS(z)(up)", "p-DOS(z)(dwn)", "p-DOS(x)(up)", "p-DOS(x)(dwn)",
                                         "d-DOS(xy)(up)", "d-DOS(xy)(dwn)", "d-DOS(yz)(up)", "d-DOS(yz)(dwn)",
                                         "d-DOS(z2)(up)", "d-DOS(z2)(dwn)", "d-DOS(xz)(up)", "d-DOS(xz)(dwn)",
                                         "d-DOS(x2y2)(up)", "d-DOS(x2y2)(dwn)", "f-DOS(-3)(up)", "f-DOS(-3)(dwn)",
