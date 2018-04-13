@@ -55,11 +55,8 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
         Raycaster = _add_processor('org.inviwo.VolumeRaycaster', volume, xstart_pos, ystart_pos+300)
         raycaster_transferfunction_property = Raycaster.getPropertyByIdentifier('transferFunction')
         raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.6,1.0),inviwopy.glm.vec3(0.0,1.0,1.0))
-        #inviwo.addPointToTransferFunction(Raycaster+'.transferFunction',(0.6,1.0),(0.0,1.0,1.0))
         raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.45,0.0),inviwopy.glm.vec3(0.0,0.0,1.0))
-        #inviwo.addPointToTransferFunction(Raycaster+'.transferFunction',(0.45,0.0),(0.0,0.0,1.0))
         raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.7,0.0),inviwopy.glm.vec3(0.0,0.0,0.0))
-        #inviwo.addPointToTransferFunction(Raycaster+'.transferFunction',(0.7,0.0),(0.0,0.0,0.0))
     else:
         Raycaster = _add_processor('org.inviwo.ISORaycaster', volume, xstart_pos, ystart_pos+300)
         raycaster_isovalue_property = Raycaster.getPropertyByIdentifier('raycasting').getPropertyByIdentifier('isoValue')
@@ -120,7 +117,8 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
             #inviwo.setPropertyValue(Raycaster+'.positionindicator.plane2.enable', False)
             #inviwo.setPropertyValue(Raycaster+'.positionindicator.plane3.enable', False)
 
-            #NOT TREATED
+            Raycaster_plane1_color_property = Raycaster_plane1_property.color
+            Raycaster_plane1_color_property.value = inviwopy.glm.vec4(1.0,1.0,1.0,0.5)
             #inviwo.setPropertyValue(Raycaster+'.positionindicator.plane1.color', (1.0,1.0,1.0,0.5))
             
         else:
