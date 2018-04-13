@@ -222,7 +222,33 @@ def dos(h5file, xpos=0, ypos=0):
                 fermi_energy_inport = fermi_energy_processor.getInport('hdf5HandleFlatMultiInport')
                 network.addConnection(h5source_outport, fermi_energy_inport)
                 ypos += 100
-
+        
+        
+        for plotter_source in plotter_source_list: 
+            plotter_processor = _add_processor("org.inviwo.ScatterPlotProcessor", "DOS Plotter", xpos, ypos) 
+            plotter_source_outport = plotter_source.getOutport('dataframeOutport')
+            plotter_processor_inport = plotter_processor.getInport('dataFrame_')
+            network.addConnection(plotter_source_outport, plotter_processor_inport)
+        
+            ypos += 100
+            
+            
+            background_processor = _add_processor("org.inviwo.Background", "Background", xpos, ypos)
+            plotter_processor_outport = plotter_processor.getOutport('outport')
+            background_processor_inport = background_processor.getInport('inport')
+            network.addConnection(plotter_processor_outport, background_processor_inport)
+            
+            ypos += 100
+                    
+            canvas_processor = _add_processor("org.inviwo.CanvasGL", "Canvas", xpos, ypos)
+            background_processor_outport = background_processor.getOutport('outport')
+            canvas_inport = canvas_processor.getInport('inport')
+            network.addConnection(background_processor_outport, canvas_inport)
+            
+            ypos += 100  
+            xpos += 100
+            
+        """
         plotter_processor = _add_processor("org.inviwo.Plotter", "DOS Plotter", xpos, ypos)
         for plotter_source in plotter_source_list:
             plotter_source_outport = plotter_source.getOutport('functionVectorOutport')
@@ -232,7 +258,7 @@ def dos(h5file, xpos=0, ypos=0):
             fermi_outport = fermi_energy_processor.getOutport('pointVectorOutport')
             plotter_inport = plotter_processor.getInport('markXFlatMultiInport')
             network.addConnection(fermi_outport, plotter_inport)
-
+ 
         ypos += 100
 
         canvas_processor = _add_processor("org.inviwo.CanvasGL", "DOS Canvas", xpos, ypos)
@@ -262,7 +288,7 @@ def dos(h5file, xpos=0, ypos=0):
 
         canvas_processor.getPropertyByIdentifier('inputSize.dimensions').value = (640, 480)
 
-
+        """
         ## TODO: Fix the code below this comment after getting data to test with.
         if has_partial and "Unit Cell Mesh" in [x.identifier for x in processor_list]:
 
