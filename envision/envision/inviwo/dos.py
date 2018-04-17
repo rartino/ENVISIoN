@@ -289,13 +289,28 @@ def dos(h5file, xpos=0, ypos=0):
         canvas_processor.getPropertyByIdentifier('inputSize.dimensions').value = (640, 480)
 
         """
-        ## TODO: Fix the code below this comment after getting data to test with.
+        ## TODO: Find out why the Partial Pick All processor isn't connected to anything at the start of this block.
+        # Replaces Partial Pick All processor with Partial Pick processor.
         if has_partial and "Unit Cell Mesh" in [x.identifier for x in processor_list]:
-
+            
+            def get_child_list(parent):
+                child_list = []
+                for connection in network.connections:
+                    if connection.outport.processor == parent:
+                         child_list.append(connection.inport.processor)
+                return child_list
+                
+            def get_parent_list(child):
+                parent_list = []
+                for connection in network.connections:
+                    if connection.inport.processor == child:
+                         parent_list.append(connection.outport.processor)
+                return parent_list
+            """                
             def get_child_list(parent):
                 return [
                     child
-                    for [[processor, _], [child, _]] in inviwopy.getConnections()
+                    for [[processor, _], [child, _]] in network.connections
                     if processor == parent
                 ]
 
@@ -305,21 +320,22 @@ def dos(h5file, xpos=0, ypos=0):
                     for [[parent, _], [processor, _]] in inviwopy.getConnections()
                     if processor == child
                 ]
+            """
 
-            partial_pick_all_position = inviwopy.getProcessorPosition("Partial Pick All")
-            partial_pick_all_child_list = get_child_list("Partial Pick All")
-            partial_pick_all_parent_list = get_parent_list("Partial Pick All")
+            partial_pick_all_position = network.getProcessorByIdentifier("Partial Pick All").position
+            partial_pick_all_child_list = get_child_list(network.getProcessorByIdentifier("Partial Pick All"))
+            partial_pick_all_parent_list = get_parent_list(network.getProcessorByIdentifier("Partial Pick All"))
 
-            inviwopy.removeProcessor("Partial Pick All")
-            partial_pick_processor = _add_processor("org.inviwo.HDF5PathSelectionIntVector", "Partial Pick", *partial_pick_all_position)
+            network.removeProcessor(network.getProcessorByIdentifier("Partial Pick All"))
+            partial_pick_processor = _add_processor("org.inviwo.HDF5PathSelectionIntVector", "Partial Pick", partial_pick_all_position[0], partial_pick_all_position[1])
 
             ypos += 100
-
-            #for partial_pick_all_child in partial_pick_all_child_list:
-                #inviwopy.addConnection(partial_pick_processor, "hdf5HandleVectorOutport", partial_pick_all_child, "hdf5HandleFlatMultiInport")
-            #for partial_pick_all_parent in partial_pick_all_parent_list:
-                #inviwopy.addConnection(partial_pick_all_parent, "outport", partial_pick_processor, "hdf5HandleInport")
-            inviwopy.addLink(".".join(["Unit Cell Mesh", "inds"]), ".".join(["Partial Pick", "intVectorProperty"]))
+            for partial_pick_all_child in partial_pick_all_child_list:
+                network.addConnection(partial_pick_processor.outport, partial_pick_all_child.inport)
+            for partial_pick_all_parent in partial_pick_all_parent_list:
+                network.addConnection(partial_pick_all_parent, partial_pick_processor)
+            network.addLink(network.getProcessorByIdentifier("Unit Cell Mesh").getPropertyByIdentifier("inds"), network.getProcessorByIdentifier("Partial Pick").getPropertyByIdentifier("intVectorProperty"))
+            #network.addLink(".".join(["Unit Cell Mesh", "inds"]), ".".join(["Partial Pick", "intVectorProperty"]))
             inviwopy.setPropertyValue(".".join(["Unit Cell Mesh", "enablePicking"]), True)
 
             dos_unitcell_layout_processor = _add_processor("org.inviwo.ImageLayoutGL", "DOS UnitCell Layout", xpos, ypos)
