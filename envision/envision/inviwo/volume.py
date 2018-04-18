@@ -30,6 +30,9 @@ import numpy as np
 import h5py
 from .common import _add_h5source, _add_processor
 
+app = inviwopy.app
+network = app.network
+
 # Function for buiding a volume network for both electron density and electron localisation function data
 def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
     # Shared processors, processor positions and base vectors between electron density and electron localisation function data
@@ -49,14 +52,17 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
     EntryExitPoints = _add_processor('org.inviwo.EntryExitPoints', 'EntryExitPoints', xstart_pos+30, ystart_pos+225)
     # Add processor for Volume or ISO Raycaster based on if "iso" is assigned a value or not and give it correct name based on the string "volume" assigned a value in function "charge" or "elf". 
     if iso==None:
-        Raycaster = _add_processor('org.inviwo.VolumeRaycaster', volume, xstart_pos, ystart_pos+300) 
-        inviwo.addPointToTransferFunction(Raycaster+'.transferFunction',(0.6,1.0),(0.0,1.0,1.0))
-        inviwo.addPointToTransferFunction(Raycaster+'.transferFunction',(0.45,0.0),(0.0,0.0,1.0))
-        inviwo.addPointToTransferFunction(Raycaster+'.transferFunction',(0.7,0.0),(0.0,0.0,0.0))
+        Raycaster = _add_processor('org.inviwo.VolumeRaycaster', volume, xstart_pos, ystart_pos+300)
+        raycaster_transferfunction_property = Raycaster.getPropertyByIdentifier('transferFunction')
+        raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.6,1.0),inviwopy.glm.vec3(0.0,1.0,1.0))
+        raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.45,0.0),inviwopy.glm.vec3(0.0,0.0,1.0))
+        raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.7,0.0),inviwopy.glm.vec3(0.0,0.0,0.0))
     else:
         Raycaster = _add_processor('org.inviwo.ISORaycaster', volume, xstart_pos, ystart_pos+300)
-        inviwo.setPropertyValue(Raycaster+'.raycasting.isoValue', iso)
-        inviwo.setPropertyValue(Raycaster+'.surfaceColor', (0.0,0.0,1.0,0.5))
+        raycaster_isovalue_property = Raycaster.getPropertyByIdentifier('raycasting').getPropertyByIdentifier('isoValue')
+        raycaster_isovalue_property.value = iso
+        raycaster_surfacecolor_property = Raycaster.getPropertyByIdentifier('surfaceColor')
+        raycaster_surfacecolor_property.value = inviwopy.glm.vec4(0.0,0.0,1.0,0.5)
     # Add processors, connections and properties for slice function if slice=True and "iso" hasn't been assigned a value        
     if slice:
         if iso==None:
@@ -64,50 +70,78 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
             ImageLayout = _add_processor('org.inviwo.ImageLayoutGL', 'Image Layout', xstart_pos, ystart_pos+375)     
             Background = _add_processor('org.inviwo.Background', 'Background', xstart_pos, ystart_pos+450)
             Canvas = _add_processor('org.inviwo.CanvasGL', 'Canvas', xstart_pos, ystart_pos+525)
-            inviwo.addConnection(HDFvolume, 'outport', VolumeSlice, 'volume')
-            inviwo.addConnection(VolumeSlice, 'outport', ImageLayout, 'multiinport')
-            inviwo.addConnection(Raycaster, 'outport', ImageLayout, 'multiinport') 
-            inviwo.addConnection(ImageLayout, 'outport', Background, 'inport')
-            inviwo.setPropertyValue(ImageLayout+'.layout', 2)
-            inviwo.addLink(VolumeSlice+'.planePosition', Raycaster+'.positionindicator.plane1.position')
-            inviwo.addLink(VolumeSlice+'.planeNormal', Raycaster+'.positionindicator.plane1.normal')
-            inviwo.setPropertyValue(Raycaster+'.positionindicator.enable', True)
-            inviwo.setPropertyValue(Canvas+'.inputSize.dimensions', (700,300))
-            inviwo.addPointToTransferFunction(VolumeSlice+'.tfGroup.transferFunction',(0.0,1.0),(0.0,0.0,1.0))
-            inviwo.addPointToTransferFunction(VolumeSlice+'.tfGroup.transferFunction',(0.25,1.0),(0.0,1.0,1.0))
-            inviwo.addPointToTransferFunction(VolumeSlice+'.tfGroup.transferFunction',(0.5,1.0),(0.0,1.0,0.0))
-            inviwo.addPointToTransferFunction(VolumeSlice+'.tfGroup.transferFunction',(0.75,1.0),(1.0,1.0,0.0))
-            inviwo.addPointToTransferFunction(VolumeSlice+'.tfGroup.transferFunction',(1.0,1.0),(1.0,0.0,0.0))
-            inviwo.setPropertyValue(Raycaster+'.positionindicator.plane1.enable', True)
-            inviwo.setPropertyValue(Raycaster+'.positionindicator.plane2.enable', False)
-            inviwo.setPropertyValue(Raycaster+'.positionindicator.plane3.enable', False)
-            inviwo.setPropertyValue(Raycaster+'.positionindicator.plane1.color', (1.0,1.0,1.0,0.5))
+            network.addConnection(HDFvolume.getOutport('outport'), VolumeSlice.getInport('volume'))
+            network.addConnection(VolumeSlice.getOutport('outport'), ImageLayout.getInport('multiinport'))
+            network.addConnection(Raycaster.getOutport('outport'), ImageLayout.getInport('multiinport'))
+            network.addConnection(ImageLayout.getOutport('outport'), Background.getInport('inport'))
+
+            # TODO: Set layout to "Vertical Slice". Python export bug? The same problem exists in dos.py. 
+            #inviwo.setPropertyValue(ImageLayout+'.layout', 2)
+            
+            network.addLink(VolumeSlice.getPropertyByIdentifier('planePosition'), Raycaster.getPropertyByIdentifier('positionindicator').plane1.position)
+            network.addLink(VolumeSlice.getPropertyByIdentifier('planeNormal'), Raycaster.getPropertyByIdentifier('positionindicator').plane1.normal)
+            Raycaster_positionindicator_property= Raycaster.getPropertyByIdentifier('positionindicator')
+            Raycaster_positionindicator_property.enable = True
+
+            canvas_dimensions_property = Canvas.getPropertyByIdentifier('inputSize').getPropertyByIdentifier('dimensions')
+            canvas_dimensions_property.value = inviwopy.glm.ivec2(700,300)
+            volumeSlice_transferfunction_property = VolumeSlice.getPropertyByIdentifier('tfGroup').getPropertyByIdentifier('transferFunction')
+            volumeSlice_transferfunction_property.addPoint(inviwopy.glm.vec2(0.0,1.0),inviwopy.glm.vec3(0.0,0.0,1.0))
+            volumeSlice_transferfunction_property.addPoint(inviwopy.glm.vec2(0.25,1.0),inviwopy.glm.vec3(0.0,1.0,1.0))
+            volumeSlice_transferfunction_property.addPoint(inviwopy.glm.vec2(0.5,1.0),inviwopy.glm.vec3(0.0,1.0,0.0))
+            volumeSlice_transferfunction_property.addPoint(inviwopy.glm.vec2(0.75,1.0),inviwopy.glm.vec3(1.0,1.0,0.0))
+            volumeSlice_transferfunction_property.addPoint(inviwopy.glm.vec2(1.0,1.0),inviwopy.glm.vec3(1.0,0.0,0.0))
+
+            Raycaster_plane1_property = Raycaster.getPropertyByIdentifier('positionindicator').plane1
+            Raycaster_plane2_property = Raycaster.getPropertyByIdentifier('positionindicator').plane2
+            Raycaster_plane3_property = Raycaster.getPropertyByIdentifier('positionindicator').plane3
+            Raycaster_plane1_property.enable = True
+            Raycaster_plane2_property.enable = False
+            Raycaster_plane3_property.enable = False
+
+            Raycaster_plane1_color_property = Raycaster_plane1_property.color
+            Raycaster_plane1_color_property.value = inviwopy.glm.vec4(1.0,1.0,1.0,0.5)
+            
         else:
             print("Slice is not possible with ISO Raycasting, therefore no slice-function is showing.")
     # Add processors, connections and properties for no slice function if slice=False or "iso" has been assigned a value   
     if not slice or iso != None:
         Background = _add_processor('org.inviwo.Background', 'Background', xstart_pos, ystart_pos+375)
         Canvas = _add_processor('org.inviwo.CanvasGL', 'Canvas', xstart_pos, ystart_pos+450)
-        inviwo.addConnection(Raycaster, 'outport', Background, 'inport') 
-        inviwo.setPropertyValue(Canvas+'.inputSize.dimensions', (400,400))
-    # Shared connections and properties between electron density and electron localisation function data
-    inviwo.addConnection(MeshRenderer, 'image', Raycaster, 'bg')
-    inviwo.addConnection(EntryExitPoints, 'entry', Raycaster, 'entry')
-    inviwo.addConnection(EntryExitPoints, 'exit', Raycaster, 'exit')   
-    inviwo.addConnection(HDFsource, 'outport', HDFvolume, 'inport')
-    inviwo.addConnection(HDFvolume, 'outport', BoundingBox, 'volume')
-    inviwo.addConnection(HDFvolume, 'outport', CubeProxyGeometry, 'volume')
-    inviwo.addConnection(HDFvolume, 'outport', Raycaster, 'volume')  
-    inviwo.addConnection(BoundingBox, 'mesh', MeshRenderer, 'geometry')
-    inviwo.addConnection(CubeProxyGeometry, 'proxyGeometry', EntryExitPoints, 'geometry')
-    inviwo.addConnection(Background, 'outport', Canvas, 'inport')
-    inviwo.setPropertyValue(HDFvolume+'.basisGroup.basis', tuple(map(tuple, basis_4x4)))
-    inviwo.setPropertyValue(EntryExitPoints+'.camera.lookFrom', (0,0,8))
+        network.addConnection(Raycaster.getOutport('outport'), Background.getInport('inport'))
+        canvas_dimensions_property = Canvas.getPropertyByIdentifier('inputSize').getPropertyByIdentifier('dimensions')
+        canvas_dimensions_property.value = inviwopy.glm.ivec2(400,400)
+        
     # Set correct path to volume data
-    if volume=='Charge raycaster':         
-        inviwo.setPropertyValue(HDFvolume+'.volumeSelection', '/CHG/final')
+    if volume=='Charge raycaster':
+        hdfvolume_volumeSelection_property = HDFvolume.getPropertyByIdentifier('volumeSelection')
+        hdfvolume_volumeSelection_property.value = '/CHG/final' 
     else:
-        inviwo.setPropertyValue(HDFvolume+'.volumeSelection', '/ELF/final')
+        hdfvolume_volumeSelection_property = HDFvolume.getPropertyByIdentifier('volumeSelection')
+        hdfvolume_volumeSelection_property.value = '/ELF/final'
+    HDFvolume_basis_property = HDFvolume.getPropertyByIdentifier('basisGroup').getPropertyByIdentifier('basis')
+    HDFvolume_basis_property.value = inviwopy.glm.mat4(basis_4x4[0][0],basis_4x4[0][1],basis_4x4[0][2],
+                                                       basis_4x4[0][3],basis_4x4[1][0],basis_4x4[1][1],
+                                                       basis_4x4[1][2],basis_4x4[1][3],basis_4x4[2][0],
+                                                       basis_4x4[2][1],basis_4x4[2][2],basis_4x4[2][3],
+                                                       basis_4x4[3][0],basis_4x4[3][1],basis_4x4[3][2],
+                                                       basis_4x4[3][3])
+    
+    # Shared connections and properties between electron density and electron localisation function data
+    network.addConnection(MeshRenderer.getOutport('image'), Raycaster.getInport('bg'))
+    network.addConnection(EntryExitPoints.getOutport('entry'), Raycaster.getInport('entry'))
+    network.addConnection(EntryExitPoints.getOutport('exit'), Raycaster.getInport('exit'))
+    network.addConnection(HDFsource.getOutport('outport'), HDFvolume.getInport('inport'))
+    network.addConnection(HDFvolume.getOutport('outport'), BoundingBox.getInport('volume'))
+    network.addConnection(HDFvolume.getOutport('outport'), CubeProxyGeometry.getInport('volume'))
+    network.addConnection(HDFvolume.getOutport('outport'), Raycaster.getInport('volume'))
+    network.addConnection(BoundingBox.getOutport('mesh'), MeshRenderer.getInport('geometry'))
+    network.addConnection(CubeProxyGeometry.getOutport('proxyGeometry'), EntryExitPoints.getInport('geometry'))
+    network.addConnection(Background.getOutport('outport'), Canvas.getInport('inport'))
+    
+    entryExitPoints_lookFrom_property = EntryExitPoints.getPropertyByIdentifier('camera').getPropertyByIdentifier('lookFrom')
+    entryExitPoints_lookFrom_property.value = inviwopy.glm.vec3(0,0,8)
+    #inviwo.setPropertyValue(EntryExitPoints+'.camera.lookFrom', (0,0,8))
  
 # Function for building a volume network for electron density data
 def charge(h5file, iso=None, slice=False, xpos=0, ypos=0):
