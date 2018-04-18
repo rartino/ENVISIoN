@@ -75,7 +75,7 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
             network.addConnection(Raycaster.getOutport('outport'), ImageLayout.getInport('multiinport'))
             network.addConnection(ImageLayout.getOutport('outport'), Background.getInport('inport'))
 
-            #NOT TREATED
+            # TODO: Set layout to "Vertical Slice". Python export bug? The same problem exists in dos.py. 
             #inviwo.setPropertyValue(ImageLayout+'.layout', 2)
             
             network.addLink(VolumeSlice.getPropertyByIdentifier('planePosition'), Raycaster.getPropertyByIdentifier('positionindicator').plane1.position)
