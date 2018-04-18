@@ -234,6 +234,7 @@ def dos(h5file, xpos=0, ypos=0):
             
             
             background_processor = _add_processor("org.inviwo.Background", "Background", xpos, ypos)
+            background_processor.identifier = "DOS Background"
             plotter_processor_outport = plotter_processor.getOutport('outport')
             background_processor_inport = background_processor.getInport('inport')
             network.addConnection(plotter_processor_outport, background_processor_inport)
@@ -241,6 +242,7 @@ def dos(h5file, xpos=0, ypos=0):
             ypos += 100
                     
             canvas_processor = _add_processor("org.inviwo.CanvasGL", "Canvas", xpos, ypos)
+            canvas_processor.identifier = "DOS Canvas"
             background_processor_outport = background_processor.getOutport('outport')
             canvas_inport = canvas_processor.getInport('inport')
             network.addConnection(background_processor_outport, canvas_inport)
@@ -331,28 +333,36 @@ def dos(h5file, xpos=0, ypos=0):
 
             ypos += 100
             for partial_pick_all_child in partial_pick_all_child_list:
-                network.addConnection(partial_pick_processor.outport, partial_pick_all_child.inport)
+                network.addConnection(partial_pick_processor.getOutport("hdf5HandleVectorOutport"), partial_pick_all_child.getInport("hdf5HandleFlatMultiInport"))
             for partial_pick_all_parent in partial_pick_all_parent_list:
-                network.addConnection(partial_pick_all_parent, partial_pick_processor)
+                network.addConnection(partial_pick_all_parent.getOutport("outport"), partial_pick_processor.getInport("hdf5HandleInport"))
             network.addLink(network.getProcessorByIdentifier("Unit Cell Mesh").getPropertyByIdentifier("inds"), network.getProcessorByIdentifier("Partial Pick").getPropertyByIdentifier("intVectorProperty"))
             #network.addLink(".".join(["Unit Cell Mesh", "inds"]), ".".join(["Partial Pick", "intVectorProperty"]))
-            inviwopy.setPropertyValue(".".join(["Unit Cell Mesh", "enablePicking"]), True)
+            network.getProcessorByIdentifier("Unit Cell Mesh").getPropertyByIdentifier("enablePicking").value = True
+            #inviwopy.setPropertyValue(".".join(["Unit Cell Mesh", "enablePicking"]), True)
 
             dos_unitcell_layout_processor = _add_processor("org.inviwo.ImageLayoutGL", "DOS UnitCell Layout", xpos, ypos)
-            #inviwopy.addConnection("Unit Cell Renderer", "image", dos_unitcell_layout_processor, "multiinport")
+            network.addConnection(network.getProcessorByIdentifier("Unit Cell Renderer").getOutport("image"), dos_unitcell_layout_processor.getInport("multiinport"))
+            network.addConnection(network.getProcessorByIdentifier("DOS Plotter").getOutport("outport"), dos_unitcell_layout_processor.getInport("multiinport"))
             #inviwopy.addConnection("DOS Plotter", "imageOutport", dos_unitcell_layout_processor, "multiinport")
 
             ypos += 100
 
             dos_unitcell_canvas_processor = _add_processor("org.inviwo.CanvasGL", "DOS UnitCell Canvas", xpos, ypos)
+            dos_unitcell_canvas_processor.getPropertyByIdentifier("inputSize").getPropertyByIdentifier("dimensions").value = inviwopy.glm.ivec2(2 * 640, 480)
             #inviwopy.setPropertyValue(".".join([dos_unitcell_canvas_processor, "inputSize", "dimensions"]), (2 * 640, 480))
+            network.addConnection(dos_unitcell_layout_processor.getOutport("outport"), dos_unitcell_canvas_processor.getInport("inport"))
             #inviwopy.addConnection(dos_unitcell_layout_processor, "outport", dos_unitcell_canvas_processor, "inport")
-
             ypos += 100
+            # TODO: Change layout to vertical split, same problem as in volume.py
+            #dos_unitcell_canvas_processor.getPropertyByIdentifier("layout").value = 2
+            #inviwopy.setPropertyValue(".".join([dos_unitcell_layout_processor, "layout"]), 2)
+            
+            network.getProcessorByIdentifier("DOS Canvas").widget.visibility = False
+            network.getProcessorByIdentifier("Unit Cell Canvas").widget.visibility = False
+            dos_unitcell_canvas_processor.widget.visibility = True
 
-            inviwopy.setPropertyValue(".".join([dos_unitcell_layout_processor, "layout"]), 2)
-
-            inviwopy.setProcessorWidgetVisible("DOS Canvas", False)
-            inviwopy.setProcessorWidgetVisible("Unit Cell Canvas", False)
-            inviwopy.setProcessorWidgetVisible(dos_unitcell_canvas_processor, True)
+            #inviwopy.setProcessorWidgetVisible("DOS Canvas", False)
+            #inviwopy.setProcessorWidgetVisible("Unit Cell Canvas", False)
+            #inviwopy.setProcessorWidgetVisible(dos_unitcell_canvas_processor, True)
 
