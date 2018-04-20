@@ -33,7 +33,7 @@ from .common import _add_h5source, _add_processor
 app = inviwopy.app
 network = app.network
 
-# Function for buiding a volume network for both electron density and electron localisation function data
+# Function for buiding a volume network for both electron density and electron localisation function data (commented out)
 def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
     # Shared processors, processor positions and base vectors between electron density and electron localisation function data
     HDFsource = _add_h5source(h5file, xstart_pos, ystart_pos)
@@ -75,8 +75,7 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
             network.addConnection(Raycaster.getOutport('outport'), ImageLayout.getInport('multiinport'))
             network.addConnection(ImageLayout.getOutport('outport'), Background.getInport('inport'))
 
-            # TODO: Set layout to "Vertical Slice". Python export bug? The same problem exists in dos.py. 
-            #inviwo.setPropertyValue(ImageLayout+'.layout', 2)
+            ImageLayout.getPropertyByIdentifier('layout').value = 2
             
             network.addLink(VolumeSlice.getPropertyByIdentifier('planePosition'), Raycaster.getPropertyByIdentifier('positionindicator').plane1.position)
             network.addLink(VolumeSlice.getPropertyByIdentifier('planeNormal'), Raycaster.getPropertyByIdentifier('positionindicator').plane1.normal)
@@ -168,8 +167,9 @@ def charge(h5file, iso=None, slice=False, xpos=0, ypos=0):
     volume_network(h5file, volume, iso, slice, xpos, ypos)
 
 # Function for building a volume network for electron localisation function data
-def elf(h5file, iso=None, slice=False, xpos=0, ypos=0):
-    """Creates an Inviwo network for electron localization function data
+#def elf(h5file, iso=None, slice=False, xpos=0, ypos=0):
+"""
+    Creates an Inviwo network for electron localization function data
     Parameters
     ----------
     h5file : str
@@ -186,7 +186,6 @@ def elf(h5file, iso=None, slice=False, xpos=0, ypos=0):
     ypos : int
          (Default value = 0)
          Y coordinate in Inviwo network editor
-    """
-    
-    volume='Elf raycaster'
-    volume_network(h5file, volume, iso, slice, xpos, ypos)
+"""
+    #volume='Elf raycaster'
+    #volume_network(h5file, volume, iso, slice, xpos, ypos)
