@@ -137,10 +137,10 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
     network.addConnection(BoundingBox.getOutport('mesh'), MeshRenderer.getInport('geometry'))
     network.addConnection(CubeProxyGeometry.getOutport('proxyGeometry'), EntryExitPoints.getInport('geometry'))
     network.addConnection(Background.getOutport('outport'), Canvas.getInport('inport'))
+    network.addLink(MeshRenderer.getPropertyByIdentifier('camera'), EntryExitPoints.getPropertyByIdentifier('camera'))
     
     entryExitPoints_lookFrom_property = EntryExitPoints.getPropertyByIdentifier('camera').getPropertyByIdentifier('lookFrom')
     entryExitPoints_lookFrom_property.value = inviwopy.glm.vec3(0,0,8)
-    #inviwo.setPropertyValue(EntryExitPoints+'.camera.lookFrom', (0,0,8))
  
 # Function for building a volume network for electron density data
 def charge(h5file, iso=None, slice=False, xpos=0, ypos=0):
