@@ -110,6 +110,8 @@ def dos(h5file, xpos=0, ypos=0):
             y_name_prepend_parents = 2 if name == "Partial" else 1
 
             down_type_list = [dos for dos in dos_list if dos.endswith("(dwn)")]
+            for dos in down_type_list:
+                print(dos)
             xpos_down, ypos_down = xpos, ypos
             for down_type in down_type_list:
                 down_type_processor = _add_processor("org.inviwo.HDF5ToFunction", down_type, xpos_down, ypos_down)
@@ -118,12 +120,12 @@ def dos(h5file, xpos=0, ypos=0):
                 down_type_y_name_property = down_type_processor.getPropertyByIdentifier('yNamePrependParentsProperty')
                 down_type_y_name_property.value = y_name_prepend_parents
 
-                totalpartial_source_hdf5outport = totalpartial_pick_processor.getOutport('hdf5HandleVectorOutport')
+                """totalpartial_source_hdf5outport = totalpartial_pick_processor.getOutport('hdf5HandleVectorOutport')
                 down_type_processor_hdf5inport = down_type_processor.getInport('hdf5HandleFlatMultiInport')
-                network.addConnection(totalpartial_source_hdf5outport, down_type_processor_hdf5inport)
-
+                network.addConnection(totalpartial_source_hdf5outport, down_type_processor_hdf5inport)"""
+            
                 xpos_down += 200
-
+            
             up_type_list = [dos for dos in dos_list if dos.endswith("(up)")]
             xpos_up, ypos_up = xpos_down, ypos_down
             for up_type in up_type_list:
@@ -162,7 +164,8 @@ def dos(h5file, xpos=0, ypos=0):
 
                 down_add_inport = down_add_processor.getInport('functionFlatMultiInport')
                 for down_type in down_type_list:
-                    down_type_outport = down_type.getOutport('functionVectorOutport')
+                    down_type_processor = network.getProcessorByIdentifier(down_type)
+                    down_type_outport = down_type_processor.getOutport('functionVectorOutport')
                     network.addConnection(down_type_outport, down_add_inport)
 
             if up_type_list:
@@ -173,7 +176,8 @@ def dos(h5file, xpos=0, ypos=0):
 
                 up_add_inport = up_add_processor.getInport('functionFlatMultiInport')
                 for up_type in up_type_list:
-                    up_outport = up_type.getOutport('functionVectorOutport')
+                    up_type_processor = network.getProcessorByIdentifier(up_type)
+                    up_outport = up_type_processor.getOutport('functionVectorOutport')
                     network.addConnection(up_outport, up_add_inport)
                 plotter_source_list.append(up_add_processor)
 
@@ -199,7 +203,8 @@ def dos(h5file, xpos=0, ypos=0):
 
                 down_negate_inport = down_negate_processor.getInport('functionFlatMultiInport')
                 down_add_outport = down_add_processor.getOutport('functionVectorOutport')
-                network.addConnection(down_add_outport, down_negate_inport)
+                # Only works with cu 1 10
+                #network.addConnection(down_add_outport, down_negate_inport)
                 plotter_source_list.append(down_negate_processor)
                 ypos += 100
 
@@ -227,7 +232,7 @@ def dos(h5file, xpos=0, ypos=0):
         for plotter_source in plotter_source_list: 
             plotter_processor = _add_processor("org.inviwo.ScatterPlotProcessor", "DOS Plotter", xpos, ypos) 
             plotter_source_outport = plotter_source.getOutport('dataframeOutport')
-            plotter_processor_inport = plotter_processor.getInport('dataFrame_')
+            #plotter_processor_inport = plotter_processor.getInport('dataFrame_')
             network.addConnection(plotter_source_outport, plotter_processor_inport)
         
             ypos += 100
@@ -354,8 +359,8 @@ def dos(h5file, xpos=0, ypos=0):
             network.addConnection(dos_unitcell_layout_processor.getOutport("outport"), dos_unitcell_canvas_processor.getInport("inport"))
             #inviwopy.addConnection(dos_unitcell_layout_processor, "outport", dos_unitcell_canvas_processor, "inport")
             ypos += 100
-            # TODO: Change layout to vertical split, same problem as in volume.py
-            #dos_unitcell_canvas_processor.getPropertyByIdentifier("layout").value = 2
+            
+            dos_unitcell_canvas_processor.getPropertyByIdentifier("layout").value = 2
             #inviwopy.setPropertyValue(".".join([dos_unitcell_layout_processor, "layout"]), 2)
             
             network.getProcessorByIdentifier("DOS Canvas").widget.visibility = False
