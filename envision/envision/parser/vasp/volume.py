@@ -103,7 +103,7 @@ def volume(h5file, hdfgroup, vasp_dir, vasp_file):
 	try:
 		with open(os.path.join(vasp_dir,'POSCAR'), 'r') as f:
 			scaling_factor, basis = _parse_lattice(f)
-			_write_basis(h5file, scaling_factor * basis)
+			_write_basis(h5file, basis)
 			_write_scaling_factor(h5file, scaling_factor)
 	except FileNotFoundError:
 		print("POSCAR file not in directory. Skipping.")

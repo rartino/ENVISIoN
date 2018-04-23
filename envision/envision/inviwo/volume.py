@@ -40,12 +40,14 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
     filenameProperty = HDFsource.getPropertyByIdentifier('filename')
     filenameProperty.value = h5file
 
-    HDFvolume = _add_processor('org.inviwo.hdf5.ToVolume', 'HDF5 To Volume', xstart_pos, ystart_pos+75)  
+    HDFvolume = _add_processor('org.inviwo.hdf5.ToVolume', 'HDF5 To Volume', xstart_pos, ystart_pos+75)
+    scaling_factor = 1
     # Read base vectors
     with h5py.File(h5file,"r") as h5:
         basis_4x4=np.identity(4)
         basis_array=np.array(h5["/basis/"], dtype='d')
-        basis_4x4[:3,:3]=basis_array           
+        basis_4x4[:3,:3]=basis_array
+        scaling_factor = h5['/scaling_factor'].value
     BoundingBox = _add_processor('org.inviwo.VolumeBoundingBox', 'Volume Bounding Box', xstart_pos+200, ystart_pos+150)    
     MeshRenderer = _add_processor('org.inviwo.GeometryRenderGL', 'Mesh Renderer', xstart_pos+200, ystart_pos+225)
     CubeProxyGeometry = _add_processor('org.inviwo.CubeProxyGeometry', 'Cube Proxy Geometry', xstart_pos+30, ystart_pos+150)
@@ -119,12 +121,12 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
         hdfvolume_volumeSelection_property = HDFvolume.getPropertyByIdentifier('volumeSelection')
         hdfvolume_volumeSelection_property.value = '/ELF/final'
     HDFvolume_basis_property = HDFvolume.getPropertyByIdentifier('basisGroup').getPropertyByIdentifier('basis')
-    HDFvolume_basis_property.value = inviwopy.glm.mat4(basis_4x4[0][0],basis_4x4[0][1],basis_4x4[0][2],
-                                                       basis_4x4[0][3],basis_4x4[1][0],basis_4x4[1][1],
-                                                       basis_4x4[1][2],basis_4x4[1][3],basis_4x4[2][0],
-                                                       basis_4x4[2][1],basis_4x4[2][2],basis_4x4[2][3],
-                                                       basis_4x4[3][0],basis_4x4[3][1],basis_4x4[3][2],
-                                                       basis_4x4[3][3])
+    HDFvolume_basis_property.value = inviwopy.glm.mat4(scaling_factor * basis_4x4[0][0],scaling_factor * basis_4x4[0][1],scaling_factor * basis_4x4[0][2],
+                                                       scaling_factor * basis_4x4[0][3],scaling_factor * basis_4x4[1][0],scaling_factor * basis_4x4[1][1],
+                                                       scaling_factor * basis_4x4[1][2],scaling_factor * basis_4x4[1][3],scaling_factor * basis_4x4[2][0],
+                                                       scaling_factor * basis_4x4[2][1],scaling_factor * basis_4x4[2][2],scaling_factor * basis_4x4[2][3],
+                                                       scaling_factor * basis_4x4[3][0],scaling_factor * basis_4x4[3][1],scaling_factor * basis_4x4[3][2],
+                                                       scaling_factor * basis_4x4[3][3])
     
     # Shared connections and properties between electron density and electron localisation function data
     network.addConnection(MeshRenderer.getOutport('image'), Raycaster.getInport('bg'))
@@ -167,8 +169,8 @@ def charge(h5file, iso=None, slice=False, xpos=0, ypos=0):
     volume_network(h5file, volume, iso, slice, xpos, ypos)
 
 # Function for building a volume network for electron localisation function data
-#def elf(h5file, iso=None, slice=False, xpos=0, ypos=0):
-"""
+# def elf(h5file, iso=None, slice=False, xpos=0, ypos=0):
+    """
     Creates an Inviwo network for electron localization function data
     Parameters
     ----------
@@ -186,6 +188,6 @@ def charge(h5file, iso=None, slice=False, xpos=0, ypos=0):
     ypos : int
          (Default value = 0)
          Y coordinate in Inviwo network editor
-"""
-    #volume='Elf raycaster'
-    #volume_network(h5file, volume, iso, slice, xpos, ypos)
+    """
+    # volume='Elf raycaster'
+    # volume_network(h5file, volume, iso, slice, xpos, ypos)
