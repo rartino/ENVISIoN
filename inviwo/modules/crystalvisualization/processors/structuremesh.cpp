@@ -102,7 +102,7 @@ void StructureMesh::process() {
 	size_t ind = 0;
 	for (const auto &strucs : structure_) {
 	    for (long long j = 0; j < static_cast<long long>(strucs->size()); ++j) {
-		auto center = scalingFactor_.get() * basis_.get() * strucs->at(j) - 0.5f * (basis_.get()[0] + basis_.get()[1] + basis_.get()[2]);
+        auto center = scalingFactor_.get() * basis_.get() * strucs->at(j) - 0.5f * (basis_.get()[0] + basis_.get()[1] + basis_.get()[2]);
 		BasicMesh::sphere(center, radii_[ind]->get(), colors_[ind]->get(), mesh);
 	    }
 	    ++ind;
@@ -153,6 +153,7 @@ void StructureMesh::process() {
         auto& colors = colorRAM_->getDataContainer();
         auto& radii = radiiRAM_->getDataContainer();
 
+        LogInfo(scalingFactor_.get());
         size_t portInd = 0;
         size_t sphereInd = 0;
         for (const auto &strucs : structure_) {
@@ -164,7 +165,7 @@ void StructureMesh::process() {
                 j_stop = num_[portInd]->get() * (timestep_.get() + 1);
             }
             for (long long j = j_start; j < j_stop ; ++j) {
-                auto center = scalingFactor_.get() * basis_.get() * strucs->at(j) - 0.5f * (basis_.get()[0] + basis_.get()[1] + basis_.get()[2]);
+                auto center = scalingFactor_.get() * basis_.get() * strucs->at(j); //- 0.5f * (basis_.get()[0] + basis_.get()[1] + basis_.get()[2]);
                 vertices[sphereInd] = center;
                 colors[sphereInd] = colors_[portInd]->get();
                 radii[sphereInd] = radii_[portInd]->get();
