@@ -64,13 +64,22 @@ FunctionOperationUnary::FunctionOperationUnary()
     , functionFlatMultiInport_("functionFlatMultiInport")
     , operationProperty_("operationProperty", "Operation")
     , functionVectorOutport_("functionVectorOutport")
+    , functionVectorInport_("functionVectorInport")
+    , dataframeOutport_("dataframeOutport")
+    , dataframeInport_("dataframeInport")
 {
+
+    addPort(dataframeOutport_);
+
+    addPort(dataframeInport_);
 
     addPort(functionFlatMultiInport_);
 
     addProperty(operationProperty_);
 
     addPort(functionVectorOutport_);
+
+    addPort(functionVectorInport_);
 
     std::vector<OptionPropertyStringOption> operationPropertyOptionVector;
     for (const auto& operation : operationVector_) {

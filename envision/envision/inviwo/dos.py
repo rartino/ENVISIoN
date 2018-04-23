@@ -123,6 +123,10 @@ def dos(h5file, xpos=0, ypos=0):
                 """totalpartial_source_hdf5outport = totalpartial_pick_processor.getOutport('hdf5HandleVectorOutport')
                 down_type_processor_hdf5inport = down_type_processor.getInport('hdf5HandleFlatMultiInport')
                 network.addConnection(totalpartial_source_hdf5outport, down_type_processor_hdf5inport)"""
+                
+                totalpartial_outport = totalpartial_processor.getOutport('outport')
+                down_type_hdf5inport = down_type_processor.getInport('hdf5HandleFlatMultiInport')
+                network.addConnection(totalpartial_outport, down_type_hdf5inport)
             
                 xpos_down += 200
             
@@ -201,10 +205,12 @@ def dos(h5file, xpos=0, ypos=0):
                 down_negate_operation_property = down_negate_processor.getPropertyByIdentifier('operationProperty')
                 down_negate_operation_property.value = 'negate'
 
-                down_negate_inport = down_negate_processor.getInport('functionFlatMultiInport')
-                down_add_outport = down_add_processor.getOutport('functionVectorOutport')
+                #down_negate_inport = down_negate_processor.getInport('functionFlatMultiInport')
+                down_negate_inport = down_negate_processor.getInport('dataframeInport')
+                #down_add_outport = down_add_processor.getOutport('functionVectorOutport')
+                down_add_outport = down_add_processor.getOutport('dataframeOutport')
                 # Only works with cu 1 10
-                #network.addConnection(down_add_outport, down_negate_inport)
+                network.addConnection(down_add_outport, down_negate_inport)
                 plotter_source_list.append(down_negate_processor)
                 ypos += 100
 
@@ -217,7 +223,7 @@ def dos(h5file, xpos=0, ypos=0):
             xpos_partial, ypos_partial = 0, 0
         ypos = max(ypos_total, ypos_partial)
 
-        has_fermi_energy = "/FermiEnergy" in h5
+        """has_fermi_energy = "/FermiEnergy" in h5
         if has_fermi_energy:
             if "Fermi Energy" in processor_list:
                 fermi_energy_processor = "Fermi Energy"
@@ -226,13 +232,13 @@ def dos(h5file, xpos=0, ypos=0):
                 h5source_outport = h5source_processor.getOutport('outport')
                 fermi_energy_inport = fermi_energy_processor.getInport('hdf5HandleFlatMultiInport')
                 network.addConnection(h5source_outport, fermi_energy_inport)
-                ypos += 100
+                ypos += 100"""
         
         
         for plotter_source in plotter_source_list: 
             plotter_processor = _add_processor("org.inviwo.ScatterPlotProcessor", "DOS Plotter", xpos, ypos) 
             plotter_source_outport = plotter_source.getOutport('dataframeOutport')
-            #plotter_processor_inport = plotter_processor.getInport('dataFrame_')
+            plotter_processor_inport = plotter_processor.getInport('dataFrame_')
             network.addConnection(plotter_source_outport, plotter_processor_inport)
         
             ypos += 100
@@ -251,6 +257,7 @@ def dos(h5file, xpos=0, ypos=0):
             background_processor_outport = background_processor.getOutport('outport')
             canvas_inport = canvas_processor.getInport('inport')
             network.addConnection(background_processor_outport, canvas_inport)
+            
             
             ypos += 100  
             xpos += 100
