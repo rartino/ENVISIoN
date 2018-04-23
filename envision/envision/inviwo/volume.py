@@ -112,7 +112,20 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
         network.addConnection(Raycaster.getOutport('outport'), Background.getInport('inport'))
         canvas_dimensions_property = Canvas.getPropertyByIdentifier('inputSize').getPropertyByIdentifier('dimensions')
         canvas_dimensions_property.value = inviwopy.glm.ivec2(400,400)
-        
+    
+    # Shared connections and properties between electron density and electron localisation function data
+    network.addConnection(MeshRenderer.getOutport('image'), Raycaster.getInport('bg'))
+    network.addConnection(EntryExitPoints.getOutport('entry'), Raycaster.getInport('entry'))
+    network.addConnection(EntryExitPoints.getOutport('exit'), Raycaster.getInport('exit'))
+    network.addConnection(HDFsource.getOutport('outport'), HDFvolume.getInport('inport'))
+    network.addConnection(HDFvolume.getOutport('outport'), BoundingBox.getInport('volume'))
+    network.addConnection(HDFvolume.getOutport('outport'), CubeProxyGeometry.getInport('volume'))
+    network.addConnection(HDFvolume.getOutport('outport'), Raycaster.getInport('volume'))
+    network.addConnection(BoundingBox.getOutport('mesh'), MeshRenderer.getInport('geometry'))
+    network.addConnection(CubeProxyGeometry.getOutport('proxyGeometry'), EntryExitPoints.getInport('geometry'))
+    network.addConnection(Background.getOutport('outport'), Canvas.getInport('inport'))
+    network.addLink(MeshRenderer.getPropertyByIdentifier('camera'), EntryExitPoints.getPropertyByIdentifier('camera'))
+
     # Set correct path to volume data
     if volume=='Charge raycaster':
         hdfvolume_volumeSelection_property = HDFvolume.getPropertyByIdentifier('volumeSelection')
@@ -127,19 +140,6 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
                                                        scaling_factor * basis_4x4[2][1],scaling_factor * basis_4x4[2][2],scaling_factor * basis_4x4[2][3],
                                                        scaling_factor * basis_4x4[3][0],scaling_factor * basis_4x4[3][1],scaling_factor * basis_4x4[3][2],
                                                        scaling_factor * basis_4x4[3][3])
-    
-    # Shared connections and properties between electron density and electron localisation function data
-    network.addConnection(MeshRenderer.getOutport('image'), Raycaster.getInport('bg'))
-    network.addConnection(EntryExitPoints.getOutport('entry'), Raycaster.getInport('entry'))
-    network.addConnection(EntryExitPoints.getOutport('exit'), Raycaster.getInport('exit'))
-    network.addConnection(HDFsource.getOutport('outport'), HDFvolume.getInport('inport'))
-    network.addConnection(HDFvolume.getOutport('outport'), BoundingBox.getInport('volume'))
-    network.addConnection(HDFvolume.getOutport('outport'), CubeProxyGeometry.getInport('volume'))
-    network.addConnection(HDFvolume.getOutport('outport'), Raycaster.getInport('volume'))
-    network.addConnection(BoundingBox.getOutport('mesh'), MeshRenderer.getInport('geometry'))
-    network.addConnection(CubeProxyGeometry.getOutport('proxyGeometry'), EntryExitPoints.getInport('geometry'))
-    network.addConnection(Background.getOutport('outport'), Canvas.getInport('inport'))
-    network.addLink(MeshRenderer.getPropertyByIdentifier('camera'), EntryExitPoints.getPropertyByIdentifier('camera'))
     
     entryExitPoints_lookFrom_property = EntryExitPoints.getPropertyByIdentifier('camera').getPropertyByIdentifier('lookFrom')
     entryExitPoints_lookFrom_property.value = inviwopy.glm.vec3(0,0,8)
@@ -169,7 +169,7 @@ def charge(h5file, iso=None, slice=False, xpos=0, ypos=0):
     volume_network(h5file, volume, iso, slice, xpos, ypos)
 
 # Function for building a volume network for electron localisation function data
-# def elf(h5file, iso=None, slice=False, xpos=0, ypos=0):
+def elf(h5file, iso=None, slice=False, xpos=0, ypos=0):
     """
     Creates an Inviwo network for electron localization function data
     Parameters
@@ -189,5 +189,5 @@ def charge(h5file, iso=None, slice=False, xpos=0, ypos=0):
          (Default value = 0)
          Y coordinate in Inviwo network editor
     """
-    # volume='Elf raycaster'
-    # volume_network(h5file, volume, iso, slice, xpos, ypos)
+    volume='Elf raycaster'
+    volume_network(h5file, volume, iso, slice, xpos, ypos)
