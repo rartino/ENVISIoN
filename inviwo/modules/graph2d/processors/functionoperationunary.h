@@ -36,8 +36,13 @@
 #include <inviwo/core/properties/optionproperty.h>
 #include <inviwo/core/properties/boolproperty.h>
 #include <inviwo/core/properties/ordinalproperty.h>
+#include <plotting/datastructures/dataframe.h>
 
 #include <modules/graph2d/datastructures/graph2ddata.h>
+
+using inviwo::plot::DataFrame;
+using inviwo::plot::DataFrameOutport;
+using inviwo::plot::DataFrameInport;
 
 namespace inviwo {
 
@@ -91,6 +96,12 @@ private:
     OptionPropertyString operationProperty_;
 
     DataOutport<std::vector<Function>> functionVectorOutport_;
+
+    DataInport<std::vector<Function>> functionVectorInport_;
+
+    DataFrameOutport dataframeOutport_;
+
+    DataFrameInport dataframeInport_;
 };
 
 } // namespace
