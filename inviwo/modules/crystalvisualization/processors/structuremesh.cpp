@@ -153,7 +153,6 @@ void StructureMesh::process() {
         auto& colors = colorRAM_->getDataContainer();
         auto& radii = radiiRAM_->getDataContainer();
 
-        LogInfo(scalingFactor_.get());
         size_t portInd = 0;
         size_t sphereInd = 0;
         for (const auto &strucs : structure_) {
