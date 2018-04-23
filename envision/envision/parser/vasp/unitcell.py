@@ -260,7 +260,7 @@ def unitcell(h5file, vasp_dir, elements=None):
                 _cartesian(f),
                 np.linalg.inv(basis)
             )
-            _write_basis(h5file, scaling_factor * basis)
+            _write_basis(h5file, basis)
             _write_scaling_factor(h5file, scaling_factor)
             _write_coordinates(
                 h5file,
