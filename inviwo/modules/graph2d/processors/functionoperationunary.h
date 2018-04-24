@@ -91,13 +91,7 @@ private:
 
     std::vector<Operation> operationVector_;
 
-    DataInport<Function, 0, true> functionFlatMultiInport_;
-
     OptionPropertyString operationProperty_;
-
-    DataOutport<std::vector<Function>> functionVectorOutport_;
-
-    DataInport<std::vector<Function>> functionVectorInport_;
 
     DataFrameOutport dataframeOutport_;
 

@@ -28,6 +28,10 @@
 #include <modules/graph2d/processors/functionoperationunary.h>
 
 #include <inviwo/core/common/inviwo.h>
+#include <modules/plotting/datastructures/column.h>
+
+using inviwo::plot::TemplateColumn;
+using inviwo::plot::Column;
 
 namespace inviwo {
 
@@ -61,10 +65,7 @@ FunctionOperationUnary::FunctionOperationUnary()
                     [](float value) { return 1.0f / value; },
                 },
         }
-    , functionFlatMultiInport_("functionFlatMultiInport")
     , operationProperty_("operationProperty", "Operation")
-    , functionVectorOutport_("functionVectorOutport")
-    , functionVectorInport_("functionVectorInport")
     , dataframeOutport_("dataframeOutport")
     , dataframeInport_("dataframeInport")
 {
@@ -73,13 +74,7 @@ FunctionOperationUnary::FunctionOperationUnary()
 
     addPort(dataframeInport_);
 
-    addPort(functionFlatMultiInport_);
-
     addProperty(operationProperty_);
-
-    addPort(functionVectorOutport_);
-
-    addPort(functionVectorInport_);
 
     std::vector<OptionPropertyStringOption> operationPropertyOptionVector;
     for (const auto& operation : operationVector_) {
@@ -94,10 +89,7 @@ FunctionOperationUnary::FunctionOperationUnary()
 
 void FunctionOperationUnary::process() {
 
-    const auto& functionVectorSharedPtr = std::make_shared<std::vector<Function>>();
-    functionVectorOutport_.setData(functionVectorSharedPtr);
-
-    const auto& functionSharedPtrVector = functionFlatMultiInport_.getVectorData();
+    std::shared_ptr<const DataFrame> inData = dataframeInport_.getData();
 
     const auto& operation = *std::find_if(
             operationVector_.begin(),
@@ -107,6 +99,24 @@ void FunctionOperationUnary::process() {
                 }
         );
 
+    std::shared_ptr<DataFrame> dataFrame = std::make_shared<DataFrame>(0);
+    for (const std::shared_ptr<const Column>& column : *inData) {
+        if (column->getHeader() == "X") {
+            std::shared_ptr<TemplateColumn<float> > x = dataFrame->addColumn<float>("X", 0);
+            for (size_t i = 0; i < column->getSize(); i++) {
+                x->add(column->getAsDouble(i));
+            }
+        } else if (column->getHeader() == "Y") {
+            std::shared_ptr<TemplateColumn<float> > y = dataFrame->addColumn<float>("Y", 0);
+            for (size_t i = 0; i < column->getSize(); i++) {
+                y->add(operation.apply(column->getAsDouble(i)));
+            }
+        }
+    }
+
+    dataframeOutport_.setData(dataFrame);
+
+    /*
     for (const auto& functionSharedPtr : functionSharedPtrVector) {
 
         Axis xAxis = functionSharedPtr->xAxis;
@@ -146,7 +156,7 @@ void FunctionOperationUnary::process() {
                 std::move(yAxis),
             });
 
-    }
+    }*/
 
 }
 
