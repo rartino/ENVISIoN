@@ -54,7 +54,8 @@ def _cellnetwork(h5file, md=False, xpos=0, ypos=0):
     with h5py.File(h5file,"r") as h5:
         basis_matrix = np.array(h5["/basis"], dtype='d')
         strucMesh_basis_property = strucMesh.getPropertyByIdentifier('basis')
-        strucMesh_basis_property.maxValue = inviwopy.glm.mat3(1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000,1000000)
+        strucMesh_basis_property.minValue = inviwopy.glm.mat3(-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000)
+        strucMesh_basis_property.maxValue = inviwopy.glm.mat3(1000,1000,1000,1000,1000,1000,1000,1000,1000)
         strucMesh_basis_property.value = inviwopy.glm.mat3(basis_matrix[0,0],basis_matrix[0,1],basis_matrix[0,2],basis_matrix[1,0],basis_matrix[1,1],basis_matrix[1,2],basis_matrix[2,0],basis_matrix[2,1],basis_matrix[2,2])
         #inviwo.setPropertyValue(strucMesh+'.basis', tuple(map(tuple, basis_matrix)))
         strucMesh_scaling_factor_property = strucMesh.getPropertyByIdentifier('scalingFactor')

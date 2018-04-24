@@ -134,6 +134,10 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
         hdfvolume_volumeSelection_property = HDFvolume.getPropertyByIdentifier('volumeSelection')
         hdfvolume_volumeSelection_property.value = '/ELF/final'
     HDFvolume_basis_property = HDFvolume.getPropertyByIdentifier('basisGroup').getPropertyByIdentifier('basis')
+    HDFvolume_basis_property.minValue = inviwopy.glm.mat4(-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
+                                                          -1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000)
+    HDFvolume_basis_property.maxValue = inviwopy.glm.mat4(1000,1000,1000,1000,1000,1000,1000,1000,
+                                                          1000,1000,1000,1000,1000,1000,1000,1000)
     HDFvolume_basis_property.value = inviwopy.glm.mat4(scaling_factor * basis_4x4[0][0],scaling_factor * basis_4x4[0][1],scaling_factor * basis_4x4[0][2],
                                                        scaling_factor * basis_4x4[0][3],scaling_factor * basis_4x4[1][0],scaling_factor * basis_4x4[1][1],
                                                        scaling_factor * basis_4x4[1][2],scaling_factor * basis_4x4[1][3],scaling_factor * basis_4x4[2][0],
