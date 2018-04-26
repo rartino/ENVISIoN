@@ -74,6 +74,8 @@ void lineplotprocessor::process() {
     if (inputFrame->getNumberOfColumns() >= 2) {
         std::shared_ptr<const Column> x = nullptr;
         std::shared_ptr<const Column> y = nullptr;
+
+        // Find the columns named X and Y.
         for (size_t i = 0; i < inputFrame->getNumberOfColumns(); i++) {
             if (inputFrame->getHeader(i) == "X") {
                 x = inputFrame->getColumn(i);
@@ -100,15 +102,41 @@ void lineplotprocessor::process() {
                      " of values!");
         }
 
+        if (y_size == 0 || x_size == 0) {
+            return;
+        }
+
+        // Find the maximum and minimum values, respectively, and
+        // normalise the data ranges to [0, 1].
+        double x_min = x->getAsDouble(0);
+        double y_min = y->getAsDouble(0);
+        double x_max = x->getAsDouble(0);
+        double y_max = y->getAsDouble(0);
+
+        // x_size = y_size at this point, only need to check one.
+        if (x_size > 1) {
+            for (size_t i = 1; i < x_size; i++) {
+                double x_val = x->getAsDouble(i);
+                double y_val = y->getAsDouble(i);
+
+                x_min = x_val < x_min ? x_val : x_min;
+                y_min = y_val < y_min ? y_val : y_min;
+
+                x_max = x_val > x_max ? x_val : x_max;
+                y_max = y_val > y_max ? y_val : y_max;
+            }
+        }
+
         // Each line segment should start on the current point and end
         // at the next point. Subtract one from the end criteria,
         // since the last point is included when the segment is drawn
         // from the next-to-last point.
         for (size_t i = 0; i < x_size - 1; i++) {
-            double x_start = x->getAsDouble(i);
-            double y_start = y->getAsDouble(i);
-            double x_end = x->getAsDouble(i + 1);
-            double y_end = y->getAsDouble(i + 1);
+            // Get coordinates and normalise to [0, 1].
+            double x_start = (x->getAsDouble(i) - x_min) / (x_max - x_min);
+            double y_start = (y->getAsDouble(i) - y_min) / (y_max - y_min);
+            double x_end = (x->getAsDouble(i + 1) - x_min) / (x_max - x_min);
+            double y_end = (y->getAsDouble(i + 1) - y_min) / (y_max - y_min);
 
             vec3 start_point = vec3(x_start, y_start, 0);
             indices->add(mesh->addVertex(start_point, start_point,
