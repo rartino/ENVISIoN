@@ -54,19 +54,17 @@ lineplotprocessor::lineplotprocessor()
     : Processor()
     , dataFrameInport_("dataFrameInport")
     , meshOutport_("outport")
-    , position_("position", "Position", vec3(0.0f), vec3(-100.0f), vec3(100.0f)) {
+    , colour_("colour", "Colour", vec4(1, 0, 0, 1), vec4(0), vec4(1), vec4(0.1f),
+            InvalidationLevel::InvalidOutput, PropertySemantics::Color) {
 
     addPort(dataFrameInport_);
     addPort(meshOutport_);
-    addProperty(position_);
+    addProperty(colour_);
 }
 
 void lineplotprocessor::process() {
     std::shared_ptr<BasicMesh> mesh = std::make_shared<BasicMesh>();
     IndexBufferRAM* indices = mesh->addIndexBuffer(DrawType::Lines, ConnectivityType::None);
-
-    //auto p = Interpolation<vec3, float>::linear(vec3(0, 0, 0), , percent);
-
 
     std::shared_ptr<const DataFrame> inputFrame = dataFrameInport_.getData();
 
@@ -150,11 +148,11 @@ void lineplotprocessor::process() {
 
             vec3 start_point = vec3(x_start, y_start, 0);
             indices->add(mesh->addVertex(start_point, start_point,
-                         start_point, vec4(255, 255, 255, 0)));
+                         start_point, colour_));
 
             vec3 end_point = vec3(x_end, y_end, 0);
             indices->add(mesh->addVertex(end_point, end_point,
-                         end_point, vec4(255, 255, 255, 0)));
+                         end_point, colour_));
         }
     } else {
         LogInfo("This processor needs two columns to exist in the DataFrame."
