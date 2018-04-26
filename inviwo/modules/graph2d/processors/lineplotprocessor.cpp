@@ -127,6 +127,16 @@ void lineplotprocessor::process() {
             }
         }
 
+        // If all values in one dimension have the same value we let
+        // them normalise to one by setting the min values to zero.
+        if (y_max == y_min) {
+            y_min = 0;
+        }
+
+        if (x_max == x_min) {
+            x_min = 0;
+        }
+
         // Each line segment should start on the current point and end
         // at the next point. Subtract one from the end criteria,
         // since the last point is included when the segment is drawn
