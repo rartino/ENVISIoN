@@ -1,6 +1,8 @@
 /*********************************************************************************
  *
- * Copyright (c) 2017 Robert Cranston
+ * Inviwo - Interactive Visualization Workshop
+ *
+ * Copyright (c) 2017 Inviwo Foundation
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,39 +27,57 @@
  *
  *********************************************************************************/
 
-#include <modules/graph2d/graph2dmodule.h>
+#ifndef IVW_LINEPLOTPROCESSOR_H
+#define IVW_LINEPLOTPROCESSOR_H
 
-#include <modules/graph2d/datastructures/graph2ddata.h>
-#include <modules/graph2d/processors/hdf5pathselectionint.h>
-#include <modules/graph2d/processors/hdf5pathselectionintvector.h>
-#include <modules/graph2d/processors/hdf5pathselectionallchildren.h>
-#include <modules/graph2d/processors/hdf5topoint.h>
-#include <modules/graph2d/processors/hdf5tofunction.h>
-#include <modules/graph2d/processors/functionoperationunary.h>
-#include <modules/graph2d/processors/functionoperationnary.h>
-#include <modules/graph2d/processors/lineplotprocessor.h>
-//#include <modules/graph2d/processors/plotter.h>
+#include <modules/graph2d/graph2dmoduledefine.h>
+#include <inviwo/core/common/inviwo.h>
+#include <inviwo/core/processors/processor.h>
+#include <inviwo/core/properties/ordinalproperty.h>
+#include <inviwo/core/ports/meshport.h>
+#include <modules/plotting/datastructures/dataframe.h>
 
 namespace inviwo {
 
-graph2dModule::graph2dModule(InviwoApplication* app) : InviwoModule(app, "graph2d") {
+using plot::DataFrameInport;
 
-    // Processors.
-    registerProcessor<HDF5PathSelectionInt>();
-    registerProcessor<HDF5PathSelectionIntVector>();
-    registerProcessor<HDF5PathSelectionAllChildren>();
-    registerProcessor<HDF5ToPoint>();
-    registerProcessor<HDF5ToFunction>();
-    registerProcessor<FunctionOperationUnary>();
-    registerProcessor<FunctionOperationNary>();
-    registerProcessor<lineplotprocessor>();
-    //registerProcessor<Plotter>();
+/** \docpage{org.inviwo.lineplotprocessor, lineplotprocessor}
+ * ![](org.inviwo.lineplotprocessor.png?classIdentifier=org.inviwo.lineplotprocessor)
+ * Explanation of how to use the processor.
+ *
+ * ### Inports
+ *   * __<Inport1>__ <description>.
+ *
+ * ### Outports
+ *   * __<Outport1>__ <description>.
+ *
+ * ### Properties
+ *   * __<Prop1>__ <description>.
+ *   * __<Prop2>__ <description>
+ */
 
-    // Ports.
-    registerPort<DataOutport<Point>>("PointOutport");
-    registerPort<DataInport<Point>>("PointInport");
-    registerPort<DataOutport<Function>>("FunctionOutport");
-    registerPort<DataInport<Function>>("FunctionInport");
-}
+
+/**
+ * \class lineplotprocessor
+ * \brief VERY_BRIEFLY_DESCRIBE_THE_PROCESSOR
+ * DESCRIBE_THE_PROCESSOR_FROM_A_DEVELOPER_PERSPECTIVE
+ */
+class IVW_MODULE_GRAPH2D_API lineplotprocessor : public Processor {
+public:
+    lineplotprocessor();
+    virtual ~lineplotprocessor() = default;
+
+    virtual void process() override;
+
+    virtual const ProcessorInfo getProcessorInfo() const override;
+    static const ProcessorInfo processorInfo_;
+private:
+    DataFrameInport dataFrameInport_;
+    MeshOutport meshOutport_;
+    FloatVec3Property position_;
+};
 
 } // namespace
+
+#endif // IVW_LINEPLOTPROCESSOR_H
+
