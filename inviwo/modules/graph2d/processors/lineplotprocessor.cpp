@@ -29,9 +29,22 @@
 
 #include "lineplotprocessor.h"
 
-#include <inviwo/core/datastructures/geometry/basicmesh.h>
 #include <inviwo/core/datastructures/buffer/bufferramprecision.h>
 #include <modules/animation/datastructures/interpolation.h>
+
+namespace glm {
+
+using vec2 = tvec2<float, precision::packed_highp>;
+
+bool operator>(const vec2& lhs, const vec2& rhs) {
+    return (lhs[0] > rhs[0]) && (lhs[1] > rhs[1]);
+}
+
+bool operator<(const vec2& lhs, const vec2& rhs) {
+    return (lhs[0] < rhs[0]) && (lhs[1] < rhs[1]);
+}
+
+}
 
 namespace inviwo {
 
@@ -55,11 +68,33 @@ lineplotprocessor::lineplotprocessor()
     , dataFrameInport_("dataFrameInport")
     , meshOutport_("outport")
     , colour_("colour", "Colour", vec4(1, 0, 0, 1), vec4(0), vec4(1), vec4(0.1f),
-            InvalidationLevel::InvalidOutput, PropertySemantics::Color) {
+            InvalidationLevel::InvalidOutput, PropertySemantics::Color)
+    , x_range_("x_range", "X Range")
+    , y_range_("y_range", "Y Range")
+    , scale_("scale", "Scale")
+    , axis_colour_("axis_colour", "Axis Colour", vec4(0, 0, 1, 1), vec4(0),
+                   vec4(1), vec4(0.1f), InvalidationLevel::InvalidOutput,
+                   PropertySemantics::Color)
+    , axis_width_("axis_width", "Axis Width") {
 
     addPort(dataFrameInport_);
     addPort(meshOutport_);
     addProperty(colour_);
+    addProperty(x_range_);
+    addProperty(y_range_);
+    addProperty(scale_);
+    addProperty(axis_colour_);
+    addProperty(axis_width_);
+
+    scale_.setMaxValue(1);
+    scale_.setMinValue(0.01);
+    scale_.setIncrement(0.01);
+    scale_.set(0.8);
+
+    axis_width_.setMaxValue(0.01);
+    axis_width_.setMinValue(0.0001);
+    axis_width_.setIncrement(0.0001);
+    axis_width_.set(0.002);
 }
 
 void lineplotprocessor::process() {
@@ -135,16 +170,58 @@ void lineplotprocessor::process() {
             x_min = 0;
         }
 
+        // Set the increment to 1/100 of the total interval length.
+        float x_increment = std::abs(x_max - x_min) / 100.f;
+        x_range_.setMaxValue(vec2(x_max, x_max));
+        x_range_.setMinValue(vec2(x_min, x_min));
+        x_range_.setIncrement(vec2(x_increment, x_increment));
+
+        float y_increment = std::abs(x_max - x_min) / 100.f;
+        y_range_.setMaxValue(vec2(y_max, y_max));
+        y_range_.setMinValue(vec2(y_min, y_min));
+        y_range_.setIncrement(vec2(y_increment, y_increment));
+
+        // Check if the set value falls outside of the allowed range
+        // and reset it if that is the case. Also set it if min and
+        // max are equal.
+        if (x_range_.get() > x_range_.getMaxValue() ||
+            x_range_.get() < x_range_.getMinValue() ||
+            x_range_.get()[0] == x_range_.get()[1]) {
+            x_range_.set(vec2(x_max, x_min));
+        } else {
+            // Otherwise we assign the set values as min/max.
+            x_max = x_range_.get()[0];
+            x_min = x_range_.get()[1];
+        }
+
+        if (y_range_.get() > y_range_.getMaxValue() ||
+            y_range_.get() < y_range_.getMinValue() ||
+            y_range_.get()[0] == y_range_.get()[1]) {
+            y_range_.set(vec2(y_max, y_min));
+        } else {
+            y_max = y_range_.get()[0];
+            y_min = y_range_.get()[1];
+        }
+
+        // Draw background grid.
+        drawAxes(mesh, x_min, x_max, y_min, y_max);
+
         // Each line segment should start on the current point and end
         // at the next point. Subtract one from the end criteria,
         // since the last point is included when the segment is drawn
         // from the next-to-last point.
         for (size_t i = 0; i < x_size - 1; i++) {
-            // Get coordinates and normalise to [0, 1].
-            double x_start = (x->getAsDouble(i) - x_min) / (x_max - x_min);
-            double y_start = (y->getAsDouble(i) - y_min) / (y_max - y_min);
-            double x_end = (x->getAsDouble(i + 1) - x_min) / (x_max - x_min);
-            double y_end = (y->getAsDouble(i + 1) - y_min) / (y_max - y_min);
+            // Get coordinates, normalise them to [0, 1], scale them
+            // and center them.
+            float s = scale_.get();
+            double x_start = s * normalise(x->getAsDouble(i), x_min, x_max)
+                             + (1 - s) / 2;
+            double y_start = s * normalise(y->getAsDouble(i), y_min, y_max)
+                             + (1 - s) / 2;
+            double x_end = s * normalise(x->getAsDouble(i + 1), x_min, x_max)
+                           + (1 - s) / 2;
+            double y_end = s * normalise(y->getAsDouble(i + 1), y_min, y_max)
+                           + (1 - s) / 2;
 
             vec3 start_point = vec3(x_start, y_start, 0);
             indices->add(mesh->addVertex(start_point, start_point,
@@ -161,6 +238,57 @@ void lineplotprocessor::process() {
     }
 
     meshOutport_.setData(mesh);
+}
+
+void lineplotprocessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
+                                 double x_min, double x_max,
+                                 double y_min, double y_max) {
+    // Draw the X axis.
+    float s = scale_.get();
+    vec3 x_start_point = vec3(s * normalise(x_range_.getMinValue()[0],
+                                            x_min, x_max) + (1 - s) / 2,
+                              s * normalise(0, y_min, y_max) + (1 - s) / 2,
+                              0);
+    vec3 x_end_point = vec3(s * normalise(x_range_.getMaxValue()[0],
+                                          x_min, x_max) + (1 - s) / 2,
+                            s * normalise(0, y_min, y_max) + (1 - s) / 2,
+                            0);
+    mesh->append(BasicMesh::line(x_start_point, x_end_point, vec3(0, 0, 1),
+                                 axis_colour_.get(), axis_width_.get(),
+                                 ivec2(2, 2)).get());
+
+    // Draw the Y axis.
+    vec3 y_start_point = vec3(s * normalise(0, x_min, x_max) + (1 - s) / 2,
+                              s * normalise(y_range_.getMinValue()[0],
+                                            y_min, y_max) + (1 - s) / 2,
+                              0);
+    vec3 y_end_point = vec3(s * normalise(0, x_min, x_max) + (1 - s) / 2,
+                            s * normalise(y_range_.getMaxValue()[0],
+                                          y_min, y_max) + (1 - s) / 2,
+                            0);
+    mesh->append(BasicMesh::line(y_start_point, y_end_point, vec3(0, 0, 1),
+                                 axis_colour_.get(), axis_width_.get(),
+                                 ivec2(2, 2)).get());
+
+    // Draw an arrow on the Y axis.
+    mesh->append(BasicMesh::line(y_end_point, y_end_point + vec3(0.005, -0.01, 0), vec3(0, 0, 1),
+                                 axis_colour_.get(), axis_width_.get(),
+                                 ivec2(2, 2)).get());
+    mesh->append(BasicMesh::line(y_end_point, y_end_point + vec3(-0.005, -0.01, 0), vec3(0, 0, 1),
+                                 axis_colour_.get(), axis_width_.get(),
+                                 ivec2(2, 2)).get());
+
+    // Draw an arrow on the X axis.
+    mesh->append(BasicMesh::line(x_end_point, x_end_point + vec3(-0.01, 0.005, 0), vec3(0, 0, 1),
+                                 axis_colour_.get(), axis_width_.get(),
+                                 ivec2(2, 2)).get());
+    mesh->append(BasicMesh::line(x_end_point, x_end_point + vec3(-0.01, -0.005, 0), vec3(0, 0, 1),
+                                 axis_colour_.get(), axis_width_.get(),
+                                 ivec2(2, 2)).get());
+}
+
+double lineplotprocessor::normalise(double value, double min, double max) const {
+    return (value - min) / (max - min);
 }
 
 } // namespace
