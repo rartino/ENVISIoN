@@ -30,11 +30,12 @@
 #ifndef IVW_LINEPLOTPROCESSOR_H
 #define IVW_LINEPLOTPROCESSOR_H
 
-#include <modules/graph2d/graph2dmoduledefine.h>
 #include <inviwo/core/common/inviwo.h>
+#include <inviwo/core/datastructures/geometry/basicmesh.h>
+#include <inviwo/core/ports/meshport.h>
 #include <inviwo/core/processors/processor.h>
 #include <inviwo/core/properties/ordinalproperty.h>
-#include <inviwo/core/ports/meshport.h>
+#include <modules/graph2d/graph2dmoduledefine.h>
 #include <modules/plotting/datastructures/dataframe.h>
 
 namespace inviwo {
@@ -72,9 +73,19 @@ public:
     virtual const ProcessorInfo getProcessorInfo() const override;
     static const ProcessorInfo processorInfo_;
 private:
+    void drawAxes(std::shared_ptr<BasicMesh>& mes, double x_min, double x_max,
+                  double y_min, double y_max);
+    double normalise(double value, double min, double max) const;
+
     DataFrameInport dataFrameInport_;
     MeshOutport meshOutport_;
     FloatVec4Property colour_;
+    FloatVec2Property x_range_;
+    FloatVec2Property y_range_;
+    FloatProperty scale_;
+
+    FloatVec4Property axis_colour_;
+    FloatProperty axis_width_;
 };
 
 } // namespace
