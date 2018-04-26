@@ -74,7 +74,7 @@ public:
 private:
     DataFrameInport dataFrameInport_;
     MeshOutport meshOutport_;
-    FloatVec3Property position_;
+    FloatVec4Property colour_;
 };
 
 } // namespace
