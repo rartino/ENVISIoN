@@ -236,28 +236,39 @@ def dos(h5file, xpos=0, ypos=0):
         
         
         for plotter_source in plotter_source_list: 
-            plotter_processor = _add_processor("org.inviwo.ScatterPlotProcessor", "DOS Plotter", xpos, ypos) 
+            plotter_processor = _add_processor("org.inviwo.lineplotprocessor", "DOS Plotter", xpos, ypos) 
             plotter_source_outport = plotter_source.getOutport('dataframeOutport')
-            plotter_processor_inport = plotter_processor.getInport('dataFrame_')
+            plotter_processor_labels_outport = plotter_processor.getOutport('labels')
+            plotter_processor_mesh_outport = plotter_processor.getOutport('outport')
+            plotter_processor_inport = plotter_processor.getInport('dataFrameInport')
+            help(plotter_processor.getPropertyByIdentifier('font'))
+            #plotter_processor.getPropertyByIdentifier('font').getPropertyByIdentifier('anchor').value = inviwopy.glm.vec2(-1, -0.96)
             network.addConnection(plotter_source_outport, plotter_processor_inport)
         
             ypos += 100
             
-            
-            background_processor = _add_processor("org.inviwo.Background", "Background", xpos, ypos)
-            background_processor.identifier = "DOS Background"
-            plotter_processor_outport = plotter_processor.getOutport('outport')
-            background_processor_inport = background_processor.getInport('inport')
-            network.addConnection(plotter_processor_outport, background_processor_inport)
+            mesh_renderer = _add_processor("org.inviwo.Mesh2DRenderProcessorGL", "Renderer", xpos, ypos) 
+            mesh_renderer_inport = mesh_renderer.getInport('inputMesh')
+            mesh_renderer_inport_image = mesh_renderer.getInport('imageInport')
+            mesh_renderer_outport = mesh_renderer.getOutport('outputImage')
+            network.addConnection(plotter_processor_mesh_outport, mesh_renderer_inport)
+            network.addConnection(plotter_processor_labels_outport, mesh_renderer_inport_image)
             
             ypos += 100
-                    
-            canvas_processor = _add_processor("org.inviwo.CanvasGL", "Canvas", xpos, ypos)
-            canvas_processor.identifier = "DOS Canvas"
+            
+            background_processor = _add_processor("org.inviwo.Background", "Background", xpos, ypos)
+            background_processor_inport = background_processor.getInport('inport')
             background_processor_outport = background_processor.getOutport('outport')
+            background_processor.getPropertyByIdentifier('bgColor1').value = inviwopy.glm.vec4(1, 1, 1, 1)
+            background_processor.getPropertyByIdentifier('bgColor2').value = inviwopy.glm.vec4(1, 1, 1, 1)
+            network.addConnection(mesh_renderer_outport, background_processor_inport)
+            
+            ypos += 100
+      
+            canvas_processor = _add_processor("org.inviwo.CanvasGL", "Canvas", xpos, ypos)
             canvas_inport = canvas_processor.getInport('inport')
             network.addConnection(background_processor_outport, canvas_inport)
-            
+
             
             ypos += 100  
             xpos += 100
