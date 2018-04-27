@@ -86,7 +86,7 @@ lineplotprocessor::lineplotprocessor()
                    vec4(1), vec4(0.1f), InvalidationLevel::InvalidOutput,
                    PropertySemantics::Color)
     , label_number_("label_number", "Number of Labels")
-    , labels_("lables", "Lable Outport") {
+    , labels_("labels", "Lable Outport") {
 
     addPort(dataFrameInport_);
     addPort(meshOutport_);
