@@ -156,7 +156,7 @@ void lineplotprocessor::process() {
         }
 
         if (!y) {
-            LogError("Could not fin dany column named Y in the DataFrame!");
+            LogError("Could not find any column named Y in the DataFrame!");
             return;
         }
 
