@@ -32,10 +32,14 @@
 
 #include <inviwo/core/common/inviwo.h>
 #include <inviwo/core/datastructures/geometry/basicmesh.h>
+#include <inviwo/core/ports/imageport.h>
 #include <inviwo/core/ports/meshport.h>
 #include <inviwo/core/processors/processor.h>
 #include <inviwo/core/properties/ordinalproperty.h>
+#include <modules/fontrendering/properties/fontproperty.h>
+#include <modules/fontrendering/textrenderer.h>
 #include <modules/graph2d/graph2dmoduledefine.h>
+#include <modules/opengl/rendering/texturequadrenderer.h>
 #include <modules/plotting/datastructures/dataframe.h>
 
 namespace inviwo {
@@ -73,8 +77,11 @@ public:
     virtual const ProcessorInfo getProcessorInfo() const override;
     static const ProcessorInfo processorInfo_;
 private:
-    void drawAxes(std::shared_ptr<BasicMesh>& mes, double x_min, double x_max,
+    void drawAxes(std::shared_ptr<BasicMesh>& mesh, double x_min, double x_max,
                   double y_min, double y_max);
+    void drawScale(double x_min, double x_max,
+                   double y_min, double y_max);
+    void drawText(const std::string& text, vec2 position, bool anchor_right = false);
     double normalise(double value, double min, double max) const;
 
     DataFrameInport dataFrameInport_;
@@ -86,6 +93,14 @@ private:
 
     FloatVec4Property axis_colour_;
     FloatProperty axis_width_;
+
+    FontProperty font_;
+    TextRenderer textRenderer_;
+    TextureQuadRenderer textureRenderer_;
+    FloatVec4Property text_colour_;
+    IntProperty label_number_;
+
+    ImageOutport labels_;
 };
 
 } // namespace
