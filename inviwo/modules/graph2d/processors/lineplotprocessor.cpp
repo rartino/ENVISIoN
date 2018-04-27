@@ -31,6 +31,7 @@
 
 #include <inviwo/core/datastructures/buffer/bufferramprecision.h>
 #include <modules/animation/datastructures/interpolation.h>
+#include <modules/opengl/texture/textureutils.cpp>
 
 namespace glm {
 
@@ -75,16 +76,26 @@ lineplotprocessor::lineplotprocessor()
     , axis_colour_("axis_colour", "Axis Colour", vec4(0, 0, 1, 1), vec4(0),
                    vec4(1), vec4(0.1f), InvalidationLevel::InvalidOutput,
                    PropertySemantics::Color)
-    , axis_width_("axis_width", "Axis Width") {
+    , axis_width_("axis_width", "Axis Width")
+    , font_("font", "Font Setting")
+    , text_colour_("text_colour", "Text Colour", vec4(0, 0, 1, 1), vec4(0),
+                   vec4(1), vec4(0.1f), InvalidationLevel::InvalidOutput,
+                   PropertySemantics::Color)
+    , label_number_("label_number", "Number of Labels")
+    , labels_("lables", "Lable Outport") {
 
     addPort(dataFrameInport_);
     addPort(meshOutport_);
+    addPort(labels_);
     addProperty(colour_);
     addProperty(x_range_);
     addProperty(y_range_);
     addProperty(scale_);
     addProperty(axis_colour_);
     addProperty(axis_width_);
+    addProperty(font_);
+    addProperty(text_colour_);
+    addProperty(label_number_);
 
     scale_.setMaxValue(1);
     scale_.setMinValue(0.01);
@@ -95,6 +106,17 @@ lineplotprocessor::lineplotprocessor()
     axis_width_.setMinValue(0.0001);
     axis_width_.setIncrement(0.0001);
     axis_width_.set(0.002);
+
+    font_.fontFace_.setSelectedIdentifier("arial");
+    font_.fontFace_.setCurrentStateAsDefault();
+
+    font_.fontSize_.setSelectedIndex(5);
+    font_.fontSize_.setCurrentStateAsDefault();
+
+    label_number_.setMaxValue(1000);
+    label_number_.setMinValue(0);
+    label_number_.setIncrement(1);
+    label_number_.set(5);
 }
 
 void lineplotprocessor::process() {
@@ -203,8 +225,28 @@ void lineplotprocessor::process() {
             y_min = y_range_.get()[1];
         }
 
+        if (x_max < x_min) {
+            LogError("The maximum X value range can't be less"
+                     " than the minimum X value range!");
+            return;
+        }
+
+        if (y_max < y_min) {
+            LogError("The maximum Y value range can't be less"
+                     " than the minimum Y value range!");
+            return;
+        }
+
         // Draw background grid.
         drawAxes(mesh, x_min, x_max, y_min, y_max);
+
+        if (font_.fontFace_.isModified()) {
+            textRenderer_.setFont(font_.fontFace_.get());
+        }
+
+        utilgl::activateAndClearTarget(labels_, ImageType::ColorDepth);
+        drawScale(x_min, x_max, y_min, y_max);
+        utilgl::deactivateCurrentTarget();
 
         // Each line segment should start on the current point and end
         // at the next point. Subtract one from the end criteria,
@@ -285,6 +327,58 @@ void lineplotprocessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
     mesh->append(BasicMesh::line(x_end_point, x_end_point + vec3(-0.01, -0.005, 0), vec3(0, 0, 1),
                                  axis_colour_.get(), axis_width_.get(),
                                  ivec2(2, 2)).get());
+}
+
+void lineplotprocessor::drawScale(double x_min, double x_max,
+                                  double y_min, double y_max) {
+    // Iterate over the length of the X axis and add the number scale.
+    for (double x = x_min; x < x_max; x += std::abs(x_max - x_min) / label_number_.get()) {
+        float s = scale_.get();
+        vec2 x_axis = vec2(s * normalise(x, x_min, x_max) + (1 - s) / 2,
+                           s * normalise(0, y_min, y_max) + (1 - s) / 2);
+
+        vec2 image_dims = labels_.getDimensions();
+        vec2 image_coords = vec2(image_dims[0] * x_axis[0], image_dims[1] * x_axis[1]);
+
+        vec2 shift = image_dims * (font_.anchorPos_.get() + vec2(1.0f, 1.0f));
+        image_coords -= shift;
+
+        drawText(std::to_string(x), image_coords);
+    }
+
+    for (double y = y_min; y < y_max; y += std::abs(y_max - y_min) / label_number_.get()) {
+        std::string label = std::to_string(y);
+        float s = scale_.get();
+        vec2 y_axis = vec2(s * normalise(0, x_min, x_max) + (1 - s) / 2,
+                           s * normalise(y, y_min, y_max) + (1 - s) / 2);
+
+        vec2 image_dims = labels_.getDimensions();
+        vec2 image_coords = vec2(image_dims[0] * y_axis[0], image_dims[1] * y_axis[1]);
+
+        vec2 shift = 0.5f * image_dims * (font_.anchorPos_.get() + vec2(1.0f, 1.0f));
+        image_coords -= shift;
+
+        drawText(label, image_coords, true);
+    }
+
+}
+
+void lineplotprocessor::drawText(const std::string& text, vec2 position, bool anchor_right) {
+    std::shared_ptr<Texture2D> texture(nullptr);
+    texture  = util::createTextTexture(textRenderer_,
+                                       text,
+                                       font_.fontSize_.getSelectedValue(),
+                                       text_colour_.get(),
+                                       texture);
+
+    // If anchor_right is set, the text will be moved its own length
+    // to the left, plus 10 %.
+    if (anchor_right) {
+        vec2 offset = vec2(texture->getDimensions()[0], 0);
+        position -= offset + 0.1f * offset;
+    }
+
+    textureRenderer_.render(texture, position, labels_.getDimensions());
 }
 
 double lineplotprocessor::normalise(double value, double min, double max) const {
