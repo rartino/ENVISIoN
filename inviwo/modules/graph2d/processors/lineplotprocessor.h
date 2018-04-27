@@ -94,6 +94,9 @@ private:
     FloatVec4Property axis_colour_;
     FloatProperty axis_width_;
 
+    FloatVec4Property grid_colour_;
+    FloatProperty grid_width_;
+
     FontProperty font_;
     TextRenderer textRenderer_;
     TextureQuadRenderer textureRenderer_;

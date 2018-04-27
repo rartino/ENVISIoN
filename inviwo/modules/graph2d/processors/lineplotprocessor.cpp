@@ -77,6 +77,10 @@ lineplotprocessor::lineplotprocessor()
                    vec4(1), vec4(0.1f), InvalidationLevel::InvalidOutput,
                    PropertySemantics::Color)
     , axis_width_("axis_width", "Axis Width")
+    , grid_colour_("grid_colour", "Grid Colour", vec4(0.5, 0.5, 0.5, 1), vec4(0),
+                   vec4(1), vec4(0.1f), InvalidationLevel::InvalidOutput,
+                   PropertySemantics::Color)
+    , grid_width_("grid_width", "Grid Width")
     , font_("font", "Font Setting")
     , text_colour_("text_colour", "Text Colour", vec4(0, 0, 1, 1), vec4(0),
                    vec4(1), vec4(0.1f), InvalidationLevel::InvalidOutput,
@@ -93,6 +97,8 @@ lineplotprocessor::lineplotprocessor()
     addProperty(scale_);
     addProperty(axis_colour_);
     addProperty(axis_width_);
+    addProperty(grid_colour_);
+    addProperty(grid_width_);
     addProperty(font_);
     addProperty(text_colour_);
     addProperty(label_number_);
@@ -106,6 +112,11 @@ lineplotprocessor::lineplotprocessor()
     axis_width_.setMinValue(0.0001);
     axis_width_.setIncrement(0.0001);
     axis_width_.set(0.002);
+
+    grid_width_.setMaxValue(0.01);
+    grid_width_.setMinValue(0.0001);
+    grid_width_.setIncrement(0.0001);
+    grid_width_.set(0.001);
 
     font_.fontFace_.setSelectedIdentifier("arial");
     font_.fontFace_.setCurrentStateAsDefault();
@@ -312,6 +323,38 @@ void lineplotprocessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
                                  axis_colour_.get(), axis_width_.get(),
                                  ivec2(2, 2)).get());
 
+    // Draw grid.
+    double x_step_size = std::abs(x_max - x_min) / label_number_.get();
+    for (double x = x_min + x_step_size; x <= x_max; x += x_step_size) {
+        vec3 y_start_point = vec3(s * normalise(x, x_min, x_max) + (1 - s) / 2,
+                                  s * normalise(y_range_.getMinValue()[0],
+                                                y_min, y_max) + (1 - s) / 2,
+                                  0);
+        vec3 y_end_point = vec3(s * normalise(x, x_min, x_max) + (1 - s) / 2,
+                                s * normalise(y_range_.getMaxValue()[0],
+                                              y_min, y_max) + (1 - s) / 2,
+                                0);
+        mesh->append(BasicMesh::line(y_start_point, y_end_point, vec3(0, 0, 1),
+                                     grid_colour_.get(), grid_width_.get(),
+                                     ivec2(2, 2)).get());
+    }
+
+    double y_step_size = std::abs(y_max - y_min) / label_number_.get();
+    for (double y = y_min + y_step_size; y <= y_max; y += y_step_size) {
+        float s = scale_.get();
+        vec3 x_start_point = vec3(s * normalise(x_range_.getMinValue()[0],
+                                                x_min, x_max) + (1 - s) / 2,
+                                  s * normalise(y, y_min, y_max) + (1 - s) / 2,
+                                  0);
+        vec3 x_end_point = vec3(s * normalise(x_range_.getMaxValue()[0],
+                                              x_min, x_max) + (1 - s) / 2,
+                                s * normalise(y, y_min, y_max) + (1 - s) / 2,
+                                0);
+        mesh->append(BasicMesh::line(x_start_point, x_end_point, vec3(0, 0, 1),
+                                     grid_colour_.get(), grid_width_.get(),
+                                     ivec2(2, 2)).get());
+    }
+
     // Draw an arrow on the Y axis.
     mesh->append(BasicMesh::line(y_end_point, y_end_point + vec3(0.005, -0.01, 0), vec3(0, 0, 1),
                                  axis_colour_.get(), axis_width_.get(),
@@ -332,7 +375,8 @@ void lineplotprocessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
 void lineplotprocessor::drawScale(double x_min, double x_max,
                                   double y_min, double y_max) {
     // Iterate over the length of the X axis and add the number scale.
-    for (double x = x_min; x < x_max; x += std::abs(x_max - x_min) / label_number_.get()) {
+    double x_step_size = std::abs(x_max - x_min) / label_number_.get();
+    for (double x = x_min + x_step_size; x <= x_max; x += x_step_size) {
         float s = scale_.get();
         vec2 x_axis = vec2(s * normalise(x, x_min, x_max) + (1 - s) / 2,
                            s * normalise(0, y_min, y_max) + (1 - s) / 2);
@@ -346,7 +390,8 @@ void lineplotprocessor::drawScale(double x_min, double x_max,
         drawText(std::to_string(x), image_coords);
     }
 
-    for (double y = y_min; y < y_max; y += std::abs(y_max - y_min) / label_number_.get()) {
+    double y_step_size = std::abs(y_max - y_min) / label_number_.get();
+    for (double y = y_min + y_step_size; y <= y_max; y += y_step_size) {
         std::string label = std::to_string(y);
         float s = scale_.get();
         vec2 y_axis = vec2(s * normalise(0, x_min, x_max) + (1 - s) / 2,
