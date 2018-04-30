@@ -48,6 +48,12 @@ def _write_basis(h5file, basis):
             h5.create_dataset('/basis', data=basis, dtype=np.float32)
     return
 
+def _write_scaling_factor(h5file, scaling_factor):
+    with h5py.File(h5file, "a") as h5:
+        if not "/scaling_factor" in h5:
+            h5.create_dataset('/scaling_factor', data=scaling_factor, dtype=np.float32)
+    return
+
 def _write_md(h5file, atom_count, coordinates_list, elements, step):
     with h5py.File(h5file, "a") as h5:
         p=0
