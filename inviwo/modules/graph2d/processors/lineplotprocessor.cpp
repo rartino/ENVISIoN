@@ -120,9 +120,9 @@ lineplotprocessor::lineplotprocessor()
 
     font_.fontFace_.setSelectedIdentifier("arial");
     font_.fontFace_.setCurrentStateAsDefault();
-
     font_.fontSize_.setSelectedIndex(5);
     font_.fontSize_.setCurrentStateAsDefault();
+    font_.anchorPos_ = vec2(-1, -0.97);
 
     label_number_.setMaxValue(1000);
     label_number_.setMinValue(0);
