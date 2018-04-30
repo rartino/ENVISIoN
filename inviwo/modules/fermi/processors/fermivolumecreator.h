@@ -42,6 +42,11 @@
 
 namespace inviwo {
 
+struct KPoint {
+    vec3 coordinates;
+    std::vector<float> energies;
+};
+
 /** \docpage{org.inviwo.fermivolumecreator, fermivolumecreator}
  * ![](org.inviwo.fermivolumecreator.png?classIdentifier=org.inviwo.fermivolumecreator)
  * Explanation of how to use the processor.
@@ -73,6 +78,8 @@ public:
     virtual const ProcessorInfo getProcessorInfo() const override;
     static const ProcessorInfo processorInfo_;
 private:
+    vec3 readKPointCoordinates(const H5::Group& group, const std::string& path) const;
+    std::vector<float> readKPointEnergy(const H5::Group& group, const std::string& path) const;
     hdf5::Inport inport_;
     VolumeOutport outport_;
 };
