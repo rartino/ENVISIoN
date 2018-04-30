@@ -48,17 +48,41 @@ using plot::DataFrameInport;
 
 /** \docpage{org.inviwo.lineplotprocessor, lineplotprocessor}
  * ![](org.inviwo.lineplotprocessor.png?classIdentifier=org.inviwo.lineplotprocessor)
- * Explanation of how to use the processor.
+ * This processor draws a diagram from a DataFrame containing two
+ * columns, one named "X" and one named "Y". It plots the values of
+ * the "X" column on the horizontal axis versus the "Y" values on the
+ * vertical axis.
  *
  * ### Inports
- *   * __<Inport1>__ <description>.
+ *   * __dataFrameInport__ is an inport that takes a DataFrame
+ *   expected to contain two columns. One named "X" and one named "Y",
+ *   containing the x values to be plotted against the y values.
  *
  * ### Outports
- *   * __<Outport1>__ <description>.
+ *   * __outport__ outport that outputs a mesh representing the
+ *   line graph. Should probably be rendered using the 2D Mesh
+ *   Renderer GL processor.
+ *   * __labels__ outputs an image that provides the number labels for
+ *   the axes. Should probably be rendered using the 2D Mesh Renderer
+ *   GL processor.
  *
  * ### Properties
- *   * __<Prop1>__ <description>.
- *   * __<Prop2>__ <description>
+ *   * __x_range__ contains the minimum and maximum values for the x
+ *   axis.
+ *   * __y_range__ contains the minimum and maximum values for the y
+ *   axis.
+ *   * __scale__ contains a constant by which the graph will be
+ *   scaled.
+ *   * __axis_colour__ contains the colour of the graph axes.
+ *   * __axis_width__ sets how wide the graph axes should be.
+ *   * __grid_colour__ sets the colour of the coordinate grid in the
+ *   graph.
+ *   * __grid_width__ sets the line width for the coordinate grid in
+ *   the graph.
+ *   * __font__ sets the font for all text in the graph.
+ *   * __text_colour__ sets the colour of all text in the graph.
+ *   * __label_number__ sets the number of labels, i.e. subdivisions,
+ *   to make of the coordinate axes.
  */
 
 
