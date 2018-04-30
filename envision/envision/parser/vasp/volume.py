@@ -32,6 +32,7 @@ import re
 import numpy as np
 from ..h5writer import _write_volume
 from ..h5writer import _write_basis
+from ..h5writer import _write_scaling_factor
 from .unitcell import _parse_lattice
 
 line_reg_int = re.compile(r'^( *[+-]?[0-9]+){3} *$')
@@ -102,7 +103,8 @@ def volume(h5file, hdfgroup, vasp_dir, vasp_file):
 	try:
 		with open(os.path.join(vasp_dir,'POSCAR'), 'r') as f:
 			scaling_factor, basis = _parse_lattice(f)
-			_write_basis(h5file, scaling_factor * basis)
+			_write_basis(h5file, basis)
+			_write_scaling_factor(h5file, scaling_factor)
 	except FileNotFoundError:
 		print("POSCAR file not in directory. Skipping.")
 	try:
