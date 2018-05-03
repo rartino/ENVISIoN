@@ -7,6 +7,7 @@ ivw_module(fermi)
 set(HEADER_FILES
     #${CMAKE_CURRENT_SOURCE_DIR}/fermiprocessor.h
     ${CMAKE_CURRENT_SOURCE_DIR}/processors/fermivolumecreator.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/datastructures/kdtree.h
 )
 ivw_group("Header Files" ${HEADER_FILES})
 

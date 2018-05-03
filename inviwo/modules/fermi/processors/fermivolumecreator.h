@@ -45,6 +45,10 @@ namespace inviwo {
 struct KPoint {
     vec3 coordinates;
     std::vector<float> energies;
+
+    float operator[](size_t idx) const {
+        return coordinates[idx];
+    }
 };
 
 /** \docpage{org.inviwo.fermivolumecreator, fermivolumecreator}
@@ -79,6 +83,7 @@ public:
     static const ProcessorInfo processorInfo_;
 private:
     vec3 readKPointCoordinates(const H5::Group& group, const std::string& path) const;
+    float readFermiEnergy(const H5::Group& group, const std::string& path) const;
     std::vector<float> readKPointEnergy(const H5::Group& group, const std::string& path) const;
     hdf5::Inport inport_;
     VolumeOutport outport_;
