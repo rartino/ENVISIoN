@@ -28,6 +28,7 @@
  *********************************************************************************/
 
 #include <modules/fermi/processors/fermivolumecreator.h>
+#include <modules/fermi/datastructures/kdtree.h>
 
 #include <inviwo/core/util/logcentral.h>
 #include <inviwo/core/datastructures/volume/volume.h>
@@ -38,9 +39,9 @@
 namespace inviwo {
 
 static constexpr const char* KPOINT_PATH = "/FermiSurface/KPoints";
-static constexpr int VOLUME_WIDTH = 100;
-static constexpr int VOLUME_HEIGHT = 100;
-static constexpr int VOLUME_DEPTH = 100;
+static constexpr unsigned int VOLUME_WIDTH = 10;
+static constexpr unsigned int VOLUME_HEIGHT = 10;
+static constexpr unsigned int VOLUME_DEPTH = 10;
 
 // The Class Identifier has to be globally unique. Use a reverse DNS naming scheme
 const ProcessorInfo fermivolumecreator::processorInfo_{
@@ -80,6 +81,9 @@ void fermivolumecreator::process() {
             kpoints.push_back(metadata);
         }
     }
+
+    float fermiEnergy = readFermiEnergy(data->getGroup().openGroup("/FermiSurface"), "/FermiSurface/FermiEnergy");
+    LogInfo(std::to_string(fermiEnergy));
 
     std::vector<KPoint> points;
     for (const hdf5::MetaData& kpoint : kpoints)
@@ -149,22 +153,48 @@ void fermivolumecreator::process() {
         static_cast<VolumeRAMPrecision<float> *>(volume->getEditableRepresentation<VolumeRAM>());
     float* values = ram->getDataTyped();
 
+    float energy_max = points[0].energies[0];
+    float energy_min = points[0].energies[0];
     for (const KPoint& point : points)
     {
         double x = ((point.coordinates.x - minX) / (maxX - minX)) * VOLUME_WIDTH;
         double y = ((point.coordinates.y - minY) / (maxY - minY)) * VOLUME_HEIGHT;
         double z = ((point.coordinates.z - minZ) / (maxZ - minZ)) * VOLUME_DEPTH;
 
-        values[int(x) + int(VOLUME_HEIGHT * (y + VOLUME_DEPTH * z))] = 1;
+        values[int(x) + int(VOLUME_HEIGHT * (y + VOLUME_DEPTH * z))] = point.energies[0];
+        if (point.energies[0] > energy_max)
+            energy_max = point.energies[0];
+        else if (point.energies[0] < energy_min)
+            energy_min = point.energies[0];
     }
 
-    volume->dataMap_.dataRange = dvec2(0, 1);
-    volume->dataMap_.valueRange = dvec2(0, 1);
+    KDTree<std::vector<KPoint>, 3> kdlist(points);
+
+    volume->dataMap_.dataRange = dvec2(energy_min, energy_max);
+    volume->dataMap_.valueRange = dvec2(energy_min, energy_max);
+
     /*
+    for (unsigned int x = 0; x < VOLUME_WIDTH; x++) {
+        for (unsigned int y = 0; y < VOLUME_HEIGHT; y++) {
+            for (unsigned int z = 0; z < VOLUME_DEPTH; z++) {
+                auto itr = std::min_element(points.begin(), points.end(),
+                        [=](const KPoint& p1, const KPoint& p2) {
+                            return std::pow(p1.coordinates.x - x, 2) + std::pow(p1.coordinates.y - y, 2) + std::pow(p1.coordinates.z - z, 2) < std::pow(p2.coordinates.x - x, 2) + std::pow(p2.coordinates.y - y, 2) + std::pow(p2.coordinates.z - z, 2);
+                        });
+
+                float distance =  std::abs(fermiEnergy - itr->energies[0]);
+                if (itr != points.end() && distance <= 0.1) {
+                    LogInfo(distance);
+                    values[x + VOLUME_HEIGHT * ( y + VOLUME_DEPTH * z)] = itr->energies[0];
+                }
+            }
+        }
+    }
+    */
+
     volume->setBasis(mat3(-0.22f, 0.22f, 0.22f,
                           0.22f, -0.22f, 0.22f,
                           0.22f, 0.22f, -0.22f));
-                          */
 
     outport_.setData(volume);
 }
@@ -184,6 +214,21 @@ vec3 fermivolumecreator::readKPointCoordinates(const H5::Group& group, const std
     dataSet.read(output, H5::PredType::NATIVE_FLOAT, memSpace, dataSpace);
 
     return dvec3(output[0], output[1], output[2]);
+}
+
+float fermivolumecreator::readFermiEnergy(const H5::Group& group, const std::string& path) const {
+    H5::DataSet dataSet = group.openDataSet(path);
+    H5::DataSpace dataSpace = dataSet.getSpace();
+
+    dataSpace.selectAll();
+
+    hsize_t dim[] = { 1 };
+    H5::DataSpace memSpace(1, dim);
+
+    float output;
+    dataSet.read(&output, H5::PredType::NATIVE_FLOAT, memSpace, dataSpace);
+
+    return output;
 }
 
 std::vector<float> fermivolumecreator::readKPointEnergy(const H5::Group& group, const std::string& path) const {
