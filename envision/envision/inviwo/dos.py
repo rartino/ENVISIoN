@@ -57,7 +57,7 @@ def dos(h5file, xpos=0, ypos=0):
          Y coordinate in Inviwo network editor
 
     """
-
+    
     def get_dos_list(iter):
         return list(sorted(
             filter(lambda item: item != "Energy" and not item.startswith("Integrated"), iter),
@@ -68,6 +68,8 @@ def dos(h5file, xpos=0, ypos=0):
 
         processor_list = network.processors
 
+        # Inviwo will not set path selection properties until the network is fully formed. These lists
+        # store the relevant processors for later configuration (see end of file).
         path_selector_list = []
         hdf5_to_function_list = []
         plotter_source_list = []
@@ -89,14 +91,18 @@ def dos(h5file, xpos=0, ypos=0):
             path_selector_list.append(totalpartial_processor)
             dos_outport = dos_processor.getOutport('outport')
             totalpartial_inport = totalpartial_processor.getInport('inport')
+            totalpartial_outport = totalpartial_processor.getOutport('outport')
             network.addConnection(dos_outport, totalpartial_inport)
 
             ypos += 100
 
             if name == "Partial":
+                path = name
                 totalpartial_pick_processor = _add_processor("org.inviwo.HDF5PathSelectionAllChildren", "{} {}".format(name, "Pick All"), xpos, ypos)
-                totalpartial_outport = totalpartial_processor.getOutport('outport')
                 totalpartial_pick_inport = totalpartial_pick_processor.getInport('hdf5HandleInport')
+                network.addConnection(totalpartial_outport, totalpartial_pick_inport)
+                totalpartial_pick_outport = totalpartial_pick_processor.getOutport('hdf5HandleVectorOutport')
+                totalpartial_outport = totalpartial_pick_outport
 
             if has_partial:
                 ypos += 100
@@ -110,8 +116,6 @@ def dos(h5file, xpos=0, ypos=0):
             y_name_prepend_parents = 2 if name == "Partial" else 1
 
             down_type_list = [dos for dos in dos_list if dos.endswith("(dwn)")]
-            for dos in down_type_list:
-                print(dos)
             xpos_down, ypos_down = xpos, ypos
             for down_type in down_type_list:
                 down_type_processor = _add_processor("org.inviwo.HDF5ToFunction", down_type, xpos_down, ypos_down)
@@ -123,8 +127,6 @@ def dos(h5file, xpos=0, ypos=0):
                 """totalpartial_source_hdf5outport = totalpartial_pick_processor.getOutport('hdf5HandleVectorOutport')
                 down_type_processor_hdf5inport = down_type_processor.getInport('hdf5HandleFlatMultiInport')
                 network.addConnection(totalpartial_source_hdf5outport, down_type_processor_hdf5inport)"""
-                
-                totalpartial_outport = totalpartial_processor.getOutport('outport')
                 down_type_hdf5inport = down_type_processor.getInport('hdf5HandleFlatMultiInport')
                 network.addConnection(totalpartial_outport, down_type_hdf5inport)
             
@@ -137,8 +139,6 @@ def dos(h5file, xpos=0, ypos=0):
                 hdf5_to_function_list.append(up_type_processor)
                 up_type_y_name_property = up_type_processor.getPropertyByIdentifier('yNamePrependParentsProperty')
                 up_type_y_name_property.value = y_name_prepend_parents
-
-                totalpartial_outport = totalpartial_processor.getOutport('outport')
                 up_type_hdf5inport = up_type_processor.getInport('hdf5HandleFlatMultiInport')
                 network.addConnection(totalpartial_outport, up_type_hdf5inport)
 
@@ -152,8 +152,6 @@ def dos(h5file, xpos=0, ypos=0):
 
                 other_type_y_name_property = other_type_processor.getPropertyByIdentifier('yNamePrependParentsProperty')
                 other_type_y_name_property.value = y_name_prepend_parents
-
-                totalpartial_outport = totalpartial_processor.getOutport('outport')
                 other_type_hdf5inport = other_type_processor.getInport('hdf5HandleFlatMultiInport')
                 network.addConnection(totalpartial_outport, other_type_hdf5inport)
 
@@ -209,7 +207,6 @@ def dos(h5file, xpos=0, ypos=0):
                 down_negate_inport = down_negate_processor.getInport('dataframeInport')
                 #down_add_outport = down_add_processor.getOutport('functionVectorOutport')
                 down_add_outport = down_add_processor.getOutport('dataframeOutport')
-                # Only works with cu 1 10
                 network.addConnection(down_add_outport, down_negate_inport)
                 plotter_source_list.append(down_negate_processor)
                 ypos += 100
@@ -234,14 +231,12 @@ def dos(h5file, xpos=0, ypos=0):
                 network.addConnection(h5source_outport, fermi_energy_inport)
                 ypos += 100"""
         
-        
-        for plotter_source in plotter_source_list: 
+        for plotter_source in plotter_source_list:
             plotter_processor = _add_processor("org.inviwo.lineplotprocessor", "DOS Plotter", xpos, ypos) 
             plotter_source_outport = plotter_source.getOutport('dataframeOutport')
             plotter_processor_labels_outport = plotter_processor.getOutport('labels')
             plotter_processor_mesh_outport = plotter_processor.getOutport('outport')
             plotter_processor_inport = plotter_processor.getInport('dataFrameInport')
-            help(plotter_processor.getPropertyByIdentifier('font'))
             #plotter_processor.getPropertyByIdentifier('font').getPropertyByIdentifier('anchor').value = inviwopy.glm.vec2(-1, -0.96)
             network.addConnection(plotter_source_outport, plotter_processor_inport)
         
@@ -269,10 +264,9 @@ def dos(h5file, xpos=0, ypos=0):
             canvas_inport = canvas_processor.getInport('inport')
             network.addConnection(background_processor_outport, canvas_inport)
 
-            
             ypos += 100  
             xpos += 100
-            
+
         """
         plotter_processor = _add_processor("org.inviwo.Plotter", "DOS Plotter", xpos, ypos)
         for plotter_source in plotter_source_list:
@@ -293,16 +287,6 @@ def dos(h5file, xpos=0, ypos=0):
 
         ypos += 100
 
-        for path_selector in path_selector_list:
-            path_selector.getPropertyByIdentifier('selection').value = '/{}'.format(path_selector.split()[1])
-
-        for hdf5_to_function in hdf5_to_function_list:
-            hdf5_to_function.getPropertyByIdentifier('implicitXProperty').value = False
-            hdf5_to_function.getPropertyByIdentifier('xPathSelectionProperty').value = '/{}'.format("Energy")
-            hdf5_to_function.getPropertyByIdentifier('yPathSelectionProperty').value = '/{}'.format(hdf5_to_function)
-            hdf5_to_function.getPropertyByIdentifier('xPathFreeze').value = True
-            hdf5_to_function.getPropertyByIdentifier('yPathFreeze').value = True
-
         if has_fermi_energy:
             fermi_energy_processor.getPropertyByIdentifier('pathSelectionProperty').value = '/{}'.format("FermiEnergy")
             fermi_energy_processor.getPropertyByIdentifier('pathFreeze').value = True
@@ -314,7 +298,6 @@ def dos(h5file, xpos=0, ypos=0):
         canvas_processor.getPropertyByIdentifier('inputSize.dimensions').value = (640, 480)
 
         """
-        ## TODO: Find out why the Partial Pick All processor isn't connected to anything at the start of this block.
         # Replaces Partial Pick All processor with Partial Pick processor.
         if has_partial and "Unit Cell Mesh" in [x.identifier for x in processor_list]:
             
@@ -388,4 +371,14 @@ def dos(h5file, xpos=0, ypos=0):
             #inviwopy.setProcessorWidgetVisible("DOS Canvas", False)
             #inviwopy.setProcessorWidgetVisible("Unit Cell Canvas", False)
             #inviwopy.setProcessorWidgetVisible(dos_unitcell_canvas_processor, True)
+
+        # Selects correct paths.
+        for path_selector in path_selector_list:
+            path_selector.getPropertyByIdentifier('selection').value = '/{}'.format(path_selector.identifier.split()[1])
+        for hdf5_to_function in hdf5_to_function_list:
+            hdf5_to_function.getPropertyByIdentifier('implicitXProperty').value = False
+            hdf5_to_function.getPropertyByIdentifier('xPathSelectionProperty').value = '/0/{}'.format("Energy")
+            hdf5_to_function.getPropertyByIdentifier('yPathSelectionProperty').value = '/0/{}'.format(hdf5_to_function.identifier)
+            hdf5_to_function.getPropertyByIdentifier('xPathFreeze').value = True
+            hdf5_to_function.getPropertyByIdentifier('yPathFreeze').value = True
 
