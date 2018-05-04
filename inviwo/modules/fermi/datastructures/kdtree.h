@@ -104,11 +104,15 @@ public:
 private:
     void nnHelper(const ElementName& point, KDData<ElementName>* currentNode,
                   KDData<ElementName>*& bestNode, float& bestDistance, size_t depth) const {
+        if (!currentNode) {
+            return;
+        }
+
         size_t axis = depth % Dimension;
 
         float d = getDistance2(point, currentNode);
         if (currentNode->isLeaf()) {
-            if (d < bestDistance) {
+            if (d < bestDistance && !areEqual(point, currentNode->getValue())) {
                 bestDistance = d;
                 bestNode = currentNode;
             }
@@ -122,7 +126,7 @@ private:
                 other = currentNode->getLeft();
             }
 
-            if (d < bestDistance) {
+            if (d < bestDistance && !areEqual(point, currentNode->getValue())) {
                 bestNode = currentNode;
                 bestDistance = d;
             }
@@ -143,6 +147,16 @@ private:
         }
 
         return d;
+    }
+
+    bool areEqual(const ElementName& e1, const ElementName& e2) const {
+        for (size_t i = 0; i < Dimension; i++) {
+            if (e1[i] != e2[i]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     KDData<ElementName>* constructNode(T& points, size_t depth) {
