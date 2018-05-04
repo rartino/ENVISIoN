@@ -193,6 +193,13 @@ void lineplotprocessor::process() {
             }
         }
 
+	// Set default values if data changes.
+	if (dataFrameInport_.isChanged()) {
+	  x_range_.set(vec2(x_max, x_min));
+	  y_range_.set(vec2(y_max, y_min));
+	}
+
+
         // If all values in one dimension have the same value we let
         // them normalise to one by setting the min values to zero.
         if (y_max == y_min) {
@@ -247,7 +254,7 @@ void lineplotprocessor::process() {
                      " than the minimum Y value range!");
             return;
         }
-
+	
         // Draw background grid.
         drawAxes(mesh, x_min, x_max, y_min, y_max);
 
