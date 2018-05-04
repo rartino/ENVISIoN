@@ -51,6 +51,11 @@ struct KPoint {
     }
 };
 
+struct InterpolationPoint {
+    float value;
+    unsigned long count;
+};
+
 /** \docpage{org.inviwo.fermivolumecreator, fermivolumecreator}
  * ![](org.inviwo.fermivolumecreator.png?classIdentifier=org.inviwo.fermivolumecreator)
  * Explanation of how to use the processor.
@@ -81,6 +86,8 @@ public:
 
     virtual const ProcessorInfo getProcessorInfo() const override;
     static const ProcessorInfo processorInfo_;
+
+    IntSizeTProperty energy_selector_;
 private:
     vec3 readKPointCoordinates(const H5::Group& group, const std::string& path) const;
     float readFermiEnergy(const H5::Group& group, const std::string& path) const;
