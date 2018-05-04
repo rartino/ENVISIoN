@@ -233,6 +233,7 @@ element_colors = {
 }
 
 # from https://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)
+# unit: Angstrom
 atomic_radii = {
     'H' : 0.25,
     'Li' : 1.45,
