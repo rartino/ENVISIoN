@@ -98,6 +98,7 @@ def dos(h5file, xpos=0, ypos=0):
 
             if name == "Partial":
                 path = name
+                # Partial Pick All processor selects '/DOS/Partial/0' instead of '/DOS/Partial'.
                 totalpartial_pick_processor = _add_processor("org.inviwo.HDF5PathSelectionAllChildren", "{} {}".format(name, "Pick All"), xpos, ypos)
                 totalpartial_pick_inport = totalpartial_pick_processor.getInport('hdf5HandleInport')
                 network.addConnection(totalpartial_outport, totalpartial_pick_inport)
