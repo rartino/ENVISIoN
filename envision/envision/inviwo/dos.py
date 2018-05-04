@@ -261,7 +261,7 @@ def dos(h5file, xpos=0, ypos=0):
             
             ypos += 100
       
-            canvas_processor = _add_processor("org.inviwo.CanvasGL", "Canvas", xpos, ypos)
+            canvas_processor = _add_processor("org.inviwo.CanvasGL", "DOS Canvas", xpos, ypos)
             canvas_inport = canvas_processor.getInport('inport')
             canvas_processor.getPropertyByIdentifier('inputSize').getPropertyByIdentifier('dimensions').value= inviwopy.glm.ivec2(640, 480)
             network.addConnection(background_processor_outport, canvas_inport)
@@ -348,6 +348,7 @@ def dos(h5file, xpos=0, ypos=0):
 
             dos_unitcell_layout_processor = _add_processor("org.inviwo.ImageLayoutGL", "DOS UnitCell Layout", xpos, ypos)
             network.addConnection(network.getProcessorByIdentifier("Unit Cell Renderer").getOutport("image"), dos_unitcell_layout_processor.getInport("multiinport"))
+            # TODO: Wrong outport type. Figure out what the purpose of this is.
             network.addConnection(network.getProcessorByIdentifier("DOS Plotter").getOutport("outport"), dos_unitcell_layout_processor.getInport("multiinport"))
             #inviwopy.addConnection("DOS Plotter", "imageOutport", dos_unitcell_layout_processor, "multiinport")
 
@@ -360,11 +361,19 @@ def dos(h5file, xpos=0, ypos=0):
             #inviwopy.addConnection(dos_unitcell_layout_processor, "outport", dos_unitcell_canvas_processor, "inport")
             ypos += 100
             
-            dos_unitcell_canvas_processor.getPropertyByIdentifier("layout").value = 2
+            dos_unitcell_layout_processor.getPropertyByIdentifier("layout").value = 2
             #inviwopy.setPropertyValue(".".join([dos_unitcell_layout_processor, "layout"]), 2)
-            
-            network.getProcessorByIdentifier("DOS Canvas").widget.visibility = False
+
+            # Hide canvases for separate unit cell and DOS visualisation.
             network.getProcessorByIdentifier("Unit Cell Canvas").widget.visibility = False
+            for i in range(len(plotter_source_list)):
+                if (i == 0):
+                    print("DOS Canvas")
+                    network.getProcessorByIdentifier("DOS Canvas").widget.visibility= False
+                else:
+                    print("DOS Canvas{}".format(" " + str(i + 1)))
+                    network.getProcessorByIdentifier("DOS Canvas{}".format(" " + str(i + 1))).widget.visibility= False
+            
             dos_unitcell_canvas_processor.widget.visibility = True
 
             #inviwopy.setProcessorWidgetVisible("DOS Canvas", False)
