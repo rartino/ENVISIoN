@@ -257,11 +257,32 @@ def dos(h5file, xpos=0, ypos=0):
             network.addConnection(mesh_renderer_outport, background_processor_inport)
             
             ypos += 100
+
+            
+            energy_text_processor = _add_processor("org.inviwo.TextOverlayGL", "Energy Text", xpos, ypos)
+            energy_text_processor.getPropertyByIdentifier('text').value = 'Energy [eV]'
+            energy_text_processor.getPropertyByIdentifier('position').value = inviwopy.glm.vec2(0.82, 0.03)
+            energy_text_processor.getPropertyByIdentifier('color').value = inviwopy.glm.vec4(0,0,0,1)
+            energy_text_processor_inport = energy_text_processor.getInport('inport')
+            energy_text_processor_outport = energy_text_processor.getOutport('outport')
+            network.addConnection(background_processor_outport, energy_text_processor_inport)
+            
+            ypos += 100
+            
+            dos_text_processor = _add_processor("org.inviwo.TextOverlayGL", "DOS Text", xpos, ypos)
+            dos_text_processor.getPropertyByIdentifier('text').value = 'DOS'
+            dos_text_processor.getPropertyByIdentifier('position').value = inviwopy.glm.vec2(0.31, 0.93)
+            dos_text_processor.getPropertyByIdentifier('color').value = inviwopy.glm.vec4(0,0,0,1)
+            dos_text_processor_inport = dos_text_processor.getInport('inport')
+            dos_text_processor_outport = dos_text_processor.getOutport('outport')
+            network.addConnection(energy_text_processor_outport, dos_text_processor_inport)
+            
+            ypos += 100
       
             canvas_processor = _add_processor("org.inviwo.CanvasGL", "DOS Canvas", xpos, ypos)
             canvas_inport = canvas_processor.getInport('inport')
             canvas_processor.getPropertyByIdentifier('inputSize').getPropertyByIdentifier('dimensions').value= inviwopy.glm.ivec2(640, 480)
-            network.addConnection(background_processor_outport, canvas_inport)
+            network.addConnection(dos_text_processor_outport, canvas_inport)
 
             ypos += 100  
             xpos += 100
