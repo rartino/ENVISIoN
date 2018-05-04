@@ -237,7 +237,7 @@ def dos(h5file, xpos=0, ypos=0):
             plotter_source_outport = plotter_source.getOutport('dataframeOutport')
             plotter_processor_labels_outport = plotter_processor.getOutport('labels')
             plotter_processor_mesh_outport = plotter_processor.getOutport('outport')
-            plotter_processor_inport = plotter_processor.getInport('dataFrameInport')
+            plotter_processor_inport = plotter_processor.getInport('dataFrameInport')            
             #plotter_processor.getPropertyByIdentifier('font').getPropertyByIdentifier('anchor').value = inviwopy.glm.vec2(-1, -0.96)
             network.addConnection(plotter_source_outport, plotter_processor_inport)
         
@@ -263,6 +263,7 @@ def dos(h5file, xpos=0, ypos=0):
       
             canvas_processor = _add_processor("org.inviwo.CanvasGL", "Canvas", xpos, ypos)
             canvas_inport = canvas_processor.getInport('inport')
+            canvas_processor.getPropertyByIdentifier('inputSize').getPropertyByIdentifier('dimensions').value= inviwopy.glm.ivec2(640, 480)
             network.addConnection(background_processor_outport, canvas_inport)
 
             ypos += 100  
@@ -293,10 +294,7 @@ def dos(h5file, xpos=0, ypos=0):
             fermi_energy_processor.getPropertyByIdentifier('pathFreeze').value = True
 
         plotter_processor.getPropertyByIdentifier('markShiftToZeroXProperty').value = 'Fermi Energy'
-        plotter_processor.getPropertyByIdentifier('axisLimitAutoAdjustXProperty').value = False
-        plotter_processor.getPropertyByIdentifier('axisLimitAutoAdjustYProperty').value = False
 
-        canvas_processor.getPropertyByIdentifier('inputSize.dimensions').value = (640, 480)
 
         """
         # Replaces Partial Pick All processor with Partial Pick processor.
@@ -378,8 +376,8 @@ def dos(h5file, xpos=0, ypos=0):
             path_selector.getPropertyByIdentifier('selection').value = '/{}'.format(path_selector.identifier.split()[1])
         for hdf5_to_function in hdf5_to_function_list:
             hdf5_to_function.getPropertyByIdentifier('implicitXProperty').value = False
-            hdf5_to_function.getPropertyByIdentifier('xPathSelectionProperty').value = '/0/{}'.format("Energy")
-            hdf5_to_function.getPropertyByIdentifier('yPathSelectionProperty').value = '/0/{}'.format(hdf5_to_function.identifier)
+            hdf5_to_function.getPropertyByIdentifier('xPathSelectionProperty').value = '/{}'.format("Energy")
+            hdf5_to_function.getPropertyByIdentifier('yPathSelectionProperty').value = '/{}'.format(hdf5_to_function.identifier)
             hdf5_to_function.getPropertyByIdentifier('xPathFreeze').value = True
             hdf5_to_function.getPropertyByIdentifier('yPathFreeze').value = True
 
