@@ -82,6 +82,20 @@ def fermi_parse(vasp_dir):
         print('DOSCAR file not in directory. Skipping.')
         return [], 0
 
+    # Parses reciprocal lattice vectors from OUTCAR
+    #outcar_file = os.path.join(vasp_dir, 'OUTCAR')
+    #try:
+     #   with open(outcar_file, 'r') as f:
+      #      while(next(f) != "Lattice vectors:"):
+       #         next(f)
+        #        next(f)
+         #       print(next(f))
+          #      print(next(f))
+           #     print(next(f))
+    
+            
+            
+
     return kval_list, fermi_energy
 
 def fermi_surface(h5file, vasp_dir):
