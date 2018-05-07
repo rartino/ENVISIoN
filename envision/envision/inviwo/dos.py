@@ -304,11 +304,21 @@ def dos(h5file, xpos=0, ypos=0):
                          parent_list.append(connection.outport.processor)
                 return parent_list
 
-            partial_pick_all_position = network.getProcessorByIdentifier("Partial Pick All").position
-            partial_pick_all_child_list = get_child_list(network.getProcessorByIdentifier("Partial Pick All"))
-            partial_pick_all_parent_list = get_parent_list(network.getProcessorByIdentifier("Partial Pick All"))
-
-            network.removeProcessor(network.getProcessorByIdentifier("Partial Pick All"))
+            # Find partial pick all processor in network. After removing it some lines below, it still exists behind the scenes in Inviwo.
+            # If DOS visualisation is run subsequent times without restarting Inviwo,
+            # partial_pick_all_processor will be named 'Partial Pick All (partial_pick_all_index)'.
+            partial_pick_all_processor = network.getProcessorByIdentifier('Partial Pick All')
+            partial_pick_all_index = 2
+            while (partial_pick_all_processor == None and partial_pick_all_index < 100):
+                partial_pick_all_processor = network.getProcessorByIdentifier('Partial Pick All{}'.format(' ' + str(partial_pick_all_index)))
+                partial_pick_all_index += 1
+            
+            partial_pick_all_position = partial_pick_all_processor.position
+            partial_pick_all_child_list = get_child_list(partial_pick_all_processor)
+            partial_pick_all_parent_list = get_parent_list(partial_pick_all_processor)
+            network.removeProcessor(partial_pick_all_processor)
+                
+            
             partial_pick_processor = _add_processor("org.inviwo.HDF5PathSelectionIntVector",
                                                     "Partial Pick", partial_pick_all_position[0],
                                                     partial_pick_all_position[1])
@@ -345,10 +355,8 @@ def dos(h5file, xpos=0, ypos=0):
             network.getProcessorByIdentifier("Unit Cell Canvas").widget.visibility = False
             for i in range(len(plotter_source_list)):
                 if (i == 0):
-                    print("DOS Canvas")
                     network.getProcessorByIdentifier("DOS Canvas").widget.visibility= False
                 else:
-                    print("DOS Canvas{}".format(" " + str(i + 1)))
                     network.getProcessorByIdentifier("DOS Canvas{}".format(" " + str(i + 1))).widget.visibility= False
             
             dos_unitcell_canvas_processor.widget.visibility = True
