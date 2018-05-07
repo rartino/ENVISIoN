@@ -270,7 +270,7 @@ def dos(h5file, xpos=0, ypos=0):
             ypos += 100
             
             dos_text_processor = _add_processor("org.inviwo.TextOverlayGL", "DOS Text", xpos, ypos)
-            dos_text_processor.getPropertyByIdentifier('text').value = 'DOS'
+            dos_text_processor.getPropertyByIdentifier('text').value = 'DOS [1/(eV * unit cell)]'
             dos_text_processor.getPropertyByIdentifier('position').value = inviwopy.glm.vec2(0.31, 0.93)
             dos_text_processor.getPropertyByIdentifier('color').value = inviwopy.glm.vec4(0,0,0,1)
             dos_text_processor_inport = dos_text_processor.getInport('inport')
