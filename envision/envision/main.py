@@ -53,7 +53,8 @@ def parse_all(h5_path, dir):
         'charge from VASP': parser.vasp.charge,
         'ELF from VASP': parser.vasp.elf,
         'DOS from VASP': parser.vasp.dos,
-        'bandstructure from VASP': parser.vasp.bandstructure
+        'bandstructure from VASP': parser.vasp.bandstructure,
+        'fermi surface from VASP': parser.vasp.fermi_surface
     }
     parsed_list = []
     for key, function in func_dict.items():
