@@ -114,14 +114,8 @@ def _write_fermisurface(h5file, kval_list, fermi_energy, reciprocal_lattice_vect
                           dtype = np.float32)
         
         for i in range(0, len(reciprocal_lattice_vectors)):
-            h5.create_dataset('/FermiSurface/ReciprocalLatticeVectors/{}/kx'.format(i),
-                              data = np.array(float(reciprocal_lattice_vectors[i][0])),
-                              dtype = np.float32)
-            h5.create_dataset('/FermiSurface/ReciprocalLatticeVectors/{}/ky'.format(i),
-                              data = np.array(float(reciprocal_lattice_vectors[i][1])),
-                              dtype = np.float32)
-            h5.create_dataset('/FermiSurface/ReciprocalLatticeVectors/{}/kz'.format(i),
-                              data = np.array(float(reciprocal_lattice_vectors[i][2])),
+            h5.create_dataset('/FermiSurface/ReciprocalLatticeVectors/{}'.format(i),
+                              data = np.array([float(x) for x in reciprocal_lattice_vectors[i]]),
                               dtype = np.float32)
 
 
