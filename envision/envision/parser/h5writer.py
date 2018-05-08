@@ -93,7 +93,7 @@ def _write_bandstruct(h5file, band_data, kval_list):
             dataset.attrs['VariableName'] = 'Band {}'.format(i)
             dataset.attrs['VariableSymbol'] = '$B_{{{}}}$'.format(i)
 
-def _write_fermisurface(h5file, kval_list, fermi_energy):
+def _write_fermisurface(h5file, kval_list, fermi_energy, reciprocal_lattice_vectors):
     with h5py.File(h5file,"a") as h5:
         for i in range(0, len(kval_list)):
             dataset = h5.create_dataset('/FermiSurface/KPoints/{}/Energy'.format(i),
@@ -112,6 +112,17 @@ def _write_fermisurface(h5file, kval_list, fermi_energy):
         h5.create_dataset('/FermiSurface/FermiEnergy',
                           data = np.float(fermi_energy),
                           dtype = np.float32)
+        
+        for i in range(0, len(reciprocal_lattice_vectors)):
+            h5.create_dataset('/FermiSurface/ReciprocalLatticeVectors/{}/kx'.format(i),
+                              data = np.array(float(reciprocal_lattice_vectors[i][0])),
+                              dtype = np.float32)
+            h5.create_dataset('/FermiSurface/ReciprocalLatticeVectors/{}/ky'.format(i),
+                              data = np.array(float(reciprocal_lattice_vectors[i][1])),
+                              dtype = np.float32)
+            h5.create_dataset('/FermiSurface/ReciprocalLatticeVectors/{}/kz'.format(i),
+                              data = np.array(float(reciprocal_lattice_vectors[i][2])),
+                              dtype = np.float32)
 
 
 def _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy):

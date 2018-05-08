@@ -106,7 +106,7 @@ def fermi_parse(vasp_dir):
         print('OUTCAR file not in directory. Skipping.')
         return [], 0
     
-    return kval_list, fermi_energy
+    return kval_list, fermi_energy, reciprocal_lattice_vectors
 
 def fermi_surface(h5file, vasp_dir):
     """
@@ -131,11 +131,11 @@ def fermi_surface(h5file, vasp_dir):
                 print('Fermi surface data already parsed. Skipping.')
                 return False
 
-    kval_list, fermi_energy = fermi_parse(vasp_dir)
+    kval_list, fermi_energy, reciprocal_lattice_vectors = fermi_parse(vasp_dir)
     if not kval_list:
         print('Something went wrong when parsing Fermi surface data in folder {}'.format(vasp_dir))
         return False
 
-    _write_fermisurface(h5file, kval_list, fermi_energy)
+    _write_fermisurface(h5file, kval_list, fermi_energy, reciprocal_lattice_vectors)
     print('Fermi surface data was parsed successfully.')
     return True
