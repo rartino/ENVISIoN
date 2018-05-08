@@ -88,11 +88,20 @@ def fermi_parse(vasp_dir):
             while(next(f) != "  Lattice vectors:\n"):
                 pass
             next(f)
+            vectors_as_strings = []
+            vectors_as_strings.append(next(f))
+            vectors_as_strings.append(next(f))
+            vectors_as_strings.append(next(f))
             reciprocal_lattice_vectors = []
-            reciprocal_lattice_vectors.append(next(f))
-            reciprocal_lattice_vectors.append(next(f))
-            reciprocal_lattice_vectors.append(next(f))
-            print(reciprocal_lattice_vectors)
+            reciprocal_lattice_vectors.append([vectors_as_strings[0].split(' ')[6][:12],
+                                               vectors_as_strings[0].split(' ')[9][:12],
+                                               vectors_as_strings[0].split(' ')[12][:12]])
+            reciprocal_lattice_vectors.append([vectors_as_strings[1].split(' ')[6][:12],
+                                               vectors_as_strings[1].split(' ')[9][:12],
+                                               vectors_as_strings[1].split(' ')[12][:12]])
+            reciprocal_lattice_vectors.append([vectors_as_strings[2].split(' ')[6][:12],
+                                               vectors_as_strings[2].split(' ')[9][:12],
+                                               vectors_as_strings[2].split(' ')[12][:12]])
     except OSError:
         print('OUTCAR file not in directory. Skipping.')
         return [], 0
