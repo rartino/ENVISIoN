@@ -39,9 +39,9 @@
 namespace inviwo {
 
 static constexpr const char* KPOINT_PATH = "/FermiSurface/KPoints";
-static constexpr unsigned int VOLUME_WIDTH = 100;
-static constexpr unsigned int VOLUME_HEIGHT = 100;
-static constexpr unsigned int VOLUME_DEPTH = 100;
+static constexpr unsigned int VOLUME_WIDTH = 13;
+static constexpr unsigned int VOLUME_HEIGHT = 13;
+static constexpr unsigned int VOLUME_DEPTH = 13;
 
 // The Class Identifier has to be globally unique. Use a reverse DNS naming scheme
 const ProcessorInfo fermivolumecreator::processorInfo_{
@@ -57,11 +57,13 @@ const ProcessorInfo fermivolumecreator::getProcessorInfo() const {
 
 fermivolumecreator::fermivolumecreator()
     : Processor()
-    , energy_selector_("energy_selector", "Energy Selector")
+    , energy_selector_("energySelector", "Energy Selector")
+    , iso_value_("isoValue", "ISO Value")
     , inport_("inport")
     , outport_("outport") {
 
     addProperty(energy_selector_);
+    addProperty(iso_value_);
 
     addPort(inport_);
     addPort(outport_);
@@ -88,7 +90,8 @@ void fermivolumecreator::process() {
         }
     }
 
-    float fermiEnergy = readFermiEnergy(data->getGroup().openGroup("/FermiSurface"), "/FermiSurface/FermiEnergy");
+    float fermiEnergy = readFermiEnergy(data->getGroup().openGroup("/FermiSurface"),
+                                        "/FermiSurface/FermiEnergy");
     LogInfo(std::to_string(fermiEnergy));
 
     std::vector<KPoint> points;
@@ -151,101 +154,59 @@ void fermivolumecreator::process() {
         minZ = itrZ->coordinates.z;
     }
 
-    for (KPoint& point : points) {
-        double x = ((point.coordinates.x - minX) / (maxX - minX)) * VOLUME_WIDTH;
-        double y = ((point.coordinates.y - minY) / (maxY - minY)) * VOLUME_HEIGHT;
-        double z = ((point.coordinates.z - minZ) / (maxZ - minZ)) * VOLUME_DEPTH;
-
-        point.coordinates = vec3(x, y, z);
-    }
-    float energy_max = points[0].energies[0];
-    float energy_min = points[0].energies[0];
-
     energy_selector_.setMinValue(0);
     energy_selector_.setMaxValue(points[0].energies.size() - 1);
-
-
-    std::shared_ptr<Volume> volume = std::make_shared<Volume>(size3_t(VOLUME_WIDTH,
-                                                                      VOLUME_HEIGHT,
-                                                                      VOLUME_DEPTH),
-                                                              DataFloat32::get());
-    VolumeRAMPrecision<float> *ram =
-        static_cast<VolumeRAMPrecision<float> *>(volume->getEditableRepresentation<VolumeRAM>());
-    float* values = ram->getDataTyped();
-
     size_t energy = energy_selector_.get();
-    KDTree<std::vector<KPoint>, 3> kdlist(points);
 
-    std::shared_ptr<InterpolationPoint> interpolation_map(new InterpolationPoint[VOLUME_HEIGHT *
-                                                                                 VOLUME_WIDTH *
-                                                                                 VOLUME_DEPTH],
-                                                          std::default_delete<InterpolationPoint[]>());
-
-
-    for (const KPoint& point : points) {
-        KPoint neighbour = kdlist.findNN(point);
-
-        float r = 0;
-        for (int i = 0; i < 3; i++) {
-            r += std::pow(neighbour[i] - point[i], 2);
-        }
-        r = std::sqrt(r);
-
-        float x_min = std::max(0.f, point[0] - r);
-        float x_max = std::min((float) VOLUME_WIDTH, point[0] + r);
-        float y_min = std::max(0.f, point[1] - r);
-        float y_max = std::min((float) VOLUME_HEIGHT, point[1] + r);
-        float z_min = std::max(0.f, point[2] - r);
-        float z_max = std::min((float) VOLUME_DEPTH, point[2] + r);
-
-        r *= r;
-
-        for (unsigned int x = x_min; x < x_max; x++) {
-            for (unsigned int y = y_min; y < y_max; y++) {
-                for (unsigned int z = z_min; z < z_max; z++) {
-                    float d = std::pow(x - point[0], 2) +
-                              std::pow(y - point[1], 2) +
-                              std::pow(z - point[2], 2);
-                    if (d <= r) {
-                        InterpolationPoint& p =
-                            interpolation_map.get()[x + VOLUME_HEIGHT * ( y + VOLUME_DEPTH * z)];
-                        p.value = point.energies[energy];
-                        p.count += 1;
-                    }
-                }
-            }
-        }
-
+    float energy_max = points[0].energies[energy];
+    float energy_min = points[0].energies[energy];
+    for (KPoint& point : points) {
         if (point.energies[energy] > energy_max)
             energy_max = point.energies[energy];
         else if (point.energies[energy] < energy_min)
             energy_min = point.energies[energy];
     }
-    volume->dataMap_.dataRange = dvec2(energy_min, energy_max);
-    volume->dataMap_.valueRange = dvec2(energy_min, energy_max);
 
-    for (unsigned int x = 0; x < VOLUME_WIDTH; x++) {
-        for (unsigned int y = 0; y < VOLUME_HEIGHT; y++) {
-            for (unsigned int z = 0; z < VOLUME_DEPTH; z++) {
-                const InterpolationPoint& p =
-                    interpolation_map.get()[x + VOLUME_HEIGHT * ( y + VOLUME_DEPTH * z)];
-                float pointEnergy = 0;
-                if (p.count != 0) {
-                   pointEnergy = p.value / (float) p.count;
-                }
+    std::shared_ptr<Volume> volume(nullptr);
+    if (energy_max < fermiEnergy || energy_min > fermiEnergy) {
+         volume = std::make_shared<Volume>(size3_t(2, 2, 2),
+                                           DataFloat32::get());
+         volume->dataMap_.dataRange = dvec2(0, 1);
+         volume->dataMap_.valueRange = dvec2(0, 1);
+        iso_value_.setMaxValue(1);
+        iso_value_.setMinValue(0);
+        iso_value_.set(1);
+    } else {
+        volume = std::make_shared<Volume>(size3_t(VOLUME_WIDTH,
+                                                  VOLUME_HEIGHT,
+                                                  VOLUME_DEPTH),
+                                          DataFloat32::get());
 
-                if (std::abs(fermiEnergy - pointEnergy) < 0.01) {
-                    values[x + VOLUME_HEIGHT * ( y + VOLUME_DEPTH * z)] = pointEnergy;
-                }
-            }
+        volume->dataMap_.dataRange = dvec2(energy_min, energy_max);
+        volume->dataMap_.valueRange = dvec2(energy_min, energy_max);
+
+        iso_value_.setMaxValue(energy_max);
+        iso_value_.setMinValue(energy_min);
+        iso_value_.set(fermiEnergy);
+
+        VolumeRAMPrecision<float> *ram =
+            static_cast<VolumeRAMPrecision<float> *>(volume->getEditableRepresentation<VolumeRAM>());
+        float* values = ram->getDataTyped();
+
+        for (const KPoint& point : points) {
+            size_t x = ((point.coordinates.x - minX) / (maxX - minX)) * VOLUME_WIDTH;
+            size_t y = ((point.coordinates.y - minY) / (maxY - minY)) * VOLUME_HEIGHT;
+            size_t z = ((point.coordinates.z - minZ) / (maxZ - minZ)) * VOLUME_DEPTH;
+
+            values[x + VOLUME_HEIGHT * ( y + VOLUME_DEPTH * z)] = point.energies[energy];
         }
     }
 
-    /*
+
+
     volume->setBasis(mat3(-0.22f, 0.22f, 0.22f,
                           0.22f, -0.22f, 0.22f,
                           0.22f, 0.22f, -0.22f));
-                          */
 
     outport_.setData(volume);
 }
