@@ -193,11 +193,24 @@ void lineplotprocessor::process() {
             }
         }
 
-	// Set default values if data changes.
-	if (dataFrameInport_.isChanged()) {
-	  x_range_.set(vec2(x_max, x_min));
-	  y_range_.set(vec2(y_max, y_min));
-	}
+        // Set default values if data changes.
+        if (dataFrameInport_.isChanged()) {
+            x_range_.set(vec2(x_max, x_min));
+            y_range_.set(vec2(y_max, y_min));
+
+            // Make an estimation of the scale needed to fit axis
+            // labels on the left side of the y-axis.
+            size_t max_length = std::to_string(y_max).size();
+            size_t  min_length = std::to_string(y_min).size();
+            float font_pixels = font_.fontSize_.getSelectedValue() *
+                                std::max(max_length, min_length);
+            float text_proportion = (font_pixels / labels_.getDimensions()[0])
+                                    * 1.2;
+            if (text_proportion < 1 &&
+                1 - text_proportion < scale_.get()) {
+                scale_.set(1 - text_proportion);
+            }
+        }
 
 
         // If all values in one dimension have the same value we let
@@ -318,11 +331,13 @@ void lineplotprocessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
                                  ivec2(2, 2)).get());
 
     // Draw the Y axis.
-    vec3 y_start_point = vec3(s * normalise(0, x_min, x_max) + (1 - s) / 2,
+    vec3 y_start_point = vec3(s * normalise(x_range_.getMinValue()[0],
+                                            x_min, x_max) + (1 - s) / 2,
                               s * normalise(y_range_.getMinValue()[0],
                                             y_min, y_max) + (1 - s) / 2,
                               0);
-    vec3 y_end_point = vec3(s * normalise(0, x_min, x_max) + (1 - s) / 2,
+    vec3 y_end_point = vec3(s * normalise(x_range_.getMinValue()[0],
+                                          x_min, x_max) + (1 - s) / 2,
                             s * normalise(y_range_.getMaxValue()[0],
                                           y_min, y_max) + (1 - s) / 2,
                             0);
@@ -401,7 +416,7 @@ void lineplotprocessor::drawScale(double x_min, double x_max,
     for (double y = y_min + y_step_size; y <= y_max; y += y_step_size) {
         std::string label = std::to_string(y);
         float s = scale_.get();
-        vec2 y_axis = vec2(s * normalise(0, x_min, x_max) + (1 - s) / 2,
+        vec2 y_axis = vec2(s * normalise(x_range_.getMinValue()[0], x_min, x_max) +(1 - s) / 2,
                            s * normalise(y, y_min, y_max) + (1 - s) / 2);
 
         vec2 image_dims = labels_.getDimensions();
