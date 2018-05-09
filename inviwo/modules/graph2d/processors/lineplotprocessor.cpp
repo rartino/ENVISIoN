@@ -193,11 +193,11 @@ void lineplotprocessor::process() {
             }
         }
 
-	// Set default values if data changes.
-	if (dataFrameInport_.isChanged()) {
-	  x_range_.set(vec2(x_max, x_min));
-	  y_range_.set(vec2(y_max, y_min));
-	}
+        // Set default values if data changes.
+        if (dataFrameInport_.isChanged()) {
+            x_range_.set(vec2(x_max, x_min));
+            y_range_.set(vec2(y_max, y_min));
+        }
 
 
         // If all values in one dimension have the same value we let
@@ -318,11 +318,13 @@ void lineplotprocessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
                                  ivec2(2, 2)).get());
 
     // Draw the Y axis.
-    vec3 y_start_point = vec3(s * normalise(0, x_min, x_max) + (1 - s) / 2,
+    vec3 y_start_point = vec3(s * normalise(x_range_.getMinValue()[0],
+                                            x_min, x_max) + (1 - s) / 2,
                               s * normalise(y_range_.getMinValue()[0],
                                             y_min, y_max) + (1 - s) / 2,
                               0);
-    vec3 y_end_point = vec3(s * normalise(0, x_min, x_max) + (1 - s) / 2,
+    vec3 y_end_point = vec3(s * normalise(x_range_.getMinValue()[0],
+                                          x_min, x_max) + (1 - s) / 2,
                             s * normalise(y_range_.getMaxValue()[0],
                                           y_min, y_max) + (1 - s) / 2,
                             0);
