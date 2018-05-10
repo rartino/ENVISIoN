@@ -362,12 +362,12 @@ void lineplotprocessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
                                  ivec2(2, 2)).get());
 
     // Draw the Y axis.
-    vec3 y_start_point = vec3(s * normalise(x_range_.getMinValue()[0],
+    vec3 y_start_point = vec3(s * normalise(x_range_.get()[1],
                                             x_min, x_max) + (1 - s) / 2,
                               s * normalise(y_range_.getMinValue()[0],
                                             y_min, y_max) + (1 - s) / 2,
                               0);
-    vec3 y_end_point = vec3(s * normalise(x_range_.getMinValue()[0],
+    vec3 y_end_point = vec3(s * normalise(x_range_.get()[1],
                                           x_min, x_max) + (1 - s) / 2,
                             s * normalise(y_range_.getMaxValue()[0],
                                           y_min, y_max) + (1 - s) / 2,
@@ -447,7 +447,7 @@ void lineplotprocessor::drawScale(double x_min, double x_max,
     for (double y = y_min + y_step_size; y <= y_max; y += y_step_size) {
         std::string label = std::to_string(y);
         float s = scale_.get();
-        vec2 y_axis = vec2(s * normalise(x_range_.getMinValue()[0], x_min, x_max) +(1 - s) / 2,
+        vec2 y_axis = vec2(s * normalise(x_range_.get()[1], x_min, x_max) +(1 - s) / 2,
                            s * normalise(y, y_min, y_max) + (1 - s) / 2);
 
         vec2 image_dims = labels_.getDimensions();
