@@ -20,9 +20,9 @@
 import os, sys
 
 # Configuration
-PATH_TO_ENVISION=os.path.expanduser("//home/andkem/Documents/Skola/Kandidatprojekt/mjukvara/ENVISIoN/envision")
-PATH_TO_VASP_CALC=os.path.expanduser("/home/andkem/Documents/Skola/Kandidatprojekt/mjukvara/data/Cu/1/11")
-PATH_TO_HDF5=os.path.expanduser("/tmp/envision_demo.hdf5")
+PATH_TO_ENVISION=os.path.expanduser("~/ENVISIoN/envision")
+PATH_TO_VASP_CALC=os.path.expanduser("~/ENVISIoN/data/Cu/1/10")
+PATH_TO_HDF5=os.path.expanduser("/tmp/envision_demo3.hdf5")
 
 sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION)) # Or `pip install --editable`.
 
