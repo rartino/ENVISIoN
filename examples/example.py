@@ -20,8 +20,8 @@
 import os, sys
 
 # Configuration
-PATH_TO_ENVISION=os.path.expanduser("~/ENVISIoN/ENVISIoN/envision")
-PATH_TO_VASP_CALC=os.path.expanduser("~/ENVISIoN/examples/data/TiPO4")
+PATH_TO_ENVISION=os.path.expanduser("~/ENVISIoN/envision")
+PATH_TO_VASP_CALC=os.path.expanduser("~/ENVISIoN/data/Si/VASP")
 PATH_TO_HDF5=os.path.expanduser("/tmp/envision_demo.hdf5")
 
 sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION)) # Or `pip install --editable`.
@@ -32,16 +32,27 @@ import envision.inviwo
 result = envision.parse_all(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 print("Found properties in parse: "+str(result))
 
-envision.parser.vasp.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
-envision.parser.vasp.charge(PATH_TO_HDF5, PATH_TO_VASP_CALC)
-envision.parser.vasp.dos(PATH_TO_HDF5, PATH_TO_VASP_CALC)
-envision.parser.vasp.bandstructure(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+#envision.parser.vasp.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+#envision.parser.vasp.charge(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+#envision.parser.vasp.elf(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+#envision.parser.vasp.dos(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+#envision.parser.vasp.bandstructure(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
 xpos=0
 envision.inviwo.unitcell(PATH_TO_HDF5, xpos=xpos)
 xpos += 400
-envision.inviwo.charge(PATH_TO_HDF5, slice=False, xpos=xpos)
+envision.inviwo.charge(PATH_TO_HDF5, slice=True, xpos=xpos)
 xpos += 400
-envision.inviwo.dos(PATH_TO_HDF5, xpos)
+#envision.inviwo.elf(PATH_TO_HDF5, slice=True, xpos=xpos)
 xpos += 400
-envision.inviwo.bandstructure(PATH_TO_HDF5, xpos)
+#envision.inviwo.dos(PATH_TO_HDF5, xpos)
+xpos += 400
+#envision.inviwo.bandstructure(PATH_TO_HDF5, xpos)
+xpos += 400
+
+app = inviwopy.app
+network = app.network
+network.addConnection(network.getProcessorByIdentifier('Unit Cell Renderer').getOutport('image'), network.getProcessorByIdentifier('MeshRenderer').getInport('imageInport'))
+
+network.addLink(network.getProcessorByIdentifier('Unit Cell Renderer').getPropertyByIdentifier('camera'), network.getProcessorByIdentifier('MeshRenderer').getPropertyByIdentifier('camera'))
+network.addLink(network.getProcessorByIdentifier('MeshRenderer').getPropertyByIdentifier('camera'), network.getProcessorByIdentifier('Unit Cell Renderer').getPropertyByIdentifier('camera'))

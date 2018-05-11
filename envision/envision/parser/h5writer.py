@@ -48,6 +48,12 @@ def _write_basis(h5file, basis):
             h5.create_dataset('/basis', data=basis, dtype=np.float32)
     return
 
+def _write_scaling_factor(h5file, scaling_factor):
+    with h5py.File(h5file, "a") as h5:
+        if not "/scaling_factor" in h5:
+            h5.create_dataset('/scaling_factor', data=scaling_factor, dtype=np.float32)
+    return
+
 def _write_md(h5file, atom_count, coordinates_list, elements, step):
     with h5py.File(h5file, "a") as h5:
         p=0
@@ -87,7 +93,7 @@ def _write_bandstruct(h5file, band_data, kval_list):
             dataset.attrs['VariableName'] = 'Band {}'.format(i)
             dataset.attrs['VariableSymbol'] = '$B_{{{}}}$'.format(i)
 
-def _write_fermisurface(h5file, kval_list, fermi_energy):
+def _write_fermisurface(h5file, kval_list, fermi_energy, reciprocal_lattice_vectors):
     with h5py.File(h5file,"a") as h5:
         for i in range(0, len(kval_list)):
             dataset = h5.create_dataset('/FermiSurface/KPoints/{}/Energy'.format(i),
@@ -106,6 +112,11 @@ def _write_fermisurface(h5file, kval_list, fermi_energy):
         h5.create_dataset('/FermiSurface/FermiEnergy',
                           data = np.float(fermi_energy),
                           dtype = np.float32)
+        
+        for i in range(0, len(reciprocal_lattice_vectors)):
+            h5.create_dataset('/FermiSurface/ReciprocalLatticeVectors/{}'.format(i),
+                              data = np.array([float(x) for x in reciprocal_lattice_vectors[i]]),
+                              dtype = np.float32)
 
 
 def _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy):

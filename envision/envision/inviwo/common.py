@@ -50,3 +50,10 @@ def _add_h5source(h5file, xpos=0, ypos=0):
 
     return processor
 
+def _add_property(id, name, processor):
+    factory = app.propertyFactory
+    new_property = factory.create(id)
+    new_property.identifier = name
+    processor.addProperty(new_property, name)
+    return new_property
+
