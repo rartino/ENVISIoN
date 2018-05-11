@@ -85,23 +85,20 @@ def fermi_parse(vasp_dir):
     outcar_file = os.path.join(vasp_dir, 'OUTCAR')
     try:
         with open(outcar_file, 'r') as f:
-            while(next(f) != "  Lattice vectors:\n"):
+            while not "reciprocal lattice vectors" in  next(f):
                 pass
-            next(f)
+
             vectors_as_strings = []
-            vectors_as_strings.append(next(f))
-            vectors_as_strings.append(next(f))
-            vectors_as_strings.append(next(f))
+            for i in range(0, 3):
+                vectors_as_strings.append(re.sub(' +', ' ', next(f).strip()))
+            
             reciprocal_lattice_vectors = []
-            reciprocal_lattice_vectors.append([vectors_as_strings[0].split(' ')[6][:12],
-                                               vectors_as_strings[0].split(' ')[9][:12],
-                                               vectors_as_strings[0].split(' ')[12][:12]])
-            reciprocal_lattice_vectors.append([vectors_as_strings[1].split(' ')[6][:12],
-                                               vectors_as_strings[1].split(' ')[9][:12],
-                                               vectors_as_strings[1].split(' ')[12][:12]])
-            reciprocal_lattice_vectors.append([vectors_as_strings[2].split(' ')[6][:12],
-                                               vectors_as_strings[2].split(' ')[9][:12],
-                                               vectors_as_strings[2].split(' ')[12][:12]])
+
+            for i in range(0, 3):
+                vectors = vectors_as_strings[i].split(' ')
+                reciprocal_lattice_vectors.append([vectors[3],
+                                                   vectors[4],
+                                                   vectors[5]])
     except OSError:
         print('OUTCAR file not in directory. Skipping.')
         return [], 0
