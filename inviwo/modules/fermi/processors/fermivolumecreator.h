@@ -91,9 +91,11 @@ public:
     FloatProperty iso_value_;
 
 private:
-    vec3 readKPointCoordinates(const H5::Group& group, const std::string& path) const;
+    vec3 readVec3(const H5::Group& group, const std::string& path) const;
     float readFermiEnergy(const H5::Group& group, const std::string& path) const;
     std::vector<float> readKPointEnergy(const H5::Group& group, const std::string& path) const;
+
+    size_t volume_size_;
 
     hdf5::Inport inport_;
     VolumeOutport outport_;

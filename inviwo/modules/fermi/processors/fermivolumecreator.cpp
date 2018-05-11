@@ -39,9 +39,6 @@
 namespace inviwo {
 
 static constexpr const char* KPOINT_PATH = "/FermiSurface/KPoints";
-static constexpr unsigned int VOLUME_WIDTH = 13;
-static constexpr unsigned int VOLUME_HEIGHT = 13;
-static constexpr unsigned int VOLUME_DEPTH = 13;
 
 // The Class Identifier has to be globally unique. Use a reverse DNS naming scheme
 const ProcessorInfo fermivolumecreator::processorInfo_{
@@ -59,6 +56,7 @@ fermivolumecreator::fermivolumecreator()
     : Processor()
     , energy_selector_("energySelector", "Energy Selector")
     , iso_value_("isoValue", "ISO Value")
+    , volume_size_(2)
     , inport_("inport")
     , outport_("outport") {
 
@@ -94,6 +92,12 @@ void fermivolumecreator::process() {
                                         "/FermiSurface/FermiEnergy");
     LogInfo(std::to_string(fermiEnergy));
 
+    vec3 basis[3];
+    for (uint8_t i = 0; i < 3; i++) {
+        basis[i] = readVec3(data->getGroup().openGroup("/FermiSurface/ReciprocalLatticeVectors"),
+                            "/FermiSurface/ReciprocalLatticeVectors/" + std::to_string(i));
+    }
+
     std::vector<KPoint> points;
     for (const hdf5::MetaData& kpoint : kpoints)
     {
@@ -102,8 +106,26 @@ void fermivolumecreator::process() {
             std::string path = std::string(KPOINT_PATH) +
                                std::string(kpoint.path_);
 
-            KPoint point = { readKPointCoordinates(group, path + "/Coordinates"),
+            KPoint point = { readVec3(group, path + "/Coordinates"),
                              readKPointEnergy(group, path + "/Energy") };
+
+
+            double x_o = point.coordinates.x;
+            double y_o = point.coordinates.y;
+            double z_o = point.coordinates.z;
+
+            point.coordinates.x = x_o * basis[0][0] +
+                                  y_o * basis[0][1] +
+                                  z_o * basis[0][2];
+
+            point.coordinates.y = x_o * basis[1][0] +
+                                  y_o * basis[1][1] +
+                                  z_o * basis[1][2];
+
+            point.coordinates.z = x_o * basis[2][0] +
+                                  y_o * basis[2][1] +
+                                  z_o * basis[2][2];
+
             points.push_back(point);
         }
         catch (const std::exception& e)
@@ -154,6 +176,8 @@ void fermivolumecreator::process() {
         minZ = itrZ->coordinates.z;
     }
 
+    volume_size_ = std::floor(std::cbrt(kpoints.size()));
+
     energy_selector_.setMinValue(0);
     energy_selector_.setMaxValue(points[0].energies.size() - 1);
     size_t energy = energy_selector_.get();
@@ -168,6 +192,7 @@ void fermivolumecreator::process() {
     }
 
     std::shared_ptr<Volume> volume(nullptr);
+    /*
     if (energy_max < fermiEnergy || energy_min > fermiEnergy) {
          volume = std::make_shared<Volume>(size3_t(2, 2, 2),
                                            DataFloat32::get());
@@ -176,10 +201,10 @@ void fermivolumecreator::process() {
         iso_value_.setMaxValue(1);
         iso_value_.setMinValue(0);
         iso_value_.set(1);
-    } else {
-        volume = std::make_shared<Volume>(size3_t(VOLUME_WIDTH,
-                                                  VOLUME_HEIGHT,
-                                                  VOLUME_DEPTH),
+    } else */ {
+        volume = std::make_shared<Volume>(size3_t(volume_size_,
+                                                  volume_size_,
+                                                  volume_size_),
                                           DataFloat32::get());
 
         volume->dataMap_.dataRange = dvec2(energy_min, energy_max);
@@ -191,27 +216,29 @@ void fermivolumecreator::process() {
 
         VolumeRAMPrecision<float> *ram =
             static_cast<VolumeRAMPrecision<float> *>(volume->getEditableRepresentation<VolumeRAM>());
-        float* values = ram->getDataTyped();
 
         for (const KPoint& point : points) {
-            size_t x = ((point.coordinates.x - minX) / (maxX - minX)) * VOLUME_WIDTH;
-            size_t y = ((point.coordinates.y - minY) / (maxY - minY)) * VOLUME_HEIGHT;
-            size_t z = ((point.coordinates.z - minZ) / (maxZ - minZ)) * VOLUME_DEPTH;
+            double x = std::round((point.coordinates.x - minX) / (maxX - minX) * (volume_size_ - 1));
+            double y = std::round((point.coordinates.y - minY) / (maxY - minY) * (volume_size_ - 1));
+            double z = std::round((point.coordinates.z - minZ) / (maxZ - minZ) * (volume_size_ - 1));
 
-            values[x + VOLUME_HEIGHT * ( y + VOLUME_DEPTH * z)] = point.energies[energy];
+
+            ram->setFromDouble(size3_t(x, y, z), point.energies[energy]);
         }
     }
 
 
 
+    /*
     volume->setBasis(mat3(-0.22f, 0.22f, 0.22f,
                           0.22f, -0.22f, 0.22f,
                           0.22f, 0.22f, -0.22f));
+                          */
 
     outport_.setData(volume);
 }
 
-vec3 fermivolumecreator::readKPointCoordinates(const H5::Group& group, const std::string& path) const {
+vec3 fermivolumecreator::readVec3(const H5::Group& group, const std::string& path) const {
     H5::DataSet dataSet = group.openDataSet(path);
     H5::DataSpace dataSpace = dataSet.getSpace();
 
