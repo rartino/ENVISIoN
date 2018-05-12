@@ -51,31 +51,36 @@ struct KPoint {
     }
 };
 
-struct InterpolationPoint {
-    float value;
-    unsigned long count;
-};
-
 /** \docpage{org.inviwo.fermivolumecreator, fermivolumecreator}
  * ![](org.inviwo.fermivolumecreator.png?classIdentifier=org.inviwo.fermivolumecreator)
  * Explanation of how to use the processor.
  *
  * ### Inports
- *   * __<Inport1>__ <description>.
+ *   * __inport__ takes a HDF5 source with fermi data created by the
+ *   ENVISIoN fermi surface parser.
  *
  * ### Outports
- *   * __<Outport1>__ <description>.
+ *   * __outport__ outputs an Inviwo volume containing points in the
+ *   reciprocal space.
  *
  * ### Properties
- *   * __<Prop1>__ <description>.
- *   * __<Prop2>__ <description>
+ *   * __energy_selector__ chooses which energy band should be mapped
+ *   to the output volume from the parsed fermi data.
+ *   * __interpolation__ decides how many times the volume should be
+ *   expanded and interpolated, ex. a 20x20x20 volume with interpolation
+ *   set to 4 would result in a 80x80x80 volume.
+ *   * __iso_value__ is set by the processor to the fermi energy as
+ *   recorded in the VASP data. This to allow for easy surface
+ *   extraction via linked properties.
  */
 
 
 /**
  * \class fermivolumecreator
- * \brief VERY_BRIEFLY_DESCRIBE_THE_PROCESSOR
- * DESCRIBE_THE_PROCESSOR_FROM_A_DEVELOPER_PERSPECTIVE
+ * \brief Processor creating volumes from fermi data.
+ * This processor takes data from the ENVISIoN fermi parser and
+ * converts it to an Inviwo volume. This way, other processors for
+ * visualisation can be applied to the data.
  */
 class IVW_MODULE_FERMI_API fermivolumecreator : public Processor {
 public:
@@ -95,6 +100,11 @@ private:
     vec3 readVec3(const H5::Group& group, const std::string& path) const;
     float readFermiEnergy(const H5::Group& group, const std::string& path) const;
     std::vector<float> readKPointEnergy(const H5::Group& group, const std::string& path) const;
+
+    void getMaxCoordinates(const std::vector<KPoint> &points,
+                           double &maxX, double &maxY, double &maxZ) const;
+    void getMinCoordinates(const std::vector<KPoint> &points,
+                           double &minX, double &minY, double &minZ) const;
 
     size_t volume_size_;
 

@@ -41,6 +41,7 @@
 namespace inviwo {
 
 static constexpr const char* KPOINT_PATH = "/FermiSurface/KPoints";
+static constexpr const char* BASIS_PATH = "/FermiSurface/ReciprocalLatticeVectors";
 
 // The Class Identifier has to be globally unique. Use a reverse DNS naming scheme
 const ProcessorInfo fermivolumecreator::processorInfo_{
@@ -81,10 +82,14 @@ fermivolumecreator::fermivolumecreator()
 void fermivolumecreator::process() {
     std::shared_ptr<const hdf5::Handle> data = inport_.getData();
 
+    // Open the path to the KPoints in the HDF5 file.
     const H5::Group& group = data->getGroup().openGroup(KPOINT_PATH);
 
+    // Get a list of items in the KPoints group.
     std::vector<hdf5::MetaData> metadataList = hdf5::util::getMetaData(group);
 
+    // Loop through and pick out all the KPoints from the metadata
+    // list.
     std::vector<hdf5::MetaData> kpoints;
     for (const hdf5::MetaData& metadata : metadataList)
     {
@@ -98,14 +103,19 @@ void fermivolumecreator::process() {
 
     float fermiEnergy = readFermiEnergy(data->getGroup().openGroup("/FermiSurface"),
                                         "/FermiSurface/FermiEnergy");
-    LogInfo(std::to_string(fermiEnergy));
 
+    // Read the basis vectors for the reciprocal space.
     vec3 basis[3];
     for (uint8_t i = 0; i < 3; i++) {
-        basis[i] = readVec3(data->getGroup().openGroup("/FermiSurface/ReciprocalLatticeVectors"),
-                            "/FermiSurface/ReciprocalLatticeVectors/" + std::to_string(i));
+        H5::Group base_group = data->getGroup().openGroup(BASIS_PATH);
+
+        basis[i] = readVec3(base_group, std::string(BASIS_PATH) + "/" +
+                            std::to_string(i));
     }
 
+    // Read all k-points from the HDF5 file, convert their coordinates
+    // to cartesian coordinates and store them in a list of KPoint
+    // objects.
     std::vector<KPoint> points;
     for (const hdf5::MetaData& kpoint : kpoints)
     {
@@ -142,47 +152,14 @@ void fermivolumecreator::process() {
         }
     }
 
+    // Find the maximum and minimum values for each coordinate axis.
+    // This is used to normalise the coordinates to within the memory
+    // space representing the volume.
     double maxX, maxY, maxZ;
-    {
-        auto itrX = std::max_element(points.begin(), points.end(), [](KPoint v1, KPoint v2)
-        {
-            return v1.coordinates.x < v2.coordinates.x;
-        });
-        maxX = itrX->coordinates.x;
-
-        auto itrY = std::max_element(points.begin(), points.end(), [](KPoint v1, KPoint v2)
-        {
-            return v1.coordinates.y < v2.coordinates.y;
-        });
-        maxY = itrY->coordinates.y;
-
-        auto itrZ = std::max_element(points.begin(), points.end(), [](KPoint v1, KPoint v2)
-        {
-            return v1.coordinates.z < v2.coordinates.z;
-        });
-        maxZ = itrZ->coordinates.z;
-    }
+    getMaxCoordinates(points, maxX, maxY, maxZ);
 
     double minX, minY, minZ;
-    {
-        auto itrX = std::min_element(points.begin(), points.end(), [](KPoint v1, KPoint v2)
-        {
-            return v1.coordinates.x < v2.coordinates.x;
-        });
-        minX = itrX->coordinates.x;
-
-        auto itrY = std::min_element(points.begin(), points.end(), [](KPoint v1, KPoint v2)
-        {
-            return v1.coordinates.y < v2.coordinates.y;
-        });
-        minY = itrY->coordinates.y;
-
-        auto itrZ = std::min_element(points.begin(), points.end(), [](KPoint v1, KPoint v2)
-        {
-            return v1.coordinates.z < v2.coordinates.z;
-        });
-        minZ = itrZ->coordinates.z;
-    }
+    getMinCoordinates(points, minX, minY, minZ);
 
     volume_size_ = std::floor(std::cbrt(kpoints.size()));
 
@@ -190,29 +167,49 @@ void fermivolumecreator::process() {
     energy_selector_.setMaxValue(points[0].energies.size() - 1);
     size_t energy = energy_selector_.get();
 
+    // Normalise coordinates.
     for (KPoint& point : points) {
-        double x = std::round((point.coordinates.x - minX) / (maxX - minX) * (volume_size_ - 1));
-        double y = std::round((point.coordinates.y - minY) / (maxY - minY) * (volume_size_ - 1));
-        double z = std::round((point.coordinates.z - minZ) / (maxZ - minZ) * (volume_size_ - 1));
+        double x = std::round((point.coordinates.x - minX) /
+                              (maxX - minX) * (volume_size_ - 1));
+        double y = std::round((point.coordinates.y - minY) /
+                              (maxY - minY) * (volume_size_ - 1));
+        double z = std::round((point.coordinates.z - minZ) /
+                              (maxZ - minZ) * (volume_size_ - 1));
 
         point.coordinates.x = x;
         point.coordinates.y = y;
         point.coordinates.z = z;
     }
 
+    /* Construct settings for the spline interpolation. The first
+     * argument is the starting coordinate of the spline in each
+     * dimension, the second argument is the ending coordinate for the
+     * spline in each dimension and the list argument is the number of
+     * data points along each dimension. The last two zeros are used
+     * and set internally by the spline library and the values don't
+     * matter. They are simply set to make the compiler shut up.
+     *
+     * The volume space is coded to always be a cube, so we use the
+     * same settings from all the axes.
+     */
     Ugrid grid = { 0,
                    static_cast<double>(volume_size_ * interpolation_.get() - 1),
-                   static_cast<int>(volume_size_) };
+                   static_cast<int>(volume_size_), 0, 0 };
     BCtype_s bc = { NATURAL, NATURAL, 0, 0 };
 
     float *spline_data = new float[volume_size_ * volume_size_ * volume_size_];
-    std::fill(spline_data, spline_data + volume_size_ * volume_size_ * volume_size_, 0);
+    std::fill(spline_data, spline_data + volume_size_ * volume_size_ *
+              volume_size_, 0);
+
+    // Assign all KPoint values to the spline data space for
+    // interpolation.
     for (const KPoint& point : points) {
         size_t x = point.coordinates.x;
         size_t y = point.coordinates.y;
         size_t z = point.coordinates.z;
+        size_t offset = (x * volume_size_ + y) * volume_size_ + z;
 
-        spline_data[(x * volume_size_ + y) * volume_size_ + z] = point.energies[energy];
+        spline_data[offset] = point.energies[energy];
     }
 
     UBspline_3d_s *spline = create_UBspline_3d_s(grid, grid, grid,
@@ -220,17 +217,22 @@ void fermivolumecreator::process() {
                                                  spline_data);
 
 
+    // Create an Inviwo volume in memory to be filled with values.
     float energy_max = spline_data[0]; 
     float energy_min = spline_data[0];
-    std::shared_ptr<Volume> volume = std::make_shared<Volume>(size3_t(volume_size_ * interpolation_.get(),
-                                              volume_size_ * interpolation_.get(),
-                                              volume_size_ * interpolation_.get()),
-                                      DataFloat32::get());
+    std::shared_ptr<Volume> volume =
+        std::make_shared<Volume>(size3_t(volume_size_ * interpolation_.get(),
+                                         volume_size_ * interpolation_.get(),
+                                         volume_size_ * interpolation_.get()),
+                                 DataFloat32::get());
 
 
     VolumeRAMPrecision<float> *ram =
-        static_cast<VolumeRAMPrecision<float> *>(volume->getEditableRepresentation<VolumeRAM>());
+        static_cast<VolumeRAMPrecision<float> *>(
+                volume->getEditableRepresentation<VolumeRAM>());
 
+    // Loop through every point of the volume in memory and query the
+    // spline for a value to assign to each point.
     for (size_t x = 0; x < volume_size_ * interpolation_.get(); x++) {
         for (size_t y = 0; y < volume_size_ * interpolation_.get();  y++) {
             for (size_t z = 0; z < volume_size_ * interpolation_.get(); z++) {
@@ -320,6 +322,56 @@ std::vector<float> fermivolumecreator::readKPointEnergy(const H5::Group& group, 
     dataSet.read(energies.data(), H5::PredType::NATIVE_FLOAT, memSpace, dataSpace);
 
     return energies;
+}
+
+void fermivolumecreator::getMaxCoordinates(const std::vector<KPoint> &points,
+                                           double &maxX, double &maxY,
+                                           double &maxZ) const {
+    auto itrX = std::max_element(points.begin(), points.end(),
+    [](KPoint v1, KPoint v2)
+    {
+        return v1.coordinates.x < v2.coordinates.x;
+    });
+    maxX = itrX->coordinates.x;
+
+    auto itrY = std::max_element(points.begin(), points.end(),
+    [](KPoint v1, KPoint v2)
+    {
+        return v1.coordinates.y < v2.coordinates.y;
+    });
+    maxY = itrY->coordinates.y;
+
+    auto itrZ = std::max_element(points.begin(), points.end(),
+    [](KPoint v1, KPoint v2)
+    {
+        return v1.coordinates.z < v2.coordinates.z;
+    });
+    maxZ = itrZ->coordinates.z;
+}
+
+void fermivolumecreator::getMinCoordinates(const std::vector<KPoint> &points,
+                                           double &minX, double &minY,
+                                           double &minZ) const {
+    auto itrX = std::min_element(points.begin(), points.end(),
+    [](KPoint v1, KPoint v2)
+    {
+        return v1.coordinates.x < v2.coordinates.x;
+    });
+    minX = itrX->coordinates.x;
+
+    auto itrY = std::min_element(points.begin(), points.end(),
+    [](KPoint v1, KPoint v2)
+    {
+        return v1.coordinates.y < v2.coordinates.y;
+    });
+    minY = itrY->coordinates.y;
+
+    auto itrZ = std::min_element(points.begin(), points.end(),
+    [](KPoint v1, KPoint v2)
+    {
+        return v1.coordinates.z < v2.coordinates.z;
+    });
+    minZ = itrZ->coordinates.z;
 }
 
 } // namespace
