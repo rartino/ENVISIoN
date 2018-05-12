@@ -88,6 +88,7 @@ public:
     static const ProcessorInfo processorInfo_;
 
     IntSizeTProperty energy_selector_;
+    IntSizeTProperty interpolation_;
     FloatProperty iso_value_;
 
 private:

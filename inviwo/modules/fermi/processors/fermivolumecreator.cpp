@@ -36,6 +36,8 @@
 #include <modules/hdf5/datastructures/hdf5path.h>
 #include <modules/hdf5/datastructures/hdf5metadata.h>
 
+#include <einspline/bspline.h>
+
 namespace inviwo {
 
 static constexpr const char* KPOINT_PATH = "/FermiSurface/KPoints";
@@ -55,12 +57,14 @@ const ProcessorInfo fermivolumecreator::getProcessorInfo() const {
 fermivolumecreator::fermivolumecreator()
     : Processor()
     , energy_selector_("energySelector", "Energy Selector")
+    , interpolation_("interpolation", "Interpolation")
     , iso_value_("isoValue", "ISO Value")
     , volume_size_(2)
     , inport_("inport")
     , outport_("outport") {
 
     addProperty(energy_selector_);
+    addProperty(interpolation_);
     addProperty(iso_value_);
 
     addPort(inport_);
@@ -68,6 +72,10 @@ fermivolumecreator::fermivolumecreator()
 
     energy_selector_.setMinValue(0);
     energy_selector_.setMaxValue(0);
+
+    interpolation_.setMinValue(1);
+    interpolation_.setMaxValue(1000);
+    interpolation_.set(1);
 }
 
 void fermivolumecreator::process() {
@@ -182,58 +190,71 @@ void fermivolumecreator::process() {
     energy_selector_.setMaxValue(points[0].energies.size() - 1);
     size_t energy = energy_selector_.get();
 
-    float energy_max = points[0].energies[energy];
-    float energy_min = points[0].energies[energy];
     for (KPoint& point : points) {
-        if (point.energies[energy] > energy_max)
-            energy_max = point.energies[energy];
-        else if (point.energies[energy] < energy_min)
-            energy_min = point.energies[energy];
+        double x = std::round((point.coordinates.x - minX) / (maxX - minX) * (volume_size_ - 1));
+        double y = std::round((point.coordinates.y - minY) / (maxY - minY) * (volume_size_ - 1));
+        double z = std::round((point.coordinates.z - minZ) / (maxZ - minZ) * (volume_size_ - 1));
+
+        point.coordinates.x = x;
+        point.coordinates.y = y;
+        point.coordinates.z = z;
     }
 
-    std::shared_ptr<Volume> volume(nullptr);
-    /*
-    if (energy_max < fermiEnergy || energy_min > fermiEnergy) {
-         volume = std::make_shared<Volume>(size3_t(2, 2, 2),
-                                           DataFloat32::get());
-         volume->dataMap_.dataRange = dvec2(0, 1);
-         volume->dataMap_.valueRange = dvec2(0, 1);
-        iso_value_.setMaxValue(1);
-        iso_value_.setMinValue(0);
-        iso_value_.set(1);
-    } else */ {
-        volume = std::make_shared<Volume>(size3_t(volume_size_,
-                                                  volume_size_,
-                                                  volume_size_),
-                                          DataFloat32::get());
+    Ugrid grid = { 0,
+                   static_cast<double>(volume_size_ * interpolation_.get() - 1),
+                   static_cast<int>(volume_size_) };
+    BCtype_s bc = { NATURAL, NATURAL, 0, 0 };
 
-        volume->dataMap_.dataRange = dvec2(energy_min, energy_max);
-        volume->dataMap_.valueRange = dvec2(energy_min, energy_max);
+    float *spline_data = new float[volume_size_ * volume_size_ * volume_size_];
+    std::fill(spline_data, spline_data + volume_size_ * volume_size_ * volume_size_, 0);
+    for (const KPoint& point : points) {
+        size_t x = point.coordinates.x;
+        size_t y = point.coordinates.y;
+        size_t z = point.coordinates.z;
 
-        iso_value_.setMaxValue(energy_max);
-        iso_value_.setMinValue(energy_min);
-        iso_value_.set(fermiEnergy);
+        spline_data[(x * volume_size_ + y) * volume_size_ + z] = point.energies[energy];
+    }
 
-        VolumeRAMPrecision<float> *ram =
-            static_cast<VolumeRAMPrecision<float> *>(volume->getEditableRepresentation<VolumeRAM>());
-
-        for (const KPoint& point : points) {
-            double x = std::round((point.coordinates.x - minX) / (maxX - minX) * (volume_size_ - 1));
-            double y = std::round((point.coordinates.y - minY) / (maxY - minY) * (volume_size_ - 1));
-            double z = std::round((point.coordinates.z - minZ) / (maxZ - minZ) * (volume_size_ - 1));
+    UBspline_3d_s *spline = create_UBspline_3d_s(grid, grid, grid,
+                                                 bc, bc, bc,
+                                                 spline_data);
 
 
-            ram->setFromDouble(size3_t(x, y, z), point.energies[energy]);
+    float energy_max = spline_data[0]; 
+    float energy_min = spline_data[0];
+    std::shared_ptr<Volume> volume = std::make_shared<Volume>(size3_t(volume_size_ * interpolation_.get(),
+                                              volume_size_ * interpolation_.get(),
+                                              volume_size_ * interpolation_.get()),
+                                      DataFloat32::get());
+
+
+    VolumeRAMPrecision<float> *ram =
+        static_cast<VolumeRAMPrecision<float> *>(volume->getEditableRepresentation<VolumeRAM>());
+
+    for (size_t x = 0; x < volume_size_ * interpolation_.get(); x++) {
+        for (size_t y = 0; y < volume_size_ * interpolation_.get();  y++) {
+            for (size_t z = 0; z < volume_size_ * interpolation_.get(); z++) {
+                float value;
+                eval_UBspline_3d_s(spline, x, y, z, &value); 
+                ram->setFromDouble(size3_t(x, y, z), value);
+
+                if (value > energy_max)
+                    energy_max = value;
+                else if (value < energy_min)
+                    energy_min = value;
+            }
         }
     }
 
+    volume->dataMap_.dataRange = dvec2(energy_min, energy_max);
+    volume->dataMap_.valueRange = dvec2(energy_min, energy_max);
 
+    iso_value_.setMaxValue(energy_max);
+    iso_value_.setMinValue(energy_min);
+    iso_value_.set(fermiEnergy);
 
-    /*
-    volume->setBasis(mat3(-0.22f, 0.22f, 0.22f,
-                          0.22f, -0.22f, 0.22f,
-                          0.22f, 0.22f, -0.22f));
-                          */
+    destroy_Bspline(spline);
+    delete[] spline_data;
 
     outport_.setData(volume);
 }

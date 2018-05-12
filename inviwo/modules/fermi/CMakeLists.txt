@@ -35,6 +35,8 @@ set(TEST_FILES
 )
 ivw_add_unittest(${TEST_FILES})
 
+add_dependency_libs_to_module("einspline")
+
 #--------------------------------------------------------------------
 # Create module
 ivw_create_module(${SOURCE_FILES} ${HEADER_FILES} ${SHADER_FILES})
