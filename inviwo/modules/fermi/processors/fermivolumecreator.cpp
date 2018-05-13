@@ -28,7 +28,6 @@
  *********************************************************************************/
 
 #include <modules/fermi/processors/fermivolumecreator.h>
-#include <modules/fermi/datastructures/kdtree.h>
 
 #include <inviwo/core/util/logcentral.h>
 #include <inviwo/core/datastructures/volume/volume.h>
