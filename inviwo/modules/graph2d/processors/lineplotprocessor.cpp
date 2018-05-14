@@ -73,6 +73,11 @@ lineplotprocessor::lineplotprocessor()
     , x_range_("x_range", "X Range")
     , y_range_("y_range", "Y Range")
     , scale_("scale", "Scale")
+    , enable_line_("enable_line", "Enable Line")
+    , line_x_coordinate_("line_x_coordinate", "Line X Coordinate")
+    , line_colour_("line_colour", "Line Colour", vec4(0.078, 0.553, 1, 1), vec4(0),
+                   vec4(1), vec4(0.1f), InvalidationLevel::InvalidOutput,
+                   PropertySemantics::Color)
     , axis_colour_("axis_colour", "Axis Colour", vec4(0, 0, 1, 1), vec4(0),
                    vec4(1), vec4(0.1f), InvalidationLevel::InvalidOutput,
                    PropertySemantics::Color)
@@ -95,6 +100,11 @@ lineplotprocessor::lineplotprocessor()
     addProperty(x_range_);
     addProperty(y_range_);
     addProperty(scale_);
+
+    addProperty(enable_line_);
+    addProperty(line_x_coordinate_);
+    addProperty(line_colour_);
+
     addProperty(axis_colour_);
     addProperty(axis_width_);
     addProperty(grid_colour_);
@@ -107,6 +117,9 @@ lineplotprocessor::lineplotprocessor()
     scale_.setMinValue(0.01);
     scale_.setIncrement(0.01);
     scale_.set(0.8);
+
+    enable_line_.set(true);
+    line_x_coordinate_.set(0.f);
 
     axis_width_.setMaxValue(0.01);
     axis_width_.setMinValue(0.0001);
@@ -197,6 +210,19 @@ void lineplotprocessor::process() {
         if (dataFrameInport_.isChanged()) {
             x_range_.set(vec2(x_max, x_min));
             y_range_.set(vec2(y_max, y_min));
+
+            // Make an estimation of the scale needed to fit axis
+            // labels on the left side of the y-axis.
+            size_t max_length = std::to_string(y_max).size();
+            size_t  min_length = std::to_string(y_min).size();
+            float font_pixels = font_.fontSize_.getSelectedValue() *
+                                std::max(max_length, min_length);
+            float text_proportion = (font_pixels / labels_.getDimensions()[0])
+                                    * 1.2;
+            if (text_proportion < 1 &&
+                1 - text_proportion < scale_.get()) {
+                scale_.set(1 - text_proportion);
+            }
         }
 
 
@@ -266,6 +292,24 @@ void lineplotprocessor::process() {
         drawScale(x_min, x_max, y_min, y_max);
         utilgl::deactivateCurrentTarget();
 
+        // If the static line is enabled, add it.
+        if (enable_line_.get()) {
+            float s = scale_.get();
+            vec3 y_start_point = vec3(s * normalise(line_x_coordinate_.get(),
+                                                    x_min, x_max) + (1 - s) / 2,
+                                      s * normalise(y_range_.getMinValue()[0],
+                                                    y_min, y_max) + (1 - s) / 2,
+                                      0);
+            vec3 y_end_point = vec3(s * normalise(line_x_coordinate_.get(),
+                                                  x_min, x_max) + (1 - s) / 2,
+                                    s * normalise(y_range_.getMaxValue()[0],
+                                                  y_min, y_max) + (1 - s) / 2,
+                                    0);
+            mesh->append(BasicMesh::line(y_start_point, y_end_point, vec3(0, 0, 1),
+                                         line_colour_.get(), axis_width_.get(),
+                                         ivec2(2, 2)).get());
+        }
+
         // Each line segment should start on the current point and end
         // at the next point. Subtract one from the end criteria,
         // since the last point is included when the segment is drawn
@@ -318,12 +362,12 @@ void lineplotprocessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
                                  ivec2(2, 2)).get());
 
     // Draw the Y axis.
-    vec3 y_start_point = vec3(s * normalise(x_range_.getMinValue()[0],
+    vec3 y_start_point = vec3(s * normalise(x_range_.get()[1],
                                             x_min, x_max) + (1 - s) / 2,
                               s * normalise(y_range_.getMinValue()[0],
                                             y_min, y_max) + (1 - s) / 2,
                               0);
-    vec3 y_end_point = vec3(s * normalise(x_range_.getMinValue()[0],
+    vec3 y_end_point = vec3(s * normalise(x_range_.get()[1],
                                           x_min, x_max) + (1 - s) / 2,
                             s * normalise(y_range_.getMaxValue()[0],
                                           y_min, y_max) + (1 - s) / 2,
@@ -403,7 +447,7 @@ void lineplotprocessor::drawScale(double x_min, double x_max,
     for (double y = y_min + y_step_size; y <= y_max; y += y_step_size) {
         std::string label = std::to_string(y);
         float s = scale_.get();
-        vec2 y_axis = vec2(s * normalise(0, x_min, x_max) + (1 - s) / 2,
+        vec2 y_axis = vec2(s * normalise(x_range_.get()[1], x_min, x_max) +(1 - s) / 2,
                            s * normalise(y, y_min, y_max) + (1 - s) / 2);
 
         vec2 image_dims = labels_.getDimensions();
@@ -413,6 +457,23 @@ void lineplotprocessor::drawScale(double x_min, double x_max,
         image_coords -= shift;
 
         drawText(label, image_coords, true);
+    }
+
+    // Put a lable at the static line if it is enabled.
+    if (enable_line_.get()) {
+        float x = line_x_coordinate_.get();
+        std::string label = std::to_string(x);
+        float s = scale_.get();
+        vec2 x_axis = vec2(s * normalise(x, x_min, x_max) + (1 - s) / 2,
+                           s * normalise(0, y_min, y_max) + (1 - s) / 2);
+
+        vec2 image_dims = labels_.getDimensions();
+        vec2 image_coords = vec2(image_dims[0] * x_axis[0], image_dims[1] * x_axis[1]);
+
+        vec2 shift = image_dims * (font_.anchorPos_.get() + vec2(1.0f, 1.0f));
+        image_coords -= shift;
+
+        drawText(std::to_string(x), image_coords);
     }
 
 }
