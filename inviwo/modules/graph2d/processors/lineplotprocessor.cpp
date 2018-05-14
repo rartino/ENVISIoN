@@ -501,4 +501,3 @@ double lineplotprocessor::normalise(double value, double min, double max) const 
 }
 
 } // namespace
-
