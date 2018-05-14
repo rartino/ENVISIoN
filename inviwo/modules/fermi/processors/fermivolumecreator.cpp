@@ -132,15 +132,15 @@ void fermivolumecreator::process() {
             double z_o = point.coordinates.z;
 
             point.coordinates.x = x_o * basis[0][0] +
-                                  y_o * basis[0][1] +
-                                  z_o * basis[0][2];
+                                  y_o * basis[1][0] +
+                                  z_o * basis[2][0];
 
-            point.coordinates.y = x_o * basis[1][0] +
+            point.coordinates.y = x_o * basis[0][1] +
                                   y_o * basis[1][1] +
-                                  z_o * basis[1][2];
+                                  z_o * basis[2][1];
 
-            point.coordinates.z = x_o * basis[2][0] +
-                                  y_o * basis[2][1] +
+            point.coordinates.z = x_o * basis[0][2] +
+                                  y_o * basis[1][2] +
                                   z_o * basis[2][2];
 
             points.push_back(point);
@@ -188,8 +188,6 @@ void fermivolumecreator::process() {
      * and set internally by the spline library and the values don't
      * matter. They are simply set to make the compiler shut up.
      *
-     * The volume space is coded to always be a cube, so we use the
-     * same settings from all the axes.
      */
     Ugrid grid = { 0,
                    static_cast<double>(volume_size_ * interpolation_.get() - 1),
@@ -224,6 +222,10 @@ void fermivolumecreator::process() {
                                          volume_size_ * interpolation_.get(),
                                          volume_size_ * interpolation_.get()),
                                  DataFloat32::get());
+    volume->setBasis(mat3(basis[0][0], basis[0][1], basis[0][2],
+			  basis[1][0], basis[1][1], basis[1][2],
+			  basis[2][0], basis[2][1], basis[2][2]));
+    LogInfo(volume->getBasis());
 
 
     VolumeRAMPrecision<float> *ram =
