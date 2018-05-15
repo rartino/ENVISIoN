@@ -6,3 +6,4 @@ from .doscar import *
 from .incar import *
 from .util import *
 from .log import *
+from .fermi import *
