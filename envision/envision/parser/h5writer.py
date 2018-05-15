@@ -84,7 +84,7 @@ def _write_steps(h5file, steps):
     
 def _write_bandstruct(h5file, band_data, kval_list):
     with h5py.File(h5file, "a") as h5:
-        h5.create_dataset('Bandstructure/KPoints', data=np.array(kval_list), dtype = np.float32)
+        h5.create_dataset('BandStructure/KPoints', data=np.array(kval_list), dtype = np.float32)
         for i, band in enumerate(band_data):
             dataset = h5.create_dataset('Bandstructure/Bands/{}/{}'.format(i, 'Energy'), data=np.array(band), dtype = np.float32)
             dataset.attrs['Unit'] = 'eV'
@@ -92,6 +92,32 @@ def _write_bandstruct(h5file, band_data, kval_list):
             dataset.attrs['QuantityName'] = 'Energy'
             dataset.attrs['VariableName'] = 'Band {}'.format(i)
             dataset.attrs['VariableSymbol'] = '$B_{{{}}}$'.format(i)
+
+def _write_fermisurface(h5file, kval_list, fermi_energy, reciprocal_lattice_vectors):
+    with h5py.File(h5file,"a") as h5:
+        for i in range(0, len(kval_list)):
+            dataset = h5.create_dataset('/FermiSurface/KPoints/{}/Energy'.format(i),
+                                        data = np.array(kval_list[i].energies),
+                                        dtype = np.float32)
+            dataset.attrs['Unit'] = 'eV'
+            dataset.attrs['QuantitySymbol'] = '$E$'
+            dataset.attrs['QuantityName'] = 'Energy'
+            dataset.attrs['VariableName'] = 'Band {}'.format(i)
+            dataset.attrs['VariableSymbol'] = '$B_{{{}}}$'.format(i)
+
+            h5.create_dataset('/FermiSurface/KPoints/{}/Coordinates'.format(i),
+                              data = np.array(kval_list[i].coordinates),
+                              dtype = np.float32)
+
+        h5.create_dataset('/FermiSurface/FermiEnergy',
+                          data = np.float(fermi_energy),
+                          dtype = np.float32)
+        
+        for i in range(0, len(reciprocal_lattice_vectors)):
+            h5.create_dataset('/FermiSurface/ReciprocalLatticeVectors/{}'.format(i),
+                              data = np.array([float(x) for x in reciprocal_lattice_vectors[i]]),
+                              dtype = np.float32)
+
 
 def _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy):
     

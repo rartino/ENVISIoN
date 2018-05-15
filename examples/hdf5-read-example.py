@@ -20,13 +20,22 @@
 import os, sys
 
 # Configuration
-PATH_TO_ENVISION=os.path.expanduser("/home/andkem/Documents/Skola/Kandidatprojekt/mjukvara/ENVISIoN/envision")
-PATH_TO_VASP_CALC=os.path.expanduser("/home/andkem/Documents/Skola/Kandidatprojekt/mjukvara/data/Cu/1/10")
-PATH_TO_HDF5=os.path.expanduser("/tmp/fermi_surface.hdf5")
+PATH_TO_ENVISION=os.path.expanduser("~/ENVISIoN/envision")
+PATH_TO_VASP_CALC=os.path.expanduser("~/ENVISIoN/examples/data/TiPO4")
+PATH_TO_HDF5=os.path.expanduser("/tmp/envision_demo.hdf5")
 
 sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION)) # Or `pip install --editable`.
 
 import envision
 import envision.inviwo
+import envision.parser.vasp as parsers
+import h5py
 
-envision.parser.vasp.fermi_surface(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+parsers.fermi_surface('/tmp/testfile.hdf5', '/home/viktor/ENVISIoN/data/TiPO4')
+
+name_list = []
+with h5py.File('/tmp/testfile.hdf5', 'r') as f:
+    f.visit(name_list.append)
+    print(f['FermiSurface/KPoints/18/Coordinates'][2])
+
+#print(name_list)
