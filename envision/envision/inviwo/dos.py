@@ -127,11 +127,12 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
                 down_type_processor = _add_processor("org.inviwo.HDF5ToFunction", down_type, xpos_down, ypos_down)
                 hdf5_to_function_list.append(down_type_processor)
 
+                down_type_hdf5inport = down_type_processor.getInport('hdf5HandleFlatMultiInport')
+                network.addConnection(totalpartial_outport, down_type_hdf5inport)
+
                 down_type_y_name_property = down_type_processor.getPropertyByIdentifier('yNamePrependParentsProperty')
                 down_type_y_name_property.value = y_name_prepend_parents
 
-                down_type_hdf5inport = down_type_processor.getInport('hdf5HandleFlatMultiInport')
-                network.addConnection(totalpartial_outport, down_type_hdf5inport)
             
                 xpos_down += 200
             
@@ -140,10 +141,12 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
             for up_type in up_type_list:
                 up_type_processor = _add_processor("org.inviwo.HDF5ToFunction", up_type, xpos_up, ypos_up)
                 hdf5_to_function_list.append(up_type_processor)
-                up_type_y_name_property = up_type_processor.getPropertyByIdentifier('yNamePrependParentsProperty')
-                up_type_y_name_property.value = y_name_prepend_parents
+
                 up_type_hdf5inport = up_type_processor.getInport('hdf5HandleFlatMultiInport')
                 network.addConnection(totalpartial_outport, up_type_hdf5inport)
+
+                up_type_y_name_property = up_type_processor.getPropertyByIdentifier('yNamePrependParentsProperty')
+                up_type_y_name_property.value = y_name_prepend_parents
 
                 xpos_up += 200
 
@@ -153,10 +156,11 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
                 other_type_processor = _add_processor("org.inviwo.HDF5ToFunction", other_type, xpos_other, ypos_other)
                 hdf5_to_function_list.append(other_type_processor)
 
-                other_type_y_name_property = other_type_processor.getPropertyByIdentifier('yNamePrependParentsProperty')
-                other_type_y_name_property.value = y_name_prepend_parents
                 other_type_hdf5inport = other_type_processor.getInport('hdf5HandleFlatMultiInport')
                 network.addConnection(totalpartial_outport, other_type_hdf5inport)
+
+                other_type_y_name_property = other_type_processor.getPropertyByIdentifier('yNamePrependParentsProperty')
+                other_type_y_name_property.value = y_name_prepend_parents
 
                 xpos_other += 200
 
@@ -295,8 +299,7 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
             path_selector.getPropertyByIdentifier('selection').value = '/{}'.format(path_selector.identifier.split()[1])
         for hdf5_to_function in hdf5_to_function_list:
             hdf5_to_function.getPropertyByIdentifier('implicitXProperty').value = False
-            hdf5_to_function.getPropertyByIdentifier('xPathSelectionProperty').value = '/{}'.format("Energy")
-            hdf5_to_function.getPropertyByIdentifier('yPathSelectionProperty').value = '/{}'.format(hdf5_to_function.identifier)
+            hdf5_to_function.getPropertyByIdentifier('xPathSelectionProperty').value = '/Energy'
+            hdf5_to_function.getPropertyByIdentifier('yPathSelectionProperty').value = '/{}'.format(hdf5_to_function.identifier.split(' ')[0])
             hdf5_to_function.getPropertyByIdentifier('xPathFreeze').value = True
             hdf5_to_function.getPropertyByIdentifier('yPathFreeze').value = True
-
