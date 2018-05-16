@@ -35,3 +35,4 @@ envision.parser.vasp.elf(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 xpos=0
 
 envision.inviwo.elf(PATH_TO_HDF5, iso = None, slice = False, xpos = 0, ypos = 0)
+
