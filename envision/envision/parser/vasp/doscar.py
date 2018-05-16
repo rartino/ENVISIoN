@@ -191,6 +191,12 @@ def dos(h5file, vasp_dir):
     except StopIteration:
         print('DOSCAR file empty. Skipping')
         return False
+    # Centers energy around Fermi energy by subtracting Fermi energy from all energies.
+    for i in range(len(total_data[0])):
+        total_data[0][i] -= fermi_energy
+    for i in range(len(partial_list[0][0])):
+        partial_list[0][0][i] -= fermi_energy
     _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy)
+    
     print('Density of states data was parsed successfully.')
     return True

@@ -5,4 +5,5 @@ set(dependencies
     InviwoHDF5Module
     InviwoPython3Module
     InviwocrystalvisualizationModule
+    InviwoPlottingModule
 )
