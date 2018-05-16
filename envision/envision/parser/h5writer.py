@@ -143,6 +143,8 @@ def _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy):
                 else:
                     set_attrs(dataset, name, '', 'Density of States', '$D$', 'states/eV')
         for i, partial_data in enumerate(partial_list):
+            # Write all available DOS. Stop when partial or partial_data runs out (if directories for for example f-DOS
+            # exist but no corresponding data exists, stop.)
             for (name, data) in zip(partial, partial_data):
                 dataset = h5.create_dataset('DOS/Partial/{}/{}'.format(i, name), data=np.array(data), dtype = np.float32)
                 if name == 'Energy':
