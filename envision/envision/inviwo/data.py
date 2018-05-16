@@ -1,3 +1,4 @@
+# Associates symbol, color and radius to each type of atom.
 element_names = {
     'H' : 'Hydrogen',
     'He' : 'Helium',

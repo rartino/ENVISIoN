@@ -33,6 +33,8 @@ def fermi_parse(vasp_dir):
         list containing all the K-points
     fermi_energy: float
         float containing the Fermi energy
+    reciprocal_lattice_vectors: list 
+        list containing vectors with 3 floats
 
     """
     data = None
@@ -65,7 +67,7 @@ def fermi_parse(vasp_dir):
         print('EIGENVAL file not in directory. Skipping.')
         return [], 0
 
-    #Parses fermi energy from DOSCAR
+    # Parses fermi energy from DOSCAR
     doscar_file = os.path.join(vasp_dir, 'DOSCAR')
     try:
         with open(doscar_file, "r") as f:

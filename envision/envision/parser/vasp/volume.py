@@ -76,15 +76,16 @@ def parse_volume(vasp_file, volume):
 
 def volume(h5file, hdfgroup, vasp_dir, vasp_file):
 	"""
-	Reads volume data and stores it in an HDF-file.
+	Reads volume data from  vasp_file, either CHG or ELFCAR, 
+        and stores it in an HDF-file.
 
 	Parameters
 	----------
 	h5file : str
 		String that asserts which HDF-file to write to
-		hdfgroup : str
+	hdfgroup : str
 		String that asserts which group to write to in HDF-file
-		vasp_dir : str
+	vasp_dir : str
 		Path to directory containing volume file
 	vasp_file : str
 		String that asserts which file to open in the directory
@@ -148,7 +149,6 @@ def elf(h5file, vasp_dir):
 		String that asserts which HDF-file to write to
 	vasp_dir : str
 		Path to directory containing volume file
-
 	Returns
 	-------
 	bool

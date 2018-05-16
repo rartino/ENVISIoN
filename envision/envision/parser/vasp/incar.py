@@ -125,9 +125,9 @@ def parse_incar(h5file, vasp_file):
             "LASYNC",
         ]
 
-    # Define regexes.
+    # Defines regexes.
     key_regstr = r' *(?<key>[_a-zA-Z][_a-zA-Z0-9]*) *'
-    value_regstr = r' *(?<value>[^ ;]+) *' # TODO: Implement support for other types of data (some, such as arrays, can include whitespace!).
+    value_regstr = r' *(?<value>[^ ;]+) *'
     keyvalue_regstr = r'(?:' + key_regstr + r'=' + value_regstr + r')*'
     keyvaluelist_regstr = keyvalue_regstr + r'(?:' + r';' + keyvalue_regstr + r')*'
     comment_regstr = r'(?<comment>.*)'
@@ -135,7 +135,7 @@ def parse_incar(h5file, vasp_file):
     line_reg = regex.compile(line_regstr)
     incar_data = {}
     
-    # Parse file.
+    # Parses file.
     with open(vasp_file, "r") as f:
 
         file_lines = vasp_file_lines(f, line_continuation=True)
@@ -150,11 +150,6 @@ def parse_incar(h5file, vasp_file):
                 if key not in valid_keys:
                     log(LOG_WARNING, vasp_file, line_nr, "Unrecognized key", key)
                 incar_data[key] = value
-
-            for comment in filter(None, capturesdict['comment']):
-                if not comment.startswith("#"):
-                    log(LOG_WARNING, vasp_file, line_nr, "Comment with unexpected location and format", comment)
-                log(LOG_DEBUG, vasp_file, line_nr, "Threw away comment", comment)
     return incar_data
 
 def incar(h5file, vasp_dir):

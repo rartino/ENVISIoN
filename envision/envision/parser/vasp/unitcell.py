@@ -81,6 +81,7 @@ def _parse_lattice(fileobj):
 
     Returns
     -------
+    scaling_factor: float
     ndarray
         3x3 matrix
     """
@@ -202,7 +203,8 @@ def _find_elements(fileobj, elements, vasp_dir):
 
     # Number of atoms
     atoms = [int(n) for n in atoms_per_species.split()]
- 
+
+    # Parses number of atoms per species from POTCAR
     if not elements:
         try:
             elements = _parse_potcar(os.path.join(vasp_dir, 'POTCAR'))
@@ -251,6 +253,7 @@ def unitcell(h5file, vasp_dir, elements=None):
                 return False
         
     try:
+        # Parses lattice vectors and atom positions from POSCAR
         with open(os.path.join(vasp_dir,'POSCAR'), "r") as f:
             scaling_factor, basis = _parse_lattice(f)
             elements, atoms = _find_elements(f, elements, vasp_dir)
