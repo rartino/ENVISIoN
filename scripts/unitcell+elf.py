@@ -21,8 +21,8 @@ import os, sys
 
 # Configuration
 PATH_TO_ENVISION=os.path.expanduser("~/ENVISIoN/envision")
-PATH_TO_VASP_CALC=os.path.expanduser("~/ENVISIoN/data/Cu/1/11")
-PATH_TO_HDF5=os.path.expanduser("/tmp/envision_demo.hdf5")
+PATH_TO_VASP_CALC=os.path.expanduser("~/ENVISIoN/data/TiPO4_with_elf/TiPO4_with_elf")
+PATH_TO_HDF5=os.path.expanduser("/tmp/envision_demo1.hdf5")
 
 sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION)) # Or `pip install --editable`.
 
@@ -36,4 +36,14 @@ envision.parser.vasp.elf(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 xpos=0
 
 envision.inviwo.unitcell(PATH_TO_HDF5, xpos)
-envision.inviwo.elf(PATH_TO_HDF5, xpos)
+
+xpos += 400
+envision.inviwo.elf(PATH_TO_HDF5, iso = None,slice = False, xpos = 0, ypos = 0)
+
+
+app = inviwopy.app
+network = app.network
+network.addConnection(network.getProcessorByIdentifier('Unit Cell Renderer').getOutport('image'), network.getProcessorByIdentifier('MeshRenderer').getInport('imageInport'))
+
+network.addLink(network.getProcessorByIdentifier('Unit Cell Renderer').getPropertyByIdentifier('camera'), network.getProcessorByIdentifier('MeshRenderer').getPropertyByIdentifier('camera'))
+network.addLink(network.getProcessorByIdentifier('MeshRenderer').getPropertyByIdentifier('camera'), network.getProcessorByIdentifier('Unit Cell Renderer').getPropertyByIdentifier('camera'))
