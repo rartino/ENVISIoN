@@ -21,8 +21,7 @@ import os, sys
 
 # Configuration
 PATH_TO_ENVISION=os.path.expanduser("~/ENVISIoN/envision")
-PATH_TO_VASP_CALC=os.path.expanduser("~/ENVISIoN/data/Si/VASP")
-
+PATH_TO_VASP_CALC=os.path.expanduser("~/ENVISIoN/data/Cu/1/10")
 PATH_TO_HDF5=os.path.expanduser("/tmp/envision_demo.hdf5")
 
 

@@ -110,23 +110,18 @@ def parse_doscar(h5file,vasp_file):
             with h5py.File(h5file,'r') as h5:
                 if '/incar' in h5:
                     incar = h5.get('/incar')
-                    if np.array(incar.get('LORBIT')) == '10':
-                        if np.array(incar.get('ISPIN')) == '1':
-                            total = [ "Energy", "DOS", "Integrated DOS" ]
-                            partial = [ "Energy", "s-DOS", "p-DOS", "d-DOS", "f-DOS" ]
+                    if np.array(incar.get('LORBIT')) == '10' or np.array(incar.get('LORBIT')) == '5':
 
                         if np.array(incar.get('ISPIN')) == '2':
                             total = [ "Energy", "DOS(up)", "DOS(dwn)", "Integrated DOS(up)", "Integrated DOS(dwn)" ]
                             partial = [ "Energy", "s-DOS(up)", "s-DOS(dwn)", "p-DOS(up)",
                                         "p-DOS(dwn)", "d-DOS(up)", "d-DOS(dwn)", "f-DOS(up)", "f-DOS(dwn)" ]
-
-                    if np.array(incar.get('LORBIT')) == '11':
-                        if np.array(incar.get('ISPIN')) == '1':
+                        else:
+                            #Default: ISPIN == 1
                             total = [ "Energy", "DOS", "Integrated DOS" ]
-                            # Note that p-DOS is in order y, z, x to match DOSCAR file.
-                            partial = [ "Energy", "s-DOS", "p-DOS(y)", "p-DOS(z)", "p-DOS(x)", "d-DOS(xy)",
-                                         "d-DOS(yz)", "d-DOS(z2)", "d-DOS(xz)", "d-DOS(x2y2)", "f-DOS(-3)",
-                                         "f-DOS(-2)", "f-DOS(-1)", "f-DOS(0)", "f-DOS(1)", "f-DOS(2)", "f-DOS(3)" ]
+                            partial = [ "Energy", "s-DOS", "p-DOS", "d-DOS", "f-DOS" ]
+
+                    if np.array(incar.get('LORBIT')) == '11' or np.array(incar.get('LORBIT')) == '1' or np.array(incar.get('LORBIT')) == '2':
                         # Covers all possible electron configurations, but only the ones found will be written.
                         if np.array(incar.get('ISPIN')) == '2':
                             total = [ "Energy", "DOS(up)", "DOS(dwn)", "Integrated DOS(up)", "Integrated DOS(dwn)" ]
@@ -138,6 +133,18 @@ def parse_doscar(h5file,vasp_file):
                                         "f-DOS(-2)(up)", "f-DOS(-2)(dwn)", "f-DOS(-1)(up)", "f-DOS(-1)(dwn)",
                                         "f-DOS(0)(up)", "f-DOS(0)(dwn)", "f-DOS(1)(up)", "f-DOS(1)(dwn)",
                                         "f-DOS(2)(up)", "f-DOS(2)(dwn)", "f-DOS(3)(up)", "f-DOS(3)(dwn)" ]
+                        else:
+                            # Default: ISPIN == 1
+                            total = [ "Energy", "DOS", "Integrated DOS" ]
+                            # Note that p-DOS is in order y, z, x to match DOSCAR file.
+                            partial = [ "Energy", "s-DOS", "p-DOS(y)", "p-DOS(z)", "p-DOS(x)", "d-DOS(xy)",
+                                       "d-DOS(yz)", "d-DOS(z2)", "d-DOS(xz)", "d-DOS(x2y2)", "f-DOS(-3)",
+                                       "f-DOS(-2)", "f-DOS(-1)", "f-DOS(0)", "f-DOS(1)", "f-DOS(2)", "f-DOS(3)" ]
+                    else :
+                        if np.array(incar.get('ISPIN')) == '2':
+                            total = [ "Energy", "DOS(up)", "DOS(dwn)", "Integrated DOS(up)", "Integrated DOS(dwn)" ]
+                        else:
+                            total = [ "Energy", "DOS", "Integrated DOS" ]
                                         
         total_data, line_length = dos_line(f, header["ndos"])
         if not total:
@@ -194,8 +201,9 @@ def dos(h5file, vasp_dir):
     # Centers energy around Fermi energy by subtracting Fermi energy from all energies.
     for i in range(len(total_data[0])):
         total_data[0][i] -= fermi_energy
-    for i in range(len(partial_list[0][0])):
-        partial_list[0][0][i] -= fermi_energy
+    if partial_list:
+        for i in range(len(partial_list[0][0])):
+            partial_list[0][0][i] -= fermi_energy
     _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy)
     
     print('Density of states data was parsed successfully.')
