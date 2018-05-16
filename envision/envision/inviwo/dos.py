@@ -33,7 +33,7 @@ from .common import _add_h5source, _add_processor
 app = inviwopy.app
 network = app.network
 
-def dos(h5file, xpos=0, ypos=0):
+def dos(h5file, atom = 0, xpos=0, ypos=0):
     """Creates an Inviwo network for density of states visualization
 
     This function will use a suitable HDF5 source processor if one is
@@ -49,6 +49,9 @@ def dos(h5file, xpos=0, ypos=0):
     ----------
     h5file : str
         Path to HDF5 file
+    atom : int
+         (Default value = 0)
+         Index of atom for which to visualise partial DOS.
     xpos : int
          (Default value = 0)
          X coordinate in Inviwo network editor
@@ -98,8 +101,10 @@ def dos(h5file, xpos=0, ypos=0):
 
             if name == "Partial":
                 path = name
-                # Partial Pick All processor selects '/DOS/Partial/0' instead of '/DOS/Partial'.
-                totalpartial_pick_processor = _add_processor("org.inviwo.HDF5PathSelectionAllChildren", "{} {}".format(name, "Pick All"), xpos, ypos)
+                totalpartial_pick_processor = _add_processor("org.inviwo.HDF5PathSelectionInt", "{} {}".format(name, "Pick"), xpos, ypos)
+                # TODO: Setting this value hangs Inviwo.
+                #totalpartial_pick_int = totalpartial_pick_processor.getPropertyByIdentifier('intProperty')
+                #totalpartial_pick_int.value = atom
                 totalpartial_pick_inport = totalpartial_pick_processor.getInport('hdf5HandleInport')
                 network.addConnection(totalpartial_outport, totalpartial_pick_inport)
                 totalpartial_pick_outport = totalpartial_pick_processor.getOutport('hdf5HandleVectorOutport')
@@ -111,12 +116,12 @@ def dos(h5file, xpos=0, ypos=0):
             if name == "Total":
                 path = name
             else:
-                path = name + "/0"
+                path = name + '/{}'.format(atom)
             dos_list = get_dos_list(h5["/DOS/{}".format(path)])
 
             y_name_prepend_parents = 2 if name == "Partial" else 1
 
-            down_type_list = [dos for dos in dos_list if dos.endswith("(dwn)")]
+            down_type_list = ['{} {}'.format(dos, atom) for dos in dos_list if dos.endswith("(dwn)")]
             xpos_down, ypos_down = xpos, ypos
             for down_type in down_type_list:
                 down_type_processor = _add_processor("org.inviwo.HDF5ToFunction", down_type, xpos_down, ypos_down)
@@ -125,15 +130,12 @@ def dos(h5file, xpos=0, ypos=0):
                 down_type_y_name_property = down_type_processor.getPropertyByIdentifier('yNamePrependParentsProperty')
                 down_type_y_name_property.value = y_name_prepend_parents
 
-                """totalpartial_source_hdf5outport = totalpartial_pick_processor.getOutport('hdf5HandleVectorOutport')
-                down_type_processor_hdf5inport = down_type_processor.getInport('hdf5HandleFlatMultiInport')
-                network.addConnection(totalpartial_source_hdf5outport, down_type_processor_hdf5inport)"""
                 down_type_hdf5inport = down_type_processor.getInport('hdf5HandleFlatMultiInport')
                 network.addConnection(totalpartial_outport, down_type_hdf5inport)
             
                 xpos_down += 200
             
-            up_type_list = [dos for dos in dos_list if dos.endswith("(up)")]
+            up_type_list = ['{} {}'.format(dos, atom) for dos in dos_list if dos.endswith("(up)")]
             xpos_up, ypos_up = xpos_down, ypos_down
             for up_type in up_type_list:
                 up_type_processor = _add_processor("org.inviwo.HDF5ToFunction", up_type, xpos_up, ypos_up)
@@ -145,7 +147,7 @@ def dos(h5file, xpos=0, ypos=0):
 
                 xpos_up += 200
 
-            other_type_list = [dos for dos in dos_list if not dos.endswith("(dwn)") and not dos.endswith("(up)")]
+            other_type_list = ['{} {}'.format(dos, atom) for dos in dos_list if not dos.endswith("(dwn)") and not dos.endswith("(up)")]
             xpos_other, ypos_other = xpos_up, ypos_up
             for other_type in other_type_list:
                 other_type_processor = _add_processor("org.inviwo.HDF5ToFunction", other_type, xpos_other, ypos_other)
@@ -159,7 +161,6 @@ def dos(h5file, xpos=0, ypos=0):
                 xpos_other += 200
 
             ypos += 100
-
             if down_type_list:
                 down_add_processor = _add_processor("org.inviwo.FunctionOperationNary", "{} Down Add".format(name), xpos, ypos)
                 down_add_operation_property = down_add_processor.getPropertyByIdentifier('operationProperty')
@@ -209,12 +210,14 @@ def dos(h5file, xpos=0, ypos=0):
                 network.addConnection(down_add_outport, down_negate_inport)
                 plotter_source_list.append(down_negate_processor)
                 ypos += 100
-
             return xpos_other, ypos
 
         xpos_total, ypos_total = totalpartial("Total", xpos, ypos)
         if has_partial:
-            xpos_partial, ypos_partial = totalpartial("Partial", xpos_total, ypos)
+            ypos_partial = 0
+            xpos_partial, ypos_partial_new = totalpartial("Partial", xpos_total, ypos)
+            ypos_partial = max(ypos_partial, ypos_partial_new)
+            
         else:
             xpos_partial, ypos_partial = 0, 0
         ypos = max(ypos_total, ypos_partial)
