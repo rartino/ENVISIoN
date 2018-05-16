@@ -21,7 +21,7 @@ import os, sys
 
 # Configuration
 PATH_TO_ENVISION=os.path.expanduser("~/ENVISIoN/envision")
-PATH_TO_VASP_CALC=os.path.expanduser("~/ENVISIoN/data/Cu/1/10")
+PATH_TO_VASP_CALC=os.path.expanduser("~/ENVISIoN/data/NaCl/VASP")
 PATH_TO_HDF5=os.path.expanduser("/tmp/envision_demo.hdf5")
 
 
@@ -40,9 +40,9 @@ import envision.inviwo
 #envision.parser.vasp.fermi_surface(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
 xpos=0
-envision.inviwo.unitcell(PATH_TO_HDF5, xpos=xpos)
+#envision.inviwo.unitcell(PATH_TO_HDF5, xpos=xpos)
 xpos += 400
-envision.inviwo.charge(PATH_TO_HDF5, slice=True, xpos=xpos)
+#envision.inviwo.charge(PATH_TO_HDF5, slice=True, xpos=xpos)
 xpos += 400
 #envision.inviwo.elf(PATH_TO_HDF5, slice=True, xpos=xpos)
 xpos += 400
@@ -51,10 +51,11 @@ xpos += 400
 #envision.inviwo.bandstructure(PATH_TO_HDF5, xpos)
 xpos += 400
 
-app = inviwopy.app
-network = app.network
-network.addConnection(network.getProcessorByIdentifier('Unit Cell Renderer').getOutport('image'), network.getProcessorByIdentifier('MeshRenderer').getInport('imageInport'))
+# Show unitcell and charge/elf visualisation in one canvas.
+#app = inviwopy.app
+#network = app.network
+#network.addConnection(network.getProcessorByIdentifier('Unit Cell Renderer').getOutport('image'), network.getProcessorByIdentifier('MeshRenderer').getInport('imageInport'))
 
-network.addLink(network.getProcessorByIdentifier('Unit Cell Renderer').getPropertyByIdentifier('camera'), network.getProcessorByIdentifier('MeshRenderer').getPropertyByIdentifier('camera'))
-network.addLink(network.getProcessorByIdentifier('MeshRenderer').getPropertyByIdentifier('camera'), network.getProcessorByIdentifier('Unit Cell Renderer').getPropertyByIdentifier('camera'))
+#network.addLink(network.getProcessorByIdentifier('Unit Cell Renderer').getPropertyByIdentifier('camera'), network.getProcessorByIdentifier('MeshRenderer').getPropertyByIdentifier('camera'))
+#network.addLink(network.getProcessorByIdentifier('MeshRenderer').getPropertyByIdentifier('camera'), network.getProcessorByIdentifier('Unit Cell Renderer').getPropertyByIdentifier('camera'))
 
