@@ -22,6 +22,7 @@ import os, sys
 # Configuration
 PATH_TO_ENVISION=os.path.expanduser("~/ENVISIoN/envision")
 PATH_TO_VASP_CALC=os.path.expanduser("~/ENVISIoN/data/Si/VASP")
+
 PATH_TO_HDF5=os.path.expanduser("/tmp/envision_demo.hdf5")
 
 sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION)) # Or `pip install --editable`.
@@ -29,8 +30,8 @@ sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION)) # Or `pip install --edi
 import envision
 import envision.inviwo
 
-result = envision.parse_all(PATH_TO_HDF5, PATH_TO_VASP_CALC)
-print("Found properties in parse: "+str(result))
+#result = envision.parse_all(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+#print("Found properties in parse: "+str(result))
 
 #envision.parser.vasp.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 #envision.parser.vasp.charge(PATH_TO_HDF5, PATH_TO_VASP_CALC)
@@ -56,3 +57,4 @@ network.addConnection(network.getProcessorByIdentifier('Unit Cell Renderer').get
 
 network.addLink(network.getProcessorByIdentifier('Unit Cell Renderer').getPropertyByIdentifier('camera'), network.getProcessorByIdentifier('MeshRenderer').getPropertyByIdentifier('camera'))
 network.addLink(network.getProcessorByIdentifier('MeshRenderer').getPropertyByIdentifier('camera'), network.getProcessorByIdentifier('Unit Cell Renderer').getPropertyByIdentifier('camera'))
+
