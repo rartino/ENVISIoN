@@ -102,9 +102,12 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
             if name == "Partial":
                 path = name
                 totalpartial_pick_processor = _add_processor("org.inviwo.HDF5PathSelectionInt", "{} {}".format(name, "Pick"), xpos, ypos)
-                # TODO: Setting this value hangs Inviwo.
-                #totalpartial_pick_int = totalpartial_pick_processor.getPropertyByIdentifier('intProperty')
-                #totalpartial_pick_int.value = atom
+
+                totalpartial_pick_int = totalpartial_pick_processor.getPropertyByIdentifier('intProperty')
+                totalpartial_pick_int.value = atom
+                totalpartial_pick_int.minValue = 0
+                totalpartial_pick_int.maxValue = len(h5['/DOS/Partial']) - 1
+
                 totalpartial_pick_inport = totalpartial_pick_processor.getInport('hdf5HandleInport')
                 network.addConnection(totalpartial_outport, totalpartial_pick_inport)
                 totalpartial_pick_outport = totalpartial_pick_processor.getOutport('hdf5HandleVectorOutport')
