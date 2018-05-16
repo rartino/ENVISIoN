@@ -36,8 +36,12 @@
 #include <inviwo/core/properties/optionproperty.h>
 #include <inviwo/core/properties/boolproperty.h>
 #include <inviwo/core/properties/ordinalproperty.h>
+#include <plotting/datastructures/dataframe.h>
 
 #include <modules/graph2d/datastructures/graph2ddata.h>
+
+using inviwo::plot::DataFrame;
+using inviwo::plot::DataFrameOutport;
 
 namespace inviwo {
 
@@ -93,7 +97,7 @@ private:
     BoolProperty sampleFilterEnableProperty_;
     FloatProperty sampleFilterEpsilonProperty_;
 
-    DataOutport<std::vector<Function>> functionVectorOutport_;
+    DataFrameOutport dataframeOutport_;
 };
 
 } // namespace
