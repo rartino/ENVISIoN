@@ -31,6 +31,8 @@
 
 #include <modules/graph2d/util/stringcomparenatural.h>
 
+using inviwo::plot::TemplateColumn;
+
 namespace inviwo {
 
 const ProcessorInfo FunctionOperationNary::processorInfo_ {
@@ -68,7 +70,7 @@ FunctionOperationNary::FunctionOperationNary()
     , undefinedFallbackProperty_("undefinedFallbackProperty", "Undefined fallback")
     , sampleFilterEnableProperty_("sampleFilterEnableProperty", "Enable sample filter", true)
     , sampleFilterEpsilonProperty_("sampleFilterEpsilonProperty", "Sample filter epsilon", 0.0f)
-    , functionVectorOutport_("functionVectorOutport")
+    , dataframeOutport_("dataframeOutport")
 {
 
     addPort(functionFlatMultiInport_);
@@ -78,7 +80,7 @@ FunctionOperationNary::FunctionOperationNary()
     addProperty(sampleFilterEnableProperty_);
     addProperty(sampleFilterEpsilonProperty_);
 
-    addPort(functionVectorOutport_);
+    addPort(dataframeOutport_);
 
     std::vector<OptionPropertyStringOption> operationPropertyOptionVector;
     for (const auto& operation : operationVector_) {
@@ -104,9 +106,6 @@ FunctionOperationNary::FunctionOperationNary()
 
 void FunctionOperationNary::process() {
 
-    const auto& functionVectorSharedPtr = std::make_shared<std::vector<Function>>();
-    functionVectorOutport_.setData(functionVectorSharedPtr);
-
     const auto& functionSharedPtrVector = functionFlatMultiInport_.getVectorData();
 
     const auto& operation = *std::find_if(
@@ -117,7 +116,6 @@ void FunctionOperationNary::process() {
                 }
         );
 
-    std::vector<Function> resultFunctionVector;
 
     if (!functionSharedPtrVector.empty()) {
 
@@ -365,10 +363,19 @@ void FunctionOperationNary::process() {
                     }
             );
 
-        functionVectorSharedPtr->emplace_back(Function {
-                std::move(xAxis),
-                std::move(yAxis)
-            });
+        std::shared_ptr<DataFrame> frame = std::make_shared<DataFrame>(0);
+        std::shared_ptr<TemplateColumn<float> > x = frame->addColumn<float>("X", 0);
+        for (float value : xAxis.valueVector) {
+            x->add(value);
+        }
+
+        std::shared_ptr<TemplateColumn<float> > y = frame->addColumn<float>("Y", 0);
+        for (float value : yAxis.valueVector) {
+            y->add(value);
+        }
+
+
+        dataframeOutport_.setData(frame);
     }
 }
 

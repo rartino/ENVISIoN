@@ -92,8 +92,8 @@ def _cellnetwork(h5file, md=False, xpos=0, ypos=0):
             coordReader_path_property = coordReader.getPropertyByIdentifier('path')
             coordReader_path_property.value = base_group + '/Atoms/' + key
             strucMesh_radius_property = strucMesh.getPropertyByIdentifier('radius{0}'.format(i))
-
-            #strucMesh_radius_property.maxValue = 3
+            # The atoms in a crystal don't actually look like spheres, as the valence electrons are shared across the crystal.
+            # The different radii of the elements in data.py are just to differentiate between different elements.
             strucMesh_radius_property.value = radius
             strucMesh_color_property = strucMesh.getPropertyByIdentifier('color{0}'.format(i))
             strucMesh_color_property.value = inviwopy.glm.vec4(color[0],color[1],color[2],color[3])
