@@ -227,13 +227,14 @@ void lineplotprocessor::process() {
 
 
         // If all values in one dimension have the same value we let
-        // them normalise to one by setting the min values to zero.
+        // them normalise to a range that is one wide by subtracting
+        // one from the minimum value.
         if (y_max == y_min) {
-            y_min = 0;
+            y_min -= 1;
         }
 
         if (x_max == x_min) {
-            x_min = 0;
+            x_min -= 1;
         }
 
         // Set the increment to 1/100 of the total interval length.
