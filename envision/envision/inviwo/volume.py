@@ -32,30 +32,9 @@ from .common import _add_h5source, _add_processor
 
 app = inviwopy.app
 network = app.network
-# Function for building a volume network for both electron density and electron localisation function data
+
+# Function for buiding a volume network for both electron density and electron localisation function data (commented out)
 def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
-        """ Creates an Inviwo network for visualisation of volume data such as electron density or electron
-            localisation function data.
-    Parameters
-    ----------
-    h5file : str
-        Path to HDF5 file
-    volume : str
-        Specifies type of volume data to be visualised, electron density och ELF. 
-    iso : int
-         (Default value = None)
-        Iso-value for ISO Raycaster processor. None otherwise
-    slice : bool
-         (Default value = False)
-        True if slice-function is enabled. False otherwise   
-    xpos : int
-         (Default value = 0)
-         X coordinate in Inviwo network editor
-    ypos : int
-         (Default value = 0)
-         Y coordinate in Inviwo network editor
-    """
-    
     # Shared processors, processor positions and base vectors between electron density and electron localisation function data
     HDFsource = _add_h5source(h5file, xstart_pos, ystart_pos)
     filenameProperty = HDFsource.getPropertyByIdentifier('filename')
@@ -73,8 +52,7 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
     MeshRenderer = _add_processor('org.inviwo.GeometryRenderGL', 'Mesh Renderer', xstart_pos+200, ystart_pos+225)
     CubeProxyGeometry = _add_processor('org.inviwo.CubeProxyGeometry', 'Cube Proxy Geometry', xstart_pos+30, ystart_pos+150)
     EntryExitPoints = _add_processor('org.inviwo.EntryExitPoints', 'EntryExitPoints', xstart_pos+30, ystart_pos+225)
-    # Add processor for Volume or ISO Raycaster based on if "iso" is assigned a value or not and give it correct name
-    # based on the string "volume" assigned a value in function "charge" or "elf". 
+    # Add processor for Volume or ISO Raycaster based on if "iso" is assigned a value or not and give it correct name based on the string "volume" assigned a value in function "charge" or "elf". 
     if iso==None:
         Raycaster = _add_processor('org.inviwo.VolumeRaycaster', volume, xstart_pos, ystart_pos+300)
         # Set colors and transparency
@@ -85,6 +63,11 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
         raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.5,0.01),inviwopy.glm.vec3(0.0,1.0,0.0))
         raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.75,0.01),inviwopy.glm.vec3(1.0,1.0,0.0))
         raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(1.0,0.01),inviwopy.glm.vec3(1.0,0.0,0.0))
+        """
+        raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.6,1.0),inviwopy.glm.vec3(0.0,1.0,1.0))
+        raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.45,0.0),inviwopy.glm.vec3(0.0,0.0,1.0))
+        raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.7,0.0),inviwopy.glm.vec3(0.0,0.0,0.0))
+        """
     else:
         Raycaster = _add_processor('org.inviwo.ISORaycaster', volume, xstart_pos, ystart_pos+300)
         raycaster_isovalue_property = Raycaster.getPropertyByIdentifier('raycasting').getPropertyByIdentifier('isoValue')
@@ -173,6 +156,13 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
     
     entryExitPoints_lookFrom_property = EntryExitPoints.getPropertyByIdentifier('camera').getPropertyByIdentifier('lookFrom')
     entryExitPoints_lookFrom_property.value = inviwopy.glm.vec3(0,0,8)
+
+    # Connect unit cell and volume visualisation.
+    UnitCellRenderer = network.getProcessorByIdentifier('Unit Cell Renderer')
+    if UnitCellRenderer:
+        network.addConnection(UnitCellRenderer.getOutport('image'), MeshRenderer.getInport('imageInport'))
+        network.addLink(UnitCellRenderer.getPropertyByIdentifier('camera'), MeshRenderer.getPropertyByIdentifier('camera'))
+        network.addLink(MeshRenderer.getPropertyByIdentifier('camera'), UnitCellRenderer.getPropertyByIdentifier('camera'))
  
 # Function for building a volume network for electron density data
 def charge(h5file, iso=None, slice=False, xpos=0, ypos=0):
