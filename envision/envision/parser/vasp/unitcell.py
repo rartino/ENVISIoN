@@ -6,7 +6,7 @@ and element symbols from POTCAR.
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2017 Josef Adamsson
+#  Copyright (c) 2017-2018 Josef Adamsson, Marian Brännvall, Anders Rehult
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
