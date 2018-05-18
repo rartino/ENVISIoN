@@ -1,6 +1,6 @@
 /*********************************************************************************
  *
- * Copyright (c) 2017 Josef Adamsson, Denise Härnström
+ * Copyright (c) 2017-2018 Josef Adamsson, Denise Härnström, Andreas Kempe
  *
  * Inviwo - Interactive Visualization Workshop
  *
@@ -62,7 +62,7 @@ StructureMesh::StructureMesh()
     , timestep_("timestep", "Time step", false)
     , enablePicking_("enablePicking", "Enable Picking", false)
     , spherePicking_(this, 0, [&](PickingEvent* p) { handlePicking(p); })
-    , inds_("inds", "Picked atoms") {
+    , pickedIndex_("pickedIndex", "Picked atom") {
     addPort(structure_);
     addPort(mesh_);
     addProperty(scalingFactor_);
@@ -71,11 +71,11 @@ StructureMesh::StructureMesh()
     addProperty(animation_);
     addProperty(timestep_);
     addProperty(enablePicking_);
-    addProperty(inds_);
+    addProperty(pickedIndex_);
 
     structure_.onChange([&](){
         const auto data = structure_.getVectorData();
-        for(int i = colors_.size(); i < data.size(); ++i) {
+        for(size_t i = colors_.size(); i < data.size(); ++i) {
             colors_.push_back(std::make_unique<FloatVec4Property>("color" + toString(i), "Color " + toString(i),
                                                 vec4(1.0f, 1.0f, 1.0f, 1.0f), vec4(0.0f), vec4(1.0f), vec4(0.01f),
                                                 InvalidationLevel::InvalidOutput, PropertySemantics::Color));
@@ -173,13 +173,10 @@ void StructureMesh::process() {
             ++portInd;
         }
         if (enablePicking_.get()) {
-            //Set alpha-layer of picked atoms
-            if (!inds_.get().empty()) {
-                for (const auto &ind : inds_.get()) {
-                    if (ind < sphereInd) {
-                        colors[ind].w = 0.5;
-                    }
-                }
+            //Set alpha-layer of any picked atom
+            size_t idx = pickedIndex_.get();
+            if (idx < sphereInd) {
+                colors[idx].w = 0.5;
             }
         }
         colorRAM_->getOwner()->invalidateAllOther(colorRAM_.get());
@@ -198,21 +195,22 @@ void StructureMesh::handlePicking(PickingEvent* p) {
             p->getEvent()->hash() == MouseEvent::chash()) {
             auto me = p->getEventAs<MouseEvent>();
             if ((me->buttonState() & MouseButton::Left) && me->state() != MouseState::Move) {
-                auto& color = colorRAM_->getDataContainer();
-                std::vector<int> temp = inds_.get();
-                auto picked = p->getPickedId();
+                size_t currentlyPicked = pickedIndex_.get();
+                size_t picked = p->getPickedId();
 
-                if( std::none_of(temp.begin(), temp.end(), [&](unsigned int i){return i == picked;}) ) {
-                    temp.push_back(picked);
+                // A different atom has been selected, change the
+                // colours to mach the selection.
+                if (picked != currentlyPicked) {
+                    auto& color = colorRAM_->getDataContainer();
+
+                    color[currentlyPicked].w = 1;
                     color[picked].w = 0.5;
-                } else {
-                    temp.erase(std::remove(temp.begin(), temp.end(), picked), temp.end());
-                    color[picked].w = 1;
-                }
-                inds_.set(temp);
+                    pickedIndex_.set(picked);
 
-                colorRAM_->getOwner()->invalidateAllOther(colorRAM_.get());
-                invalidate(InvalidationLevel::InvalidOutput);
+                    colorRAM_->getOwner()->invalidateAllOther(colorRAM_.get());
+                    invalidate(InvalidationLevel::InvalidOutput);
+                }
+
                 p->markAsUsed();
             }
         }
