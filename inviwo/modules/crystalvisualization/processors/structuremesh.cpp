@@ -73,6 +73,8 @@ StructureMesh::StructureMesh()
     addProperty(enablePicking_);
     addProperty(pickedIndex_);
 
+    pickedIndex_.setReadOnly(true);
+
     structure_.onChange([&](){
         const auto data = structure_.getVectorData();
         for(size_t i = colors_.size(); i < data.size(); ++i) {
