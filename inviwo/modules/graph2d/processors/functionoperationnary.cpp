@@ -1,6 +1,6 @@
 /*********************************************************************************
  *
- * Copyright (c) 2017 Robert Cranston
+ * Copyright (c) 2017-2018 Robert Cranston, Viktor Bernholtz
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
