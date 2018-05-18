@@ -34,7 +34,7 @@ app = inviwopy.app
 network = app.network
 # Function for building a volume network for both electron density and electron localisation function data
 def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
-        """ Creates an Inviwo network for visualisation of volume data such as electron density or electron
+    """ Creates an Inviwo network for visualisation of volume data such as electron density or electron
             localisation function data.
     Parameters
     ----------
