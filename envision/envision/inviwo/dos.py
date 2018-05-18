@@ -297,79 +297,23 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
 
             xpos += 200
 
-        # Replaces Partial Pick All processor with Partial Pick processor.
-        if has_partial and "Unit Cell Mesh" in [x.identifier for x in processor_list]:
 
-            def get_child_list(parent):
-                child_list = []
-                for connection in network.connections:
-                    if connection.outport.processor == parent:
-                         child_list.append(connection.inport.processor)
-                return child_list
+        # Check for a Unit Cell Mesh processor and connect it for
+        # picking of specific atoms if it exists, i.e. connect the two
+        # properties describing what atom has been selected/should be
+        # shown.
+        unit_cell_processor = network.getProcessorByIdentifier('Unit Cell Mesh')
+        partial_pick_processor = network.getProcessorByIdentifier('Partial Pick')
+        if has_partial and unit_cell_processor is not None and partial_pick_processor is not None:
+            unit_cell_property = unit_cell_processor.getPropertyByIdentifier('pickedIndex')
+            partial_pick_processor = partial_pick_processor.getPropertyByIdentifier('intProperty')
+            network.addLink(unit_cell_property, partial_pick_processor)
 
-            def get_parent_list(child):
-                parent_list = []
-                for connection in network.connections:
-                    if connection.inport.processor == child:
-                         parent_list.append(connection.outport.processor)
-                return parent_list
-
-            # Find partial pick all processor in network. After removing it some lines below, it still exists behind the scenes in Inviwo.
-            # If DOS visualisation is run subsequent times without restarting Inviwo,
-            # partial_pick_all_processor will be named 'Partial Pick All (partial_pick_all_index)'.
-            partial_pick_all_processor = network.getProcessorByIdentifier('Partial Pick All')
-            partial_pick_all_index = 2
-            while (partial_pick_all_processor == None and partial_pick_all_index < 100):
-                partial_pick_all_processor = network.getProcessorByIdentifier('Partial Pick All{}'.format(' ' + str(partial_pick_all_index)))
-                partial_pick_all_index += 1
-
-            partial_pick_all_position = partial_pick_all_processor.position
-            partial_pick_all_child_list = get_child_list(partial_pick_all_processor)
-            partial_pick_all_parent_list = get_parent_list(partial_pick_all_processor)
-            network.removeProcessor(partial_pick_all_processor)
+            # Enable the possibility of picking atoms.
+            pick_enable = unit_cell_processor.getPropertyByIdentifier('enablePicking')
+            pick_enable.value = True
 
 
-            partial_pick_processor = _add_processor("org.inviwo.HDF5PathSelectionIntVector",
-                                                    "Partial Pick", partial_pick_all_position[0],
-                                                    partial_pick_all_position[1])
-
-            ypos += 100
-            for partial_pick_all_child in partial_pick_all_child_list:
-                network.addConnection(partial_pick_processor.getOutport("hdf5HandleVectorOutport"),
-                                      partial_pick_all_child.getInport("hdf5HandleFlatMultiInport"))
-            for partial_pick_all_parent in partial_pick_all_parent_list:
-                network.addConnection(partial_pick_all_parent.getOutport("outport"),
-                                      partial_pick_processor.getInport("hdf5HandleInport"))
-            network.addLink(network.getProcessorByIdentifier("Unit Cell Mesh").getPropertyByIdentifier("inds"),
-                            network.getProcessorByIdentifier("Partial Pick").getPropertyByIdentifier("intVectorProperty"))
-
-            network.getProcessorByIdentifier("Unit Cell Mesh").getPropertyByIdentifier("enablePicking").value = True
-
-            dos_unitcell_layout_processor = _add_processor("org.inviwo.ImageLayoutGL", "DOS UnitCell Layout", xpos, ypos)
-            network.addConnection(network.getProcessorByIdentifier("Unit Cell Renderer").getOutport("image"),
-                                  dos_unitcell_layout_processor.getInport("multiinport"))
-            # TODO: Wrong outport type. Figure out what the purpose of this is.
-            network.addConnection(network.getProcessorByIdentifier("DOS Plotter").getOutport("outport"),
-                                  dos_unitcell_layout_processor.getInport("multiinport"))
-
-            ypos += 100
-
-            dos_unitcell_canvas_processor = _add_processor("org.inviwo.CanvasGL", "DOS UnitCell Canvas", xpos, ypos)
-            dos_unitcell_canvas_processor.getPropertyByIdentifier("inputSize").getPropertyByIdentifier("dimensions").value = inviwopy.glm.ivec2(2 * 640, 480)
-            network.addConnection(dos_unitcell_layout_processor.getOutport("outport"), dos_unitcell_canvas_processor.getInport("inport"))
-            ypos += 100
-
-            dos_unitcell_layout_processor.getPropertyByIdentifier("layout").value = 2
-
-            # Hide canvases for separate unit cell and DOS visualisation.
-            network.getProcessorByIdentifier("Unit Cell Canvas").widget.visibility = False
-            for i in range(len(plotter_source_list)):
-                if (i == 0):
-                    network.getProcessorByIdentifier("DOS Canvas").widget.visibility= False
-                else:
-                    network.getProcessorByIdentifier("DOS Canvas{}".format(" " + str(i + 1))).widget.visibility= False
-
-            dos_unitcell_canvas_processor.widget.visibility = True
 
         # Selects correct paths.
         for path_selector in path_selector_list:
