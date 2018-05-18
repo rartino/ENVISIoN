@@ -39,11 +39,3 @@ envision.inviwo.unitcell(PATH_TO_HDF5, xpos)
 
 xpos += 400
 envision.inviwo.elf(PATH_TO_HDF5, iso = None,slice = False, xpos = 0, ypos = 0)
-
-
-app = inviwopy.app
-network = app.network
-network.addConnection(network.getProcessorByIdentifier('Unit Cell Renderer').getOutport('image'), network.getProcessorByIdentifier('MeshRenderer').getInport('imageInport'))
-
-network.addLink(network.getProcessorByIdentifier('Unit Cell Renderer').getPropertyByIdentifier('camera'), network.getProcessorByIdentifier('MeshRenderer').getPropertyByIdentifier('camera'))
-network.addLink(network.getProcessorByIdentifier('MeshRenderer').getPropertyByIdentifier('camera'), network.getProcessorByIdentifier('Unit Cell Renderer').getPropertyByIdentifier('camera'))
