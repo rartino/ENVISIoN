@@ -48,3 +48,4 @@ envision.inviwo.unitcell(PATH_TO_HDF5, xpos)
 xpos += 500
 
 envision.inviwo.dos(PATH_TO_HDF5, atom = 0, xpos = xpos)
+
