@@ -2,7 +2,7 @@
  *
  * Inviwo - Interactive Visualization Workshop
  *
- * Copyright (c) 2017 Inviwo Foundation
+ * Copyright (c) 2017-2018 Inviwo Foundation, Andreas Kempe
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -208,6 +208,12 @@ void lineplotprocessor::process() {
 
         // Set default values if data changes.
         if (dataFrameInport_.isChanged()) {
+            y_range_.setMaxValue(vec2(y_max, y_max));
+            y_range_.setMinValue(vec2(y_min, y_min));
+
+            x_range_.setMaxValue(vec2(x_max, x_max));
+            x_range_.setMinValue(vec2(x_min, x_min));
+
             x_range_.set(vec2(x_max, x_min));
             y_range_.set(vec2(y_max, y_min));
 
@@ -248,12 +254,8 @@ void lineplotprocessor::process() {
         y_range_.setMinValue(vec2(y_min, y_min));
         y_range_.setIncrement(vec2(y_increment, y_increment));
 
-        // Check if the set value falls outside of the allowed range
-        // and reset it if that is the case. Also set it if min and
-        // max are equal.
-        if (x_range_.get() > x_range_.getMaxValue() ||
-            x_range_.get() < x_range_.getMinValue() ||
-            x_range_.get()[0] == x_range_.get()[1]) {
+        // Make sure that max an min values aren't the same.
+        if (x_range_.get()[0] == x_range_.get()[1]) {
             x_range_.set(vec2(x_max, x_min));
         } else {
             // Otherwise we assign the set values as min/max.
@@ -261,9 +263,7 @@ void lineplotprocessor::process() {
             x_min = x_range_.get()[1];
         }
 
-        if (y_range_.get() > y_range_.getMaxValue() ||
-            y_range_.get() < y_range_.getMinValue() ||
-            y_range_.get()[0] == y_range_.get()[1]) {
+        if (y_range_.get()[0] == y_range_.get()[1]) {
             y_range_.set(vec2(y_max, y_min));
         } else {
             y_max = y_range_.get()[0];

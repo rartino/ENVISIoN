@@ -92,7 +92,7 @@ private:
     std::shared_ptr<BufferRAMPrecision<float>> radiiRAM_;
     BoolProperty enablePicking_;
     PickingMapper spherePicking_;
-    IntVectorProperty inds_;
+    IntSizeTProperty pickedIndex_;
 };
 
 } // namespace
