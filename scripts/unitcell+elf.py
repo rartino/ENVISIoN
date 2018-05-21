@@ -1,7 +1,7 @@
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2017 Josef Adamsson, Viktor Bernholtz, Anders Rehult, Marian Brännvall
+#  Copyright (c) 2018 Viktor Bernholtz, Anders Rehult, Marian Brännvall
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
