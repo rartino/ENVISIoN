@@ -43,16 +43,8 @@ envision.parser.vasp.dos(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
 xpos=0
 
-envision.inviwo.unitcell(PATH_TO_HDF5, xpos, ypos)
+envision.inviwo.unitcell(PATH_TO_HDF5, xpos)
 
 xpos += 500
 
-envision.inviwo.dos(PATH_TO_HDF5, xpos)
-
-
-app = inviwopy.app
-network = app.network
-network.addConnection(network.getProcessorByIdentifier('Unit Cell Renderer').getOutport('image'), network.getProcessorByIdentifier('MeshRenderer').getInport('imageInport'))
-
-network.addLink(network.getProcessorByIdentifier('Unit Cell Renderer').getPropertyByIdentifier('camera'), network.getProcessorByIdentifier('MeshRenderer').getPropertyByIdentifier('camera'))
-network.addLink(network.getProcessorByIdentifier('MeshRenderer').getPropertyByIdentifier('camera'), network.getProcessorByIdentifier('Unit Cell Renderer').getPropertyByIdentifier('camera'))
+envision.inviwo.dos(PATH_TO_HDF5, atom = 0, xpos = xpos)
