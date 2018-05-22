@@ -48,5 +48,6 @@ xpos += 600
 
 #To visualise charge as an isosurface change the iso-argument
 #from None to a value between 0 and 1.
-#To add the slice-function change the slice-argument from False to True.
+#To add the slice-function change the slice-argument from False to True. 
+#The slice-function is not compatible with isosurface.
 envision.inviwo.charge(PATH_TO_HDF5, iso = None,slice = False, xpos = xpos, ypos = 0)
