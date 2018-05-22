@@ -29,18 +29,18 @@ import os, sys
 
 # Configuration
 PATH_TO_ENVISION=os.path.expanduser("~/ENVISIoN/envision")
-PATH_TO_VASP_CALC=os.path.expanduser("~/ENVISIoN/data/TiPO4")
+PATH_TO_VASP_CALC=os.path.expanduser("~/ENVISIoN/data/Al/VASP")
 PATH_TO_HDF5=os.path.expanduser("/tmp/envision_demo.hdf5")
 
-sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION)) # Or `pip install --editable`.
+sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION))
 
 import envision
 import envision.inviwo
 
 envision.parser.vasp.elf(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
-
-xpos=0
-
+#To visualise charge as an isosurface change the iso-argument
+#from None to a value between 0 and 1.
+#To add the slice-function change the slice-argument from False to True.
 envision.inviwo.elf(PATH_TO_HDF5, iso = None, slice = False, xpos = 0, ypos = 0)
 

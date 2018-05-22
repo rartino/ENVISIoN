@@ -29,17 +29,14 @@ import os, sys
 
 # Configuration
 PATH_TO_ENVISION=os.path.expanduser("~/ENVISIoN/envision")
-PATH_TO_VASP_CALC=os.path.expanduser("~/ENVISIoN/data/TiPO4")
+PATH_TO_VASP_CALC=os.path.expanduser("~/ENVISIoN/data/TiPO4/VASP")
 PATH_TO_HDF5=os.path.expanduser("/tmp/envision_demo.hdf5")
 
-sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION)) # Or `pip install --editable`.
+sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION))
 
 import envision
 import envision.inviwo
 
 envision.parser.vasp.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
-
-
-xpos=0
 
 envision.inviwo.unitcell(PATH_TO_HDF5, xpos = 0, ypos = 0)
