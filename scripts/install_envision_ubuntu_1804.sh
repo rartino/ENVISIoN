@@ -34,6 +34,9 @@ sudo apt install git \
 git clone https://github.com/inviwo/inviwo.git "$2"
 cd "$2"
 
+# Check out the correct version of Inviwo.
+git checkout v0.9.9
+
 # Apply Ubuntu 18.04 compatability patch.
 git apply < "$1/inviwo/patches/2018/2018-compatability.patch"
 
