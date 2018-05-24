@@ -37,6 +37,9 @@ cd "$2"
 # Check out the correct version of Inviwo.
 git checkout v0.9.9
 
+# Apply Ubuntu 18.04 compatability patch.
+git apply < "$1/inviwo/patches/2018/2018-compatability.patch"
+
 # Update broken eigen module
 sed -i 's/https:\/\/github\.com\/RLovelett\/eigen/https:\/\/github.com\/eigenteam\/eigen-git-mirror/g' .gitmodules
 git submodule sync
@@ -49,9 +52,6 @@ git submodule deinit modules/hdf5/ext/hdf5
 
 # Fetch submodules
 git submodule update
-
-# Apply Ubuntu 18.04 compatability patch.
-git apply < "$1/inviwo/patches/2018/2018-compatability.patch"
 
 mkdir build
 cd build
@@ -71,7 +71,7 @@ cmake .. -DIVW_EXTERNAL_MODULES="$1/inviwo/modules" \
 echo ""
 echo ""
 echo ""
-echo ""
+echo "#####################################################################################"
 echo "To build Inviwo with ENVISIoN:"
 echo "Execute make in $2/build, i.e:"
 echo ""
@@ -80,3 +80,4 @@ echo "make"
 echo ""
 echo "To speed up the build process, the argument -j <number of CPU cores + 1> can be given."
 echo "Example: \"make -j5\" on a system with 4 cores."
+echo "######################################################################################"
