@@ -55,6 +55,10 @@ cmake .. -D IVW_EXTERNAL_MODULES="$1/inviwo/modules" \
          -D IVW_MODULE_QTWIDGETS=ON \
          -D IVW_MODULE_HDF5=ON
 
+echo ""
+echo ""
+echo ""
+echo ""
 echo "To build Inviwo with ENVISIoN:"
 echo "Execute make in $2/build, i.e:"
 echo ""
