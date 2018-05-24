@@ -37,6 +37,10 @@ cd "$2"
 # Check out the correct version of Inviwo.
 git checkout v0.9.9
 
+# Init and update submodules.
+git submodule init
+git submodule update
+
 # Apply Ubuntu 18.04 compatability patch.
 git apply < "$1/inviwo/patches/2018/2018-compatability.patch"
 
