@@ -78,6 +78,5 @@ echo ""
 echo "cd \"$2/build\""
 echo "make"
 echo ""
-echo "To speed up the build process, the argument -j <number of CPU
-      cores + 1> can be given."
+echo "To speed up the build process, the argument -j <number of CPU cores + 1> can be given."
 echo "Example: \"make -j5\" on a system with 4 cores."
