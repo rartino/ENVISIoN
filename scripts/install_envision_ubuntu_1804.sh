@@ -37,8 +37,17 @@ cd "$2"
 # Check out the correct version of Inviwo.
 git checkout v0.9.9
 
+# Update broken eigen module
+sed -i 's/https:\/\/github\.com\/RLovelett\/eigen/https:\/\/github.com\/eigenteam\/eigen-git-mirror/g' .gitmodules
+git submodule sync
+
 # Init and update submodules.
 git submodule init
+
+# Disable HDF5 submodule
+git submodule deinit modules/hdf5/ext/hdf5
+
+# Fetch submodules
 git submodule update
 
 # Apply Ubuntu 18.04 compatability patch.
