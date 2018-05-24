@@ -46,14 +46,14 @@ cd build
 # Use GCC 6, because Inviwo won't build with GCC 7.
 export CC=gcc-6
 export CXX=g++-6
-cmake .. -D IVW_EXTERNAL_MODULES="$1/inviwo/modules" \
-         -D IVW_MODULE_CRYSTALVISUALIZATIO=ON \
-         -D IVW_MODULE_FERMI=OFF \
-         -D IVW_MODULE_GRAPH2D=ON \
-         -D IVW_MODULE_PYTHON3=ON \
-         -D IVW_MODULE_PYTHON3QT=ON \
-         -D IVW_MODULE_QTWIDGETS=ON \
-         -D IVW_MODULE_HDF5=ON
+cmake .. -DIVW_EXTERNAL_MODULES="$1/inviwo/modules" \
+         -DIVW_MODULE_CRYSTALVISUALIZATIO=ON \
+         -DIVW_MODULE_FERMI=OFF \
+         -DIVW_MODULE_GRAPH2D=ON \
+         -DIVW_MODULE_PYTHON3=ON \
+         -DIVW_MODULE_PYTHON3QT=ON \
+         -DIVW_MODULE_QTWIDGETS=ON \
+         -DIVW_MODULE_HDF5=ON
 
 echo ""
 echo ""
