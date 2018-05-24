@@ -32,11 +32,15 @@ sudo apt install git \
                  libxcursor-dev
 
 git clone https://github.com/inviwo/inviwo.git "$2"
-
 cd "$2"
+
+# Apply Ubuntu 18.04 compatability patch.
+git apply < "$1/inviwo/patches/2018/2018-compatability.patch"
+
 mkdir build
 cd build
 
+# Use GCC 6, because Inviwo won't build with GCC 7.
 export CC=gcc-6
 export CXX=g++-6
 cmake .. -D IVW_EXTERNAL_MODULES="$1/inviwo/modules" \
