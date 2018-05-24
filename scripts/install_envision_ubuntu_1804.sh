@@ -60,7 +60,7 @@ cd build
 export CC=gcc-6
 export CXX=g++-6
 cmake .. -DIVW_EXTERNAL_MODULES="$1/inviwo/modules" \
-         -DIVW_MODULE_CRYSTALVISUALIZATIO=ON \
+         -DIVW_MODULE_CRYSTALVISUALIZATION=ON \
          -DIVW_MODULE_FERMI=OFF \
          -DIVW_MODULE_GRAPH2D=ON \
          -DIVW_MODULE_PYTHON3=ON \
