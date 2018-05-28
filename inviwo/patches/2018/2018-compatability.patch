@@ -32432,10 +32432,20 @@ index 783dc4ffd..000000000
 @@ -1 +0,0 @@
 -Subproject commit 783dc4ffd91ffd901ed67d16e56e7c2df9a8195b
 diff --git a/modules/hdf5/processors/hdf5volumesource.cpp b/modules/hdf5/processors/hdf5volumesource.cpp
-index 3a002bd23..ee73df6b0 100644
+index 3a002bd23..4d9d779c4 100644
 --- a/modules/hdf5/processors/hdf5volumesource.cpp
 +++ b/modules/hdf5/processors/hdf5volumesource.cpp
-@@ -244,9 +244,7 @@ void HDF5ToVolume::onDataChange() {
+@@ -179,8 +179,7 @@ void HDF5ToVolume::process() {
+             ++j;
+         }
+ 
+-        vec3 offset = -0.5f * vec3(basis[0] + basis[1] + basis[2]);
+-        basis[3] = vec4(offset, 1.0f);
++        basis[3] = vec4(vec3(0), 1);
+         volume_->setModelMatrix(basis);
+     } else {
+         volume_->setModelMatrix(basis_);
+@@ -244,9 +243,7 @@ void HDF5ToVolume::onDataChange() {
          std::copy_if(metadata.begin(), metadata.end(), std::back_inserter(volumeMatches_),
                       [](const MetaData& meta) {
                           auto dims = meta.getColumnMajorDimensions();
@@ -32446,7 +32456,7 @@ index 3a002bd23..ee73df6b0 100644
                       });
  
          basisMatches_.clear();
-@@ -320,7 +318,7 @@ void HDF5ToVolume::onSelectionChange() {
+@@ -320,7 +317,7 @@ void HDF5ToVolume::onSelectionChange() {
  }
  
  void HDF5ToVolume::makeVolume() {
