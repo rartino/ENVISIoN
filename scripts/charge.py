@@ -42,7 +42,7 @@ import os, sys
 # Configuration
 PATH_TO_ENVISION=os.path.expanduser("~/ENVISIoN/envision")
 PATH_TO_VASP_CALC=os.path.expanduser("~/ENVISIoN/data/Al/VASP")
-PATH_TO_HDF5=os.path.expanduser("/tmp/envision_demo.hdf5")
+PATH_TO_HDF5=os.path.expanduser("/tmp/envision_demo_charge.hdf5")
 
 sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION))
 
