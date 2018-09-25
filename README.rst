@@ -230,7 +230,7 @@ Setup the Inviwo build directory::
 
 Create Makefiles with cmake::
 
-  cmake -G 'Unix Makefiles' -DCMAKE_PREFIX_PATH="/opt/Qt5.6.1/5.6/gcc_64/lib/cmake" -DIVW_DOXYGEN_PROJECT=OFF -DIVW_MODULE_PYTHON3=ON -DIVW_MODULE_PYTHON3QT=ON -DIVW_PROFILING=ON -DIVW_MODULE_BASECL=OFF -DIVW_MODULE_OPENCL=OFF -DIVW_MODULE_NIFTI=OFF -DIVW_MODULE_VECTORFIELDVISUALIZATION=ON -DIVW_MODULE_VECTORFIELDVISUALIZATIONGL=ON -DIVW_CMAKE_DEBUG=OFF -DIVW_EXTERNAL_MODULES="$(pwd -P)/../ENVISIoN/inviwo/modules" -DIVW_MODULE_CRYSTALVISUALIZATION=ON -DIVW_MODULE_GRAPH2D=ON -DIVW_MODULE_HDF5=ON -DIVW_MODULE_QTWIDGETS=ON -DCMAKE_CXX_FLAGS="-isystem /opt/Qt5.6.1/5.6/gcc_64/include/QtWidgets -isystem /opt/Qt5.6.1/5.6/gcc_64/include/" ../inviwo.git
+  cmake -G 'Unix Makefiles' -DCMAKE_PREFIX_PATH="/opt/Qt5.6.1/5.6/gcc_64/lib/cmake" -DIVW_EXTERNAL_MODULES="$(pwd -P)/../ENVISIoN/inviwo/modules" DCMAKE_CXX_FLAGS="-isystem /opt/Qt5.6.1/5.6/gcc_64/include/QtWidgets -isystem /opt/Qt5.6.1/5.6/gcc_64/include/" ../inviwo.git
 
 Perform the build (set 8 = number of parallell build threads)::
 
