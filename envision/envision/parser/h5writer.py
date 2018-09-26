@@ -173,8 +173,15 @@ def _write_volume(h5file, i, array, data_dim, hdfgroup):
             h5.create_dataset('{}/{}'.format(hdfgroup, i), data = np.reshape(array, (data_dim[2],data_dim[1],data_dim[0])), dtype=np.float32)
         else:
             h5['{}/final'.format(hdfgroup)] = h5['{}/{}'.format(hdfgroup, i-1)]
+    return
+            
             
 def _write_incar(h5file, incar_data):
     with h5py.File(h5file, 'a') as h5:
         for key, value in incar_data.items():
             h5.create_dataset("/incar/{}".format(key), data=value)
+
+def _write_parcharges(h5file, array, data_dim, band_nr):
+    with h5py.File(h5file, "a") as h5:
+        h5.create_dataset('PARCHG/Bands/{}'.format(band_nr), data = np.reshape(array, (data_dim[2],data_dim[1],data_dim[0])), dtype=np.float32)
+    return

@@ -231,7 +231,7 @@ def _find_elements(fileobj, elements, vasp_dir):
     return elements, atoms
 
     
-def unitcell(h5file, vasp_dir, elements=None):
+def unitcell(h5file, vasp_dir, elements=None, poscar_equiv='POSCAR'):
     """POSCAR parser
 
     Reads lattice vectors and atom positions from POSCAR file and writes data to an HDF5 file.
@@ -265,7 +265,7 @@ def unitcell(h5file, vasp_dir, elements=None):
         
     try:
         # Parses lattice vectors and atom positions from POSCAR
-        with open(os.path.join(vasp_dir,'POSCAR'), "r") as f:
+        with open(os.path.join(vasp_dir,poscar_equiv), "r") as f:
             scaling_factor, basis = _parse_lattice(f)
             elements, atoms = _find_elements(f, elements, vasp_dir)
             coords_list = _parse_coordinates(
