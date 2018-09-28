@@ -2,10 +2,11 @@ import os
 import re
 import numpy as np
 import h5py
+import math
 from .unitcell import *
 from ..h5writer import _write_parcharges
 
-def _parse_parcharges(fileobj):
+def _parse_parcharges(fileobj, dataset):
         """Parses partial charge data from a PARCHG.nb.ALLK file in VASP
 
          Parameters
@@ -35,13 +36,16 @@ def _parse_parcharges(fileobj):
         data_dim = [int(n) for n in next(fileobj).split()]
         datasize = data_dim[0]*data_dim[1]*data_dim[2]
         parcharges = []
-
-        for x in range(0, int(datasize/10)):
+        
+        if dataset == 1:
+                for x in range(0, math.ceil(datasize/10)+2):
+                        next(fileobj)
+        
+        for x in range(0, math.ceil(datasize/10)):
                 parcharges.extend([float(n) for n in next(fileobj).split()[:10]])
-                
         return data_dim, np.array(parcharges)
 
-def parchg(h5file, vasp_dir, poscar_equiv='POSCAR'):
+def parchg(h5file, vasp_dir, dataset=1, poscar_equiv='POSCAR'):
         """PARCHG parser 
         
         Reads partial charge data from PARCHG file and writes data to an HDF5 file.
@@ -85,7 +89,7 @@ def parchg(h5file, vasp_dir, poscar_equiv='POSCAR'):
                         for name in band_list:
                                 try:
                                         with open(os.path.join(vasp_dir,name), "r") as f:
-                                                data_dim, parcharges = _parse_parcharges(f)
+                                                data_dim, parcharges = _parse_parcharges(f, dataset)
                                                 band_nr = re.search('PARCHG.(.+?).ALLK', name).group(1)
                                                 _write_parcharges(h5file, parcharges, data_dim, band_nr)
                                 
