@@ -18,4 +18,4 @@ import envision.inviwo
 envision.parser.vasp.parchg(PATH_TO_HDF5, PATH_TO_VASP_CALC, 1)
 
 #envision.inviwo.unitcell(PATH_TO_HDF5, xpos = 0)
-envision.inviwo.parchg(PATH_TO_HDF5, sli = False, parchg_list = range(35,70) , xstart_pos = 600, ystart_pos = 0)
+envision.inviwo.parchg(PATH_TO_HDF5, sli = False, parchg_list = [56, 81] , xstart_pos = 600, ystart_pos = 0)
