@@ -1,3 +1,5 @@
+#copyright stuff, ask Richard?
+
 import os
 import re
 import numpy as np
@@ -43,6 +45,7 @@ def _parse_parcharges(fileobj, dataset):
         
         for x in range(0, math.ceil(datasize/10)):
                 parcharges.extend([float(n) for n in next(fileobj).split()[:10]])
+
         return data_dim, np.array(parcharges)
 
 def parchg(h5file, vasp_dir, dataset=1, poscar_equiv='POSCAR'):
@@ -61,6 +64,10 @@ def parchg(h5file, vasp_dir, dataset=1, poscar_equiv='POSCAR'):
 
             vasp_dir : str
                 Path to directory containing POSCAR file
+
+	    dataset : int
+		 (Default value = 1)
+		Picks out either the first or second data set in the VASP files
 
             poscar_equiv : str
                  (Default value = 'POSCAR')

@@ -47,28 +47,43 @@ app = inviwopy.app
 network = app.network
 
 def merger_calc(l, previous_level):
+    """ Calculates the number of volume merger processors needed per level recursively
+
+    Parameters
+    ---------
+    l : list of int
+       Partial list in the recursive algorithm. Is initially empty.
+    level : int
+       How many processors exist on the level above the current. Is intially the number of
+       HDFToVolume processors.
+
+    Returns
+    ------
+    list
+
+    """
     if previous_level != 1:
         level = math.ceil(previous_level/4)
         l.append(level)
         l = merger_calc(l,level)
     return l
-
-# Function for buiding a volume network for both electron density and electron localisation function data (commented out)
+    
+# Function for buiding a volume network for partial charge distribution
 def parchg(h5file, sli, parchg_list, xstart_pos=0, ystart_pos=0):
-    """ Creates an Inviwo network for visualisation of volume data such as electron density or electron
-            localisation function data.
+    """ Creates an Inviwo network for visualisation of partial charge distribution.
+
     Parameters
     ----------
     h5file : str
         Path to HDF5 file
-    volume : str
-        Specifies type of volume data to be visualised, electron density och ELF. 
     sli : bool
-        True if slice-function is enabled. False otherwise   
-    xpos : int
+        True if slice-function is enabled. False otherwise 
+    parchg_list : list of int
+        List containing the band numbers for the bands to be visualised 
+    xstart_pos : int
          (Default value = 0)
          X coordinate in Inviwo network editor
-    ypos : int
+    ystart_pos : int
          (Default value = 0)
          Y coordinate in Inviwo network editor
     """
@@ -76,13 +91,16 @@ def parchg(h5file, sli, parchg_list, xstart_pos=0, ystart_pos=0):
 
     volume = 'Partial Charge Raycaster' 
     n = len(parchg_list)
+
+    if n == 0:
+        print("No bands chosen. Please choose which bands you want to display by setting the parchg_list parameter.")
+        return
     level_list = []
     level_list = merger_calc(level_list,n)
 
     HDFvolume_list = []
     merger_list = []
     
-    # Shared processors, processor positions and base vectors between electron density and electron localisation function data
     HDFsource = _add_h5source(h5file, xstart_pos, ystart_pos)
     filenameProperty = HDFsource.getPropertyByIdentifier('filename')
     filenameProperty.value = h5file
@@ -120,30 +138,33 @@ def parchg(h5file, sli, parchg_list, xstart_pos=0, ystart_pos=0):
     raycaster_transferfunction_property.clear()
     raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.0,0.01),inviwopy.glm.vec3(0.0,0.0,1.0))
     raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.25,0.01),inviwopy.glm.vec3(0.0,1.0,1.0))
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.5,0.01),inviwopy.glm.vec3(0.0,1.0,0.0))
+    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.5,0.0),inviwopy.glm.vec3(0.0,1.0,0.0))
     raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.75,0.01),inviwopy.glm.vec3(1.0,1.0,0.0))
     raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(1.0,0.01),inviwopy.glm.vec3(1.0,0.0,0.0))
     raycaster_transferfunction_property = Raycaster.getPropertyByIdentifier('transfer-functions').getPropertyByIdentifier('transferFunction2')
     raycaster_transferfunction_property.clear()
     raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.0,0.01),inviwopy.glm.vec3(0.0,0.0,1.0))
     raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.25,0.01),inviwopy.glm.vec3(0.0,1.0,1.0))
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.5,0.01),inviwopy.glm.vec3(0.0,1.0,0.0))
+    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.5,0.0),inviwopy.glm.vec3(0.0,1.0,0.0))
     raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.75,0.01),inviwopy.glm.vec3(1.0,1.0,0.0))
     raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(1.0,0.01),inviwopy.glm.vec3(1.0,0.0,0.0))
     raycaster_transferfunction_property = Raycaster.getPropertyByIdentifier('transfer-functions').getPropertyByIdentifier('transferFunction3')
     raycaster_transferfunction_property.clear()
     raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.0,0.01),inviwopy.glm.vec3(0.0,0.0,1.0))
     raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.25,0.01),inviwopy.glm.vec3(0.0,1.0,1.0))
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.5,0.01),inviwopy.glm.vec3(0.0,1.0,0.0))
+    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.5,0.0),inviwopy.glm.vec3(0.0,1.0,0.0))
     raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.75,0.01),inviwopy.glm.vec3(1.0,1.0,0.0))
     raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(1.0,0.01),inviwopy.glm.vec3(1.0,0.0,0.0))
     raycaster_transferfunction_property = Raycaster.getPropertyByIdentifier('transfer-functions').getPropertyByIdentifier('transferFunction4')
     raycaster_transferfunction_property.clear()
     raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.0,0.01),inviwopy.glm.vec3(0.0,0.0,1.0))
     raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.25,0.01),inviwopy.glm.vec3(0.0,1.0,1.0))
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.5,0.01),inviwopy.glm.vec3(0.0,1.0,0.0))
+    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.5,0.0),inviwopy.glm.vec3(0.0,1.0,0.0))
     raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.75,0.01),inviwopy.glm.vec3(1.0,1.0,0.0))
     raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(1.0,0.01),inviwopy.glm.vec3(1.0,0.0,0.0))
+
+    Raycaster.lighting.shadingMode.selectedIdentifier = 'none'
+   
 
     if sli:
  
@@ -206,7 +227,7 @@ def parchg(h5file, sli, parchg_list, xstart_pos=0, ystart_pos=0):
     network.addLink(MeshRenderer.getPropertyByIdentifier('camera'), EntryExitPoints.getPropertyByIdentifier('camera'))
 
 
-    #Connections from the source and the HDF52Volume blocks
+    #Connections from the source and the HDF5ToVolume blocks
     for i in range(0,n):
         network.addConnection(HDFsource.getOutport('outport'), HDFvolume_list[i].getInport('inport'))
         if merger_list:
