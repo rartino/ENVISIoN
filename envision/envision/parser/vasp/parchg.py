@@ -8,7 +8,7 @@ import math
 from .unitcell import *
 from ..h5writer import _write_parcharges
 
-def _parse_parcharges(fileobj, dataset):
+def _parse_parcharges(fileobj):
         """Parses partial charge data from a PARCHG.nb.ALLK file in VASP
 
          Parameters
@@ -18,10 +18,15 @@ def _parse_parcharges(fileobj, dataset):
          
          Returns
          -------
-         data_dim: list of int
-                   list of dimensions of the data
-         parcharges: list of float
-                     list of partial charge data
+         data_dim_tot: list of int
+                   list of dimensions of the partial charge data (total)
+         parcharges_tot: list of float
+                     list of partial charge data (total)
+         data_dim_mag: list of int
+                   list of dimensions of the partial charge data (magnetic)
+         parcharges_mag : list of float
+                     list of partial charge data (magnetic)
+
         """
         
         atomcount_re=re.compile('^ *(([0-9]+) *)+$')
@@ -35,20 +40,26 @@ def _parse_parcharges(fileobj, dataset):
         for x in range(0, all_atoms+2):
                 next(fileobj)
 
-        data_dim = [int(n) for n in next(fileobj).split()]
-        datasize = data_dim[0]*data_dim[1]*data_dim[2]
-        parcharges = []
+        data_dim_tot = [int(n) for n in next(fileobj).split()]
+        datasize_tot = data_dim_tot[0]*data_dim_tot[1]*data_dim_tot[2]
+        parcharges_tot = []
+        parcharges_mag = []
         
-        if dataset == 1:
-                for x in range(0, math.ceil(datasize/10)+2):
-                        next(fileobj)
+
+        for x in range(0, math.ceil(datasize_tot/10)):
+                parcharges_tot.extend([float(n) for n in next(fileobj).split()[:10]])
+
+        next(fileobj)
+
+        data_dim_mag = [int(n) for n in next(fileobj).split()]
+        datasize_mag = data_dim_mag[0]*data_dim_mag[1]*data_dim_mag[2]
         
-        for x in range(0, math.ceil(datasize/10)):
-                parcharges.extend([float(n) for n in next(fileobj).split()[:10]])
+        for x in range(0, math.ceil(datasize_mag/10)):
+                parcharges_mag.extend([float(n) for n in next(fileobj).split()[:10]])
 
-        return data_dim, np.array(parcharges)
+        return data_dim_tot, data_dim_mag, np.array(parcharges_tot), np.array(parcharges_mag)
 
-def parchg(h5file, vasp_dir, dataset=1, poscar_equiv='POSCAR'):
+def parchg(h5file, vasp_dir, poscar_equiv='POSCAR'):
         """PARCHG parser 
         
         Reads partial charge data from PARCHG file and writes data to an HDF5 file.
@@ -64,10 +75,6 @@ def parchg(h5file, vasp_dir, dataset=1, poscar_equiv='POSCAR'):
 
             vasp_dir : str
                 Path to directory containing POSCAR file
-
-	    dataset : int
-		 (Default value = 1)
-		Picks out either the first or second data set in the VASP files
 
             poscar_equiv : str
                  (Default value = 'POSCAR')
@@ -96,9 +103,11 @@ def parchg(h5file, vasp_dir, dataset=1, poscar_equiv='POSCAR'):
                         for name in band_list:
                                 try:
                                         with open(os.path.join(vasp_dir,name), "r") as f:
-                                                data_dim, parcharges = _parse_parcharges(f, dataset)
+                                                data_dim_tot, data_dim_mag, parcharges_tot, parcharges_mag = _parse_parcharges(f)
                                                 band_nr = re.search('PARCHG.(.+?).ALLK', name).group(1)
-                                                _write_parcharges(h5file, parcharges, data_dim, band_nr)
+                                                while band_nr[0] == '0':
+                                                        band_nr = band_nr[1:]
+                                                _write_parcharges(h5file, parcharges_tot, data_dim_tot, parcharges_mag, data_dim_mag, band_nr)
                                 
                                 except FileNotFoundError:
                                         print("PARCHG file not found.")
