@@ -181,7 +181,8 @@ def _write_incar(h5file, incar_data):
         for key, value in incar_data.items():
             h5.create_dataset("/incar/{}".format(key), data=value)
 
-def _write_parcharges(h5file, array, data_dim, band_nr):
+def _write_parcharges(h5file, array_tot, data_dim_tot, array_mag, data_dim_mag, band_nr):
     with h5py.File(h5file, "a") as h5:
-        h5.create_dataset('PARCHG/Bands/{}'.format(band_nr), data = np.reshape(array, (data_dim[2],data_dim[1],data_dim[0])), dtype=np.float32)
+        h5.create_dataset('PARCHG/Bands/{}/total'.format(band_nr), data = np.reshape(array_tot, (data_dim_tot[2],data_dim_tot[1],data_dim_tot[0])), dtype=np.float32)
+        h5.create_dataset('PARCHG/Bands/{}/magnetic'.format(band_nr), data = np.reshape(array_mag, (data_dim_mag[2],data_dim_mag[1],data_dim_mag[0])), dtype=np.float32)
     return

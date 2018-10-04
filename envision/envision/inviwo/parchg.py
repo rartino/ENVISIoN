@@ -69,7 +69,7 @@ def merger_calc(l, previous_level):
     return l
     
 # Function for buiding a volume network for partial charge distribution
-def parchg(h5file, sli, parchg_list, xstart_pos=0, ystart_pos=0):
+def parchg(h5file, sli, parchg_list=[], parchg_mode='total', mode_list = [], xstart_pos=0, ystart_pos=0):
     """ Creates an Inviwo network for visualisation of partial charge distribution.
 
     Parameters
@@ -80,6 +80,12 @@ def parchg(h5file, sli, parchg_list, xstart_pos=0, ystart_pos=0):
         True if slice-function is enabled. False otherwise 
     parchg_list : list of int
         List containing the band numbers for the bands to be visualised 
+    parchg_mode : str
+        (Default value = 'total')
+        String specifying which dataset should be used for visualization
+    mode_list : list of int
+        (Default value = [])
+        List that specifies what mode the individual bands should be visualized in
     xstart_pos : int
          (Default value = 0)
          X coordinate in Inviwo network editor
@@ -105,8 +111,42 @@ def parchg(h5file, sli, parchg_list, xstart_pos=0, ystart_pos=0):
     filenameProperty = HDFsource.getPropertyByIdentifier('filename')
     filenameProperty.value = h5file
 
+    mode_dict = ['total','magnetic','up','down']
+    if parchg_mode == 'magnetic':
+        mode_list = [1] * n
+    elif parchg_mode == 'total':
+        mode_list = [0] * n
+    elif parchg_mode == 'up':
+        mode_list = [2] * n
+    elif parchg_mode == 'down':
+        mode_list = [3] * n
+    elif parchg_mode == 'mixed':
+        if len(mode_list) != n:
+            print("Number of modes does not match number of bands. parchg_list and mode_list must be equal length. Defaulting to 'total'.")
+            mode_list = [0] * n
+    else:
+        mode_list = [0] * n
+        print("Mode not recognized. Accepted modes are 'total', 'magnetic', 'up', 'down' and 'mixed'. Defaulting to 'total'.")
+
+
+
     for i in range(0, n):
-        HDFvolume_list.append(_add_processor('org.inviwo.hdf5.ToVolume', 'Band ' + str(parchg_list[i]), xstart_pos + 180*i, ystart_pos+75))
+
+        if mode_list[i] == 0 or mode_list[i] == 1:
+            HDFvolume_list.append(_add_processor('org.inviwo.hdf5.ToVolume', 'Band ' + str(parchg_list[i]) + ' ' + mode_dict[mode_list[i]], xstart_pos + 180*i, ystart_pos+225))
+        else:
+            volumeInPlus = _add_processor('org.inviwo.hdf5.ToVolume', 'Band ' + str(parchg_list[i]) + ' total', xstart_pos + 180*i, ystart_pos+75)
+            volumeInMinus = _add_processor('org.inviwo.hdf5.ToVolume', 'Band ' + str(parchg_list[i]) + ' magnetic', xstart_pos + 180*i, ystart_pos+150)
+            volumeCombine = _add_processor('org.inviwo.VolumeCombiner', 'Band ' + str(parchg_list[i]) + ' ' + mode_dict[mode_list[i]], xstart_pos + 180*i, ystart_pos+225)
+
+            if mode_list[i] == 2:
+               volumeCombine.eqn.value = '0.5*(v1+v2)'
+            if mode_list[i] == 3:
+               volumeCombine.eqn.value = '0.5*(v1-v2)'
+            
+            HDFvolume_list.append([volumeInPlus, volumeInMinus, volumeCombine])
+
+
         scaling_factor = 1
         # Read base vectors
         with h5py.File(h5file,"r") as h5:
@@ -118,20 +158,20 @@ def parchg(h5file, sli, parchg_list, xstart_pos=0, ystart_pos=0):
     for i in range(0, len(level_list)):
         submerger_list = []
         for j in range(0, level_list[i]):
-            submerger_list.append(_add_processor('org.inviwo.VolumeMerger', 'Level ' + str(i+1) + '  unit ' + str(j+1), xstart_pos + 180*j, ystart_pos + 150 + 75*i))
+            submerger_list.append(_add_processor('org.inviwo.VolumeMerger', 'Level ' + str(i+1) + '  unit ' + str(j+1), xstart_pos + 180*j, ystart_pos + 300 + 75*i))
         merger_list.append(submerger_list)
     
             
             
     
             
-    BoundingBox = _add_processor('org.inviwo.VolumeBoundingBox', 'Volume Bounding Box', xstart_pos+200, ystart_pos+150 + 75*len(level_list))    
-    MeshRenderer = _add_processor('org.inviwo.GeometryRenderGL', 'Mesh Renderer', xstart_pos+200, ystart_pos+225 + 75*len(level_list))
-    CubeProxyGeometry = _add_processor('org.inviwo.CubeProxyGeometry', 'Cube Proxy Geometry', xstart_pos+30, ystart_pos+150 + 75*len(level_list))
-    EntryExitPoints = _add_processor('org.inviwo.EntryExitPoints', 'EntryExitPoints', xstart_pos+30, ystart_pos+225 + 75*len(level_list))
+    BoundingBox = _add_processor('org.inviwo.VolumeBoundingBox', 'Volume Bounding Box', xstart_pos+200, ystart_pos+375 + 75*len(level_list))    
+    MeshRenderer = _add_processor('org.inviwo.GeometryRenderGL', 'Mesh Renderer', xstart_pos+200, ystart_pos+450 + 75*len(level_list))
+    CubeProxyGeometry = _add_processor('org.inviwo.CubeProxyGeometry', 'Cube Proxy Geometry', xstart_pos+30, ystart_pos+375 + 75*len(level_list))
+    EntryExitPoints = _add_processor('org.inviwo.EntryExitPoints', 'EntryExitPoints', xstart_pos+30, ystart_pos+450 + 75*len(level_list))
  
 
-    Raycaster = _add_processor('org.inviwo.MultichannelRaycaster', volume, xstart_pos, ystart_pos+300 + 75*len(level_list))
+    Raycaster = _add_processor('org.inviwo.MultichannelRaycaster', volume, xstart_pos, ystart_pos+525 + 75*len(level_list))
     # Set colors and transparency
     
     raycaster_transferfunction_property = Raycaster.getPropertyByIdentifier('transfer-functions').getPropertyByIdentifier('transferFunction1')
@@ -210,8 +250,8 @@ def parchg(h5file, sli, parchg_list, xstart_pos=0, ystart_pos=0):
 
     if not sli:
 
-        Background = _add_processor('org.inviwo.Background', 'Background', xstart_pos, ystart_pos+375 + 75*len(level_list))
-        Canvas = _add_processor('org.inviwo.CanvasGL', 'Canvas', xstart_pos, ystart_pos+450 + 75*len(level_list))
+        Background = _add_processor('org.inviwo.Background', 'Background', xstart_pos, ystart_pos+600 + 75*len(level_list))
+        Canvas = _add_processor('org.inviwo.CanvasGL', 'Canvas', xstart_pos, ystart_pos+675 + 75*len(level_list))
         network.addConnection(Raycaster.getOutport('outport'), Background.getInport('inport'))
         canvas_dimensions_property = Canvas.getPropertyByIdentifier('inputSize').getPropertyByIdentifier('dimensions')
         canvas_dimensions_property.value = inviwopy.glm.ivec2(400,400)
@@ -229,12 +269,27 @@ def parchg(h5file, sli, parchg_list, xstart_pos=0, ystart_pos=0):
 
     #Connections from the source and the HDF5ToVolume blocks
     for i in range(0,n):
-        network.addConnection(HDFsource.getOutport('outport'), HDFvolume_list[i].getInport('inport'))
-        if merger_list:
-            if ((i+1) % 4) == 1:
-                network.addConnection(HDFvolume_list[i].getOutport('outport'), merger_list[0][math.floor(i/4)].getInport('inputVolume'))
-            else:
-                network.addConnection(HDFvolume_list[i].getOutport('outport'), merger_list[0][math.floor(i/4)].getInport('volume'+str((i%4)+1)))
+        if mode_list[i] == 0 or mode_list[i] == 1:
+            network.addConnection(HDFsource.getOutport('outport'), HDFvolume_list[i].getInport('inport'))
+            if merger_list:
+                if ((i+1) % 4) == 1:
+                    network.addConnection(HDFvolume_list[i].getOutport('outport'), merger_list[0][math.floor(i/4)].getInport('inputVolume'))
+                else:
+                    network.addConnection(HDFvolume_list[i].getOutport('outport'), merger_list[0][math.floor(i/4)].getInport('volume'+str((i%4)+1)))
+            
+        else:
+            network.addConnection(HDFsource.getOutport('outport'), HDFvolume_list[i][0].getInport('inport'))
+            network.addConnection(HDFsource.getOutport('outport'), HDFvolume_list[i][1].getInport('inport'))
+            network.addConnection(HDFvolume_list[i][0].getOutport('outport'), HDFvolume_list[i][2].getInport('inport'))
+            network.addConnection(HDFvolume_list[i][1].getOutport('outport'), HDFvolume_list[i][2].getInport('inport'))
+            
+            if merger_list:
+                if ((i+1) % 4) == 1:
+                    network.addConnection(HDFvolume_list[i][2].getOutport('outport'), merger_list[0][math.floor(i/4)].getInport('inputVolume'))
+                else:
+                    network.addConnection(HDFvolume_list[i][2].getOutport('outport'), merger_list[0][math.floor(i/4)].getInport('volume'+str((i%4)+1)))
+
+                
     
     #Connections from the mergers
     if not merger_list:
@@ -259,32 +314,47 @@ def parchg(h5file, sli, parchg_list, xstart_pos=0, ystart_pos=0):
     
    
     # Set correct path to volume data
-    
 
+    minValue = inviwopy.glm.mat4(-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
+                                 -1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000)
+    maxValue = inviwopy.glm.mat4(1000,1000,1000,1000,1000,1000,1000,1000,
+                                 1000,1000,1000,1000,1000,1000,1000,1000)
+    value = inviwopy.glm.mat4(scaling_factor * basis_4x4[0][0],scaling_factor * basis_4x4[0][1],scaling_factor * basis_4x4[0][2],
+                              scaling_factor * basis_4x4[0][3],scaling_factor * basis_4x4[1][0],scaling_factor * basis_4x4[1][1],
+                              scaling_factor * basis_4x4[1][2],scaling_factor * basis_4x4[1][3],scaling_factor * basis_4x4[2][0],
+                              scaling_factor * basis_4x4[2][1],scaling_factor * basis_4x4[2][2],scaling_factor * basis_4x4[2][3],
+                              scaling_factor * basis_4x4[3][0],scaling_factor * basis_4x4[3][1],scaling_factor * basis_4x4[3][2],
+                              scaling_factor * basis_4x4[3][3])
+   
     for i in range(0, n):
-        hdfvolume_volumeSelection_property = HDFvolume_list[i].getPropertyByIdentifier('volumeSelection')
 
-        nonzeroes = math.ceil(math.log10(parchg_list[i])) 
-        if nonzeroes == 1:
-            hdfvolume_volumeSelection_property.value = '/PARCHG/Bands/000' + str(parchg_list[i])
-        elif nonzeroes == 2:
-            hdfvolume_volumeSelection_property.value = '/PARCHG/Bands/00' + str(parchg_list[i])
-        elif nonzeroes == 3:
-            hdfvolume_volumeSelection_property.value = '/PARCHG/Bands/0' + str(parchg_list[i])
+        if mode_list[i] == 0 or mode_list[i] == 1:
+            hdfvolume_volumeSelection_property = HDFvolume_list[i].getPropertyByIdentifier('volumeSelection')       
+            hdfvolume_volumeSelection_property.value = '/PARCHG/Bands/' + str(parchg_list[i]) + '/' + mode_dict[mode_list[i]]           
+            HDFvolume_basis_property = HDFvolume_list[i].getPropertyByIdentifier('basisGroup').getPropertyByIdentifier('basis')
+
+            HDFvolume_basis_property.minValue = minValue
+            HDFvolume_basis_property.maxValue = maxValue
+            HDFvolume_basis_property.value = value
+            
         else:
-            hdfvolume_volumeSelection_property.value = '/PARCHG/Bands/' + str(parchg_list[i])
-        
-        HDFvolume_basis_property = HDFvolume_list[i].getPropertyByIdentifier('basisGroup').getPropertyByIdentifier('basis')
-        HDFvolume_basis_property.minValue = inviwopy.glm.mat4(-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
-                                                              -1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000)
-        HDFvolume_basis_property.maxValue = inviwopy.glm.mat4(1000,1000,1000,1000,1000,1000,1000,1000,
-                                                              1000,1000,1000,1000,1000,1000,1000,1000)
-        HDFvolume_basis_property.value = inviwopy.glm.mat4(scaling_factor * basis_4x4[0][0],scaling_factor * basis_4x4[0][1],scaling_factor * basis_4x4[0][2],
-                                                           scaling_factor * basis_4x4[0][3],scaling_factor * basis_4x4[1][0],scaling_factor * basis_4x4[1][1],
-                                                           scaling_factor * basis_4x4[1][2],scaling_factor * basis_4x4[1][3],scaling_factor * basis_4x4[2][0],
-                                                           scaling_factor * basis_4x4[2][1],scaling_factor * basis_4x4[2][2],scaling_factor * basis_4x4[2][3],
-                                                           scaling_factor * basis_4x4[3][0],scaling_factor * basis_4x4[3][1],scaling_factor * basis_4x4[3][2],
-                                                           scaling_factor * basis_4x4[3][3])
+            hdfvolume_volumeSelection_property = HDFvolume_list[i][0].getPropertyByIdentifier('volumeSelection')
+            hdfvolume_volumeSelection_property.value = '/PARCHG/Bands/' + str(parchg_list[i]) + '/' + mode_dict[0]
+            HDFvolume_basis_property = HDFvolume_list[i][0].getPropertyByIdentifier('basisGroup').getPropertyByIdentifier('basis')
+
+            HDFvolume_basis_property.minValue = minValue
+            HDFvolume_basis_property.maxValue = maxValue
+            HDFvolume_basis_property.value = value
+            
+            hdfvolume_volumeSelection_property = HDFvolume_list[i][1].getPropertyByIdentifier('volumeSelection')
+            hdfvolume_volumeSelection_property.value = '/PARCHG/Bands/' + str(parchg_list[i]) + '/' + mode_dict[1]
+            HDFvolume_basis_property = HDFvolume_list[i][1].getPropertyByIdentifier('basisGroup').getPropertyByIdentifier('basis')
+
+            HDFvolume_basis_property.minValue = minValue
+            HDFvolume_basis_property.maxValue = maxValue
+            HDFvolume_basis_property.value = value
+
+   
         
     entryExitPoints_lookFrom_property = EntryExitPoints.getPropertyByIdentifier('camera').getPropertyByIdentifier('lookFrom')
     entryExitPoints_lookFrom_property.value = inviwopy.glm.vec3(0,0,8)
