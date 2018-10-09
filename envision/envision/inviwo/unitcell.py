@@ -46,7 +46,7 @@ from .data import atomic_radii, element_names, element_colors
 app = inviwopy.app
 network = app.network
 
-def _cellnetwork(h5file, md=False, xpos=0, ypos=0):
+def _cellnetwork(h5file, md=False, xpos=0, ypos=0, smallAtoms=False):
     HDFsource = _add_h5source(h5file, xpos, ypos)
 
     meshRend = _add_processor('org.inviwo.SphereRenderer', 'Unit Cell Renderer', xpos, ypos+300)
@@ -109,6 +109,8 @@ def _cellnetwork(h5file, md=False, xpos=0, ypos=0):
             # The different radii of the elements in data.py are just to differentiate between different elements.
             strucMesh_radius_property.maxValue = 10
             strucMesh_radius_property.value = radius
+            if smallAtoms:
+                strucMesh_radius_property.value = 0.1
             strucMesh_color_property = strucMesh.getPropertyByIdentifier('color{0}'.format(i))
             strucMesh_color_property.value = inviwopy.glm.vec4(color[0],color[1],color[2],color[3])
             if md:
@@ -143,7 +145,7 @@ def md(h5file, xpos=0, ypos=0):
     """
     _cellnetwork(h5file, True, xpos, ypos)
 
-def unitcell(h5file, xpos=0, ypos=0):
+def unitcell(h5file, xpos=0, ypos=0, smallAtoms=False):
     """Creates an Inviwo network for unit cell visualization
 
     Parameters
@@ -156,6 +158,9 @@ def unitcell(h5file, xpos=0, ypos=0):
     ypos : int
          (Default value = 0)
          Y coordinate in Inviwo network editor
+    smallAtoms : bool
+               (Default value = False)
+               Determines the radius of the atoms. Small radii are better for charge visualisation.
 
     """
-    _cellnetwork(h5file, False, xpos, ypos)
+    _cellnetwork(h5file, False, xpos, ypos, smallAtoms)
