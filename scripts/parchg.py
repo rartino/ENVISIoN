@@ -31,8 +31,8 @@ import envision.inviwo
 #ystart_pos : where you want the Inviwo circuit to start on the y-axis
 
 
-#envision.parser.vasp.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+envision.parser.vasp.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 envision.parser.vasp.parchg(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
-#envision.inviwo.unitcell(PATH_TO_HDF5, xpos = 0)
-envision.inviwo.parchg(PATH_TO_HDF5, sli = False, parchg_list = [80,81], parchg_mode = 'mixed', mode_list = [2,1], xstart_pos = 600, ystart_pos = 0)
+envision.inviwo.unitcell(PATH_TO_HDF5, xpos = 0, ypos = 0, smallAtoms = True)
+envision.inviwo.parchg(PATH_TO_HDF5, sli = False, parchg_list = [80,81,56,57,58,59], parchg_mode = 'total', mode_list = [2,1], xstart_pos = 600, ystart_pos = 0)
