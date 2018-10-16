@@ -2,6 +2,7 @@
 #  ENVISIoN
 #
 #  Copyright (c) 2017-2018 Josef Adamsson, Anders Rehult, Marian Brännvall, Andreas Kempe
+#  Modification copyright (c) 2018 Elvis Jakobsson
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
