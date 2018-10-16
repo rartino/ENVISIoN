@@ -1,8 +1,37 @@
+#
+#  ENVISIoN
+#
+#  Copyright (c) 2018 Elvis Jakobsson
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#
+#  1. Redistributions of source code must retain the above copyright notice, this
+#  list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright notice,
+#  this list of conditions and the following disclaimer in the documentation
+#  and/or other materials provided with the distribution.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+#  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+#  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+#  ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+#  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+##############################################################################################
+
+
 import os, sys
 
 # Configuration
 PATH_TO_ENVISION=os.path.expanduser("~/PROJLAB/ENVISIoN/envision")
-PATH_TO_VASP_CALC=os.path.expanduser("~/PROJLAB/ENVISIoN/data/parV")
+PATH_TO_VASP_CALC=os.path.expanduser("~/PROJLAB/ENVISIoN/data/parIV")
 PATH_TO_HDF5=os.path.expanduser("~/Desktop/demo.hdf5")
 
 sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION))
@@ -31,8 +60,8 @@ import envision.inviwo
 #ystart_pos : where you want the Inviwo circuit to start on the y-axis
 
 
-envision.parser.vasp.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+#envision.parser.vasp.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 envision.parser.vasp.parchg(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
-envision.inviwo.unitcell(PATH_TO_HDF5, xpos = 0, ypos = 0, smallAtoms = True)
-envision.inviwo.parchg(PATH_TO_HDF5, sli = False, parchg_list = [80,81,56,57,58,59], parchg_mode = 'total', mode_list = [2,1], xstart_pos = 600, ystart_pos = 0)
+#envision.inviwo.unitcell(PATH_TO_HDF5, xpos = 0, ypos = 0, smallAtoms = True)
+envision.inviwo.parchg(PATH_TO_HDF5, sli = False, parchg_list = [80,80,80,80], parchg_mode = 'mixed', mode_list = [0,1,2,3], xstart_pos = 600, ystart_pos = 0)
