@@ -69,19 +69,25 @@ def _parse_parcharges(fileobj):
         data_dim_tot = [int(n) for n in next(fileobj).split()]
         datasize_tot = data_dim_tot[0]*data_dim_tot[1]*data_dim_tot[2]
         parcharges_tot = []
+
+        data_dim_mag = []
         parcharges_mag = []
         
 
         for x in range(0, math.ceil(datasize_tot/10)):
                 parcharges_tot.extend([float(n) for n in next(fileobj).split()[:10]])
 
-        next(fileobj)
-
-        data_dim_mag = [int(n) for n in next(fileobj).split()]
-        datasize_mag = data_dim_mag[0]*data_dim_mag[1]*data_dim_mag[2]
+        try:
+                next(fileobj)
+                data_dim_mag = [int(n) for n in next(fileobj).split()]
+                datasize_mag = data_dim_mag[0]*data_dim_mag[1]*data_dim_mag[2]
         
-        for x in range(0, math.ceil(datasize_mag/10)):
-                parcharges_mag.extend([float(n) for n in next(fileobj).split()[:10]])
+                for x in range(0, math.ceil(datasize_mag/10)):
+                        parcharges_mag.extend([float(n) for n in next(fileobj).split()[:10]])
+                        
+        except StopIteration:
+                print("No magnetic charge density found. Skipping.")
+        
 
         return data_dim_tot, data_dim_mag, np.array(parcharges_tot), np.array(parcharges_mag)
 

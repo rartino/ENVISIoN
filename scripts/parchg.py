@@ -31,7 +31,7 @@ import os, sys
 
 # Configuration
 PATH_TO_ENVISION=os.path.expanduser("~/PROJLAB/ENVISIoN/envision")
-PATH_TO_VASP_CALC=os.path.expanduser("~/PROJLAB/ENVISIoN/data/parIV")
+PATH_TO_VASP_CALC=os.path.expanduser("~/PROJLAB/ENVISIoN/data/diamond")
 PATH_TO_HDF5=os.path.expanduser("~/Desktop/demo.hdf5")
 
 sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION))
@@ -60,8 +60,8 @@ import envision.inviwo
 #ystart_pos : where you want the Inviwo circuit to start on the y-axis
 
 
-#envision.parser.vasp.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+envision.parser.vasp.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 envision.parser.vasp.parchg(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
-#envision.inviwo.unitcell(PATH_TO_HDF5, xpos = 0, ypos = 0, smallAtoms = True)
-envision.inviwo.parchg(PATH_TO_HDF5, sli = False, parchg_list = [80,80,80,80], parchg_mode = 'mixed', mode_list = [0,1,2,3], xstart_pos = 600, ystart_pos = 0)
+envision.inviwo.unitcell(PATH_TO_HDF5, xpos = 0, ypos = 0, smallAtoms = True)
+envision.inviwo.parchg(PATH_TO_HDF5, sli = False, parchg_list = [1,2,3,4], parchg_mode = 'total', mode_list = [0,1,2,3], xstart_pos = 600, ystart_pos = 0)
