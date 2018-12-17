@@ -1,5 +1,8 @@
 % XML-filerna är skapade med hjälp av draw.io. Använd https://www.draw.io/ för att redigera dessa.
 
+
+% XML-filerna är skapade med hjälp av draw.io. Använd https://www.draw.io/ för att redigera dessa.
+
 \documentclass[a4paper,12pt]{article}
 \usepackage{graphicx}
 \usepackage[backend=biber]{biblatex}
@@ -7,6 +10,7 @@
 \usepackage[swedish]{babel}
 \usepackage[titletoc]{appendix}
 \usepackage{pdfpages}
+\usepackage{mathtools}
 \addbibresource{bibliography.bib}
 \input{LIPSds.tex}
 \pagenumbering{roman}
@@ -168,7 +172,7 @@ men finns väl beskrivna i \emph{High Level Introduction to HDF5} \cite{hdf5-int
 \end{itemize}
 
 \section{Produkten}
-Visualiseringsverktyget kan visualisera elektrontäthet, ELF (Electron localization function), kristallstruktur som atompositioner i enehetscellen samt total och partiell tillståndstäthet.
+Visualiseringsverktyget kan visualisera total elektrontäthet, partiell elektrontäthet, ELF (Electron localization function), kristallstruktur som atompositioner i enehetscellen samt total och partiell tillståndstäthet.
 % TODO: Lägg till Fermi om det lyckas visualiseras.
 
 Figur \ref{fig:interface} visar vad användaren ser när ELF-data för diamant visualiseras. Längst till vänster i figuren ses ett fönster med Properties, i detta fall för processorn ELF raycasting som kan hittas i nätverket längst till höger i figuren. Properties för de olika processorerna fås när en processor är markerad. I mitten av figuren ligger den utritade bilden. Bilden kan roteras genom att klicka och dra i den. I fönstret Properties finns en Property vid namn Transfer function, med hjälp av vilken användaren kan ändra transparens/opacitet samt färg, se figur \ref{fig:transferfunction}.
@@ -229,6 +233,7 @@ Från beräkningsprogrammet VASP fås en rad olika utdatafiler och dessa listas 
 \begin{itemize}
 	\item{POSCAR} innehåller data för enhetscellen samt atompositionsdata.
     \item{CHG} innehåller laddningstäthetsdata.
+    \item{PARCHG} innehåller partiell laddningstäthetsdata.
     \item{DOSCAR} innehåller tillståndstäthetsdata. Se kapitel \ref{ch:dosparser} för mer information.
     \item{EIGENVAL} innehåller data för alla energier i k-rummet.
     \item{POTCAR} innehåller data om atomtyper.
@@ -245,7 +250,7 @@ ska läsas in till.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[scale=0.16]{hdf5-dataformat3tekdok.png}
+    \includegraphics[scale=0.16]{hdf5-dataformat3modi.png}
     \caption{Dataformatet som används när VASP konverteras till HDF5.
     Se större bild i Bilaga \ref{appendix:hdf5-format} och \ref{appendix:hdf5-format2}.}
     \label{fig:hdf5-dataformat3}
@@ -381,6 +386,28 @@ Returnerar:
 \item None.
 \end{itemize}
 
+\textbf{\_write\_parcharges} \newline
+Denna funktion skriver ut parsad data från en PARCAR-fil i ett dataset. Datasetet namnges som typen av data (\emph{total} eller \emph{magnetic}) och placeras i en grupp enligt dess bandnummer. Denna grupp ligger i sin tur i gruppen PARCHG/Bands. Till exampel kommer total partiell laddningstäthet från band 32 att återfinnas under PARCHG/Bands/32/total.
+
+Parametrar:
+\begin{itemize}
+\setlength\itemsep{0em}
+\item h5file: Sökväg till HDF5-fil.
+\item array\_tot: Array med parsad data för (partiell) laddningstäthet.
+\item data\_dim\_tot: Dimension för array\_tot.
+\item array\_mag: Array med parsad data för magnetiseringstäthet.
+\item data\_dim\_mag: Dimension för array\_mag.
+\item band\_nr
+\item incar\_data: Datalexikon med all data från INCAR-filen.
+\end{itemize}
+
+Returnerar:
+\begin{itemize}
+\setlength\itemsep{0em}
+\item None.
+\end{itemize}
+
+
 \subsection{Moduler för parsning}
 Samtliga moduler för parsning består av diverse pythonfunktioner som utför själva parsningen av data. Dessa innefattar parsers som endast parsar specifika data, en som parsar INCAR-data samt en funktion som anropar samtliga parsers utom INCAR-parsern.
 
@@ -411,6 +438,25 @@ Volymparsern består av en mängd funktioner i en pythonfil som används för pa
 Funktionsanrop vid parsning av CHG-data: envision.parser.vasp.charge(h5file, vasp\_dir)
 
 Funktionsanrop vid parsning av ELFCAR-data: envision.parser.vasp.elf(h5file, vasp\_dir)
+
+Parametrar:
+\begin{itemize}
+\setlength\itemsep{0em}
+\item h5file: Sökväg till HDF5-fil.
+\item vasp\_dir: Sökväg till VASP-katalog.
+\end{itemize}
+
+Returnerar:
+\begin{itemize}
+\setlength\itemsep{0em}
+\item Bool: True om parsning skett felfritt, False annars.
+\end{itemize}
+
+\subsubsection{Partiell laddningstäthetsparser}
+
+Parsern för partiell laddningstäthet liknar volymparsern, men med några ändringar för att kunna läsa in data från PARCHG-filer, vilka har en struktur som skiljer sig nämnvärt från CHG and ELFCAR. 
+
+Funktionsanrop vid parsning av PARCHG-data: envision.parser.vasp.parchg(h5file, vasp\_dir)
 
 Parametrar:
 \begin{itemize}
@@ -577,9 +623,9 @@ Raycasting, therefore no slice-function is showing.” och en visualisering med 
 \end{figure}
 
 Systemet som bygger volymnätverket består av en pythonfil med namnet volume
-innehållandes tre funktioner: charge, elf och volume\_network.
+innehållandes fyra funktioner: charge, elf, parchg och volume\_network.
 
-Funktionerna charge och elf är de funktioner som användaren anropar och de tar vardera fem argument:
+Funktionerna charge, elf och parchg är de funktioner som användaren anropar. Charge och elf tar vardera fem argument:
 
 \begin{itemize}
 \item h5file: Sökvägen till HDF5-filen där samtlig data finns.
@@ -598,7 +644,23 @@ Funktionsanrop ELF: \newline
 envision.inviwo.elf(h5file, iso = None
 , slice = False, xpos = 0, ypos = 0) \newline
 
-Dessa två funktioner anropar funktionerna volume\_network som bygger själva nätverket. Denna tar argumenteten:
+Funktionen parchg har en lite mer komplicerad struktur, och tar sju argument:
+
+\begin{itemize}
+\item h5file: Sökvägen till HDF5-filen där samtlig data finns.
+\item slice: Bool-variabel som sätts till True om slicefunktion önskas, annars till False.
+\item parchg\_list: Lista som innehåller heltal, där varje element är ett bandnummer till en av de partiella laddningstätheter som ska visualiseras. Default är en tom lista.
+\item parchg\_mode: Sträng som kan sättas till någon av följande för att ändra hur den partiella laddningstätheten visualiseras: 'total', 'magnetic', 'up', 'down', 'mixed'. Default = 'total'.
+\item mode\_list: Om parchg\_mode = 'mixed' krävs inparametern mode\_list, som är lista med exakt lika många element som parchg\_list. För varje element i parchg\_list berättar motsvarande element i mode\_list vilket av de fyra första moder som beskrivs i mode\_list som det bandet ska visualiseras enligt. Elementen är heltal som enumererar moderna, dvs 0 motsvarar 'total', 1 'magnetic', 2 'up' och 3 'down'. Default är en tom lista.
+\item xpos: Den översta processorns x-koordinat. Default = 0.
+\item ypos: Den översta processorns y-koordinat. Default = 0.
+\end{itemize}
+
+Funktionsanrop charge: \newline
+envision.inviwo.charge(h5file, iso = None,
+slice = False, xpos = 0, ypos = 0)
+
+Dessa tre funktioner anropar funktionerna volume\_network som bygger själva nätverket. Denna tar argumenteten:
 
 \begin{itemize}
 \item h5file: Sökvägen till HDF5-filen där samtlig data finns.
@@ -609,7 +671,7 @@ Dessa två funktioner anropar funktionerna volume\_network som bygger själva n�
 \item ytart\_pos: Den översta processorns y-koordinat.
 \end{itemize}
 
-Funktionen charge anropar användaren för att visualisera elektrontäthet och funktionen elf för att visualisera ELF-data. Båda dessa anger argumentet ``h5file” i funktionen volume\_network 
+Funktionen charge anropar användaren för att visualisera elektrontäthet, funktionen parchg för att visualisera partiell elektrontäthet och funktionen elf för att visualisera ELF-data. Dessa tre anger alla argumentet ``h5file” i funktionen volume\_network 
 med det värde användaren gett som argument 
 ``h5file” till respektive funktion som. Argumentet ``volume” anger funktionen charge som ``Charge raycaster” och funktionen elf som ``Elf raycaster”. 
 Resterande argument sätts, på samma sätt som för argumentet ``h5file”, till det värde användaren gett motsvarande argument till respektive funktion.
@@ -637,6 +699,29 @@ se figur \ref{fig:screenshot_NaCl_laddningstathetslice}
 ovan och dess indata utgörs, förutom av utdata från Volume Slice processorn, av utdata 
 från processorn för ray casting. Denna data skickas sedan, via processorn Background som skapar en 
 bakgrund, till Canvas-processorn. Se figur \ref{fig:screenshot_NaCl_laddningstathetslicenatverk} som visar en skärmbild från Inviwo över nätverket när laddningstäthet för natriumklorid, NaCl, visualiseras med hjälp av volume ray casting och slice-funktion.
+
+Vid visualisering krävs extra funktionalitet för att korrekt avspegla datan som används. Användaren kan visualisera hur många band som helst samtidigt (även om Inviwo i nuläget inte kan återge mer än 4 volymdatamängder korrekt), och således skapas ett antal Volume Merger-processorer dynamiskt för att sammanföra alla datamängder till en enda mängd. Antalet processorer som krävs ges av följande iterativa samband,
+
+\begin{equation}
+\alpha_k = \begin{cases} 
+\lceil{}\frac{\alpha_{k-1}}{4}\rceil{}, & \mbox{if } \alpha_{k-1}\neq{}1 \\
+0, & \mbox{if } \alpha_{k-1}=1
+\end{cases}
+, k > 1
+\end{equation}
+
+där $\alpha_k$ är antal processorer som behövs på rad $k$, och $\alpha_1$ ges av
+
+\begin{equation}
+\alpha_1 = \begin{cases} 
+\lceil{}\frac{n}{4}\rceil{}, & \mbox{if } n\neq{}1 \\
+0, & \mbox{if } n=1
+\end{cases}
+\end{equation}
+
+där $n$ är antalet datamängder som ska sammanföras.
+
+Om användaren vidare har valt att visualisera spinpolariserad laddingstäthet så används Volume Combiner-processorer för att addera eller subtrahera laddning- och magnetiseringstätheten innan datamängden matas in i merger-processorerna. 
 
 \subsubsection{Nätverk för visualisering av enhetscell} 
 Funktionen för visualisering av enhetscell
@@ -1041,7 +1126,7 @@ Detta år har Fermi-ytor varit en av egenskaperna som skulle visualiseras, det h
 \label{appendix:hdf5-format}
 \begin{figure}[H]
     \centering
-    \includegraphics[scale=0.28,angle=-90,origin=c]{hdf5-dataformat3.png}
+    \includegraphics[scale=0.28,angle=-90,origin=c]{hdf5-dataformat3modi.png}
     \caption{Dataformatet som används när VASP konverteras till HDF5.}
     \label{fig:hdf5-dataformat-roterad}
 \end{figure}
@@ -1050,7 +1135,7 @@ Detta år har Fermi-ytor varit en av egenskaperna som skulle visualiseras, det h
 \label{appendix:hdf5-format2}
 \begin{figure}[H]
     \centering
-    \includegraphics[scale=0.42,angle=-90,origin=c]{hdf5-dataformat3del1.png}
+    \includegraphics[scale=0.40,angle=-90,origin=c]{hdf5-dataformat3del1modi.png}
     \caption{Dataformatet som används när VASP konverteras till HDF5 del 1.}
 \end{figure}
 
