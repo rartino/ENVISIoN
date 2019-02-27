@@ -111,13 +111,13 @@ StructureMesh::StructureMesh()
 
 void StructureMesh::process() {
     if (fullMesh_.get()) {
-	auto mesh = std::make_shared<BasicMesh>();
+	auto mesh = std::make_shared<SphereMesh>();
 	mesh_.setData(mesh);
 	size_t ind = 0;
 	for (const auto &strucs : structure_) {
 	    for (long long j = 0; j < static_cast<long long>(strucs->size()); ++j) {
         auto center = scalingFactor_.get() * basis_.get() * strucs->at(j) - 0.5f * (basis_.get()[0] + basis_.get()[1] + basis_.get()[2]);
-		BasicMesh::sphere(center, radii_[ind]->get(), colors_[ind]->get(), mesh);
+		mesh->addVertex(center, radii_[ind]->get(), colors_[ind]->get());
 	    }
 	    ++ind;
 	}

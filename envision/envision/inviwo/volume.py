@@ -90,18 +90,14 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
     if iso==None:
         Raycaster = _add_processor('org.inviwo.VolumeRaycaster', volume, xstart_pos, ystart_pos+300)
         # Set colors and transparency
-        raycaster_transferfunction_property = Raycaster.getPropertyByIdentifier('transferFunction')
+        raycaster_transferfunction_property = Raycaster.isotfComposite.transferFunction
+        print(raycaster_transferfunction_property)
         raycaster_transferfunction_property.clear()
-        raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.0,0.01),inviwopy.glm.vec3(0.0,0.0,1.0))
-        raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.25,0.01),inviwopy.glm.vec3(0.0,1.0,1.0))
-        raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.5,0.01),inviwopy.glm.vec3(0.0,1.0,0.0))
-        raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.75,0.01),inviwopy.glm.vec3(1.0,1.0,0.0))
-        raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(1.0,0.01),inviwopy.glm.vec3(1.0,0.0,0.0))
-        """
-        raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.6,1.0),inviwopy.glm.vec3(0.0,1.0,1.0))
-        raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.45,0.0),inviwopy.glm.vec3(0.0,0.0,1.0))
-        raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.7,0.0),inviwopy.glm.vec3(0.0,0.0,0.0))
-        """
+        raycaster_transferfunction_property.add(0 ,inviwopy.glm.vec4(0.0,0.0,1.0,0.01))
+        raycaster_transferfunction_property.add(0.25,inviwopy.glm.vec4(0.0,1.0,1.0,0.01))
+        raycaster_transferfunction_property.add(0.5,inviwopy.glm.vec4(0.0,1.0,0.0,0.01))
+        raycaster_transferfunction_property.add(0.75,inviwopy.glm.vec4(1.0,1.0,0.0,0.01))
+        raycaster_transferfunction_property.add(1.0,inviwopy.glm.vec4(1.0,0.0,0.0,0.01))
     else:
         Raycaster = _add_processor('org.inviwo.ISORaycaster', volume, xstart_pos, ystart_pos+300)
         raycaster_isovalue_property = Raycaster.getPropertyByIdentifier('raycasting').getPropertyByIdentifier('isoValue')
