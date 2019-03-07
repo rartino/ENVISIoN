@@ -41,8 +41,8 @@
 #include "lineplotprocessor.h"
 
 #include <inviwo/core/datastructures/buffer/bufferramprecision.h>
-#include <modules/animation/datastructures/interpolation.h>
-#include <modules/opengl/texture/textureutils.cpp>
+#include <inviwo/core/util/interpolation.h>
+#include <modules/opengl/texture/textureutils.h>
 
 namespace glm {
 
@@ -144,7 +144,6 @@ lineplotprocessor::lineplotprocessor()
 
     font_.fontFace_.setSelectedIdentifier("arial");
     font_.fontFace_.setCurrentStateAsDefault();
-    font_.fontSize_.setSelectedIndex(5);
     font_.fontSize_.setCurrentStateAsDefault();
     font_.anchorPos_ = vec2(-1, -0.97);
 
@@ -155,11 +154,10 @@ lineplotprocessor::lineplotprocessor()
 }
 
 void lineplotprocessor::process() {
-    std::shared_ptr<BasicMesh> mesh = std::make_shared<BasicMesh>();
-    IndexBufferRAM* indices = mesh->addIndexBuffer(DrawType::Lines, ConnectivityType::None);
+    std::shared_ptr <BasicMesh> mesh = std::make_shared<BasicMesh>();
+    IndexBufferRAM *indices = mesh->addIndexBuffer(DrawType::Lines, ConnectivityType::None).get();
 
     std::shared_ptr<const DataFrame> inputFrame = dataFrameInport_.getData();
-
     // We want at least two columns. One named X and one named Y.
     if (inputFrame->getNumberOfColumns() >= 2) {
         std::shared_ptr<const Column> x = nullptr;
@@ -232,7 +230,7 @@ void lineplotprocessor::process() {
             // labels on the left side of the y-axis.
             size_t max_length = std::to_string(y_max).size();
             size_t  min_length = std::to_string(y_min).size();
-            float font_pixels = font_.fontSize_.getSelectedValue() *
+            float font_pixels = font_.fontSize_ *
                                 std::max(max_length, min_length);
             float text_proportion = (font_pixels / labels_.getDimensions()[0])
                                     * 1.2;
@@ -317,7 +315,7 @@ void lineplotprocessor::process() {
                                     s * normalise(y_range_.getMaxValue()[0],
                                                   y_min, y_max) + (1 - s) / 2,
                                     0);
-            mesh->append(BasicMesh::line(y_start_point, y_end_point, vec3(0, 0, 1),
+            mesh->append(lineMesh(y_start_point, y_end_point, vec3(0, 0, 1),
                                          line_colour_.get(), axis_width_.get(),
                                          ivec2(2, 2)).get());
         }
@@ -369,7 +367,7 @@ void lineplotprocessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
                                           x_min, x_max) + (1 - s) / 2,
                             s * normalise(0, y_min, y_max) + (1 - s) / 2,
                             0);
-    mesh->append(BasicMesh::line(x_start_point, x_end_point, vec3(0, 0, 1),
+    mesh->append(lineMesh(x_start_point, x_end_point, vec3(0, 0, 1),
                                  axis_colour_.get(), axis_width_.get(),
                                  ivec2(2, 2)).get());
 
@@ -384,7 +382,7 @@ void lineplotprocessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
                             s * normalise(y_range_.getMaxValue()[0],
                                           y_min, y_max) + (1 - s) / 2,
                             0);
-    mesh->append(BasicMesh::line(y_start_point, y_end_point, vec3(0, 0, 1),
+    mesh->append(lineMesh(y_start_point, y_end_point, vec3(0, 0, 1),
                                  axis_colour_.get(), axis_width_.get(),
                                  ivec2(2, 2)).get());
 
@@ -399,7 +397,7 @@ void lineplotprocessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
                                 s * normalise(y_range_.getMaxValue()[0],
                                               y_min, y_max) + (1 - s) / 2,
                                 0);
-        mesh->append(BasicMesh::line(y_start_point, y_end_point, vec3(0, 0, 1),
+        mesh->append(lineMesh(y_start_point, y_end_point, vec3(0, 0, 1),
                                      grid_colour_.get(), grid_width_.get(),
                                      ivec2(2, 2)).get());
     }
@@ -415,24 +413,24 @@ void lineplotprocessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
                                               x_min, x_max) + (1 - s) / 2,
                                 s * normalise(y, y_min, y_max) + (1 - s) / 2,
                                 0);
-        mesh->append(BasicMesh::line(x_start_point, x_end_point, vec3(0, 0, 1),
+        mesh->append(lineMesh(x_start_point, x_end_point, vec3(0, 0, 1),
                                      grid_colour_.get(), grid_width_.get(),
                                      ivec2(2, 2)).get());
     }
 
     // Draw an arrow on the Y axis.
-    mesh->append(BasicMesh::line(y_end_point, y_end_point + vec3(0.005, -0.01, 0), vec3(0, 0, 1),
+    mesh->append(lineMesh(y_end_point, y_end_point + vec3(0.005, -0.01, 0), vec3(0, 0, 1),
                                  axis_colour_.get(), axis_width_.get(),
                                  ivec2(2, 2)).get());
-    mesh->append(BasicMesh::line(y_end_point, y_end_point + vec3(-0.005, -0.01, 0), vec3(0, 0, 1),
+    mesh->append(lineMesh(y_end_point, y_end_point + vec3(-0.005, -0.01, 0), vec3(0, 0, 1),
                                  axis_colour_.get(), axis_width_.get(),
                                  ivec2(2, 2)).get());
 
     // Draw an arrow on the X axis.
-    mesh->append(BasicMesh::line(x_end_point, x_end_point + vec3(-0.01, 0.005, 0), vec3(0, 0, 1),
+    mesh->append(lineMesh(x_end_point, x_end_point + vec3(-0.01, 0.005, 0), vec3(0, 0, 1),
                                  axis_colour_.get(), axis_width_.get(),
                                  ivec2(2, 2)).get());
-    mesh->append(BasicMesh::line(x_end_point, x_end_point + vec3(-0.01, -0.005, 0), vec3(0, 0, 1),
+    mesh->append(lineMesh(x_end_point, x_end_point + vec3(-0.01, -0.005, 0), vec3(0, 0, 1),
                                  axis_colour_.get(), axis_width_.get(),
                                  ivec2(2, 2)).get());
 }
@@ -494,7 +492,6 @@ void lineplotprocessor::drawText(const std::string& text, vec2 position, bool an
     std::shared_ptr<Texture2D> texture(nullptr);
     texture  = util::createTextTexture(textRenderer_,
                                        text,
-                                       font_.fontSize_.getSelectedValue(),
                                        text_colour_.get(),
                                        texture);
 

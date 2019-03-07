@@ -52,6 +52,7 @@
 #include <modules/graph2d/graph2dmoduledefine.h>
 #include <modules/opengl/rendering/texturequadrenderer.h>
 #include <modules/plotting/datastructures/dataframe.h>
+#include <modules/graph2d/datastructures/geometry/linemesh.h>
 
 namespace inviwo {
 

@@ -1,6 +1,8 @@
 /*********************************************************************************
  *
- * Copyright (c) 2017 Robert Cranston
+ * Inviwo - Interactive Visualization Workshop
+ *
+ * Copyright (c) 2017-2019 Inviwo Foundation, Abdullatif Ismail
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,40 +26,22 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *********************************************************************************/
+/*
+ * This file only contains one function called linemesh().
+ * The function creates a BasicMesh and forms it into a line
+ * using the values given as inparm.
+ * */
 
-#include <modules/graph2d/graph2dmodule.h>
+#ifndef IVW_LINEMESH_H
+#define IVW_LINEMESH_H
 
-#include <modules/graph2d/datastructures/graph2ddata.h>
-#include <modules/graph2d/processors/hdf5pathselectionint.h>
-#include <modules/graph2d/processors/hdf5pathselectionintvector.h>
-#include <modules/graph2d/processors/hdf5pathselectionallchildren.h>
-#include <modules/graph2d/processors/hdf5topoint.h>
-#include <modules/graph2d/processors/hdf5tofunction.h>
-#include <modules/graph2d/processors/functionoperationunary.h>
-#include <modules/graph2d/processors/functionoperationnary.h>
-#include <modules/graph2d/processors/lineplotprocessor.h>
-//#include <modules/graph2d/processors/plotter.h>
+#include <inviwo/core/datastructures/geometry/basicmesh.h>
 
 namespace inviwo {
 
-graph2dModule::graph2dModule(InviwoApplication* app) : InviwoModule(app, "graph2d") {
-
-    // Processors.
-    registerProcessor<HDF5PathSelectionInt>();
-    registerProcessor<HDF5PathSelectionIntVector>();
-    registerProcessor<HDF5PathSelectionAllChildren>();
-    registerProcessor<HDF5ToPoint>();
-    registerProcessor<HDF5ToFunction>();
-    registerProcessor<FunctionOperationUnary>();
-    registerProcessor<FunctionOperationNary>();
-    registerProcessor<lineplotprocessor>();
-    //registerProcessor<Plotter>();
-
-    // Ports.
-    registerPort<DataOutport<Point>>();
-    registerPort<DataInport<Point>>();
-    registerPort<DataOutport<Function>>();
-    registerPort<DataInport<Function>>();
-}
-
+    std::shared_ptr<BasicMesh> lineMesh(const vec3& start, const vec3& stop, const vec3& normal,
+                                        const vec4& color /*= vec4(1.0f, 0.0f, 0.0f, 1.0f)*/,
+                                        const float& width /*= 1.0f*/,
+                                        const ivec2& inres /*= ivec2(1)*/);
 } // namespace
+#endif
