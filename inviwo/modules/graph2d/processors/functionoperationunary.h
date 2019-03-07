@@ -47,7 +47,7 @@
 #include <inviwo/core/properties/optionproperty.h>
 #include <inviwo/core/properties/boolproperty.h>
 #include <inviwo/core/properties/ordinalproperty.h>
-#include <plotting/datastructures/dataframe.h>
+#include <modules/plotting/datastructures/dataframe.h>
 
 #include <modules/graph2d/datastructures/graph2ddata.h>
 

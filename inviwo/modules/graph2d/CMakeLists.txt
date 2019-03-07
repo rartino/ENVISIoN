@@ -6,6 +6,7 @@ ivw_module(graph2d)
 # Add header files
 set(HEADER_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/datastructures/graph2ddata.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/datastructures/geometry/linemesh.h
     ${CMAKE_CURRENT_SOURCE_DIR}/processors/functionoperationnary.h
     ${CMAKE_CURRENT_SOURCE_DIR}/processors/functionoperationunary.h
     ${CMAKE_CURRENT_SOURCE_DIR}/processors/hdf5pathselectionallchildren.h
@@ -24,6 +25,7 @@ ivw_group("Header Files" ${HEADER_FILES})
 # Add source files
 set(SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/datastructures/graph2ddata.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/datastructures/geometry/linemesh.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/processors/functionoperationnary.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/processors/functionoperationunary.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/processors/hdf5pathselectionallchildren.cpp

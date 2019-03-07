@@ -91,7 +91,6 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
         Raycaster = _add_processor('org.inviwo.VolumeRaycaster', volume, xstart_pos, ystart_pos+300)
         # Set colors and transparency
         raycaster_transferfunction_property = Raycaster.isotfComposite.transferFunction
-        print(raycaster_transferfunction_property)
         raycaster_transferfunction_property.clear()
         raycaster_transferfunction_property.add(0 ,inviwopy.glm.vec4(0.0,0.0,1.0,0.01))
         raycaster_transferfunction_property.add(0.25,inviwopy.glm.vec4(0.0,1.0,1.0,0.01))
