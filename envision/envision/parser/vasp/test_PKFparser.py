@@ -1,36 +1,29 @@
 import unittest
 
 import os, sys
+import PKF
+#from PKF import paircorrelation 
 
-# Configuration
-PATH_TO_parser=os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp")
+#PATH_TO_parser=os.path.expanduser("~/ENVISIoN/envision/envision/parser")
+#sys.path.append(os.path.abspath(PATH_TO_parser))
 
-sys.path.insert(0, os.path.expanduser(PATH_TO_parser))
-
-from .unitcell import *
-
-#import envision.inviwo
-
-#import h5py
-#import re
-#import numpy as np
-#from ..h5writer import _write_volume
-#from ..h5writer import _write_basis
-#from ..h5writer import _write_scaling_factor
-#from .unitcell import _parse_lattice
-
-
-
-sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION))
-
+#import h5writer 
 
 #inherit from unittest.TestCase
 class TestPKFparser(unittest.TestCase):
-    #def setUp(self):
-    #   pass
+    def setUp(self):
+        pass
+
+    def test_datasetname(self): 
+	stringname = PKF.paircorrelation()
+	self.assertNotEqual(stringname, "mydataset")
 
     def test_pathway(self):
+	PKF.paircorrelation()
         self.assertEqual(1,1)
+
+
+
 
 if __name__ == '__main__':
     unittest.main()
