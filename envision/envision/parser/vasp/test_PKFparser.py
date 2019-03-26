@@ -11,15 +11,15 @@ import PKF
 
 #inherit from unittest.TestCase
 class TestPKFparser(unittest.TestCase):
-    def setUp(self):
-        pass
+	def setUp(self):
+        	pass
+	
+	#def test_datasetname(self):
+	#	fileobject = PKF.paircorrelation()
+	#	self.assertNotEqual(fileobject.keys(), "myset")
 
-    def test_datasetname(self): 
-	fileobject = PKF.paircorrelation()
-	self.assertNotEqual(fileobject.keys(), "myset")
-
-    def test_pathway(self):
-        self.assertEqual(1,1)
+	def test_pathway(self):
+		self.assertEqual(1,1)
 
 
 
