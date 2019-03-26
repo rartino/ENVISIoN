@@ -29,9 +29,15 @@ def paircorrelation(h5file = 0, vasp_dir = 0):
 		True if PCDAT was parsed, false otherwise. 
 	
 	"""
-	fileclass = h5py.File("Bajstest", "w") 
+	fileclass = h5py.File("namba", "w") 
 	grp = fileclass.create_group("subgroup1")
+	grp2 = fileclass.create_group("subgroup2")
+
+	subgrp2 = grp2.create_group("subsubgroup2")
+	subgrp3 = subgrp2.create_group("subsubsubgroup2")
+
 	dset = grp.create_dataset("blabla", (100,), dtype='i')
+	dset2 = subgrp3.create_dataset("a special dataset", (100,), dtype='i')
 
 
 	#with h5py.File("mytestfile.hdf5", "w") as f:
@@ -42,11 +48,14 @@ def paircorrelation(h5file = 0, vasp_dir = 0):
 	#print(str(20))
 	#print(stringname)
 	#print(fileobject)
-	if "/subgroup1" in fileclass: 
+	if "/subgroup2/subsubgroup2/subsubsubgroup2/a special dataset" in fileclass: #if in notation only looks after groups directly after fileclass 
 		print("Yeas! kan lasa dataset")
+		#print(list(fileclass.keys())) #lista keys = groups till HDFfil
+		print(dset2.name)
 		return fileclass 
 	
 	print("koko")
+	print(grp2.name)
 	return fileclass
 
 
@@ -57,6 +66,6 @@ def paircorrelation(h5file = 0, vasp_dir = 0):
 	#		if "" 
 	
 fileobj= paircorrelation() 
-print(list(fileobj.keys())) 
+#print(list(fileobj.keys())) 
 
 

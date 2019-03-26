@@ -15,11 +15,10 @@ class TestPKFparser(unittest.TestCase):
         pass
 
     def test_datasetname(self): 
-	stringname = PKF.paircorrelation()
-	self.assertNotEqual(stringname, "mydataset")
+	fileobject = PKF.paircorrelation()
+	self.assertNotEqual(fileobject.keys(), "myset")
 
     def test_pathway(self):
-	PKF.paircorrelation()
         self.assertEqual(1,1)
 
 
