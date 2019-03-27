@@ -23,3 +23,26 @@ def charge_get_points():
 def print_all_processors():
     #inspect.getmembers(network, predicate=inspect.ismethod)
     #print(network.getProcessors())
+    pass
+
+def charge_toggle_plane(enable):
+    Raycaster = network.getProcessorByIdentifier('Charge raycaster')
+    pos_indicator = Raycaster.positionindicator
+    pos_indicator.plane1.enable.value = True
+    pos_indicator.plane2.enable.value = False
+    pos_indicator.plane3.enable.value = False
+    pos_indicator.enable.value = enable
+
+def charge_set_plane_normal(x, y, z):
+    #Raycaster = network.getProcessorByIdentifier('Charge raycaster')
+    #plane = Raycaster.positionindicator.plane1
+    #plane.normal.value = inviwopy.glm.vec3(x, y, z)
+
+    vol_slice = network.getProcessorByIdentifier('Volume Slice')
+    vol_slice.sliceAxis.value = 3
+    vol_slice.planeNormal.value = inviwopy.glm.vec3(x, y, z)
+
+
+def charge_set_plane_height(h):
+    pass
+
