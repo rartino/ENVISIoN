@@ -217,8 +217,8 @@ void lineplotprocessor::process() {
 
         // Set default values if data changes.
         if (dataFrameInport_.isChanged()) {
-            y_range_.setMaxValue(vec2(y_max, y_max));
-            y_range_.setMinValue(vec2(y_min, y_min));
+            y_range_.setMaxValue(vec2(100, 100));
+            y_range_.setMinValue(vec2(-100, -100));
 
             x_range_.setMaxValue(vec2(x_max, x_max));
             x_range_.setMinValue(vec2(x_min, x_min));
@@ -259,8 +259,8 @@ void lineplotprocessor::process() {
         x_range_.setIncrement(vec2(x_increment, x_increment));
 
         float y_increment = std::abs(x_max - x_min) / 100.f;
-        y_range_.setMaxValue(vec2(y_max, y_max));
-        y_range_.setMinValue(vec2(y_min, y_min));
+        y_range_.setMaxValue(vec2(100, 100));
+        y_range_.setMinValue(vec2(-100, -100));
         y_range_.setIncrement(vec2(y_increment, y_increment));
 
         // Make sure that max an min values aren't the same.
