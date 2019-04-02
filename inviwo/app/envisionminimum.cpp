@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
     envisionApp.processEvents();
 
     auto pyInter{envisionApp.getModuleByType<Python3Module>()->getPythonInterpreter()};
-    //pyInter->runString("import charge");
+    pyInter->runString("import ENVISIoNimport");
 
     while (true) {
         try {
