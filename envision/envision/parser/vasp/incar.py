@@ -41,9 +41,9 @@ from functools import *
 import os
 import h5py
 import regex
-from .log import *
-from .util import *
-from ..h5writer import _write_incar
+from log import *
+from util import *
+from h5writer import _write_incar
 
 def parse_incar(h5file, vasp_file):
     """
@@ -76,6 +76,7 @@ def parse_incar(h5file, vasp_file):
             "NBANDS",
             "NBLK",
             "SYSTEM",
+	    "START",
             "NWRITE",
             "ISTART",
             "ICHARG",
@@ -87,9 +88,12 @@ def parse_incar(h5file, vasp_file):
             "PREC",
             "NELM",
             "NELMINandNELMDL",
+	    "NCORE",
             "EDIFF",
             "EDIFFG",
             "NSW",
+            "NELMIN",
+	    "NELMDL",
             "NBLOCKandKBLOCK",
             "IBRION",
             "ISIF",

@@ -45,7 +45,7 @@ import os
 import re
 import numpy as np
 import h5py
-from ..h5writer import _write_basis, _write_scaling_factor, _write_coordinates
+from h5writer import _write_basis, _write_scaling_factor, _write_coordinates
 
 # Define coordinates regex.
 coordinates_re = re.compile(r' +'.join([r'([+-]?[0-9]+\.[0-9]+)'] * 3))

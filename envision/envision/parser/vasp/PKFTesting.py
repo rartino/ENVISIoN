@@ -4,16 +4,16 @@ import h5py
 import numpy as np
 
 # make module available
-PATH_TO_HDF5 = os.path.expanduser("~/ENVISIoN/HDF5/demotest.hdf5")
-PATH_TO_VASP_CALC = os.path.expanduser("~/ENVISIoN/data/VASP-files2019/Cu/1/10")
+PATH_TO_HDF5 = os.path.expanduser("~/ENVISIoN-gui-dev/HDF5/demo_PKF.hdf5")
+PATH_TO_VASP_CALC = os.path.expanduser("~/VASP_files/Cu-DoS/Cu/1/10")
 
-PATH_TO_parser_vasp = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp")
-PATH_TO_parser = os.path.expanduser("~/ENVISIoN/envision/envision/parser")
+PATH_TO_parser_vasp = os.path.expanduser("~/ENVISIoN-gui-dev/envision/envision/parser/vasp")
+PATH_TO_parser = os.path.expanduser("~/ENVISIoN-gui-dev/envision/envision/parser")
 sys.path.append(os.path.abspath(PATH_TO_parser))  # För att h5writer ska klassas som en python modul
 
 import h5writer
 from unitcell import _find_elements
-from incar import _parse_incar
+from incar import parse_incar
 
 
 def _parse_pcdat(h5file, vasp_file, vasp_dir):
@@ -71,7 +71,7 @@ def _parse_pcdat(h5file, vasp_file, vasp_dir):
         raise Exception("PCDAT-file is empty.")
 
 
-return pcdat_data
+    return pcdat_data
 
 
 def _write_pcdat(h5file, pcdat_data, APACO_val, NPACO_val):
@@ -111,7 +111,7 @@ def _write_pcdat(h5file, pcdat_data, APACO_val, NPACO_val):
             h5[dset_name].attrs["element"] = element_symbol
 
 
-return None
+    return None
 
 
 def paircorrelation(h5file, vasp_dir):
@@ -135,36 +135,38 @@ def paircorrelation(h5file, vasp_dir):
     if os.path.isfile(h5file):
         with h5py.File(h5file, "r") as h5:
             if "/PairCorrelationFunc" in h5:
-                x = h5['PairCorrelationFunc/Iterations']
+                x = list(h5['PairCorrelationFunc'].keys())
+                print(x)
                 print("Already parsed. Skipping.")
                 return False
 
-# See if APACO and NPACO is set, otherwise default value is used.
-incar_file = os.path.join(vasp_dir, "INCAR")
-incar_data = _parse_incar(h5file, incar_file)
+    # See if APACO and NPACO is set, otherwise default value is used.
+    incar_file = os.path.join(vasp_dir, "INCAR")
+    incar_data = parse_incar(h5file, incar_file)
 
-try:
-    NPACO_val = incar_data["NPACO"]
-    
+    try:
+        NPACO_val = incar_data["NPACO"]
+        
     except KeyError:
         NPACO_val = 256 #default value
 
-try:
-    APACO_val = incar_data["APACO"]
-    
+    try:
+        APACO_val = incar_data["APACO"]
+        
     except KeyError:
         APACO_val = 16 #default value
 
 
-try:
-    pcdat_data = _parse_pcdat(h5file, vasp_file, vasp_dir)
-    _write_pcdat(h5file, pcdat_data, APACO_val, NPACO_val)
-    return True
-    
+    try:
+        pcdat_data = _parse_pcdat(h5file, vasp_file, vasp_dir)
+        _write_pcdat(h5file, pcdat_data, APACO_val, NPACO_val)
+        return True
+        
     except FileNotFoundError:
         print("PCDAT file not found.")
-    
-    return False
+        return False
+        
+
 
 paircorrelation(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
