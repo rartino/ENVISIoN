@@ -70,23 +70,32 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
     """
 
     # Shared processors, processor positions and base vectors between electron density and electron localisation function data
+
+    # Add the "HDF Source" processor to inviwo network
     HDFsource = _add_h5source(h5file, xstart_pos, ystart_pos)
-    filenameProperty = HDFsource.getPropertyByIdentifier('filename')
-    filenameProperty.value = h5file
+    HDFsource.filename.value = h5file
 
     HDFvolume = _add_processor('org.inviwo.hdf5.ToVolume', 'HDF5 To Volume', xstart_pos, ystart_pos+75)
-    scaling_factor = 1
+
     # Read base vectors
     with h5py.File(h5file,"r") as h5:
         basis_4x4=np.identity(4)
         basis_array=np.array(h5["/basis/"], dtype='d')
         basis_4x4[:3,:3]=basis_array
         scaling_factor = h5['/scaling_factor'].value
+
+    # Add "Bounding Box" and "Mesh Renderer" processors to visualise the borders of the volume
     BoundingBox = _add_processor('org.inviwo.VolumeBoundingBox', 'Volume Bounding Box', xstart_pos+200, ystart_pos+150)    
     MeshRenderer = _add_processor('org.inviwo.GeometryRenderGL', 'Mesh Renderer', xstart_pos+200, ystart_pos+225)
+
+    # Add processor to pick which part of the volume to render
     CubeProxyGeometry = _add_processor('org.inviwo.CubeProxyGeometry', 'Cube Proxy Geometry', xstart_pos+30, ystart_pos+150)
+
+    # Add processor to control the camera during the visualisation
     EntryExitPoints = _add_processor('org.inviwo.EntryExitPoints', 'EntryExitPoints', xstart_pos+30, ystart_pos+225)
-    # Add processor for Volume or ISO Raycaster based on if "iso" is assigned a value or not and give it correct name based on the string "volume" assigned a value in function "charge" or "elf". 
+
+    # Add processor for Volume or ISO Raycaster based on if "iso" is assigned a value or not and give it correct name
+    # based on the string "volume" assigned a value in function "charge" or "elf".
     if iso==None:
         Raycaster = _add_processor('org.inviwo.VolumeRaycaster', volume, xstart_pos, ystart_pos+300)
         # Set colors and transparency
@@ -115,32 +124,21 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
             network.addConnection(Raycaster.getOutport('outport'), ImageLayout.getInport('multiinport'))
             network.addConnection(ImageLayout.getOutport('outport'), Background.getInport('inport'))
 
-            ImageLayout.getPropertyByIdentifier('layout').value = 2
+            ImageLayout.layout = 2
             
             network.addLink(VolumeSlice.getPropertyByIdentifier('planePosition'), Raycaster.getPropertyByIdentifier('positionindicator').plane1.position)
             network.addLink(VolumeSlice.getPropertyByIdentifier('planeNormal'), Raycaster.getPropertyByIdentifier('positionindicator').plane1.normal)
-            Raycaster_positionindicator_property= Raycaster.getPropertyByIdentifier('positionindicator')
-            Raycaster_positionindicator_property.enable = True
 
             canvas_dimensions_property = Canvas.getPropertyByIdentifier('inputSize').getPropertyByIdentifier('dimensions')
             canvas_dimensions_property.value = inviwopy.glm.ivec2(700,300)
             volumeSlice_transferfunction_property = VolumeSlice.getPropertyByIdentifier('tfGroup').getPropertyByIdentifier('transferFunction')
-            volumeSlice_transferfunction_property.addPoint(inviwopy.glm.vec2(0.0,1.0),inviwopy.glm.vec3(0.0,0.0,1.0))
-            volumeSlice_transferfunction_property.addPoint(inviwopy.glm.vec2(0.25,1.0),inviwopy.glm.vec3(0.0,1.0,1.0))
-            volumeSlice_transferfunction_property.addPoint(inviwopy.glm.vec2(0.5,1.0),inviwopy.glm.vec3(0.0,1.0,0.0))
-            volumeSlice_transferfunction_property.addPoint(inviwopy.glm.vec2(0.75,1.0),inviwopy.glm.vec3(1.0,1.0,0.0))
-            volumeSlice_transferfunction_property.addPoint(inviwopy.glm.vec2(1.0,1.0),inviwopy.glm.vec3(1.0,0.0,0.0))
+            volumeSlice_transferfunction_property.add(0 ,inviwopy.glm.vec4(0.0,0.0,1.0,0.01))
+            volumeSlice_transferfunction_property.add(0.25,inviwopy.glm.vec4(0.0,1.0,1.0,0.01))
+            volumeSlice_transferfunction_property.add(0.5,inviwopy.glm.vec4(0.0,1.0,0.0,0.01))
+            volumeSlice_transferfunction_property.add(0.75,inviwopy.glm.vec4(1.0,1.0,0.0,0.01))
+            volumeSlice_transferfunction_property.add(1.0,inviwopy.glm.vec4(1.0,0.0,0.0,0.01))
 
-            Raycaster_plane1_property = Raycaster.getPropertyByIdentifier('positionindicator').plane1
-            Raycaster_plane2_property = Raycaster.getPropertyByIdentifier('positionindicator').plane2
-            Raycaster_plane3_property = Raycaster.getPropertyByIdentifier('positionindicator').plane3
-            Raycaster_plane1_property.enable = True
-            Raycaster_plane2_property.enable = False
-            Raycaster_plane3_property.enable = False
-
-            Raycaster_plane1_color_property = Raycaster_plane1_property.color
-            Raycaster_plane1_color_property.value = inviwopy.glm.vec4(1.0,1.0,1.0,0.5)
-            
+            Raycaster.positionindicator.plane1.color.value = inviwopy.glm.vec4(1.0,1.0,1.0,0.5)
         else:
             print("Slice is not possible with ISO Raycasting, therefore no slice-function is showing.")
     # Add processors, connections and properties for no slice function if slice=False or "iso" has been assigned a value   
