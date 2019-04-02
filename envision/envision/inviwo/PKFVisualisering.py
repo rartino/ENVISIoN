@@ -8,7 +8,7 @@ from .common import _add_h5source, _add_processor
 app = inviwopy.app
 network = app.netwrok
 
-def paircorrelation(h5file, xstart_pos=0, ystart_pos=0):
+def paircorrelation(h5file, xpos=0, ypos=0):
 
 
 # Creates inviwo nätverk för radial distribution function
