@@ -49,16 +49,6 @@ class VisualizationFrame(wx.CollapsiblePane):
     
         visPane.SetSizer(visSizer)
 
-        self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_change)
-        self.PKFFrame.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.PKF_change)
-        self.chargeFrame.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED,
-                         self.charge_change)
-        self.dosFrame.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.dos_change)
-        self.parchgFrame.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED,
-                         self.parchg_change)
-        self.unitcellFrame.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED,
-                         self.unitcell_change)
-
 
     def on_change(self, event):
         self.GetParent().Layout()
