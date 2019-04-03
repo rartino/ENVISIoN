@@ -45,5 +45,5 @@ def main():
     app = ENVISIoN(0)
     app.MainLoop()
 
-if __name__ == "__main__":
-    main()
+
+main()
