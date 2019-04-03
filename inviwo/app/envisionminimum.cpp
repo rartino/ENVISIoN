@@ -85,19 +85,11 @@ int main(int argc, char** argv) {
     envisionApp.processEvents();
 
     auto pyInter{envisionApp.getModuleByType<Python3Module>()->getPythonInterpreter()};
-    pyInter->runString("import charge");
+    pyInter->runString("import ENVISIoNimport");
 
-    while (true) {
-        if (clp.getQuitApplicationAfterStartup()) {
-            envisionApp.closeInviwoApplication();
-            envisionApp.quit();
-            return 0;
-        } else {
-            try {
-                return envisionApp.exec();
-            } catch (const std::exception &e) {
-                std::cout << e.what() << std::endl;
-            }
-        }
+    try {
+        return envisionApp.exec();
+    } catch (const std::exception &e) {
+        std::cout << e.what() << std::endl;
     }
 }
