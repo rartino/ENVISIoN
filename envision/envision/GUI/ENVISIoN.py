@@ -1,6 +1,6 @@
 import wx, os, sys, wx.lib.scrolledpanel
 
-sys.path.insert(0, os.path.expanduser("/home/labb/ENVISIoN/envision/envision/GUI"))
+sys.path.insert(0, os.path.expanduser("/home/labb/ENVISIoN-appDev/envision/envision/GUI"))
 
 from VisFrame import VisualizationFrame
 from ParserPane import ParserPane    
