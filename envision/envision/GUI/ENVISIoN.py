@@ -1,9 +1,10 @@
 import wx, os, sys, wx.lib.scrolledpanel
 
-sys.path.insert(0, os.path.expanduser("/home/labb/ENVISIoN/envision/envision/GUI"))
+sys.path.insert(0, os.path.expanduser("/home/labb/ENVISIoN-appDev/envision/envision/GUI"))
 
 from VisFrame import VisualizationFrame
 from ParserPane import ParserPane    
+from generalFrame import GeneralFrame
 
 class Coll_Panel(wx.lib.scrolledpanel.ScrolledPanel):
     def __init__(self, *args, **kwargs):
@@ -12,6 +13,39 @@ class Coll_Panel(wx.lib.scrolledpanel.ScrolledPanel):
         self.visFrame = VisualizationFrame(self,
                                            label="Visualization")
         self.parseFrame = ParserPane(self,label="Parser")
+        
+        
+        # Maybe use non specific frames and build gui from that
+        
+        # Top level collapsible
+        topFrame = GeneralFrame(self, label="Top level menu")
+
+        # Sub collapsible
+        subFrame = GeneralFrame(topFrame.pane, label="-Level 1 menu")
+        subFrame.parent_pane = topFrame
+        topFrame.add_sub_item(subFrame)
+
+        # Button under sub menu
+        subButton = wx.Button(subFrame.pane, label = str('Level 2 button'))
+        subFrame.add_sub_item(subButton, wx.SizerFlags().Expand().Border(wx.ALL, 10))
+        
+        # Menu under that
+        subFrame_2 = GeneralFrame(subFrame.pane, label="--Level 2 menu")
+        subFrame_2.parent_pane = subFrame
+        subFrame.add_sub_item(subFrame_2)
+
+        # Button under menu
+        subButton_2 = wx.Button(subFrame_2.pane, label = str('Level 2 button'))
+        subFrame_2.add_sub_item(subButton_2, wx.SizerFlags().Expand().Border(wx.ALL, 10))
+
+        # Button under top menu
+        topButton = wx.Button(topFrame.pane, label = str('Level 1 button'))
+        topFrame.add_sub_item(topButton)
+
+        # Add the top frame to this window
+        sizer.Add(topFrame,0)
+
+        
         sizer.Add(self.parseFrame,0)
         sizer.Add(self.visFrame,0)
         self.SetSizer(sizer)
@@ -19,6 +53,8 @@ class Coll_Panel(wx.lib.scrolledpanel.ScrolledPanel):
                                         scroll_y=True, rate_x=20, 
                                         rate_y=20, scrollToTop=True, 
                                         scrollIntoView=False)
+
+
 
 
 class Main_Frame(wx.Frame):

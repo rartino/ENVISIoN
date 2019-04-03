@@ -5,6 +5,13 @@ import inspect
 app = inviwopy.app
 network = app.network
 
+
+#-----------------------------
+#--Transfer function editing--
+
+def charge_start_vis():
+    pass
+
 def charge_add_tf_point(value, color):
     Raycaster = network.getProcessorByIdentifier('Charge raycaster')
     tf_property = Raycaster.isotfComposite.transferFunction
@@ -15,10 +22,23 @@ def charge_clear_tf():
     tf_property = Raycaster.isotfComposite.transferFunction
     tf_property.clear()
 
+def charge_remove_tf_point():
+    pass
+
 def charge_get_points():
     Raycaster = network.getProcessorByIdentifier('Charge raycaster')
     tf_property = Raycaster.isotfComposite.transferFunction
     return [[x.pos, x.color] for x in tf_property.getValues()]
+
+#---------------------------
+#--Background and lighting--
+
+def charge_set_shading_mode(mode):
+    pass
+
+def charge_set_background(color_1 = None, color_2 = None, style = 2):
+    pass
+
 
 def print_all_processors():
     #inspect.getmembers(network, predicate=inspect.ismethod)
