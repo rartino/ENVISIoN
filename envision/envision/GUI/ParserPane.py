@@ -14,7 +14,6 @@ class ParserPane(wx.CollapsiblePane):
         sizer.Add(wx.Button(self.GetPane(), label = str('Parse')),wx.GROW,1)
         
         self.GetPane().SetSizer(sizer)
-        self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_change)
 
     def on_change(self, event):
         self.GetParent().Layout()
