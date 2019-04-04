@@ -1,6 +1,6 @@
 import wx, os, sys, wx.lib.scrolledpanel
 
-sys.path.insert(0, os.path.expanduser("/home/labb/ENVISIoN-appDev/envision/envision/GUI"))
+sys.path.insert(0, os.path.expanduser("/C:/ENVISIoN/envision/envision/GUI"))
 
 from VisFrame import VisualizationFrame
 from ParserPane import ParserPane 
@@ -29,8 +29,7 @@ class Main_Frame(wx.Frame):
         wx.Frame.__init__(self, *args, **kwargs)
         self.main_panel = wx.Panel(self)
         sizer = wx.BoxSizer(wx.VERTICAL)
-        self.coll_panel =Coll_Panel(self.main_panel,-1, pos=(-1,-1),
-                                    size=(-1,300))
+        self.coll_panel =Coll_Panel(self.main_panel,-1)
         
         
         sizer.Add(self.coll_panel,2, wx.EXPAND )
@@ -51,7 +50,6 @@ class Main_Frame(wx.Frame):
                                         scroll_y=True, rate_x=20, 
                                         rate_y=20, scrollToTop=True, 
                                         scrollIntoView=False)
-        self.coll_panel.parseFrame.on_change(event)
 
     def vis_change(self, event):
         self.coll_panel.SetupScrolling(scroll_x=False, 
