@@ -1,17 +1,17 @@
 import wx, sys, os
 
-sys.path.insert(0, os.path.expanduser("/home/labb/ENVISIoN-appDev/envision/envision/GUI"))
+sys.path.insert(0, os.path.expanduser("C:/ENVISIoN/envision/envision/GUI"))
 from frameCharge import ChargeFrame
 from framePKF import PKFFrame
 from frameDoS import DosFrame
 from frameParchg import ParchgFrame
 from frameUnitcell import UnitcellFrame
 
-sys.path.insert(0, os.path.expanduser("/home/labb/ENVISIoN-appDev/envision/"))
+sys.path.insert(0, os.path.expanduser("C:/ENVISIoN/envision"))
 import envision
 import envision.inviwo
 import parameter_utils
-PATH_TO_HDF5=os.path.expanduser("/home/labb/HDF5/demo_charge.hdf5")
+PATH_TO_HDF5=os.path.expanduser("C:/Users/sille/Downloads/demo_charge.hdf5")
 
 class VisualizationFrame(wx.CollapsiblePane):
     def __init__(self, *args, **kwargs,):
@@ -32,7 +32,7 @@ class VisualizationFrame(wx.CollapsiblePane):
         visSizer.Add(self.parchgFrame,0)
         visSizer.Add(self.unitcellFrame,0)
         
-        self.bg_colour = wx.Colour(255,255,255)
+        self.bg_colour = wx.Colour(76,75,77)
         self.SetBackgroundColour(self.bg_colour)
         self.PKFFrame.SetBackgroundColour(self.bg_colour)
         self.chargeFrame.SetBackgroundColour(self.bg_colour)
