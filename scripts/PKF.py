@@ -1,7 +1,8 @@
+
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2018 Viktor Bernholtz, Anders Rehult, Marian Brännvall
+#  Copyright (c) 2018 Viktor Bernholtz
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -26,7 +27,7 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by Viktor Bernholtz, Anders Rehult and Marian Brännvall
+#  Alterations to this file by Linda Le och Lloyd Kizito
 #
 #  To the extent possible under law, the person who associated CC0
 #  with the alterations to this file has waived all copyright and related
@@ -39,26 +40,16 @@
 import os, sys
 
 # Configuration
-#PATH_TO_ENVISION=os.path.expanduser("~/ENVISIoN/envision")
-#PATH_TO_VASP_CALC=os.path.expanduser("~/ENVISIoN/data/NaCl/VASP")
-#PATH_TO_HDF5=os.path.expanduser("/tmp/envision_demo_unitcellAndElf.hdf5")
+PATH_TO_ENVISION=os.path.expanduser("~/ENVISIoN-gui-dev/envision")
+PATH_TO_VASP_CALC=os.path.expanduser("/home/labb/VASP_files/Cu-DoS/Cu/1/10")
+PATH_TO_HDF5=os.path.expanduser("~/ENVISIoN-gui-dev/HDF5/BP4-demonstration.hdf5")
 
 sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION))
 
 import envision
 import envision.inviwo
 
-#Call the parser system
 envision.parser.vasp.paircorrelation(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
 
 
-#envision.inviwo.unitcell(PATH_TO_HDF5, xpos=0)
-
-
-
-#To visualise charge as an isosurface change the iso-argument
-#from None to a value between 0 and 1.
-#To add the slice-function change the slice-argument from False to True. 
-#The slice-function is not compatible with isosurface.
-#envision.inviwo.elf(PATH_TO_HDF5, iso = None,slice = False, xpos = 400, ypos = 0)
