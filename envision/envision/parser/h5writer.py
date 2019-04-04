@@ -38,6 +38,7 @@
 
 import numpy as np
 import h5py
+import array as arr
 
 
 def _write_coordinates(h5file, atom_count, coordinates_list, elements, path):
@@ -187,3 +188,52 @@ def _write_parcharges(h5file, array_tot, data_dim_tot, array_mag, data_dim_mag, 
         if not np.size(array_mag) == 0:
             h5.create_dataset('PARCHG/Bands/{}/magnetic'.format(band_nr), data = np.reshape(array_mag, (data_dim_mag[2],data_dim_mag[1],data_dim_mag[0])), dtype=np.float32)
     return
+
+def _write_pcdat(h5file, pcdat_data, APACO_val, NPACO_val):
+    #   The function is called to write data from PCDAT to HDF5-file. A dataset is created for each element in the system.
+
+    #    Parameters
+    #    __________
+    #    h5file: str
+    #        String containing path to HDF5-file.
+
+    #    pcdat_data:
+    #        Is a dictionary with the structure {'element_type':[PKF_values]}. PKF_values are the average number of atoms, of specific element_type. If the system has elements 'Si', 'Au'       and 'K', the dictionary will look like {'Si':float[x], 'Au':float[x], 'K':float[x]} where the float[x] is a list with the PKF values.
+    #
+    #    APACO_val:
+    #        The value of APACO in INCAR if set, default value 16 (Å), otherwise. It sets the maximum distance in the evaluation of the pair-correlation function
+    #
+    #    NPACO_val:
+    #        The value of NPACO in INCAR if set, default value 256 slots otherwise. It sets the number of slots in the pair-correlation function written to PCDAT.
+
+    #    Return
+    #    ______
+    #    Bool: True if parsed, False otherwise.
+
+    #WARNING!!!!!Just for BP4- CLEAR THIS WHEN DONEEE!!!! 
+    for i in range(257):
+        pcdat_data['Cu'].pop(512-i) 
+
+    #x-values for PKF 
+    with h5py.File(h5file, "a") as h5:
+        dset_name = "PairCorrelationFunc/Iterations"
+        normal_arr = arr.array('f', [])
+
+        for i in range(0, NPACO_val):
+            x = (APACO_val / NPACO_val) * i
+            normal_arr.append(x)
+
+        value = np.asarray(normal_arr)
+        h5.create_dataset(dset_name, data=value, dtype=np.float32)
+
+        # create dataset for every element
+        for n in range(len(pcdat_data)):
+            # By making a dict a list, it's keys are accessable
+            element_symbol = list(pcdat_data)[n]
+            dset_name = "PairCorrelationFunc/Elements/{}".format(element_symbol)
+            value = np.asarray(pcdat_data[element_symbol])
+            dset = h5.create_dataset(dset_name, data=value, dtype=np.float32)
+            h5[dset_name].attrs["element"] = element_symbol
+
+    return None
+

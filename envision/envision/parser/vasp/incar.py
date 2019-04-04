@@ -45,7 +45,7 @@ from .log import *
 from .util import *
 from ..h5writer import _write_incar
 
-def parse_incar(h5file, vasp_file):
+def _parse_incar(h5file, vasp_file):
     """
 	Parses set values from INCAR
 
