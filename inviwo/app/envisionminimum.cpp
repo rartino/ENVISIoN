@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
     logger.registerLogger(logCounter);
 
     inviwo::InviwoApplicationQt envisionApp(argc, argv, "ENVISIoN");
-    envisionApp.setWindowIcon(QIcon(":/inviwo/liu-black.png"));
+    envisionApp.setWindowIcon(QIcon(":/inviwo/inviwo_dark.ico"));
     envisionApp.setAttribute(Qt::AA_NativeWindows);
     QFile styleSheetFile(":/stylesheets/inviwo.qss");
     styleSheetFile.open(QFile::ReadOnly);
@@ -85,13 +85,11 @@ int main(int argc, char** argv) {
     envisionApp.processEvents();
 
     auto pyInter{envisionApp.getModuleByType<Python3Module>()->getPythonInterpreter()};
-    pyInter->runString("import charge");
+    pyInter->runString("import ENVISIoNimport");
 
-    while (true) {
-        try {
-            return envisionApp.exec();
-        } catch (const std::exception &e) {
-            std::cout << e.what() << std::endl;
-        }
+    try {
+        return envisionApp.exec();
+    } catch (const std::exception &e) {
+        std::cout << e.what() << std::endl;
     }
 }
