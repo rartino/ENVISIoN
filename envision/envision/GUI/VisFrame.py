@@ -5,7 +5,7 @@
 """*****************************************************************************"""
 import wx, sys, os
 
-sys.path.insert(0, os.path.expanduser("C:/ENVISIoN/envision/envision/GUI"))
+sys.path.insert(0, os.path.expanduser(os.getcwd()))
 from frameCharge import ChargeFrame
 from framePKF import PKFFrame
 from frameDoS import DosFrame
@@ -101,10 +101,10 @@ class VisualizationFrame(wx.CollapsiblePane):
         if not self.collapsed:
             self.update_self()
         if self.chargeCollapsed:
+            self.chargeCollapsed = False
             envision.inviwo.charge(self.path, iso = None,
                                slice = False, xpos = 0, ypos = 0)
             print('Charge')
-            self.chargeCollapsed = False
         else:
             print('notCharge')
             self.chargeCollapsed = True
@@ -168,11 +168,11 @@ class VisualizationFrame(wx.CollapsiblePane):
         else: 
             self.path = tmpPath
     
-    def update_self():
+    def update_self(self):
         self.Collapse(True)
         self.Collapse(False)
 
-    def collapse_all():
+    def collapse_all(self):
         self.chargeFrame.Collapse(True)
         self.PKFFrame.Collapse(True)
         self.dosFrame.Collapse(True)
