@@ -41,7 +41,6 @@ from generalCollapsible import GeneralCollapsible
 class PKFFrame(GeneralCollapsible):
     def __init__(self, parent):
         super().__init__(parent, "Paircorrelation")
-        #wx.CollapsiblePane.__init__(self,*args,**kwargs)
         
         button1 = wx.Button(self.GetPane(), label="X")
         button2 = wx.Button(self.GetPane(), label="Y")

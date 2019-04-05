@@ -50,16 +50,6 @@ from generalCollapsible import GeneralCollapsible
 class ParserPane(GeneralCollapsible):
     def __init__(self, parent):
         super().__init__(parent, "Parser")
-        # wx.CollapsiblePane.__init__(self,*args,**kwargs)
-
-
-        # sizer = wx.BoxSizer(wx.VERTICAL)
-        #Collpane-style:
-        # self.bg_colour = wx.Colour(76,75,77)
-        # self.text_colour = wx.Colour(255,255,255)
-
-        # self.SetBackgroundColour(self.bg_colour)
-        # self.itemSize = wx.Size(150,25)
         
         #Frame-definitions
         self.dirFrame = wx.Frame(None, -1, 'win.py')
