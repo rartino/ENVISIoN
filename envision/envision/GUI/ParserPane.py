@@ -43,23 +43,29 @@
 
 import wx, sys, os
 
-sys.path.insert(0, os.path.expanduser("C:/ENVISIoN/envision/envision/"))
+# sys.path.insert(0, os.path.expanduser("C:/ENVISIoN/envision/envision/"))
 #from main import *
-class ParserPane(wx.CollapsiblePane):
-    def __init__(self, *args, **kwargs):
-        wx.CollapsiblePane.__init__(self,*args,**kwargs)
-        sizer = wx.BoxSizer(wx.VERTICAL)
+from generalCollapsible import GeneralCollapsible
+
+class ParserPane(GeneralCollapsible):
+    def __init__(self, parent):
+        super().__init__(parent, "Parser")
+        # wx.CollapsiblePane.__init__(self,*args,**kwargs)
+
+
+        # sizer = wx.BoxSizer(wx.VERTICAL)
         #Collpane-style:
-        self.bg_colour = wx.Colour(76,75,77)
-        self.text_colour = wx.Colour(255,255,255)
-        self.SetBackgroundColour(self.bg_colour)
-        self.itemSize = wx.Size(150,25)
+        # self.bg_colour = wx.Colour(76,75,77)
+        # self.text_colour = wx.Colour(255,255,255)
+
+        # self.SetBackgroundColour(self.bg_colour)
+        # self.itemSize = wx.Size(150,25)
         
         #Frame-definitions
         self.dirFrame = wx.Frame(None, -1, 'win.py')
-        self.dirFrame.SetDimensions(0,0,200,50)
+        self.dirFrame.SetSize(0,0,200,50)
         self.messageFrame = wx.Frame(None, -1, 'win.py')
-        self.messageFrame.SetDimensions(0,0,60,50)
+        self.messageFrame.SetSize(0,0,60,50)
         self.messageFrame.Centre()
 
         #Path-selection to file for parsing
@@ -98,16 +104,17 @@ class ParserPane(wx.CollapsiblePane):
         self.parse = wx.Button(self.GetPane(), size=self.itemSize,
                                 label = str('Parse'))
 
-        #Item-addition in pane:
-        sizer.Add(self.fileText, wx.GROW,1)
-        sizer.Add(self.enterPath, wx.GROW,1)
-        sizer.Add(self.chooseFile,wx.GROW,1)
-        sizer.Add(self.folderText, wx.GROW,1)
-        sizer.Add(self.enterSavePath, wx.GROW,1)
-        sizer.Add(self.chooseFolder,wx.GROW,1)
-        sizer.Add(self.typeText, wx.GROW,1)
-        sizer.Add(self.selectVis,wx.GROW,1)
-        sizer.Add(self.parse,wx.GROW,1)
+        #Item-addition in pane
+        expand_flag = wx.SizerFlags().Expand().Border(wx.ALL, 1)
+        self.add_item(self.fileText, sizer_flags=expand_flag)
+        self.add_item(self.enterPath, sizer_flags=expand_flag)
+        self.add_item(self.chooseFile,sizer_flags=expand_flag)
+        self.add_item(self.folderText, sizer_flags=expand_flag)
+        self.add_item(self.enterSavePath, sizer_flags=expand_flag)
+        self.add_item(self.chooseFolder,sizer_flags=expand_flag)
+        self.add_item(self.typeText, sizer_flags=expand_flag)
+        self.add_item(self.selectVis,sizer_flags=expand_flag)
+        self.add_item(self.parse,sizer_flags=expand_flag)
         
         #Signal-handling for buttons and boxes:
         self.chooseFile.Bind(wx.EVT_BUTTON,self.file_pressed)
@@ -116,7 +123,6 @@ class ParserPane(wx.CollapsiblePane):
         self.enterSavePath.Bind(wx.EVT_TEXT_ENTER,self.savePath_OnEnter)
         self.selectVis.Bind(wx.EVT_COMBOBOX,self.vis_selected)
         self.parse.Bind(wx.EVT_BUTTON,self.parse_pressed)
-        self.GetPane().SetSizer(sizer)
         
     
     #When file-explorer button is pressed

@@ -36,19 +36,16 @@
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 import wx,sys,os
+from generalCollapsible import GeneralCollapsible
 
-class DosFrame(wx.CollapsiblePane):
-    def __init__(self, *args, **kwargs,):
-        wx.CollapsiblePane.__init__(self,*args,**kwargs)
-        
-        dosPane = self.GetPane()
-        dosSizer = wx.BoxSizer(wx.VERTICAL)
-        dosPane.SetSizer(dosSizer)
-        
-                
-        button1 = wx.Button(dosPane, label="X")
-        button2 = wx.Button(dosPane, label="Y")
-        slider = wx.Slider(dosPane)
-        dosSizer.Add(button1,wx.GROW, 0)
-        dosSizer.Add(button2,wx.GROW, 0)
-        dosSizer.Add(slider,wx.GROW, 0)
+class DosFrame(GeneralCollapsible):
+    def __init__(self, parent):
+        super().__init__(parent, "Density of States")
+    
+        button1 = wx.Button(self.GetPane(), label="X")
+        button2 = wx.Button(self.GetPane(), label="Y")
+        slider = wx.Slider(self.GetPane())
+
+        self.add_item(button1)
+        self.add_item(button2)
+        self.add_item(slider)
