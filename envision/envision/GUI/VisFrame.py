@@ -51,9 +51,9 @@ from frameParchg import ParchgFrame
 from frameUnitcell import UnitcellFrame
 
 sys.path.insert(0, os.path.expanduser("C:/ENVISIoN/envision"))
-#import envision
-#import envision.inviwo
-#import parameter_utils
+import envision
+import envision.inviwo
+import parameter_utils
 PATH_TO_HDF5=os.path.expanduser("C:/Users/sille/Downloads/demo_charge.hdf5")
 
 class VisualizationFrame(wx.CollapsiblePane):
