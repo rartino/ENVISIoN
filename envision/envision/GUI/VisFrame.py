@@ -1,88 +1,94 @@
+"""*****************************************************************************"""
+"""This file sets up the visualization-section of the GUI, a collapsible pane.  """
+"""The subsections of this pane is either items, such as boxes, or collapsible  """
+"""panes.                                                                       """
+"""*****************************************************************************"""
 import wx, sys, os
 
-sys.path.insert(0, os.path.expanduser("/home/labb/ENVISIoN-appDev/envision/envision/GUI"))
+sys.path.insert(0, os.path.expanduser("C:/ENVISIoN/envision/envision/GUI"))
 from frameCharge import ChargeFrame
 from framePKF import PKFFrame
 from frameDoS import DosFrame
 from frameParchg import ParchgFrame
 from frameUnitcell import UnitcellFrame
 
-sys.path.insert(0, os.path.expanduser("/home/labb/ENVISIoN-appDev/envision/"))
+sys.path.insert(0, os.path.expanduser("C:/ENVISIoN/envision"))
 import envision
 import envision.inviwo
 import parameter_utils
-PATH_TO_HDF5=os.path.expanduser("/home/labb/HDF5/demo_charge.hdf5")
+PATH_TO_HDF5=os.path.expanduser("C:/Users/sille/Downloads/demo_charge.hdf5")
 
 class VisualizationFrame(wx.CollapsiblePane):
     def __init__(self, *args, **kwargs,):
         wx.CollapsiblePane.__init__(self,*args,**kwargs)
-        #init and add all elements in visFrame
+        
+        #Setup style of the panes
         visSizer = wx.BoxSizer(wx.VERTICAL)
         visPane = self.GetPane()
+        self.bg_colour = wx.Colour(76,75,77)
+        self.text_colour = wx.Colour(255,255,255)
+        self.SetBackgroundColour(self.bg_colour)
+        self.itemSize = wx.Size(150,25)
+        
+        #Path-selection to file for visualization
+        self.fileText = wx.StaticText(self.GetPane(),
+                                    label="File to Visualize:")
+        self.fileText.SetForegroundColour(self.text_colour)                                    
+        self.path = ""
+        self.chooseFile = wx.Button(self.GetPane(), size=self.itemSize,
+                                    label = str('..or select file'))
+        self.enterPath = wx.TextCtrl(self.GetPane(), size=self.itemSize,
+                                    value="Enter path..",
+                                    style=wx.TE_PROCESS_ENTER)
+        visSizer.Add(self.fileText, wx.GROW,0)
+        visSizer.Add(self.enterPath, wx.GROW,0)
+        visSizer.Add(self.chooseFile,wx.GROW,0)
+
+        #init and add all pane-elements in visFrame
         self.PKFFrame = PKFFrame(visPane,label="PKF")
         self.chargeFrame = ChargeFrame(visPane,label="Charge")
         self.dosFrame = DosFrame(visPane,label="Density Of State")
         self.parchgFrame = ParchgFrame(visPane,label="Charge")
         self.unitcellFrame = UnitcellFrame(visPane,label="Unitcell")
-
-        
         visSizer.Add(self.chargeFrame,0)
         visSizer.Add(self.PKFFrame,0)
         visSizer.Add(self.dosFrame,0)
         visSizer.Add(self.parchgFrame,0)
         visSizer.Add(self.unitcellFrame,0)
         
-        self.bg_colour = wx.Colour(255,255,255)
-        self.SetBackgroundColour(self.bg_colour)
+        #Setup style of the sub-panes
         self.PKFFrame.SetBackgroundColour(self.bg_colour)
         self.chargeFrame.SetBackgroundColour(self.bg_colour)
         self.dosFrame.SetBackgroundColour(self.bg_colour)
         self.parchgFrame.SetBackgroundColour(self.bg_colour)
         self.unitcellFrame.SetBackgroundColour(self.bg_colour)
 
+        #Help-variable to check if each section is closed.
         self.dosCollapsed = True
         self.parchgCollapsed = True
         self.unitcellCollapsed = True
         self.chargeCollapsed = True
         self.PKFCollapsed = True
         self.collapsed = True
+
+        self.chooseFile.Bind(wx.EVT_BUTTON,self.file_pressed)
+        self.enterPath.Bind(wx.EVT_TEXT_ENTER,self.path_OnEnter)
     
         visPane.SetSizer(visSizer)
-
-        self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_change)
-        self.PKFFrame.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.PKF_change)
-        self.chargeFrame.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED,
-                         self.charge_change)
-        self.dosFrame.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.dos_change)
-        self.parchgFrame.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED,
-                         self.parchg_change)
-        self.unitcellFrame.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED,
-                         self.unitcell_change)
 
 
     def on_change(self, event):
         self.GetParent().Layout()
         if self.collapsed:
             #when Vis-frame is collapsed, collapse all subframes
-            self.chargeFrame.Collapse(True)
-            self.PKFFrame.Collapse(True)
-            self.dosFrame.Collapse(True)
-            self.parchgFrame.Collapse(True)
-            self.unitcellFrame.Collapse(True)
-            self.collapsed = False
-            self.chargeCollapsed = True
-            self.PKFCollapsed = True
-            self.dosCollapsed = False
-            self.parchgCollapsed = True
-            self.unitcellCollapsed = True
+            self.collapse_all()
         elif not self.collapsed:
             self.collapsed = True
             print('HEJ')
 
     def PKF_change(self, event):
         if not self.collapsed:
-            self.Collapse(True)
-            self.Collapse(False)
+            self.update_self()
         if self.PKFCollapsed:
             #PKF-function
             print('PKF')
@@ -93,10 +99,9 @@ class VisualizationFrame(wx.CollapsiblePane):
 
     def charge_change(self, event):
         if not self.collapsed:
-            self.Collapse(True)
-            self.Collapse(False)
+            self.update_self()
         if self.chargeCollapsed:
-            envision.inviwo.charge(PATH_TO_HDF5, iso = None,
+            envision.inviwo.charge(self.path, iso = None,
                                slice = False, xpos = 0, ypos = 0)
             print('Charge')
             self.chargeCollapsed = False
@@ -106,8 +111,7 @@ class VisualizationFrame(wx.CollapsiblePane):
 
     def dos_change(self, event):
         if not self.collapsed:
-            self.Collapse(True)
-            self.Collapse(False)
+            self.update_self()
         if self.dosCollapsed:
             #DoS-function
             print('DoS')
@@ -118,8 +122,7 @@ class VisualizationFrame(wx.CollapsiblePane):
 
     def parchg_change(self, event):
         if not self.collapsed:
-            self.Collapse(True)
-            self.Collapse(False)
+            self.update_self()
         if self.parchgCollapsed:
             #parchg-function
             print('parchg')
@@ -130,8 +133,7 @@ class VisualizationFrame(wx.CollapsiblePane):
 
     def unitcell_change(self, event):
         if not self.collapsed:
-            self.Collapse(True)
-            self.Collapse(False)
+            self.update_self()
         if self.unitcellCollapsed:
             #unitcell-function
             print('unitcell')
@@ -139,3 +141,47 @@ class VisualizationFrame(wx.CollapsiblePane):
         else:
             print('notunitcell')
             self.unitcellCollapsed = True
+
+    def file_pressed(self,event):
+        fileFrame = wx.Frame(None, -1, 'win.py',size=wx.Size(200,50))
+        openFileDialog = wx.FileDialog(fileFrame, "Open", "", "", 
+                                      "HDF5 files (*.hdf5)|*.hdf5", 
+                                       wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
+        openFileDialog.ShowModal()
+        self.path = openFileDialog.GetPath()
+        openFileDialog.Destroy()
+        fileFrame.Destroy()
+        print(self.path)
+    #When path entered in text and Enter-key is pressed
+    def path_OnEnter(self,event):
+        tmpPath = self.enterPath.GetLineText(0)
+        if not os.path.exists(tmpPath):
+            messageFrame = wx.Frame(None, -1, 'win.py',size=wx.Size(60,50))
+            openPathDialog = wx.MessageDialog(messageFrame,  
+                                        tmpPath+
+                                        " not a valid directory!",
+                                        "Failed!", 
+                                        wx.FD_OPEN)
+            openPathDialog.ShowModal()
+            openPathDialog.Destroy()
+            messageFrame.Destroy()
+        else: 
+            self.path = tmpPath
+    
+    def update_self():
+        self.Collapse(True)
+        self.Collapse(False)
+
+    def collapse_all():
+        self.chargeFrame.Collapse(True)
+        self.PKFFrame.Collapse(True)
+        self.dosFrame.Collapse(True)
+        self.parchgFrame.Collapse(True)
+        self.unitcellFrame.Collapse(True)
+        self.collapsed = False
+        self.chargeCollapsed = True
+        self.PKFCollapsed = True
+        self.dosCollapsed = False
+        self.parchgCollapsed = True
+        self.unitcellCollapsed = True
+        
