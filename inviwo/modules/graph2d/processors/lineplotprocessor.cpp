@@ -164,67 +164,76 @@ LinePlotProcessor::LinePlotProcessor()
 }
 
 void LinePlotProcessor::process() {
-    std::shared_ptr <BasicMesh> mesh = std::make_shared<BasicMesh>();
+    std::shared_ptr<const Column> xData;
+    std::vector<std::shared_ptr<const Column>> yData;
+    std::shared_ptr<BasicMesh> mesh = std::make_shared<BasicMesh>();
     IndexBufferRAM *indices = mesh->addIndexBuffer(DrawType::Lines, ConnectivityType::None).get();
-
+    // Get the input data.
     std::shared_ptr<const DataFrame> inputFrame = dataFrameInport_.getData();
-    // We want at least two columns. One named X and one named Y.
-    if (inputFrame->getNumberOfColumns() >= 2) {
-        std::shared_ptr<const Column> x = nullptr;
-        std::shared_ptr<const Column> y = nullptr;
 
-        // Find the columns named X and Y.
+    // We want at least two columns.
+    if (inputFrame->getNumberOfColumns() >= 2) {
+        // Store y-data in vector and x-data in column.
         for (size_t i = 0; i < inputFrame->getNumberOfColumns(); i++) {
             if (inputFrame->getHeader(i) == "X") {
-                x = inputFrame->getColumn(i);
-            } else if (inputFrame->getHeader(i) == "Y") {
-                y = inputFrame->getColumn(i);
+                xData = inputFrame->getColumn(i);
+            } else {
+                yData.push_back(inputFrame->getColumn(i));
             }
         }
+    }
+    else {
+        LogInfo("This processor needs two columns to exist in the DataFrame.")
+        return;
+    }
 
-        if (!x) {
-            LogError("Could not find any column named X in the DataFrame!");
+    if (!xData) {
+        LogError("Could not find any column named X in the DataFrame!");
+        return;
+    }
+    if (!yData.at(0)) {
+        LogError("Could only find column named X in the DataFrame!");
+        return;
+    }
+
+    size_t xSize = xData->getSize();
+    size_t ySize = yData.at(0)->getSize();
+    if (xSize == 0 || ySize == 0) {
+        LogError("Columns doesn't have data.");
+        return;
+    }
+    for(size_t i = 0; i < ySize; i++)
+        if (yData.at(i)->getSize() != xSize) {
+            LogError("All columns needs to be the same size.");
             return;
+    }
+
+    // Find the maximum and minimum values.
+    double xMax = xData->getAsDouble(0);
+    double xMin = xData->getAsDouble(0);
+    double yMax = yData.at(0)->getAsDouble(0);
+    double yMin = yData.at(0)->getAsDouble(0);
+
+    for (size_t i = 0; i < xSize; i++) {
+        if (xData->getAsDouble(i) > xMax) {
+            xMax = xData->getAsDouble(i);
         }
-
-        if (!y) {
-            LogError("Could not find any column named Y in the DataFrame!");
-            return;
+        if (xData->getAsDouble(i) < xMin) {
+            xMin = xData->getAsDouble(i);
         }
+    }
 
-        size_t y_size = y->getSize();
-        size_t x_size = x->getSize();
-
-        if (y_size != x_size) {
-            LogError("The X and Y columns need to contain the same number"
-                     " of values!");
-        }
-
-        if (y_size == 0 || x_size == 0) {
-            return;
-        }
-
-        // Find the maximum and minimum values, respectively, and
-        // normalise the data ranges to [0, 1].
-        double x_min = x->getAsDouble(0);
-        double y_min = y->getAsDouble(0);
-        double x_max = x->getAsDouble(0);
-        double y_max = y->getAsDouble(0);
-
-        // x_size = y_size at this point, only need to check one.
-        if (x_size > 1) {
-            for (size_t i = 1; i < x_size; i++) {
-                double x_val = x->getAsDouble(i);
-                double y_val = y->getAsDouble(i);
-
-                x_min = x_val < x_min ? x_val : x_min;
-                y_min = y_val < y_min ? y_val : y_min;
-
-                x_max = x_val > x_max ? x_val : x_max;
-                y_max = y_val > y_max ? y_val : y_max;
+    for (size_t column = 0; column < yData.size(); column++) {
+        for (size_t i = 0; i < yData.at(column)->getSize(); i++) {
+            if (yData.at(column)->getAsDouble(i) > yMax) {
+                yMax = yData.at(column)->getAsDouble(i);
+            }
+            if (yData.at(column)->getAsDouble(i) < yMin) {
+                yMin = yData.at(column)->getAsDouble(i);
             }
         }
-
+    }
+/*
         // Set default values if data changes.
         if (dataFrameInport_.isChanged()) {
             y_range_.setMaxValue(vec2(100, 100));
@@ -361,7 +370,7 @@ void LinePlotProcessor::process() {
         return;
     }
 
-    meshOutport_.setData(mesh);
+    meshOutport_.setData(mesh);*/
 }
 
 void LinePlotProcessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
