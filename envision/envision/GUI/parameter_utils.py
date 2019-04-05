@@ -26,7 +26,7 @@
  
 import sys, os
 
-sys.path.insert(0, os.path.expanduser("/home/labb/ENVISIoN/envision/"))
+sys.path.insert(0, os.path.expanduser("C:/ENVISIoN/envision/"))
 
 import inviwopy
 import inspect
