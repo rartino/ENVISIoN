@@ -10,9 +10,9 @@ class ChargeFrame(wx.CollapsiblePane):
         chargePane.SetSizer(chargeSizer)
         self.button1=wx.Button(chargePane, label = str('X'))
         chargeSizer.Add(self.button1,
-                     wx.GROW | wx.ALL, 2)
+                     wx.GROW | wx.ALL, 0)
         chargeSizer.Add(wx.Button(chargePane, label = str('Y')),
-                     wx.GROW | wx.ALL, 2)
+                     wx.GROW | wx.ALL, 0)
         chargePane.SetSizer(chargeSizer)
 
         self.button1.Bind(wx.EVT_BUTTON, self.button_pressed_X)
