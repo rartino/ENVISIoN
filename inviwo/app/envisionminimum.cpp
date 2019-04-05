@@ -88,9 +88,4 @@ int main(int argc, char** argv) {
     pyInter->runString("import ENVISIoNimport");
 
     return 0;
-    try {
-        return envisionApp.exec();
-    } catch (const std::exception &e) {
-        std::cout << e.what() << std::endl;
-    }
 }
