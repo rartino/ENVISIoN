@@ -37,7 +37,7 @@
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import wx,sys,os
-#from parameter_utils import *
+from parameter_utils import *
 from VisFrame import *
 class ChargeFrame(wx.CollapsiblePane):
     def __init__(self, *args, **kwargs,):
@@ -53,7 +53,7 @@ class ChargeFrame(wx.CollapsiblePane):
                      wx.GROW | wx.ALL, 0)
         chargePane.SetSizer(chargeSizer)
 
-#        self.clearButton.Bind(wx.EVT_BUTTON, self.clear_pressed)
+        self.clearButton.Bind(wx.EVT_BUTTON, self.clear_pressed)
 
-#    def clear_pressed(self,event):
-#        charge_clear_tf()
+    def clear_pressed(self,event):
+        charge_clear_tf()
