@@ -37,23 +37,41 @@
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import wx,sys,os
-from parameter_utils import *
-from VisFrame import *
-class ChargeFrame(wx.CollapsiblePane):
-    def __init__(self, *args, **kwargs,):
-        wx.CollapsiblePane.__init__(self,*args,**kwargs)
-        
-        chargePane = self.GetPane()
-        chargeSizer = wx.BoxSizer(wx.VERTICAL)
-        chargePane.SetSizer(chargeSizer)
-        self.clearButton=wx.Button(chargePane, label = str('Clear'))
-        chargeSizer.Add(self.clearButton,
-                     wx.GROW | wx.ALL, 0)
-        chargeSizer.Add(wx.Button(chargePane, label = str('Y')),
-                     wx.GROW | wx.ALL, 0)
-        chargePane.SetSizer(chargeSizer)
+# from parameter_utils import *
+from generalCollapsible import GeneralCollapsible
 
-        self.clearButton.Bind(wx.EVT_BUTTON, self.clear_pressed)
+class ChargeFrame(GeneralCollapsible):
+    def __init__(self, parent):
+        super().__init__(parent, label = "Charge")
+
+        # Initialize some items
+        clearButton = wx.Button(self.GetPane(), label = 'Clear')
+        testButton = wx.Button(self.GetPane(), label = 'Y')
+        
+        # Add buttons to sizer
+        self.add_item(clearButton)
+        self.add_item(testButton)
+
+        clearButton.Bind(wx.EVT_BUTTON, self.clear_pressed)
+
+        # Override default binding
+        # Note that it should be called "on_collapse" to work
+        self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
 
     def clear_pressed(self,event):
-        charge_clear_tf()
+        # charge_clear_tf()
+        print('Clear something')
+        pass
+
+    def on_collapse(self, event = None):
+        if self.IsCollapsed():
+            # Disable charge vis
+            print("Not Charge")
+        else:
+            #Start Charge vis
+            print("Charge")
+            # envision.inviwo.charge(self.path, iso = None,
+            #                    slice = False, xpos = 0, ypos = 0)
+        
+        # Needs to be called to update the layout properly
+        self.update_collapse()

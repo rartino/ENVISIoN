@@ -36,19 +36,32 @@
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 import wx,sys,os
+from generalCollapsible import GeneralCollapsible
 
-class PKFFrame(wx.CollapsiblePane):
-    def __init__(self, *args, **kwargs,):
-        wx.CollapsiblePane.__init__(self,*args,**kwargs)
+class PKFFrame(GeneralCollapsible):
+    def __init__(self, parent):
+        super().__init__(parent, "Paircorrelation")
+        #wx.CollapsiblePane.__init__(self,*args,**kwargs)
         
-        PKFPane = self.GetPane()
-        PKFSizer = wx.BoxSizer(wx.VERTICAL)
-        PKFPane.SetSizer(PKFSizer)
+        button1 = wx.Button(self.GetPane(), label="X")
+        button2 = wx.Button(self.GetPane(), label="Y")
+        slider = wx.Slider(self.GetPane())
+
+        # Add buttons to sizer
+        self.add_item(button1)
+        self.add_item(button2)
+        self.add_item(slider)
+
+        # Override default binding
+        self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
+
+    def on_collapse(self, event = None):
+        if self.IsCollapsed():
+            # Disable vis
+            print("Not paircorr")
+        else:
+            #Start vis
+            print("Paircorr")
         
-                
-        button1 = wx.Button(PKFPane, label="X")
-        button2 = wx.Button(PKFPane, label="Y")
-        slider = wx.Slider(PKFPane)
-        PKFSizer.Add(button1,wx.GROW, 0)
-        PKFSizer.Add(button2,wx.GROW, 0)
-        PKFSizer.Add(slider,wx.GROW, 0)
+        # Needs to be called to update the layout properly
+        self.update_collapse()
