@@ -4,8 +4,7 @@
 """*****************************************************************************"""
 
 import wx, os, sys, wx.lib.scrolledpanel
-
-sys.path.insert(0, os.path.expanduser("/C:/ENVISIoN/envision/envision/GUI"))
+sys.path.insert(0, os.path.expanduser(os.getcwd()))
 
 from VisFrame import VisualizationFrame
 from ParserPane import ParserPane 
