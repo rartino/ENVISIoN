@@ -87,6 +87,7 @@ int main(int argc, char** argv) {
     auto pyInter{envisionApp.getModuleByType<Python3Module>()->getPythonInterpreter()};
     pyInter->runString("import ENVISIoNimport");
 
+    return 0;
     try {
         return envisionApp.exec();
     } catch (const std::exception &e) {
