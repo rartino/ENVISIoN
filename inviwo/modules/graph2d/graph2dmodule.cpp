@@ -36,7 +36,6 @@
 #include <modules/graph2d/processors/functionoperationunary.h>
 #include <modules/graph2d/processors/functionoperationnary.h>
 #include <modules/graph2d/processors/lineplotprocessor.h>
-//#include <modules/graph2d/processors/plotter.h>
 
 namespace inviwo {
 
@@ -50,8 +49,7 @@ graph2dModule::graph2dModule(InviwoApplication* app) : InviwoModule(app, "graph2
     registerProcessor<HDF5ToFunction>();
     registerProcessor<FunctionOperationUnary>();
     registerProcessor<FunctionOperationNary>();
-    registerProcessor<lineplotprocessor>();
-    //registerProcessor<Plotter>();
+    registerProcessor<LinePlotProcessor>();
 
     // Ports.
     registerPort<DataOutport<Point>>();

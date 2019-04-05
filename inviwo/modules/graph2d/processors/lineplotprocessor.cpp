@@ -36,10 +36,20 @@
  *   You should have received a copy of the CC0 legalcode along with
  *   this work.  If not, see
  *   <http://creativecommons.org/publicdomain/zero/1.0/>.
- */
+ *********************************************************************************/
+ /*
+  *   Alterations to this file by Abdullatif Ismail
+  *
+  *   To the extent possible under law, the person who associated CC0
+  *   with the alterations to this file has waived all copyright and
+  *   related or neighboring rights to the alterations made to this file.
+  *
+  *   You should have received a copy of the CC0 legalcode along with
+  *   this work.  If not, see
+  *   <http://creativecommons.org/publicdomain/zero/1.0/>.
+  */
 
 #include "lineplotprocessor.h"
-
 #include <inviwo/core/datastructures/buffer/bufferramprecision.h>
 #include <inviwo/core/util/interpolation.h>
 #include <modules/opengl/texture/textureutils.h>
@@ -64,18 +74,18 @@ using plot::DataFrame;
 using plot::Column;
 
 // The Class Identifier has to be globally unique. Use a reverse DNS naming scheme
-const ProcessorInfo lineplotprocessor::processorInfo_{
-    "org.inviwo.lineplotprocessor",      // Class identifier
-    "lineplotprocessor",                // Display name
-    "Undefined",              // Category
-    CodeState::Experimental,  // Code state
-    Tags::None,               // Tags
+const ProcessorInfo LinePlotProcessor::processorInfo_{
+    "org.inviwo.LinePlotProcessor",   // Class identifier
+    "Line Plot",                      // Display name
+    "Plotting",                       // Category
+    CodeState::Experimental,          // Code state
+    "Plotting",                       // Tags
 };
-const ProcessorInfo lineplotprocessor::getProcessorInfo() const {
+const ProcessorInfo LinePlotProcessor::getProcessorInfo() const {
     return processorInfo_;
 }
 
-lineplotprocessor::lineplotprocessor()
+LinePlotProcessor::LinePlotProcessor()
     : Processor()
     , dataFrameInport_("dataFrameInport")
     , meshOutport_("outport")
@@ -153,7 +163,7 @@ lineplotprocessor::lineplotprocessor()
     label_number_.set(5);
 }
 
-void lineplotprocessor::process() {
+void LinePlotProcessor::process() {
     std::shared_ptr <BasicMesh> mesh = std::make_shared<BasicMesh>();
     IndexBufferRAM *indices = mesh->addIndexBuffer(DrawType::Lines, ConnectivityType::None).get();
 
@@ -290,7 +300,7 @@ void lineplotprocessor::process() {
                      " than the minimum Y value range!");
             return;
         }
-	
+
         // Draw background grid.
         drawAxes(mesh, x_min, x_max, y_min, y_max);
 
@@ -354,7 +364,7 @@ void lineplotprocessor::process() {
     meshOutport_.setData(mesh);
 }
 
-void lineplotprocessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
+void LinePlotProcessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
                                  double x_min, double x_max,
                                  double y_min, double y_max) {
     // Draw the X axis.
@@ -435,7 +445,7 @@ void lineplotprocessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
                                  ivec2(2, 2)).get());
 }
 
-void lineplotprocessor::drawScale(double x_min, double x_max,
+void LinePlotProcessor::drawScale(double x_min, double x_max,
                                   double y_min, double y_max) {
     // Iterate over the length of the X axis and add the number scale.
     double x_step_size = std::abs(x_max - x_min) / label_number_.get();
@@ -488,7 +498,7 @@ void lineplotprocessor::drawScale(double x_min, double x_max,
 
 }
 
-void lineplotprocessor::drawText(const std::string& text, vec2 position, bool anchor_right) {
+void LinePlotProcessor::drawText(const std::string& text, vec2 position, bool anchor_right) {
     std::shared_ptr<Texture2D> texture(nullptr);
     texture  = util::createTextTexture(textRenderer_,
                                        text,
@@ -505,7 +515,7 @@ void lineplotprocessor::drawText(const std::string& text, vec2 position, bool an
     textureRenderer_.render(texture, position, labels_.getDimensions());
 }
 
-double lineplotprocessor::normalise(double value, double min, double max) const {
+double LinePlotProcessor::normalise(double value, double min, double max) const {
     return (value - min) / (max - min);
 }
 
