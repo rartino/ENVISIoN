@@ -1,3 +1,8 @@
+"""*****************************************************************************"""
+"""This file sets up the Parser-section of the GUI, which is a collapsible pane."""
+"""*****************************************************************************"""
+
+
 import wx, sys, os
 
 sys.path.insert(0, os.path.expanduser("C:/ENVISIoN/envision/envision/"))
@@ -11,6 +16,13 @@ class ParserPane(wx.CollapsiblePane):
         self.text_colour = wx.Colour(255,255,255)
         self.SetBackgroundColour(self.bg_colour)
         self.itemSize = wx.Size(150,25)
+        
+        #Frame-definitions
+        self.dirFrame = wx.Frame(None, -1, 'win.py')
+        self.dirFrame.SetDimensions(0,0,200,50)
+        self.messageFrame = wx.Frame(None, -1, 'win.py')
+        self.messageFrame.SetDimensions(0,0,60,50)
+        self.messageFrame.Centre()
 
         #Path-selection to file for parsing
         self.fileText = wx.StaticText(self.GetPane(),
@@ -59,7 +71,7 @@ class ParserPane(wx.CollapsiblePane):
         sizer.Add(self.selectVis,wx.GROW,1)
         sizer.Add(self.parse,wx.GROW,1)
         
-        #Signal-handling for buttons:
+        #Signal-handling for buttons and boxes:
         self.chooseFile.Bind(wx.EVT_BUTTON,self.file_pressed)
         self.enterPath.Bind(wx.EVT_TEXT_ENTER,self.path_OnEnter)
         self.chooseFolder.Bind(wx.EVT_BUTTON,self.folder_pressed)
@@ -71,34 +83,51 @@ class ParserPane(wx.CollapsiblePane):
     
     #When file-explorer button is pressed
     def file_pressed(self,event):
-        frame = wx.Frame(None, -1, 'win.py')
-        frame.SetDimensions(0,0,200,50)
-        openFileDialog = wx.DirDialog(frame, "Choose directory with files to parse", "", 
-                                       style=wx.DD_DEFAULT_STYLE|wx.DD_DIR_MUST_EXIST)
+        self.folderDialog = wx.DirDialog(self.dirFrame, "Choose directory with files to parse", "", 
+                                       style=wx.DD_DEFAULT_STYLE|wx.DD_DIR_MUST_EXIST)  
+        self.folderDialog.ShowModal()
+        self.path = self.folderDialog.GetPath()
+        self.folderDialog.Destroy()
         #openFileDialog = wx.FileDialog(frame, "Open", "", "", 
         #                              "Text files (*.txt)|*.txt", 
         #                               wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
-        openFileDialog.ShowModal()
-        self.path = openFileDialog.GetPath()
-        openFileDialog.Destroy()
-    
+        print(self.path)
     #When path entered in text and Enter-key is pressed
     def path_OnEnter(self,event):
-        self.path = self.enterPath.GetLineText()
+        tmpPath = self.enterPath.GetLineText(0)
+        if not os.path.exists(tmpPath):
+            openPathDialog = wx.MessageDialog(self.messageFrame,  
+                                        tmpPath+
+                                        " not a valid directory!",
+                                        "Failed!", 
+                                        wx.FD_OPEN)
+            openPathDialog.ShowModal()
+            openPathDialog.Destroy()
+        else: 
+            self.path = tmpPath
 
     #When file-explorer button is pressed
     def folder_pressed(self,event):
-        frame = wx.Frame(None, -1, 'win.py')
-        frame.SetDimensions(0,0,200,50)
-        openFolderDialog = wx.DirDialog(frame, "Choose output directory", "", 
-                                       style=wx.DD_DEFAULT_STYLE|wx.DD_DIR_MUST_EXIST)
-        openFolderDialog.ShowModal()
-        self.savePath = openFolderDialog.GetPath()
-        openFolderDialog.Destroy()
+        self.folderDialog = wx.DirDialog(self.dirFrame, "Choose output directory", "", 
+                                       style=wx.DD_DEFAULT_STYLE|wx.DD_DIR_MUST_EXIST)  
+        self.folderDialog.ShowModal()
+        self.savePath = self.folderDialog.GetPath()
+        self.folderDialog.Destroy()
+        print(self.savePath)
     
     #When path entered in text and Enter-key is pressed
     def savePath_OnEnter(self,event):
-        self.savePath = self.enterSavePath.GetLineText()
+        tmpPath = self.enterSavePath.GetLineText(0)
+        if not os.path.exists(tmpPath):
+            savePathDialog = wx.MessageDialog(self.messageFrame,  
+                                        tmpPath+
+                                        " not a valid directory!",
+                                        "Failed!", 
+                                        wx.FD_OPEN)
+            savePathDialog.ShowModal()
+            savePathDialog.Destroy()
+        else: 
+            self.savePath = tmpPath
 
     #When visualization-type is changed
     def vis_selected(self,event):
@@ -107,17 +136,14 @@ class ParserPane(wx.CollapsiblePane):
     #When Parse-button is pressed
     def parse_pressed(self,event):
         #self.parseOut = parse_all(self.savePath,self.path)
-        frame = wx.Frame(None, -1, 'win.py')
-        frame.SetDimensions(0,0,60,50)
-        frame.Centre()
         if not self.parseOut == None:
-            parseDialog = wx.MessageDialog(frame,  
+            parseDialog = wx.MessageDialog(self.messageFrame,  
                                         "Parsing "+self.path+" successfully done!",
                                         "Succsessfully parsed!", 
                                         wx.FD_OPEN)
             
         else:
-            parseDialog = wx.MessageDialog(frame,  
+            parseDialog = wx.MessageDialog(self.messageFrame,  
                                         "Parsing "+self.path+" failed!",
                                         "Failed!", 
                                         wx.FD_OPEN)
