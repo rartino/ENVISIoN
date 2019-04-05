@@ -57,13 +57,22 @@ def set_hd5_source(path):
 # -------------------
 # --Charge specific--
 
-def start_charge_vis(path, iso = None, slice = False):
+def start_charge_vis(path):
     # Start the charge visualization
+    # Hdf5 needs to be charge and unitcell-parsed
 
     # TODO: if charge network exists, only enable the canvas
 
     network.clear()
-    envision.inviwo.charge(path, iso = None, slice = False, xpos = 0, ypos = 0)
+    envision.parser.vasp.unitcell(path, "/home/labb/VASP-filer/NaCl_charge_density")
+    envision.parser.vasp.charge(path, "/home/labb/VASP-filer/NaCl_charge_density")
+    envision.inviwo.unitcell(path, 0)
+    envision.inviwo.charge(path, iso = None, slice = True, xpos = -300, ypos = 0)
+
+def charge_set_slice(enable):
+    charge_toggle_plane(enable)
+    SliceCanvas = network.getProcessorByIdentifier('SliceCanvas')
+    SliceCanvas
 
 #--Transfer function editing--
 
@@ -99,6 +108,8 @@ def charge_set_shading_mode(mode):
 
 def charge_set_background(color_1 = None, color_2 = None, style = 2):
     pass
+
+# --Slice planes--
 
 def charge_toggle_plane(enable):
     Raycaster = network.getProcessorByIdentifier('Charge raycaster')
