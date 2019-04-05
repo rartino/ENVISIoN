@@ -1,3 +1,8 @@
+"""*****************************************************************************"""
+"""The main file for the GUI of ENVISIoN. The app, main frame and main panel is """
+"""defined here.                                                                """
+"""*****************************************************************************"""
+
 import wx, os, sys, wx.lib.scrolledpanel
 
 sys.path.insert(0, os.path.expanduser("/C:/ENVISIoN/envision/envision/GUI"))
@@ -44,6 +49,7 @@ class Main_Frame(wx.Frame):
                          self.parchg_change)
         self.coll_panel.visFrame.unitcellFrame.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED,
                          self.unitcell_change)
+        self.Bind(wx.EVT_CLOSE, self.OnCloseWindow)
         
     def parse_change(self, event):
         self.coll_panel.SetupScrolling(scroll_x=False, 
@@ -92,6 +98,15 @@ class Main_Frame(wx.Frame):
                                         rate_y=20, scrollToTop=True, 
                                         scrollIntoView=False)
         self.coll_panel.visFrame.unitcell_change(event)
+
+    def OnCloseWindow(self, event):
+        self.coll_panel.parseFrame.messageFrame.Destroy()
+        self.coll_panel.parseFrame.dirFrame.Destroy()
+        self.coll_panel.parseFrame.Destroy()
+        self.coll_panel.visFrame.Destroy()
+        self.coll_panel.Destroy()
+        self.Destroy()
+        
 
 class ENVISIoN(wx.App):
     def OnInit(self):
