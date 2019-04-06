@@ -1,6 +1,6 @@
 /*********************************************************************************
  *
- * Copyright (c) 2017 Robert Cranston
+ * Copyright (c) 2019 Abdullatif Ismail
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,39 +25,36 @@
  *
  *********************************************************************************/
 
-#include <modules/graph2d/graph2dmodule.h>
-
-#include <modules/graph2d/datastructures/graph2ddata.h>
-#include <modules/graph2d/processors/hdf5pathselectionint.h>
-#include <modules/graph2d/processors/hdf5pathselectionintvector.h>
-#include <modules/graph2d/processors/hdf5pathselectionallchildren.h>
-#include <modules/graph2d/processors/hdf5topoint.h>
-#include <modules/graph2d/processors/hdf5tofunction.h>
-#include <modules/graph2d/processors/functionoperationunary.h>
-#include <modules/graph2d/processors/functionoperationnary.h>
 #include <modules/graph2d/processors/functiontodataframe.h>
-#include <modules/graph2d/processors/lineplotprocessor.h>
+#include <inviwo/core/common/inviwo.h>
+
+using inviwo::plot::TemplateColumn;
 
 namespace inviwo {
 
-graph2dModule::graph2dModule(InviwoApplication* app) : InviwoModule(app, "graph2d") {
+const ProcessorInfo FunctionToDataFrame::processorInfo_ {
+        "org.inviwo.FunctionToDataFrame",   // Class identifier.
+        "Function To Data Frame",           // Display name.
+        "Graphing",                         // Category.
+        CodeState::Experimental,            // Code state.
+        "Function", "Graphing",             // Tags.
+};
 
-    // Processors.
-    registerProcessor<HDF5PathSelectionInt>();
-    registerProcessor<HDF5PathSelectionIntVector>();
-    registerProcessor<HDF5PathSelectionAllChildren>();
-    registerProcessor<HDF5ToPoint>();
-    registerProcessor<HDF5ToFunction>();
-    registerProcessor<FunctionOperationUnary>();
-    registerProcessor<FunctionOperationNary>();
-    registerProcessor<FunctionToDataFrame>();
-    registerProcessor<LinePlotProcessor>();
-
-    // Ports.
-    registerPort<DataOutport<Point>>();
-    registerPort<DataInport<Point>>();
-    registerPort<DataOutport<Function>>();
-    registerPort<DataInport<Function>>();
+const ProcessorInfo FunctionToDataFrame::getProcessorInfo() const {
+    return processorInfo_;
 }
 
-} // namespace
+FunctionToDataFrame::FunctionToDataFrame()
+    : Processor()
+    , functionFlatMultiInport_("functionFlatMultiInport")
+    , dataframeOutport_("dataframeOutport") {
+
+    addPort(functionFlatMultiInport_);
+    addPort(dataframeOutport_);
+}
+
+void FunctionToDataFrame::process() {
+
+}
+
+}

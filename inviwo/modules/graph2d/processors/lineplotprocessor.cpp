@@ -333,33 +333,34 @@ void LinePlotProcessor::process() {
     // at the next point. Subtract one from the end criteria,
     // since the last point is included when the segment is drawn
     // from the next-to-last point.
-    for (size_t i = 0; i < xSize - 1; i++) {
-        //Make sure the data is within viewing range
-        if (xData->getAsDouble(i + 1) < x_range_.get()[0] && xData->getAsDouble(i) > x_range_.get()[1] &&
-            yData.at(0)->getAsDouble(i + 1) < y_range_.get()[0] && yData.at(0)->getAsDouble(i) > y_range_.get()[1]) {
-            // Get coordinates, normalise them to [0, 1], scale them
-            // and center them.
-            float s = scale_.get();
-            double xStart = s * normalise(xData->getAsDouble(i), xMin, xMax)
-                            + (1 - s) / 2;
-            double yStart = s * normalise(yData.at(0)->getAsDouble(i), yMin, yMax)
-                            + (1 - s) / 2;
-            double xEnd = s * normalise(xData->getAsDouble(i + 1), xMin, xMax)
-                          + (1 - s) / 2;
-            double yEnd = s * normalise(yData.at(0)->getAsDouble(i + 1), yMin, yMax)
-                          + (1 - s) / 2;
+    for (size_t column = 0; column < yData.size(); column++) {
+        for (size_t i = 0; i < xSize - 1; i++) {
+            //Make sure the data is within viewing range
+            if (xData->getAsDouble(i + 1) < x_range_.get()[0] && xData->getAsDouble(i) > x_range_.get()[1] &&
+                yData.at(column)->getAsDouble(i + 1) < y_range_.get()[0] && yData.at(column)->getAsDouble(i) > y_range_.get()[1]) {
+                // Get coordinates, normalise them to [0, 1], scale them
+                // and center them.
+                float s = scale_.get();
+                double xStart = s * normalise(xData->getAsDouble(i), xMin, xMax)
+                                + (1 - s) / 2;
+                double yStart = s * normalise(yData.at(column)->getAsDouble(i), yMin, yMax)
+                                + (1 - s) / 2;
+                double xEnd = s * normalise(xData->getAsDouble(i + 1), xMin, xMax)
+                              + (1 - s) / 2;
+                double yEnd = s * normalise(yData.at(column)->getAsDouble(i + 1), yMin, yMax)
+                              + (1 - s) / 2;
 
-            vec3 startPoint = vec3(xStart, yStart, 0);
-            indices->add(mesh->addVertex(startPoint, startPoint,
-                                         startPoint, colour_));
+                vec3 startPoint = vec3(xStart, yStart, 0);
+                indices->add(mesh->addVertex(startPoint, startPoint,
+                                             startPoint, colour_));
 
-            vec3 endPoint = vec3(xEnd, yEnd, 0);
-            indices->add(mesh->addVertex(endPoint, endPoint,
-                                         endPoint, colour_));
+                vec3 endPoint = vec3(xEnd, yEnd, 0);
+                indices->add(mesh->addVertex(endPoint, endPoint,
+                                             endPoint, colour_));
 
+            }
         }
     }
-
     meshOutport_.setData(mesh);
 }
 
