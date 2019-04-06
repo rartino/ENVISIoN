@@ -139,7 +139,7 @@ LinePlotProcessor::LinePlotProcessor()
     scale_.setIncrement(0.01);
     scale_.set(0.8);
 
-    enable_line_.set(true);
+    enable_line_.set(false);
     line_x_coordinate_.set(0.f);
 
     axis_width_.setMaxValue(0.01);
@@ -310,56 +310,56 @@ void LinePlotProcessor::process() {
     utilgl::activateAndClearTarget(labels_, ImageType::ColorDepth);
     drawScale(xMin, xMax, yMin, yMax);
     utilgl::deactivateCurrentTarget();
-/*
-        // If the static line is enabled, add it.
-        if (enable_line_.get()) {
-            float s = scale_.get();
-            vec3 y_start_point = vec3(s * normalise(line_x_coordinate_.get(),
-                                                    x_min, x_max) + (1 - s) / 2,
-                                      s * normalise(y_range_.getMinValue()[0],
-                                                    y_min, y_max) + (1 - s) / 2,
-                                      0);
-            vec3 y_end_point = vec3(s * normalise(line_x_coordinate_.get(),
-                                                  x_min, x_max) + (1 - s) / 2,
-                                    s * normalise(y_range_.getMaxValue()[0],
-                                                  y_min, y_max) + (1 - s) / 2,
-                                    0);
-            mesh->append(lineMesh(y_start_point, y_end_point, vec3(0, 0, 1),
-                                         line_colour_.get(), axis_width_.get(),
-                                         ivec2(2, 2)).get());
-        }
 
-        // Each line segment should start on the current point and end
-        // at the next point. Subtract one from the end criteria,
-        // since the last point is included when the segment is drawn
-        // from the next-to-last point.
-        for (size_t i = 0; i < x_size - 1; i++) {
+    // If the static line is enabled, add it.
+    if (enable_line_.get()) {
+        float s = scale_.get();
+        vec3 yStartPoint = vec3(s * normalise(line_x_coordinate_.get(),
+                                              xMin, xMax) + (1 - s) / 2,
+                                s * normalise(y_range_.getMinValue()[0],
+                                              yMin, yMax) + (1 - s) / 2,
+                                0);
+        vec3 yEndPoint = vec3(s * normalise(line_x_coordinate_.get(),
+                                            xMin, xMax) + (1 - s) / 2,
+                              s * normalise(y_range_.getMaxValue()[0],
+                                              yMin, yMax) + (1 - s) / 2,
+                              0);
+        mesh->append(lineMesh(yStartPoint, yEndPoint, vec3(0, 0, 1),
+                              line_colour_.get(), axis_width_.get(),
+                              ivec2(2, 2)).get());
+    }
+
+    // Each line segment should start on the current point and end
+    // at the next point. Subtract one from the end criteria,
+    // since the last point is included when the segment is drawn
+    // from the next-to-last point.
+    for (size_t i = 0; i < xSize - 1; i++) {
+        //Make sure the data is within viewing range
+        if (xData->getAsDouble(i + 1) < x_range_.get()[0] && xData->getAsDouble(i) > x_range_.get()[1] &&
+            yData.at(0)->getAsDouble(i + 1) < y_range_.get()[0] && yData.at(0)->getAsDouble(i) > y_range_.get()[1]) {
             // Get coordinates, normalise them to [0, 1], scale them
             // and center them.
             float s = scale_.get();
-            double x_start = s * normalise(x->getAsDouble(i), x_min, x_max)
-                             + (1 - s) / 2;
-            double y_start = s * normalise(y->getAsDouble(i), y_min, y_max)
-                             + (1 - s) / 2;
-            double x_end = s * normalise(x->getAsDouble(i + 1), x_min, x_max)
-                           + (1 - s) / 2;
-            double y_end = s * normalise(y->getAsDouble(i + 1), y_min, y_max)
-                           + (1 - s) / 2;
+            double xStart = s * normalise(xData->getAsDouble(i), xMin, xMax)
+                            + (1 - s) / 2;
+            double yStart = s * normalise(yData.at(0)->getAsDouble(i), yMin, yMax)
+                            + (1 - s) / 2;
+            double xEnd = s * normalise(xData->getAsDouble(i + 1), xMin, xMax)
+                          + (1 - s) / 2;
+            double yEnd = s * normalise(yData.at(0)->getAsDouble(i + 1), yMin, yMax)
+                          + (1 - s) / 2;
 
-            vec3 start_point = vec3(x_start, y_start, 0);
-            indices->add(mesh->addVertex(start_point, start_point,
-                         start_point, colour_));
+            vec3 startPoint = vec3(xStart, yStart, 0);
+            indices->add(mesh->addVertex(startPoint, startPoint,
+                                         startPoint, colour_));
 
-            vec3 end_point = vec3(x_end, y_end, 0);
-            indices->add(mesh->addVertex(end_point, end_point,
-                         end_point, colour_));
+            vec3 endPoint = vec3(xEnd, yEnd, 0);
+            indices->add(mesh->addVertex(endPoint, endPoint,
+                                         endPoint, colour_));
+
         }
-    } else {
-        LogInfo("This processor needs two columns to exist in the DataFrame."
-                " One named X and one named Y.")
-        return;
     }
-*/
+
     meshOutport_.setData(mesh);
 }
 
@@ -479,24 +479,6 @@ void LinePlotProcessor::drawScale(double xMin, double xMax,
         ss << std::fixed << std::setprecision(2) << y;
         drawText(ss.str(), imageCoords, true);
     }
-/*
-    // Put a lable at the static line if it is enabled.
-    if (enable_line_.get()) {
-        float x = line_x_coordinate_.get();
-        std::string label = std::to_string(x);
-        float s = scale_.get();
-        vec2 x_axis = vec2(s * normalise(x, x_min, x_max) + (1 - s) / 2,
-                           s * normalise(0, y_min, y_max) + (1 - s) / 2);
-
-        vec2 image_dims = labels_.getDimensions();
-        vec2 image_coords = vec2(image_dims[0] * x_axis[0], image_dims[1] * x_axis[1]);
-
-        vec2 shift = image_dims * (font_.anchorPos_.get() + vec2(1.0f, 1.0f));
-        image_coords -= shift;
-
-        drawText(std::to_string(x), image_coords);
-    }
-*/
 }
 
 void LinePlotProcessor::drawText(const std::string& text, vec2 position, bool anchor_right) {
