@@ -53,7 +53,6 @@
 #include <inviwo/core/datastructures/buffer/bufferramprecision.h>
 #include <inviwo/core/util/interpolation.h>
 #include <modules/opengl/texture/textureutils.h>
-#include <sstream>
 
 namespace glm {
 
@@ -104,12 +103,12 @@ LinePlotProcessor::LinePlotProcessor()
                    vec4(1), vec4(0.1f), InvalidationLevel::InvalidOutput,
                    PropertySemantics::Color)
     , axis_width_("axis_width", "Axis Width")
-    , grid_colour_("grid_colour", "Grid Colour", vec4(0.5, 0.5, 0.5, 1), vec4(0),
+    , grid_colour_("grid_colour", "Grid Colour", vec4(0.9, 0.9, 0.9, 1), vec4(0),
                    vec4(1), vec4(0.1f), InvalidationLevel::InvalidOutput,
                    PropertySemantics::Color)
     , grid_width_("grid_width", "Grid Width")
     , font_("font", "Font Setting")
-    , text_colour_("text_colour", "Text Colour", vec4(0, 0, 1, 1), vec4(0),
+    , text_colour_("text_colour", "Text Colour", vec4(0, 0, 0, 1), vec4(0),
                    vec4(1), vec4(0.1f), InvalidationLevel::InvalidOutput,
                    PropertySemantics::Color)
     , label_number_("label_number", "Number of Labels")
@@ -151,10 +150,11 @@ LinePlotProcessor::LinePlotProcessor()
     grid_width_.setMaxValue(0.01);
     grid_width_.setMinValue(0.0001);
     grid_width_.setIncrement(0.0001);
-    grid_width_.set(0.001);
+    grid_width_.set(0.002);
 
     font_.fontFace_.setSelectedIdentifier("arial");
     font_.fontFace_.setCurrentStateAsDefault();
+    font_.fontSize_.set(20);
     font_.fontSize_.setCurrentStateAsDefault();
     font_.anchorPos_ = vec2(-1, -0.97);
 
@@ -180,7 +180,6 @@ void LinePlotProcessor::process() {
                 xData = inputFrame->getColumn(i);
             } else if (inputFrame->getHeader(i) == "Y") {
                 yData.push_back(inputFrame->getColumn(i));
-                LogError("Found Y data!")
             }
         }
     }
@@ -302,16 +301,16 @@ void LinePlotProcessor::process() {
     }
 
     // Draw background grid.
-    drawAxes(mesh, xMin, xMax, yMin, yMax);
+    drawAxes(mesh, x_range_.getMinValue()[0], x_range_.getMaxValue()[0],
+             y_range_.getMinValue()[0], y_range_.getMaxValue()[0]);
+
+    textRenderer_.setFontSize(font_.fontSize_);
+    textRenderer_.setFont(font_.fontFace_);
+
+    utilgl::activateAndClearTarget(labels_, ImageType::ColorDepth);
+    drawScale(xMin, xMax, yMin, yMax);
+    utilgl::deactivateCurrentTarget();
 /*
-        if (font_.fontFace_.isModified()) {
-            textRenderer_.setFont(font_.fontFace_.get());
-        }
-
-        utilgl::activateAndClearTarget(labels_, ImageType::ColorDepth);
-        drawScale(x_min, x_max, y_min, y_max);
-        utilgl::deactivateCurrentTarget();
-
         // If the static line is enabled, add it.
         if (enable_line_.get()) {
             float s = scale_.get();
@@ -367,7 +366,7 @@ void LinePlotProcessor::process() {
 void LinePlotProcessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
                                  double xMin, double xMax,
                                  double yMin, double yMax) {
-    // Draw the X axis. It should always be on the bottom of the Y axis
+    // Draw the X axis. It should always be on the bottom of the Y axis.
     float s = scale_.get();
     vec3 xStartPoint = vec3(s * normalise(x_range_.getMinValue()[0], xMin, xMax) + (1 - s) / 2,
                             s * normalise(y_range_.getMinValue()[0], yMin, yMax) + (1 - s) / 2,
@@ -376,104 +375,111 @@ void LinePlotProcessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
                           s * normalise(y_range_.getMinValue()[0], yMin, yMax) + (1 - s) / 2,
                           0);
     mesh->append(lineMesh(xStartPoint, xEndPoint, vec3(0, 0, 1),
-                          axis_colour_.get(), axis_width_.get(),
+                          axis_colour_.get(), axis_width_.get() + 0.001,
                           ivec2(2, 2)).get());
 
-    // Draw the Y axis.
-    vec3 yStartPoint = vec3(s * normalise(x_range_.get()[1], xMin, xMax) + (1 - s) / 2,
+    // Draw the Y axis. It should always be on the left of the X axis.
+    vec3 yStartPoint = vec3(s * normalise(x_range_.getMinValue()[0], xMin, xMax) + (1 - s) / 2,
                             s * normalise(y_range_.getMinValue()[0], yMin, yMax) + (1 - s) / 2,
                             0);
-    vec3 yEndPoint = vec3(s * normalise(x_range_.get()[1], xMin, xMax) + (1 - s) / 2,
+    vec3 yEndPoint = vec3(s * normalise(x_range_.getMinValue()[0], xMin, xMax) + (1 - s) / 2,
                           s * normalise(y_range_.getMaxValue()[0], yMin, yMax) + (1 - s) / 2,
                           0);
     mesh->append(lineMesh(yStartPoint, yEndPoint, vec3(0, 0, 1),
                           axis_colour_.get(), axis_width_.get(),
                           ivec2(2, 2)).get());
-/*
+
     // Draw grid.
-    double x_step_size = std::abs(x_max - x_min) / label_number_.get();
-    for (double x = x_min + x_step_size; x <= x_max; x += x_step_size) {
-        vec3 y_start_point = vec3(s * normalise(x, x_min, x_max) + (1 - s) / 2,
-                                  s * normalise(y_range_.getMinValue()[0],
-                                                y_min, y_max) + (1 - s) / 2,
-                                  0);
-        vec3 y_end_point = vec3(s * normalise(x, x_min, x_max) + (1 - s) / 2,
-                                s * normalise(y_range_.getMaxValue()[0],
-                                              y_min, y_max) + (1 - s) / 2,
-                                0);
-        mesh->append(lineMesh(y_start_point, y_end_point, vec3(0, 0, 1),
-                                     grid_colour_.get(), grid_width_.get(),
-                                     ivec2(2, 2)).get());
+    double xStepSize = std::abs(xMax - xMin) / label_number_.get();
+    for (double x = xMin + xStepSize; x <= xMax; x += xStepSize) {
+        vec3 yStartPoint = vec3(s * normalise(x, xMin, xMax) + (1 - s) / 2,
+                           s * normalise(y_range_.getMinValue()[0],
+                                         yMin, yMax) + (1 - s) / 2,
+                           0);
+        vec3 yEndPoint = vec3(s * normalise(x, xMin, xMax) + (1 - s) / 2,
+                         s * normalise(y_range_.getMaxValue()[0],
+                                       yMin, yMax) + (1 - s) / 2,
+                         0);
+        mesh->append(lineMesh(yStartPoint, yEndPoint, vec3(0, 0, 1),
+                              grid_colour_.get(), grid_width_.get(),
+                              ivec2(2, 2)).get());
+        mesh->append(lineMesh(yStartPoint, yStartPoint + vec3(0, -0.01, 0), vec3(0, 0, 1),
+                              axis_colour_.get(), axis_width_.get(),
+                              ivec2(2, 2)).get());
     }
 
-    double y_step_size = std::abs(y_max - y_min) / label_number_.get();
-    for (double y = y_min + y_step_size; y <= y_max; y += y_step_size) {
+    double yStepSize = std::abs(yMax - yMin) / label_number_.get();
+    for (double y = yMin + yStepSize; y <= yMax; y += yStepSize) {
         float s = scale_.get();
-        vec3 x_start_point = vec3(s * normalise(x_range_.getMinValue()[0],
-                                                x_min, x_max) + (1 - s) / 2,
-                                  s * normalise(y, y_min, y_max) + (1 - s) / 2,
-                                  0);
-        vec3 x_end_point = vec3(s * normalise(x_range_.getMaxValue()[0],
-                                              x_min, x_max) + (1 - s) / 2,
-                                s * normalise(y, y_min, y_max) + (1 - s) / 2,
-                                0);
-        mesh->append(lineMesh(x_start_point, x_end_point, vec3(0, 0, 1),
-                                     grid_colour_.get(), grid_width_.get(),
-                                     ivec2(2, 2)).get());
+        vec3 xStartPoint = vec3(s * normalise(x_range_.getMinValue()[0],
+                                         xMin, xMax) + (1 - s) / 2,
+                           s * normalise(y, yMin, yMax) + (1 - s) / 2,
+                           0);
+        vec3 xEndPoint = vec3(s * normalise(x_range_.getMaxValue()[0],
+                                       xMin, xMax) + (1 - s) / 2,
+                         s * normalise(y, yMin, yMax) + (1 - s) / 2,
+                         0);
+        mesh->append(lineMesh(xStartPoint, xEndPoint, vec3(0, 0, 1),
+                              grid_colour_.get(), grid_width_.get() + 0.001,
+                              ivec2(2, 2)).get());
+        mesh->append(lineMesh(xStartPoint, xStartPoint + vec3(-0.01, 0, 0), vec3(0, 0, 1),
+                              axis_colour_.get(), axis_width_.get() + 0.001,
+                              ivec2(2, 2)).get());
     }
 
-    // Draw an arrow on the Y axis.
-    mesh->append(lineMesh(y_end_point, y_end_point + vec3(0.005, -0.01, 0), vec3(0, 0, 1),
-                                 axis_colour_.get(), axis_width_.get(),
-                                 ivec2(2, 2)).get());
-    mesh->append(lineMesh(y_end_point, y_end_point + vec3(-0.005, -0.01, 0), vec3(0, 0, 1),
-                                 axis_colour_.get(), axis_width_.get(),
-                                 ivec2(2, 2)).get());
+    // Draw end of the Y axis.
+    mesh->append(lineMesh(yEndPoint + vec3(-0.01, 0, 0), yEndPoint + vec3(0.01, 0, 0), vec3(0, 0, 1),
+                          axis_colour_.get(), axis_width_.get() + 0.001,
+                          ivec2(2, 2)).get());
 
-    // Draw an arrow on the X axis.
-    mesh->append(lineMesh(x_end_point, x_end_point + vec3(-0.01, 0.005, 0), vec3(0, 0, 1),
-                                 axis_colour_.get(), axis_width_.get(),
-                                 ivec2(2, 2)).get());
-    mesh->append(lineMesh(x_end_point, x_end_point + vec3(-0.01, -0.005, 0), vec3(0, 0, 1),
-                                 axis_colour_.get(), axis_width_.get(),
-                                 ivec2(2, 2)).get());
-*/
+    // Draw end of the X axis.
+    mesh->append(lineMesh(xEndPoint + vec3(0, -0.01, 0), xEndPoint + vec3(0, 0.01, 0), vec3(0, 0, 1),
+                          axis_colour_.get(), axis_width_.get(),
+                          ivec2(2, 2)).get());
+
+    // Draw beginning of each axis.
+    mesh->append(lineMesh(xStartPoint, xStartPoint + vec3(0, -0.01, 0), vec3(0, 0, 1),
+                          axis_colour_.get(), axis_width_.get(),
+                          ivec2(2, 2)).get());
+    mesh->append(lineMesh(xStartPoint, xStartPoint + vec3(-0.01, 0, 0), vec3(0, 0, 1),
+                          axis_colour_.get(), axis_width_.get() + 0.001,
+                          ivec2(2, 2)).get());
 }
 
-void LinePlotProcessor::drawScale(double x_min, double x_max,
-                                  double y_min, double y_max) {
+void LinePlotProcessor::drawScale(double xMin, double xMax,
+                                  double yMin, double yMax) {
     // Iterate over the length of the X axis and add the number scale.
-    double x_step_size = std::abs(x_max - x_min) / label_number_.get();
-    for (double x = x_min + x_step_size; x <= x_max; x += x_step_size) {
+    double xStepSize = std::abs(xMax - xMin) / label_number_.get();
+    for (double x = xMin; x <= xMax; x += xStepSize) {
         float s = scale_.get();
-        vec2 x_axis = vec2(s * normalise(x, x_min, x_max) + (1 - s) / 2,
-                           s * normalise(0, y_min, y_max) + (1 - s) / 2);
+        vec2 xAxis = vec2(s * normalise(x, xMin, xMax) + (1 - s) / 2,
+                          s * normalise(yMin, yMin, yMax) + (1 - s) / 2);
+        vec2 imageDims = labels_.getDimensions();
+        vec2 imageCoords = vec2(imageDims[0] * xAxis[0], imageDims[1] * xAxis[1]);
 
-        vec2 image_dims = labels_.getDimensions();
-        vec2 image_coords = vec2(image_dims[0] * x_axis[0], image_dims[1] * x_axis[1]);
-
-        vec2 shift = image_dims * (font_.anchorPos_.get() + vec2(1.0f, 1.0f));
-        image_coords -= shift;
-
-        drawText(std::to_string(x), image_coords);
+        vec2 shift = imageDims * (font_.anchorPos_.get() + vec2(1.0f, 1.0f));
+        imageCoords -= shift;
+        std::stringstream ss;
+        ss << std::fixed << std::setprecision(2) << x;
+        drawText(ss.str(), imageCoords);
     }
 
-    double y_step_size = std::abs(y_max - y_min) / label_number_.get();
-    for (double y = y_min + y_step_size; y <= y_max; y += y_step_size) {
-        std::string label = std::to_string(y);
+    double yStepSize = std::abs(yMax - yMin) / label_number_.get();
+    for (double y = yMin; y <= yMax; y += yStepSize) {
         float s = scale_.get();
-        vec2 y_axis = vec2(s * normalise(x_range_.get()[1], x_min, x_max) +(1 - s) / 2,
-                           s * normalise(y, y_min, y_max) + (1 - s) / 2);
+        vec2 yAxis = vec2(s * normalise(xMin, xMin, xMax) +(1 - s) / 2,
+                           s * normalise(y, yMin, yMax) + (1 - s) / 2);
 
-        vec2 image_dims = labels_.getDimensions();
-        vec2 image_coords = vec2(image_dims[0] * y_axis[0], image_dims[1] * y_axis[1]);
+        vec2 imageDims = labels_.getDimensions();
+        vec2 imageCoords = vec2(imageDims[0] * yAxis[0], imageDims[1] * yAxis[1]);
 
-        vec2 shift = 0.5f * image_dims * (font_.anchorPos_.get() + vec2(1.0f, 1.0f));
-        image_coords -= shift;
-
-        drawText(label, image_coords, true);
+        vec2 shift = 0.5f * imageDims * (font_.anchorPos_.get() + vec2(1.0f, 1.0f));
+        imageCoords -= shift;
+        std::stringstream ss;
+        ss << std::fixed << std::setprecision(2) << y;
+        drawText(ss.str(), imageCoords, true);
     }
-
+/*
     // Put a lable at the static line if it is enabled.
     if (enable_line_.get()) {
         float x = line_x_coordinate_.get();
@@ -490,7 +496,7 @@ void LinePlotProcessor::drawScale(double x_min, double x_max,
 
         drawText(std::to_string(x), image_coords);
     }
-
+*/
 }
 
 void LinePlotProcessor::drawText(const std::string& text, vec2 position, bool anchor_right) {
@@ -501,10 +507,15 @@ void LinePlotProcessor::drawText(const std::string& text, vec2 position, bool an
                                        texture);
 
     // If anchor_right is set, the text will be moved its own length
-    // to the left, plus 10 %.
+    // to the left, plus 50 %.
     if (anchor_right) {
         vec2 offset = vec2(texture->getDimensions()[0], 0);
-        position -= offset + 0.1f * offset;
+        position -= 2.0f * offset;
+        offset = vec2(0, texture->getDimensions()[1]);
+        position += offset / 2.0f;
+    } else {
+        vec2 offset = vec2(texture->getDimensions()[0], 0);
+        position -= offset / 2.0f;
     }
 
     textureRenderer_.render(texture, position, labels_.getDimensions());
