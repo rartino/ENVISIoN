@@ -53,6 +53,7 @@
 #include <inviwo/core/datastructures/buffer/bufferramprecision.h>
 #include <inviwo/core/util/interpolation.h>
 #include <modules/opengl/texture/textureutils.h>
+#include <sstream>
 
 namespace glm {
 
@@ -99,7 +100,7 @@ LinePlotProcessor::LinePlotProcessor()
     , line_colour_("line_colour", "Line Colour", vec4(0.078, 0.553, 1, 1), vec4(0),
                    vec4(1), vec4(0.1f), InvalidationLevel::InvalidOutput,
                    PropertySemantics::Color)
-    , axis_colour_("axis_colour", "Axis Colour", vec4(0, 0, 1, 1), vec4(0),
+    , axis_colour_("axis_colour", "Axis Colour", vec4(0, 0, 0, 1), vec4(0),
                    vec4(1), vec4(0.1f), InvalidationLevel::InvalidOutput,
                    PropertySemantics::Color)
     , axis_width_("axis_width", "Axis Width")
@@ -177,8 +178,9 @@ void LinePlotProcessor::process() {
         for (size_t i = 0; i < inputFrame->getNumberOfColumns(); i++) {
             if (inputFrame->getHeader(i) == "X") {
                 xData = inputFrame->getColumn(i);
-            } else {
+            } else if (inputFrame->getHeader(i) == "Y") {
                 yData.push_back(inputFrame->getColumn(i));
+                LogError("Found Y data!")
             }
         }
     }
@@ -202,7 +204,7 @@ void LinePlotProcessor::process() {
         LogError("Columns doesn't have data.");
         return;
     }
-    for(size_t i = 0; i < ySize; i++)
+    for(size_t i = 0; i < yData.size(); i++)
         if (yData.at(i)->getSize() != xSize) {
             LogError("All columns needs to be the same size.");
             return;
@@ -233,86 +235,75 @@ void LinePlotProcessor::process() {
             }
         }
     }
+
+    // Set default values if data changes.
+    if (dataFrameInport_.isChanged()) {
+        y_range_.setMaxValue(vec2(yMax, yMax));
+        y_range_.setMinValue(vec2(yMin, yMin));
+
+        x_range_.setMaxValue(vec2(xMax, xMax));
+        x_range_.setMinValue(vec2(xMin, xMin));
+
+        x_range_.set(vec2(xMax, xMin));
+        y_range_.set(vec2(yMax, yMin));
+
+        // Make an estimation of the scale needed to fit axis
+        // labels on the left side of the y-axis.
+        size_t maxLength = std::to_string(yMax).size();
+        size_t minLength = std::to_string(yMin).size();
+        float fontPixels = font_.fontSize_ * std::max(maxLength, minLength);
+        float textProportion = (fontPixels / labels_.getDimensions()[0]) * 1.2;
+        if (textProportion < 1 && 1 - textProportion < scale_.get()) {
+            scale_.set(1 - textProportion);
+        }
+    }
+
+    // If ll values in one dimension have the same value we let
+    // them normalise to a range that is one wide by subtracting
+    // one from the minimum value.
+    if (yMax == yMin) {
+        yMin -= 1;
+    }
+    if (xMax == xMin) {
+        xMin -= 1;
+    }
+
+    // Set the increment to 1/100 of the total interval length.
+    float xIncrement = std::abs(xMax - xMin) / 100.f;
+    float yIncrement = std::abs(yMax - yMin) / 100.f;
+    x_range_.setIncrement(vec2(xIncrement, xIncrement));
+    y_range_.setIncrement(vec2(yIncrement, yIncrement));
+
+    // Make sure that max an min values aren't the same.
+    if (x_range_.get()[0] == x_range_.get()[1]) {
+        x_range_.set(vec2(xMax, xMin));
+    } else {
+        // Otherwise we assign the set values as min/max.
+        xMax = x_range_.get()[0];
+        xMin = x_range_.get()[1];
+    }
+
+    if (y_range_.get()[0] == y_range_.get()[1]) {
+        y_range_.set(vec2(yMax, yMin));
+    } else {
+        yMax = y_range_.get()[0];
+        yMin = y_range_.get()[1];
+    }
+
+    if (xMax < xMin) {
+        LogError("The maximum X value range can't be less"
+                 " than the minimum X value range!");
+        return;
+    }
+    if (yMax < yMin) {
+        LogError("The maximum Y value range can't be less"
+                 " than the minimum Y value range!");
+        return;
+    }
+
+    // Draw background grid.
+    drawAxes(mesh, xMin, xMax, yMin, yMax);
 /*
-        // Set default values if data changes.
-        if (dataFrameInport_.isChanged()) {
-            y_range_.setMaxValue(vec2(100, 100));
-            y_range_.setMinValue(vec2(-100, -100));
-
-            x_range_.setMaxValue(vec2(x_max, x_max));
-            x_range_.setMinValue(vec2(x_min, x_min));
-
-            x_range_.set(vec2(x_max, x_min));
-            y_range_.set(vec2(y_max, y_min));
-
-            // Make an estimation of the scale needed to fit axis
-            // labels on the left side of the y-axis.
-            size_t max_length = std::to_string(y_max).size();
-            size_t  min_length = std::to_string(y_min).size();
-            float font_pixels = font_.fontSize_ *
-                                std::max(max_length, min_length);
-            float text_proportion = (font_pixels / labels_.getDimensions()[0])
-                                    * 1.2;
-            if (text_proportion < 1 &&
-                1 - text_proportion < scale_.get()) {
-                scale_.set(1 - text_proportion);
-            }
-        }
-
-
-        // If all values in one dimension have the same value we let
-        // them normalise to a range that is one wide by subtracting
-        // one from the minimum value.
-        if (y_max == y_min) {
-            y_min -= 1;
-        }
-
-        if (x_max == x_min) {
-            x_min -= 1;
-        }
-
-        // Set the increment to 1/100 of the total interval length.
-        float x_increment = std::abs(x_max - x_min) / 100.f;
-        x_range_.setMaxValue(vec2(x_max, x_max));
-        x_range_.setMinValue(vec2(x_min, x_min));
-        x_range_.setIncrement(vec2(x_increment, x_increment));
-
-        float y_increment = std::abs(x_max - x_min) / 100.f;
-        y_range_.setMaxValue(vec2(100, 100));
-        y_range_.setMinValue(vec2(-100, -100));
-        y_range_.setIncrement(vec2(y_increment, y_increment));
-
-        // Make sure that max an min values aren't the same.
-        if (x_range_.get()[0] == x_range_.get()[1]) {
-            x_range_.set(vec2(x_max, x_min));
-        } else {
-            // Otherwise we assign the set values as min/max.
-            x_max = x_range_.get()[0];
-            x_min = x_range_.get()[1];
-        }
-
-        if (y_range_.get()[0] == y_range_.get()[1]) {
-            y_range_.set(vec2(y_max, y_min));
-        } else {
-            y_max = y_range_.get()[0];
-            y_min = y_range_.get()[1];
-        }
-
-        if (x_max < x_min) {
-            LogError("The maximum X value range can't be less"
-                     " than the minimum X value range!");
-            return;
-        }
-
-        if (y_max < y_min) {
-            LogError("The maximum Y value range can't be less"
-                     " than the minimum Y value range!");
-            return;
-        }
-
-        // Draw background grid.
-        drawAxes(mesh, x_min, x_max, y_min, y_max);
-
         if (font_.fontFace_.isModified()) {
             textRenderer_.setFont(font_.fontFace_.get());
         }
@@ -369,42 +360,36 @@ void LinePlotProcessor::process() {
                 " One named X and one named Y.")
         return;
     }
-
-    meshOutport_.setData(mesh);*/
+*/
+    meshOutport_.setData(mesh);
 }
 
 void LinePlotProcessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
-                                 double x_min, double x_max,
-                                 double y_min, double y_max) {
-    // Draw the X axis.
+                                 double xMin, double xMax,
+                                 double yMin, double yMax) {
+    // Draw the X axis. It should always be on the bottom of the Y axis
     float s = scale_.get();
-    vec3 x_start_point = vec3(s * normalise(x_range_.getMinValue()[0],
-                                            x_min, x_max) + (1 - s) / 2,
-                              s * normalise(0, y_min, y_max) + (1 - s) / 2,
-                              0);
-    vec3 x_end_point = vec3(s * normalise(x_range_.getMaxValue()[0],
-                                          x_min, x_max) + (1 - s) / 2,
-                            s * normalise(0, y_min, y_max) + (1 - s) / 2,
+    vec3 xStartPoint = vec3(s * normalise(x_range_.getMinValue()[0], xMin, xMax) + (1 - s) / 2,
+                            s * normalise(y_range_.getMinValue()[0], yMin, yMax) + (1 - s) / 2,
                             0);
-    mesh->append(lineMesh(x_start_point, x_end_point, vec3(0, 0, 1),
-                                 axis_colour_.get(), axis_width_.get(),
-                                 ivec2(2, 2)).get());
+    vec3 xEndPoint = vec3(s * normalise(x_range_.getMaxValue()[0], xMin, xMax) + (1 - s) / 2,
+                          s * normalise(y_range_.getMinValue()[0], yMin, yMax) + (1 - s) / 2,
+                          0);
+    mesh->append(lineMesh(xStartPoint, xEndPoint, vec3(0, 0, 1),
+                          axis_colour_.get(), axis_width_.get(),
+                          ivec2(2, 2)).get());
 
     // Draw the Y axis.
-    vec3 y_start_point = vec3(s * normalise(x_range_.get()[1],
-                                            x_min, x_max) + (1 - s) / 2,
-                              s * normalise(y_range_.getMinValue()[0],
-                                            y_min, y_max) + (1 - s) / 2,
-                              0);
-    vec3 y_end_point = vec3(s * normalise(x_range_.get()[1],
-                                          x_min, x_max) + (1 - s) / 2,
-                            s * normalise(y_range_.getMaxValue()[0],
-                                          y_min, y_max) + (1 - s) / 2,
+    vec3 yStartPoint = vec3(s * normalise(x_range_.get()[1], xMin, xMax) + (1 - s) / 2,
+                            s * normalise(y_range_.getMinValue()[0], yMin, yMax) + (1 - s) / 2,
                             0);
-    mesh->append(lineMesh(y_start_point, y_end_point, vec3(0, 0, 1),
-                                 axis_colour_.get(), axis_width_.get(),
-                                 ivec2(2, 2)).get());
-
+    vec3 yEndPoint = vec3(s * normalise(x_range_.get()[1], xMin, xMax) + (1 - s) / 2,
+                          s * normalise(y_range_.getMaxValue()[0], yMin, yMax) + (1 - s) / 2,
+                          0);
+    mesh->append(lineMesh(yStartPoint, yEndPoint, vec3(0, 0, 1),
+                          axis_colour_.get(), axis_width_.get(),
+                          ivec2(2, 2)).get());
+/*
     // Draw grid.
     double x_step_size = std::abs(x_max - x_min) / label_number_.get();
     for (double x = x_min + x_step_size; x <= x_max; x += x_step_size) {
@@ -452,6 +437,7 @@ void LinePlotProcessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
     mesh->append(lineMesh(x_end_point, x_end_point + vec3(-0.01, -0.005, 0), vec3(0, 0, 1),
                                  axis_colour_.get(), axis_width_.get(),
                                  ivec2(2, 2)).get());
+*/
 }
 
 void LinePlotProcessor::drawScale(double x_min, double x_max,
