@@ -1,5 +1,7 @@
 /*********************************************************************************
  *
+ * Inviwo - Interactive Visualization Workshop
+ *
  * Copyright (c) 2019 Abdullatif Ismail
  * All rights reserved.
  *
@@ -54,7 +56,101 @@ FunctionToDataFrame::FunctionToDataFrame()
 }
 
 void FunctionToDataFrame::process() {
+    const auto& functionSharedPtrVector = functionFlatMultiInport_.getVectorData();
+    if (functionSharedPtrVector.empty()) {
+        LogError("Inport Doesn't contain data.");
+        return;
+    }
 
+    // Define x axis.
+    Axis xAxis;
+
+    // Set x axis variable info.
+    xAxis.variableInfo = functionSharedPtrVector.front()->xAxis.variableInfo;
+    if (!std::all_of(
+            functionSharedPtrVector.begin(),
+            functionSharedPtrVector.end(),
+            [&xAxis](const auto& functionSharedPtr) {
+                return
+                        functionSharedPtr->xAxis.variableInfo.variableName ==
+                        xAxis.variableInfo.variableName
+                        && functionSharedPtr->xAxis.variableInfo.variableSymbol ==
+                           xAxis.variableInfo.variableSymbol
+                        && functionSharedPtr->xAxis.variableInfo.quantityName ==
+                           xAxis.variableInfo.quantityName
+                        && functionSharedPtr->xAxis.variableInfo.quantitySymbol ==
+                           xAxis.variableInfo.quantitySymbol
+                        && functionSharedPtr->xAxis.variableInfo.unit ==
+                           xAxis.variableInfo.unit;
+            }
+    )
+            ) {
+        LogProcessorWarn("Not all functions have the same x axis variable info");
+    }
+
+    // Gather x axis data.
+    std::vector<float> xAxisData;
+    xAxisData.reserve(std::accumulate(
+            functionSharedPtrVector.begin(),
+            functionSharedPtrVector.end(),
+            0,
+            [](const auto& size, const auto& functionSharedPtr) {
+                return size + functionSharedPtr->xAxis.valueVector.size();
+            }
+    ));
+    for (const auto& functionSharedPtr : functionSharedPtrVector) {
+        std::copy(
+                functionSharedPtr->xAxis.valueVector.begin(),
+                functionSharedPtr->xAxis.valueVector.end(),
+                std::back_inserter(xAxisData)
+        );
+    }
+    std::sort(xAxisData.begin(), xAxisData.end());
+
+    std::shared_ptr<DataFrame> frame = std::make_shared<DataFrame>(0);
+    std::shared_ptr<TemplateColumn<float> > x = frame->addColumn<float>("X", 0);
+    for (float value : functionSharedPtrVector.at(0)->xAxis.valueVector) {
+        x->add(value);
+    }
+
+    // Define y axis.
+    Axis yAxis;
+
+    // Set y axis variable info.
+    yAxis.variableInfo.quantityName =
+            functionSharedPtrVector.front()->yAxis.variableInfo.quantityName;
+    yAxis.variableInfo.quantitySymbol =
+            functionSharedPtrVector.front()->yAxis.variableInfo.quantitySymbol;
+    yAxis.variableInfo.unit =
+            functionSharedPtrVector.front()->yAxis.variableInfo.unit;
+    if (!std::all_of(
+            functionSharedPtrVector.begin(),
+            functionSharedPtrVector.end(),
+            [&yAxis](const auto& functionSharedPtr) {
+                return
+                        functionSharedPtr->yAxis.variableInfo.quantityName ==
+                        yAxis.variableInfo.quantityName
+                        && functionSharedPtr->yAxis.variableInfo.quantitySymbol ==
+                           yAxis.variableInfo.quantitySymbol
+                        && functionSharedPtr->yAxis.variableInfo.unit ==
+                           yAxis.variableInfo.unit;
+            }
+    )
+            ) {
+        LogProcessorWarn("Not all functions have the same y axis variable info");
+    }
+
+    // Add y axis data.
+    yAxis.valueVector.reserve(xAxis.valueVector.size());
+    for (size_t column = 0; column < functionSharedPtrVector.size(); column++) {
+        std::stringstream ss;
+        ss << "Y" << column;
+        std::shared_ptr<TemplateColumn<float> > y = frame->addColumn<float>(ss.str(), 0);
+        for (float value : functionSharedPtrVector.at(column)->yAxis.valueVector) {
+            y->add(value);
+        }
+    }
+    dataframeOutport_.setData(frame);
 }
 
 }
