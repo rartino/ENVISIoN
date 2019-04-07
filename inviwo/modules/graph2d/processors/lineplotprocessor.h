@@ -2,7 +2,7 @@
  *
  * Inviwo - Interactive Visualization Workshop
  *
- * Copyright (c) 2017-2018 Inviwo Foundation, Andreas Kempe
+ * Copyright (c) 2017-2019 Inviwo Foundation, Andreas Kempe, Abdullatif Ismail
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,18 @@
  *   You should have received a copy of the CC0 legalcode along with
  *   this work.  If not, see
  *   <http://creativecommons.org/publicdomain/zero/1.0/>.
- */
+ *********************************************************************************/
+ /*
+  *   Alterations to this file by Abdullatif Ismail
+  *
+  *   To the extent possible under law, the person who associated CC0
+  *   with the alterations to this file has waived all copyright and
+  *   related or neighboring rights to the alterations made to this file.
+  *
+  *   You should have received a copy of the CC0 legalcode along with
+  *   this work.  If not, see
+  *   <http://creativecommons.org/publicdomain/zero/1.0/>.
+  */
 
 #ifndef IVW_LINEPLOTPROCESSOR_H
 #define IVW_LINEPLOTPROCESSOR_H
@@ -58,8 +69,8 @@ namespace inviwo {
 
 using plot::DataFrameInport;
 
-/** \docpage{org.inviwo.lineplotprocessor, lineplotprocessor}
- * ![](org.inviwo.lineplotprocessor.png?classIdentifier=org.inviwo.lineplotprocessor)
+/** \docpage{org.inviwo.LinePlotProcessor, Line Plot Processor}
+ * ![](org.inviwo.LinePlotProcessor.png?classIdentifier=org.inviwo.LinePlotProcessor)
  * This processor draws a diagram from a DataFrame containing two
  * columns, one named "X" and one named "Y". It plots the values of
  * the "X" column on the horizontal axis versus the "Y" values on the
@@ -67,8 +78,10 @@ using plot::DataFrameInport;
  *
  * ### Inports
  *   * __dataFrameInport__ is an inport that takes a DataFrame
- *   expected to contain two columns. One named "X" and one named "Y",
- *   containing the x values to be plotted against the y values.
+ *   expected to contain at least two columns. One named "X" and
+ *   one starting with "Y", containing the x values to be plotted
+ *   against the y values. This can be produced from the 'Function
+ *   to Data Frame' processor.
  *
  * ### Outports
  *   * __outport__ outport that outputs a mesh representing the
@@ -102,16 +115,10 @@ using plot::DataFrameInport;
  *   to make of the coordinate axes.
  */
 
-
-/**
- * \class lineplotprocessor
- * \brief VERY_BRIEFLY_DESCRIBE_THE_PROCESSOR
- * DESCRIBE_THE_PROCESSOR_FROM_A_DEVELOPER_PERSPECTIVE
- */
-class IVW_MODULE_GRAPH2D_API lineplotprocessor : public Processor {
+class IVW_MODULE_GRAPH2D_API LinePlotProcessor : public Processor {
 public:
-    lineplotprocessor();
-    virtual ~lineplotprocessor() = default;
+    LinePlotProcessor();
+    virtual ~LinePlotProcessor() = default;
 
     virtual void process() override;
 
@@ -154,4 +161,3 @@ private:
 } // namespace
 
 #endif // IVW_LINEPLOTPROCESSOR_H
-

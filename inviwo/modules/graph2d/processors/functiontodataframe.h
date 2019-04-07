@@ -1,6 +1,8 @@
 /*********************************************************************************
  *
- * Copyright (c) 2017 Robert Cranston
+ * Inviwo - Interactive Visualization Workshop
+ *
+ * Copyright (c) 2019 Abdullatif Ismail
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,39 +27,57 @@
  *
  *********************************************************************************/
 
-#include <modules/graph2d/graph2dmodule.h>
+#ifndef IVW_FUNCTIONTODATAFRAME_H
+#define IVW_FUNCTIONTODATAFRAME_H
 
+#include <modules/graph2d/graph2dmoduledefine.h>
+#include <inviwo/core/common/inviwo.h>
+#include <inviwo/core/ports/datainport.h>
+#include <inviwo/core/processors/processor.h>
+#include <modules/plotting/datastructures/dataframe.h>
 #include <modules/graph2d/datastructures/graph2ddata.h>
-#include <modules/graph2d/processors/hdf5pathselectionint.h>
-#include <modules/graph2d/processors/hdf5pathselectionintvector.h>
-#include <modules/graph2d/processors/hdf5pathselectionallchildren.h>
-#include <modules/graph2d/processors/hdf5topoint.h>
-#include <modules/graph2d/processors/hdf5tofunction.h>
-#include <modules/graph2d/processors/functionoperationunary.h>
-#include <modules/graph2d/processors/functionoperationnary.h>
-#include <modules/graph2d/processors/functiontodataframe.h>
-#include <modules/graph2d/processors/lineplotprocessor.h>
+
+using inviwo::plot::DataFrame;
+using inviwo::plot::DataFrameOutport;
 
 namespace inviwo {
 
-graph2dModule::graph2dModule(InviwoApplication* app) : InviwoModule(app, "graph2d") {
+/** \docpage{org.inviwo.FunctionToDataFrame, Function To Data Frame}
+ * ![](org.inviwo.FunctionToDataFrame.png?classIdentifier=org.inviwo.FunctionToDataFrame)
+ * Explanation of how to use the processor.
+ *
+ * ### Inports
+ *   * __functionFlatMultiImport__
+ *   Made to take data from 'HDF5 To Function' processor.
+ *   Able to handle multiple vectors of data.
+ *
+ * ### Outports
+ *   * __dataFrame__
+ *   Made to give data to 'Line Plot' processor.
+ *
+ * ### Properties
+ *   This processor doesn't have any properties.
+ */
 
-    // Processors.
-    registerProcessor<HDF5PathSelectionInt>();
-    registerProcessor<HDF5PathSelectionIntVector>();
-    registerProcessor<HDF5PathSelectionAllChildren>();
-    registerProcessor<HDF5ToPoint>();
-    registerProcessor<HDF5ToFunction>();
-    registerProcessor<FunctionOperationUnary>();
-    registerProcessor<FunctionOperationNary>();
-    registerProcessor<FunctionToDataFrame>();
-    registerProcessor<LinePlotProcessor>();
 
-    // Ports.
-    registerPort<DataOutport<Point>>();
-    registerPort<DataInport<Point>>();
-    registerPort<DataOutport<Function>>();
-    registerPort<DataInport<Function>>();
-}
+/**
+ * \class FunctionToDataFrame
+ * Converts function data to data frame of columns.
+ */
+class IVW_MODULE_GRAPH2D_API FunctionToDataFrame : public Processor {
+
+public:
+    FunctionToDataFrame();
+    virtual ~FunctionToDataFrame() = default;
+    virtual void process() override;
+    virtual const ProcessorInfo getProcessorInfo() const override;
+    static const ProcessorInfo processorInfo_;
+private:
+    DataInport<Function, 0, true> functionFlatMultiInport_;
+    DataFrameOutport dataframeOutport_;
+};
 
 } // namespace
+
+#endif // IVW_FUNCTIONTODATAFRAME_H
+

@@ -94,7 +94,7 @@ def bandstructure(h5file, xpos=0, ypos=0):
                 "functionFlatMultiInport"))
             ypos_temp += 75
 
-            plotter_processor = _add_processor("org.inviwo.lineplotprocessor", "Band Structure Plotter " + i, xpos_temp, ypos_temp)
+            plotter_processor = _add_processor("org.inviwo.LinePlotProcessor", "Band Structure Plotter " + i, xpos_temp, ypos_temp)
             plotter_list.append(plotter_processor)
             network.addConnection(operation_processor.getOutport("dataframeOutport"), plotter_processor.getInport("dataFrameInport"))
             ypos_temp += 75
@@ -135,6 +135,7 @@ def bandstructure(h5file, xpos=0, ypos=0):
         energy_text_processor.text.value = 'Energy [eV]'
         energy_text_processor.position.value = inviwopy.glm.vec2(0.0252, 0.9401)
         energy_text_processor.color.value = inviwopy.glm.vec4(0, 0, 0, 1)
+        energy_text_processor.font.fontSize.value = 20
         canvas_processor.inputSize.dimensions.value = inviwopy.glm.ivec2(640, 480)
         for plotter in plotter_list[1:]:
             network.addLink(plotter_list[0].scale, plotter.scale)
@@ -143,19 +144,5 @@ def bandstructure(h5file, xpos=0, ypos=0):
             network.addLink(plotter_list[0].grid_width, plotter.grid_width)
             network.addLink(plotter_list[0].grid_colour, plotter.grid_colour)
             plotter.axis_width.value = 0
-        global_ymax = plotter_list[0].y_range.value[1]
-        global_ymin = plotter_list[0].y_range.value[0]
-        for plotter in plotter_list:
-            if plotter.y_range.value[1] < global_ymin:
-                global_ymin = plotter.y_range.value[1]
-            if plotter.y_range.value[0] > global_ymax:
-                global_ymax = plotter.y_range.value[0]
-        plotter_list[0].y_range.value = inviwopy.glm.vec2(math.ceil(global_ymax), math.floor(global_ymin))
-        plotter_list[0].x_range.value = inviwopy.glm.vec2(10, 0)
         plotter_list[0].scale.value = 0.8
         plotter_list[0].grid_width.value = 0
-        plotter_list[0].grid_colour.value = inviwopy.glm.vec4(1, 1, 1, 1)
-        plotter_list[0].text_colour.value = inviwopy.glm.vec4(0, 0, 0, 1)
-        plotter_list[0].axis_colour.value = inviwopy.glm.vec4(0, 0, 0, 1)
-        plotter_list[0].enable_line.value = False
-        plotter_list[0].label_number.value = int(abs(global_ymax - global_ymin)) + 1
