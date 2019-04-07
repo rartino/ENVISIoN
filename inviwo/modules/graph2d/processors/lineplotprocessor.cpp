@@ -2,7 +2,7 @@
  *
  * Inviwo - Interactive Visualization Workshop
  *
- * Copyright (c) 2017-2018 Inviwo Foundation, Andreas Kempe
+ * Copyright (c) 2017-2019 Inviwo Foundation, Andreas Kempe, Abdullatif Ismail
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -178,7 +178,7 @@ void LinePlotProcessor::process() {
         for (size_t i = 0; i < inputFrame->getNumberOfColumns(); i++) {
             if (inputFrame->getHeader(i) == "X") {
                 xData = inputFrame->getColumn(i);
-            } else if (inputFrame->getHeader(i) == "Y") {
+            } else if (inputFrame->getHeader(i).at(0) == 'Y') {
                 yData.push_back(inputFrame->getColumn(i));
             }
         }
@@ -245,16 +245,6 @@ void LinePlotProcessor::process() {
 
         x_range_.set(vec2(xMax, xMin));
         y_range_.set(vec2(yMax, yMin));
-
-        // Make an estimation of the scale needed to fit axis
-        // labels on the left side of the y-axis.
-        size_t maxLength = std::to_string(yMax).size();
-        size_t minLength = std::to_string(yMin).size();
-        float fontPixels = font_.fontSize_ * std::max(maxLength, minLength);
-        float textProportion = (fontPixels / labels_.getDimensions()[0]) * 1.2;
-        if (textProportion < 1 && 1 - textProportion < scale_.get()) {
-            scale_.set(1 - textProportion);
-        }
     }
 
     // If ll values in one dimension have the same value we let
@@ -394,13 +384,13 @@ void LinePlotProcessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
     double xStepSize = std::abs(xMax - xMin) / label_number_.get();
     for (double x = xMin + xStepSize; x <= xMax; x += xStepSize) {
         vec3 yStartPoint = vec3(s * normalise(x, xMin, xMax) + (1 - s) / 2,
-                           s * normalise(y_range_.getMinValue()[0],
-                                         yMin, yMax) + (1 - s) / 2,
-                           0);
+                                s * normalise(y_range_.getMinValue()[0],
+                                              yMin, yMax) + (1 - s) / 2,
+                                0);
         vec3 yEndPoint = vec3(s * normalise(x, xMin, xMax) + (1 - s) / 2,
-                         s * normalise(y_range_.getMaxValue()[0],
-                                       yMin, yMax) + (1 - s) / 2,
-                         0);
+                              s * normalise(y_range_.getMaxValue()[0],
+                                            yMin, yMax) + (1 - s) / 2,
+                              0);
         mesh->append(lineMesh(yStartPoint, yEndPoint, vec3(0, 0, 1),
                               grid_colour_.get(), grid_width_.get(),
                               ivec2(2, 2)).get());
@@ -413,13 +403,13 @@ void LinePlotProcessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
     for (double y = yMin + yStepSize; y <= yMax; y += yStepSize) {
         float s = scale_.get();
         vec3 xStartPoint = vec3(s * normalise(x_range_.getMinValue()[0],
-                                         xMin, xMax) + (1 - s) / 2,
-                           s * normalise(y, yMin, yMax) + (1 - s) / 2,
-                           0);
+                                              xMin, xMax) + (1 - s) / 2,
+                                s * normalise(y, yMin, yMax) + (1 - s) / 2,
+                                0);
         vec3 xEndPoint = vec3(s * normalise(x_range_.getMaxValue()[0],
-                                       xMin, xMax) + (1 - s) / 2,
-                         s * normalise(y, yMin, yMax) + (1 - s) / 2,
-                         0);
+                                            xMin, xMax) + (1 - s) / 2,
+                              s * normalise(y, yMin, yMax) + (1 - s) / 2,
+                              0);
         mesh->append(lineMesh(xStartPoint, xEndPoint, vec3(0, 0, 1),
                               grid_colour_.get(), grid_width_.get() + 0.001,
                               ivec2(2, 2)).get());

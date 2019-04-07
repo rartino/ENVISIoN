@@ -1,5 +1,7 @@
 /*********************************************************************************
  *
+ * Inviwo - Interactive Visualization Workshop
+ *
  * Copyright (c) 2019 Abdullatif Ismail
  * All rights reserved.
  *
@@ -29,15 +31,10 @@
 #define IVW_FUNCTIONTODATAFRAME_H
 
 #include <modules/graph2d/graph2dmoduledefine.h>
-
 #include <inviwo/core/common/inviwo.h>
 #include <inviwo/core/ports/datainport.h>
 #include <inviwo/core/processors/processor.h>
-#include <inviwo/core/properties/optionproperty.h>
-#include <inviwo/core/properties/boolproperty.h>
-#include <inviwo/core/properties/ordinalproperty.h>
 #include <modules/plotting/datastructures/dataframe.h>
-
 #include <modules/graph2d/datastructures/graph2ddata.h>
 
 using inviwo::plot::DataFrame;

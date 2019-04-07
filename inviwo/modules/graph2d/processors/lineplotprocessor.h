@@ -2,7 +2,7 @@
  *
  * Inviwo - Interactive Visualization Workshop
  *
- * Copyright (c) 2017-2018 Inviwo Foundation, Andreas Kempe
+ * Copyright (c) 2017-2019 Inviwo Foundation, Andreas Kempe, Abdullatif Ismail
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,8 +78,10 @@ using plot::DataFrameInport;
  *
  * ### Inports
  *   * __dataFrameInport__ is an inport that takes a DataFrame
- *   expected to contain two columns. One named "X" and one named "Y",
- *   containing the x values to be plotted against the y values.
+ *   expected to contain at least two columns. One named "X" and
+ *   one starting with "Y", containing the x values to be plotted
+ *   against the y values. This can be produced from the 'Function
+ *   to Data Frame' processor.
  *
  * ### Outports
  *   * __outport__ outport that outputs a mesh representing the
@@ -113,12 +115,6 @@ using plot::DataFrameInport;
  *   to make of the coordinate axes.
  */
 
-
-/**
- * \class lineplotprocessor
- * \brief VERY_BRIEFLY_DESCRIBE_THE_PROCESSOR
- * DESCRIBE_THE_PROCESSOR_FROM_A_DEVELOPER_PERSPECTIVE
- */
 class IVW_MODULE_GRAPH2D_API LinePlotProcessor : public Processor {
 public:
     LinePlotProcessor();
