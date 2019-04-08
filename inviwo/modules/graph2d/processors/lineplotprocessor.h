@@ -142,7 +142,8 @@ private:
     BoolProperty enable_line_;
     FloatProperty line_x_coordinate_;
     FloatVec4Property line_colour_;
-
+    BoolProperty show_x_labels_;
+    BoolProperty show_y_labels_;
     FloatVec4Property axis_colour_;
     FloatProperty axis_width_;
 
