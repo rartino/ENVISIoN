@@ -99,6 +99,8 @@ LinePlotProcessor::LinePlotProcessor()
     , line_colour_("line_colour", "Line Colour", vec4(0.078, 0.553, 1, 1), vec4(0),
                    vec4(1), vec4(0.1f), InvalidationLevel::InvalidOutput,
                    PropertySemantics::Color)
+    , show_x_labels_("show_x_labels", "X Labels")
+    , show_y_labels_("show_y_labels", "Y Labels")
     , axis_colour_("axis_colour", "Axis Colour", vec4(0, 0, 0, 1), vec4(0),
                    vec4(1), vec4(0.1f), InvalidationLevel::InvalidOutput,
                    PropertySemantics::Color)
@@ -125,6 +127,8 @@ LinePlotProcessor::LinePlotProcessor()
     addProperty(enable_line_);
     addProperty(line_x_coordinate_);
     addProperty(line_colour_);
+    addProperty(show_x_labels_);
+    addProperty(show_y_labels_);
 
     addProperty(axis_colour_);
     addProperty(axis_width_);
@@ -141,6 +145,8 @@ LinePlotProcessor::LinePlotProcessor()
 
     enable_line_.set(false);
     line_x_coordinate_.set(0.f);
+    show_x_labels_.set(true);
+    show_y_labels_.set(true);
 
     axis_width_.setMaxValue(0.01);
     axis_width_.setMinValue(0.0001);
@@ -452,7 +458,9 @@ void LinePlotProcessor::drawScale(double xMin, double xMax,
         imageCoords -= shift;
         std::stringstream ss;
         ss << std::fixed << std::setprecision(2) << x;
-        drawText(ss.str(), imageCoords);
+        if (show_x_labels_.get()) {
+            drawText(ss.str(), imageCoords);
+        }
     }
 
     double yStepSize = std::abs(yMax - yMin) / label_number_.get();
@@ -468,7 +476,9 @@ void LinePlotProcessor::drawScale(double xMin, double xMax,
         imageCoords -= shift;
         std::stringstream ss;
         ss << std::fixed << std::setprecision(2) << y;
-        drawText(ss.str(), imageCoords, true);
+        if (show_y_labels_.get()) {
+            drawText(ss.str(), imageCoords, true);
+        }
     }
 }
 
@@ -480,7 +490,7 @@ void LinePlotProcessor::drawText(const std::string& text, vec2 position, bool an
                                        texture);
 
     // If anchor_right is set, the text will be moved its own length
-    // to the left, plus 50 %.
+    // to the left, plus 100 %.
     if (anchor_right) {
         vec2 offset = vec2(texture->getDimensions()[0], 0);
         position -= 2.0f * offset;
