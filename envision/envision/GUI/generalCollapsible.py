@@ -52,8 +52,17 @@ class GeneralCollapsible(wx.CollapsiblePane):
         self.SetBackgroundColour(self.bg_colour)
 
         self.pane = self.GetPane()
+
+        hbox = wx.BoxSizer(wx.HORIZONTAL)
+
+        fillBox = wx.BoxSizer(wx.HORIZONTAL)
+        fillBox.AddSpacer(20)
+
         self.sizer = wx.BoxSizer(wx.VERTICAL)
-        self.pane.SetSizer(self.sizer)
+
+        hbox.Add(fillBox)
+        hbox.Add(self.sizer)
+        self.pane.SetSizer(hbox)
         
     
         # Default callback when collapsing panel, just updates the layouts to make sizers expand
