@@ -37,7 +37,7 @@
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import wx,sys,os
-# from parameter_utils import *
+from parameter_utils import *
 from generalCollapsible import GeneralCollapsible
 
 class ChargeFrame(GeneralCollapsible):
@@ -46,7 +46,7 @@ class ChargeFrame(GeneralCollapsible):
 
         # Initialize some items
         clearButton = wx.Button(self.GetPane(), label = 'Clear')
-        testButton = wx.Button(self.GetPane(), label = 'Y')
+        testButton = wx.Button(self.GetPane(), label = 'test')
         
         # Add buttons to sizer
         self.add_item(clearButton)
@@ -59,19 +59,22 @@ class ChargeFrame(GeneralCollapsible):
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
 
     def clear_pressed(self,event):
-        # charge_clear_tf()
+        charge_clear_tf()
         print('Clear something')
         pass
 
     def on_collapse(self, event = None):
+        self.update_collapse()
+        # Needs to be called to update the layout properly
         if self.IsCollapsed():
             # Disable charge vis
             print("Not Charge")
         else:
             #Start Charge vis
             print("Charge")
-            # envision.inviwo.charge(self.path, iso = None,
-            #                    slice = False, xpos = 0, ypos = 0)
+            envision.inviwo.charge(self.parent_collapsible.path, 
+                                iso = None, slice = False, 
+                                xpos = 0, ypos = 0)
         
-        # Needs to be called to update the layout properly
-        self.update_collapse()
+        
+        
