@@ -98,13 +98,16 @@ using plot::DataFrameInport;
  *   axis.
  *   * __scale__ contains a constant by which the graph will be
  *   scaled.
- *   * __enable_line__ enables a vertical line at x =
+ *   * __enable_line__ enables a vertical line at x = line_x_coordinate_
  *   line_x_coordinate.
  *   * __line_x_coordinate__ x coordinate at which to draw a vertical
  *   * __line_colour__ is the colour of the static vertical line.
  *   line.
+ *   * __show_x_lables__ shows labels on x axis.
+ *   * __show_y_lables__ shows labels on y axis.
  *   * __axis_colour__ contains the colour of the graph axes.
  *   * __axis_width__ sets how wide the graph axes should be.
+ *   * __enable_grid__ enables the background grid.
  *   * __grid_colour__ sets the colour of the coordinate grid in the
  *   graph.
  *   * __grid_width__ sets the line width for the coordinate grid in
@@ -142,10 +145,12 @@ private:
     BoolProperty enable_line_;
     FloatProperty line_x_coordinate_;
     FloatVec4Property line_colour_;
-
+    BoolProperty show_x_labels_;
+    BoolProperty show_y_labels_;
     FloatVec4Property axis_colour_;
     FloatProperty axis_width_;
 
+    BoolProperty enable_grid_;
     FloatVec4Property grid_colour_;
     FloatProperty grid_width_;
 
