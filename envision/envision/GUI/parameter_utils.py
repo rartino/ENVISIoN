@@ -26,7 +26,7 @@
  
 import sys, os
 
-sys.path.insert(0, os.path.expanduser("C:/ENVISIoN/envision/"))
+
 
 import inviwopy
 import inspect
@@ -64,12 +64,15 @@ def start_charge_vis(path):
     # TODO: if charge network exists, only enable the canvas
 
     network.clear()
-    envision.parser.vasp.unitcell(path, "/home/labb/VASP-filer/NaCl_charge_density")
-    envision.parser.vasp.charge(path, "/home/labb/VASP-filer/NaCl_charge_density")
+    envision.parser.vasp.unitcell(path, "/home/labb/VASP_files/NaCl_charge_density")
+    envision.parser.vasp.charge(path, "/home/labb/VASP_files/NaCl_charge_density")
     envision.inviwo.unitcell(path, 0)
-    envision.inviwo.charge(path, iso = None, slice = True, xpos = -300, ypos = 0)
+    envision.inviwo.charge(path, iso = None, slice = True, xpos = -600, ypos = 0)
+    charge_set_plane_height(2)
+    charge_toggle_plane(True)
 
 def charge_set_slice(enable):
+    # Toggle slice visualisation on or off
     charge_toggle_plane(enable)
     SliceCanvas = network.getProcessorByIdentifier('SliceCanvas')
     SliceCanvas
@@ -92,7 +95,7 @@ def charge_remove_tf_point(index):
     if len(charge_get_points()) <= index:
         print("No points to remove")
         return
-    point_to_remove = tf_property.getValueAt(0)
+    point_to_remove = tf_property.getValueAt(index)
     tf_property.remove(point_to_remove)
 
 
@@ -106,8 +109,15 @@ def charge_get_points():
 def charge_set_shading_mode(mode):
     pass
 
-def charge_set_background(color_1 = None, color_2 = None, style = 2):
-    pass
+def charge_set_background(color_1 = None, color_2 = None, style = None):
+    Background = network.getProcessorByIdentifier('VolumeBackground')
+    if style != None:
+        Background.value = style
+    if color_1 != None:
+        Background.bgColor1 = color_1
+    if color_2 != None:
+        Background.bgColor1 = color_2
+    
 
 # --Slice planes--
 
@@ -129,7 +139,13 @@ def charge_set_plane_normal(x, y, z):
     vol_slice.planeNormal.value = inviwopy.glm.vec3(x, y, z)
 
 
-def charge_set_plane_height(h):
-    pass
+def charge_set_plane_height(height):
+    # Set the height of the volume slice plane
+    # height = 0 bottom, height = 1 top
+    # TODO: now only handles x-slice place, if plane normal has been set it wont work
+    VolumeSlice = network.getProcessorByIdentifier('Volume Slice')
+    min_val = VolumeSlice.sliceX.maxValue
+    max_val = VolumeSlice.sliceX.minValue
+    diff = max_val - min_val
 
-POINT: ['__class__', '__delattr__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', 'color', 'pos']
+    VolumeSlice.sliceX.value = height * diff + min_val
