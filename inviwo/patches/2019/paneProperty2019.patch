@@ -17,3 +17,4 @@ index 07d942f15..ce9448e47 100644
  
      getBoolProperty()->setIdentifier("enable");
      getBoolProperty()->setInvalidationLevel(InvalidationLevel::InvalidResources);
+     
