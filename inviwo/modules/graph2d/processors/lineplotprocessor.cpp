@@ -146,7 +146,6 @@ LinePlotProcessor::LinePlotProcessor()
     scale_.set(0.8);
 
     enable_line_.set(false);
-    line_x_coordinate_.set(0.f);
     show_x_labels_.set(true);
     show_y_labels_.set(true);
 
@@ -251,6 +250,8 @@ void LinePlotProcessor::process() {
 
         x_range_.setMaxValue(vec2(xMax, xMax));
         x_range_.setMinValue(vec2(xMin, xMin));
+        line_x_coordinate_.setMaxValue(xMax);
+        line_x_coordinate_.setMinValue(xMin);
 
         x_range_.set(vec2(xMax, xMin));
         y_range_.set(vec2(yMax, yMin));
@@ -311,21 +312,19 @@ void LinePlotProcessor::process() {
     utilgl::deactivateCurrentTarget();
 
     // If the static line is enabled, add it.
-    if (enable_line_.get()) {
+    if (enable_line_.get() && (line_x_coordinate_.get() <= x_range_.get()[0] && line_x_coordinate_.get() >= x_range_.get()[1])) {
         float s = scale_.get();
-        vec3 yStartPoint = vec3(s * normalise(line_x_coordinate_.get(),
-                                              xMin, xMax) + (1 - s) / 2,
-                                s * normalise(y_range_.getMinValue()[0],
-                                              yMin, yMax) + (1 - s) / 2,
+        vec3 yStartPoint = vec3(s * normalise(line_x_coordinate_.get(), xMin, xMax) + (1 - s) / 2,
+                                s * normalise(y_range_.getMinValue()[0], yMin, yMax) + (1 - s) / 2,
                                 0);
-        vec3 yEndPoint = vec3(s * normalise(line_x_coordinate_.get(),
-                                            xMin, xMax) + (1 - s) / 2,
-                              s * normalise(y_range_.getMaxValue()[0],
-                                              yMin, yMax) + (1 - s) / 2,
+        vec3 yEndPoint = vec3(s * normalise(line_x_coordinate_.get(), xMin, xMax) + (1 - s) / 2,
+                              s * normalise(y_range_.getMaxValue()[0], yMin, yMax) + (1 - s) / 2,
                               0);
         mesh->append(lineMesh(yStartPoint, yEndPoint, vec3(0, 0, 1),
                               line_colour_.get(), axis_width_.get(),
                               ivec2(2, 2)).get());
+    } else if (enable_line_.get()) {
+        LogError("Line out of range!");
     }
 
     // Each line segment should start on the current point and end
