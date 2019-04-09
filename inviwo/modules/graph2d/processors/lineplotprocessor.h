@@ -147,6 +147,7 @@ private:
     FloatVec4Property axis_colour_;
     FloatProperty axis_width_;
 
+    BoolProperty enable_grid_;
     FloatVec4Property grid_colour_;
     FloatProperty grid_width_;
 
