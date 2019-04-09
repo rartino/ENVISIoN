@@ -99,10 +99,13 @@ LinePlotProcessor::LinePlotProcessor()
     , line_colour_("line_colour", "Line Colour", vec4(0.078, 0.553, 1, 1), vec4(0),
                    vec4(1), vec4(0.1f), InvalidationLevel::InvalidOutput,
                    PropertySemantics::Color)
+    , show_x_labels_("show_x_labels", "X Labels")
+    , show_y_labels_("show_y_labels", "Y Labels")
     , axis_colour_("axis_colour", "Axis Colour", vec4(0, 0, 0, 1), vec4(0),
                    vec4(1), vec4(0.1f), InvalidationLevel::InvalidOutput,
                    PropertySemantics::Color)
     , axis_width_("axis_width", "Axis Width")
+    , enable_grid_("enable_grid", "Enable Grid")
     , grid_colour_("grid_colour", "Grid Colour", vec4(0.9, 0.9, 0.9, 1), vec4(0),
                    vec4(1), vec4(0.1f), InvalidationLevel::InvalidOutput,
                    PropertySemantics::Color)
@@ -125,9 +128,12 @@ LinePlotProcessor::LinePlotProcessor()
     addProperty(enable_line_);
     addProperty(line_x_coordinate_);
     addProperty(line_colour_);
+    addProperty(show_x_labels_);
+    addProperty(show_y_labels_);
 
     addProperty(axis_colour_);
     addProperty(axis_width_);
+    addProperty(enable_grid_);
     addProperty(grid_colour_);
     addProperty(grid_width_);
     addProperty(font_);
@@ -140,13 +146,15 @@ LinePlotProcessor::LinePlotProcessor()
     scale_.set(0.8);
 
     enable_line_.set(false);
-    line_x_coordinate_.set(0.f);
+    show_x_labels_.set(true);
+    show_y_labels_.set(true);
 
     axis_width_.setMaxValue(0.01);
     axis_width_.setMinValue(0.0001);
     axis_width_.setIncrement(0.0001);
     axis_width_.set(0.002);
 
+    enable_grid_.set(false);
     grid_width_.setMaxValue(0.01);
     grid_width_.setMinValue(0.0001);
     grid_width_.setIncrement(0.0001);
@@ -242,6 +250,8 @@ void LinePlotProcessor::process() {
 
         x_range_.setMaxValue(vec2(xMax, xMax));
         x_range_.setMinValue(vec2(xMin, xMin));
+        line_x_coordinate_.setMaxValue(xMax);
+        line_x_coordinate_.setMinValue(xMin);
 
         x_range_.set(vec2(xMax, xMin));
         y_range_.set(vec2(yMax, yMin));
@@ -302,21 +312,19 @@ void LinePlotProcessor::process() {
     utilgl::deactivateCurrentTarget();
 
     // If the static line is enabled, add it.
-    if (enable_line_.get()) {
+    if (enable_line_.get() && (line_x_coordinate_.get() <= x_range_.get()[0] && line_x_coordinate_.get() >= x_range_.get()[1])) {
         float s = scale_.get();
-        vec3 yStartPoint = vec3(s * normalise(line_x_coordinate_.get(),
-                                              xMin, xMax) + (1 - s) / 2,
-                                s * normalise(y_range_.getMinValue()[0],
-                                              yMin, yMax) + (1 - s) / 2,
+        vec3 yStartPoint = vec3(s * normalise(line_x_coordinate_.get(), xMin, xMax) + (1 - s) / 2,
+                                s * normalise(y_range_.getMinValue()[0], yMin, yMax) + (1 - s) / 2,
                                 0);
-        vec3 yEndPoint = vec3(s * normalise(line_x_coordinate_.get(),
-                                            xMin, xMax) + (1 - s) / 2,
-                              s * normalise(y_range_.getMaxValue()[0],
-                                              yMin, yMax) + (1 - s) / 2,
+        vec3 yEndPoint = vec3(s * normalise(line_x_coordinate_.get(), xMin, xMax) + (1 - s) / 2,
+                              s * normalise(y_range_.getMaxValue()[0], yMin, yMax) + (1 - s) / 2,
                               0);
         mesh->append(lineMesh(yStartPoint, yEndPoint, vec3(0, 0, 1),
                               line_colour_.get(), axis_width_.get(),
                               ivec2(2, 2)).get());
+    } else if (enable_line_.get()) {
+        LogError("Line out of range!");
     }
 
     // Each line segment should start on the current point and end
@@ -380,7 +388,7 @@ void LinePlotProcessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
                           axis_colour_.get(), axis_width_.get(),
                           ivec2(2, 2)).get());
 
-    // Draw grid.
+    // Draw background grid.
     double xStepSize = std::abs(xMax - xMin) / label_number_.get();
     for (double x = xMin + xStepSize; x <= xMax; x += xStepSize) {
         vec3 yStartPoint = vec3(s * normalise(x, xMin, xMax) + (1 - s) / 2,
@@ -391,9 +399,11 @@ void LinePlotProcessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
                               s * normalise(y_range_.getMaxValue()[0],
                                             yMin, yMax) + (1 - s) / 2,
                               0);
-        mesh->append(lineMesh(yStartPoint, yEndPoint, vec3(0, 0, 1),
-                              grid_colour_.get(), grid_width_.get(),
-                              ivec2(2, 2)).get());
+        if (enable_grid_.get()) {
+            mesh->append(lineMesh(yStartPoint, yEndPoint, vec3(0, 0, 1),
+                                  grid_colour_.get(), grid_width_.get(),
+                                  ivec2(2, 2)).get());
+        }
         mesh->append(lineMesh(yStartPoint, yStartPoint + vec3(0, -0.01, 0), vec3(0, 0, 1),
                               axis_colour_.get(), axis_width_.get(),
                               ivec2(2, 2)).get());
@@ -410,9 +420,11 @@ void LinePlotProcessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,
                                             xMin, xMax) + (1 - s) / 2,
                               s * normalise(y, yMin, yMax) + (1 - s) / 2,
                               0);
-        mesh->append(lineMesh(xStartPoint, xEndPoint, vec3(0, 0, 1),
-                              grid_colour_.get(), grid_width_.get() + 0.001,
-                              ivec2(2, 2)).get());
+        if (enable_grid_.get()) {
+            mesh->append(lineMesh(xStartPoint, xEndPoint, vec3(0, 0, 1),
+                                  grid_colour_.get(), grid_width_.get() + 0.001,
+                                  ivec2(2, 2)).get());
+        }
         mesh->append(lineMesh(xStartPoint, xStartPoint + vec3(-0.01, 0, 0), vec3(0, 0, 1),
                               axis_colour_.get(), axis_width_.get() + 0.001,
                               ivec2(2, 2)).get());
@@ -452,7 +464,9 @@ void LinePlotProcessor::drawScale(double xMin, double xMax,
         imageCoords -= shift;
         std::stringstream ss;
         ss << std::fixed << std::setprecision(2) << x;
-        drawText(ss.str(), imageCoords);
+        if (show_x_labels_.get()) {
+            drawText(ss.str(), imageCoords);
+        }
     }
 
     double yStepSize = std::abs(yMax - yMin) / label_number_.get();
@@ -468,7 +482,9 @@ void LinePlotProcessor::drawScale(double xMin, double xMax,
         imageCoords -= shift;
         std::stringstream ss;
         ss << std::fixed << std::setprecision(2) << y;
-        drawText(ss.str(), imageCoords, true);
+        if (show_y_labels_.get()) {
+            drawText(ss.str(), imageCoords, true);
+        }
     }
 }
 
@@ -480,7 +496,7 @@ void LinePlotProcessor::drawText(const std::string& text, vec2 position, bool an
                                        texture);
 
     // If anchor_right is set, the text will be moved its own length
-    // to the left, plus 50 %.
+    // to the left, plus 100 %.
     if (anchor_right) {
         vec2 offset = vec2(texture->getDimensions()[0], 0);
         position -= 2.0f * offset;
