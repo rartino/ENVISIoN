@@ -45,7 +45,7 @@ class GeneralCollapsible(wx.CollapsiblePane):
         super().__init__(parent, label = label)
 
         # Set the style of the pane
-        self.bg_colour = wx.Colour(130,130,130)
+        self.bg_colour = wx.Colour(208,206,206)
         self.text_colour = wx.Colour(255,255,255)
         self.itemSize = wx.Size(150,25)
 
@@ -54,7 +54,6 @@ class GeneralCollapsible(wx.CollapsiblePane):
         self.pane = self.GetPane()
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.pane.SetSizer(self.sizer)
-        
     
         # Default callback when collapsing panel, just updates the layouts to make sizers expand
         # Can freely be changed in subclasses, just make sure to call update_layout there aswell
@@ -72,6 +71,9 @@ class GeneralCollapsible(wx.CollapsiblePane):
         self.sizer.Add(item)
         self.sub_collapsibles.append(item)
         item.parent_collapsible = self
+    
+    def set_path(self,path):
+        self.path=path
 
     def collapse_children(self):
         for collapsible in self.sub_collapsibles:

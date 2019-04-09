@@ -55,6 +55,8 @@ class PKFFrame(GeneralCollapsible):
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
 
     def on_collapse(self, event = None):
+        self.update_collapse()
+        # Needs to be called to update the layout properly
         if self.IsCollapsed():
             # Disable vis
             print("Not paircorr")
@@ -62,5 +64,5 @@ class PKFFrame(GeneralCollapsible):
             #Start vis
             print("Paircorr")
         
-        # Needs to be called to update the layout properly
-        self.update_collapse()
+        
+        
