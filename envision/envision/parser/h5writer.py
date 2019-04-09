@@ -222,12 +222,12 @@ def _write_pcdat(h5file, pcdat_data, APACO_val, NPACO_val):
         value = np.asarray(normal_arr)
         h5.create_dataset(dset_name, data=value, dtype=np.float32)
 
-        # create dataset for paircorrelation function for every element.
+        # create dataset for paircorrelation function for every time frames for every element.
+        #len(pcdat_data) gives the amount of elements
         for n in range(len(pcdat_data)):
-            # By making a dict a list, its keys are accessable
+            # By making a dict a list, its keys are accessable.
             element_symbol = list(pcdat_data)[n]
-            dset_name = "PairCorrelationFunc/Elements/{}".format(element_symbol)
-
+            dset_groupname = "PairCorrelationFunc/Elements/{}".format(element_symbol)
             #Iterate for every time frame.
             original_list = pcdat_data[element_symbol]
             value_list = []
@@ -238,18 +238,18 @@ def _write_pcdat(h5file, pcdat_data, APACO_val, NPACO_val):
                     fill_list.append(original_list[0])
                     del original_list[0]
 
-                value_list.append(fill_list)
+                tmp_name = str(dset_groupname) + "/{}"
+                dset_name = tmp_name.format("t_" + str(i))
+                h5.create_dataset(dset_name, data=fill_list, dtype=np.float32)
+                h5[dset_name].attrs["element"] = element_symbol
 
                 if len(original_list) == 0:
                     break
                 else:
                     del original_list[0]
 
-            # if NPACO= 256, there are 3 time frames (t1,t2 and t3) then value.shape = (3,256)
-            # values from row one correspond to pair correlation of t1, row 2 for t2 e.t.c.
-            value = np.asarray(value_list)
-            h5.create_dataset(dset_name, data=value, dtype=np.float32)
-            h5[dset_name].attrs["element"] = element_symbol
+            # if NPACO= 256, there are 3 time frames (t1,t2 and t3).
+
 
 
     return None
