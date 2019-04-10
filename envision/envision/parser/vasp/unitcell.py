@@ -41,11 +41,13 @@ and element symbols from POTCAR.
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
-import os
+path_to_envision='C:/ENVISIoN'
+import os,sys
+sys.path.insert(0, os.path.expanduser(path_to_envision+'/envision/envision/parser'))
 import re
 import numpy as np
 import h5py
-from ..h5writer import _write_basis, _write_scaling_factor, _write_coordinates
+from h5writer import _write_basis, _write_scaling_factor, _write_coordinates
 
 # Define coordinates regex.
 coordinates_re = re.compile(r' +'.join([r'([+-]?[0-9]+\.[0-9]+)'] * 3))

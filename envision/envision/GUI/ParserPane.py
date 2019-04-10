@@ -40,11 +40,18 @@
 """This file sets up the Parser-section of the GUI, which is a collapsible pane."""
 """*****************************************************************************"""
 
-
+path_to_envision = 'C:/ENVISIoN' 
 import wx, sys, os
 
-# sys.path.insert(0, os.path.expanduser("C:/ENVISIoN/envision/envision/"))
-#from main import *
+sys.path.insert(0, os.path.expanduser(path_to_envision+'/envision/envision'))
+sys.path.insert(0, os.path.expanduser(path_to_envision+'/envision/envision/parser/vasp'))
+from bandstructure import bandstructure
+from doscar import dos
+from md import md
+from unitcell import unitcell
+from volume import charge, elf
+from fermi import fermi_surface
+from main import *
 from generalCollapsible import GeneralCollapsible
 
 class ParserPane(GeneralCollapsible):
@@ -55,7 +62,7 @@ class ParserPane(GeneralCollapsible):
         self.fileText = wx.StaticText(self.GetPane(),
                                     label="File to parse:")
         self.chooseFile = wx.Button(self.GetPane(), size=self.itemSize,
-                                    label = str('..or select file'))
+                                    label = str('..or select folder'))
         self.enterPath = wx.TextCtrl(self.GetPane(), size=self.itemSize,
                                     value="Enter path..",
                                     style=wx.TE_PROCESS_ENTER)
@@ -63,7 +70,7 @@ class ParserPane(GeneralCollapsible):
         self.folderText = wx.StaticText(self.GetPane(),
                                     label="Save in folder:")       
         self.chooseFolder = wx.Button(self.GetPane(), size=self.itemSize,
-                                    label = str('..or select file'))
+                                    label = str('..or select folder'))
         self.enterSavePath = wx.TextCtrl(self.GetPane(), size=self.itemSize,
                                     value="Enter path..",
                                     style=wx.TE_PROCESS_ENTER)
@@ -72,9 +79,38 @@ class ParserPane(GeneralCollapsible):
                                     label="Type of Visualization:")
         self.selectVis = wx.ComboBox(self.GetPane(), size=self.itemSize,
                                     value = "Select type",
-                                    choices= ("ELF","DOS","PCF"))
+                                    choices= ('All','Bandstructure','DoS',
+                                            'Charge','ELF',
+                                            'Fermi Surface','MD','PCF',
+                                            'Unitcell'))
+        self.parserDict = {
+            'Unitcell' : 'unitcell from VASP' ,
+            'MD' : 'molecular dynamics from VASP',
+            'Charge' : 'charge from VASP',
+            'ELF' : 'ELF from VASP',
+            'DoS' : 'DOS from VASP',
+            'Bandstructure' : 'bandstructure from VASP', 
+            'Fermi Surface' : 'fermi surface from VASP',
+            'PCF' : 'pair correlation function from VASP'
+        }
+
+        self.parseFuncDict = {
+        'Unitcell': unitcell,
+        'MD': md,
+        'Charge': charge,
+        'ELF': elf,
+        'DOS': dos,
+        'Bandstructure': bandstructure,
+        'Fermi Surface': fermi_surface,
+        'PCF' : ''
+    }
 
     #Parse-button
+        self.hdf5Text = wx.StaticText(self.GetPane(),
+                                    label="Enter new or existing filename:")
+        self.hdf5File = wx.TextCtrl(self.GetPane(), size=self.itemSize,
+                                    value="(without .hdf5)",
+                                    style=wx.TE_PROCESS_ENTER)
         self.parse = wx.Button(self.GetPane(), size=self.itemSize,
                                 label = str('Parse'))
 
@@ -86,7 +122,9 @@ class ParserPane(GeneralCollapsible):
     #Variables for paths, type of Visualization and parsing.
         self.path = ""
         self.savePath = ""
-        self.visType = ""
+        self.visType = 'All'
+        self.newFileHdf5 = "NewFile"
+        self.hdf5Path = ''
         self.parseOut = None
         
     #Item-addition in pane
@@ -99,6 +137,8 @@ class ParserPane(GeneralCollapsible):
         self.add_item(self.chooseFolder,sizer_flags=expand_flag)
         self.add_item(self.typeText, sizer_flags=expand_flag)
         self.add_item(self.selectVis,sizer_flags=expand_flag)
+        self.add_item(self.hdf5Text,sizer_flags=expand_flag)
+        self.add_item(self.hdf5File,sizer_flags=expand_flag)
         self.add_item(self.parse,sizer_flags=expand_flag)
         
     #Signal-handling for buttons and boxes:
@@ -108,6 +148,7 @@ class ParserPane(GeneralCollapsible):
         self.enterSavePath.Bind(wx.EVT_TEXT_ENTER,self.savePath_OnEnter)
         self.selectVis.Bind(wx.EVT_COMBOBOX,self.vis_selected)
         self.parse.Bind(wx.EVT_BUTTON,self.parse_pressed)
+        self.hdf5File.Bind(wx.EVT_TEXT, self.hdf5_name_enter)
         
 #When "File to parse"-select button is pressed
     def file_pressed(self,event):
@@ -130,17 +171,40 @@ class ParserPane(GeneralCollapsible):
 #When visualization-type is changed
     def vis_selected(self,event):
         self.visType = self.selectVis.GetValue()
-    
+
+#Select the hdf5 file name:
+    def hdf5_name_enter(self,event):
+        self.newFileHdf5 = self.hdf5File.GetLineText(0)
+
 #When Parse-button is pressed
     def parse_pressed(self,event):
-    #self.parseOut = parse_all(self.savePath,self.path)
-        if not self.parseOut == None:
-            self.open_message("Parsing "+self.path+" successfully done!",
-                        "Succsessfully parsed!")
-        else:
+    #Create new hdf5-file if needed
+        if not os.path.isfile(self.savePath+'/'+self.newFileHdf5+'.hdf5'):
+            open(self.newFileHdf5+'.hdf5',"w+")
+    #Parse with suitable function
+        if self.visType == 'All':
+            self.parseOut = parse_all(self.savePath+'/'+self.newFileHdf5+'.hdf5', self.path)
+        elif self.parseFuncDict[self.visType](self.savePath+'/'+self.newFileHdf5+'.hdf5', self.path):
+            self.open_message("Parsing "+self.path+
+                                " successfully done for "+
+                                self.visType+" visualization!",
+                                "Succsessfully parsed!")
+            return            
+    #Check output and put out appropriate message
+        #Parse failed:     
+        if self.parseOut == None:
             self.open_message("Parsing "+self.path+" failed!",
                         "Failed!")
-
+        #All parsing skipped
+        elif not self.parseOut:
+            self.open_message("Nothing new to parse!",
+                        "Failed!")
+        #Possible parsings completed
+        else:
+            self.open_message("Parsing "+self.path+
+                                " successfully done for: "+
+                                ', '.join(self.parseOut),
+                                "Succsessfully parsed!")
 #Return path if the path exists.                        
     def directory_if_exists(self,path):
         if not os.path.exists(path):

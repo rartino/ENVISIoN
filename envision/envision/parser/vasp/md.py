@@ -25,12 +25,15 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-import os
+path_to_envision='C:/ENVISIoN'
+import os,sys
+sys.path.insert(0, os.path.expanduser(path_to_envision+'/envision/envision/parser'))
+sys.path.insert(0, os.path.expanduser(path_to_envision+'/envision/envision/parser/vasp'))
 import re
 import h5py
 import numpy as np
-from .unitcell import _parse_lattice, _find_elements, _parse_coordinates, _cartesian
-from ..h5writer import _write_basis, _write_md, _write_steps
+from unitcell import _parse_lattice, _find_elements, _parse_coordinates, _cartesian
+from h5writer import _write_basis, _write_md, _write_steps
 
 def md(h5_path, vasp_dir, elements=None):
     """XDATCAR parser
