@@ -48,7 +48,7 @@ class ChargeFrame(GeneralCollapsible):
 
         # Setup volume rendering controls
         self.volumeCollapsible = GeneralCollapsible(self.GetPane(), "Volume Rendering")
-        self.add_item(self.volumeCollapsible)
+        self.add_sub_collapsible(self.volumeCollapsible)
         
         volumePane = self.volumeCollapsible.GetPane()
         
@@ -64,7 +64,7 @@ class ChargeFrame(GeneralCollapsible):
         
         # ------------------------------------
         # --Setup transfer function controls--
-
+        
         tfLabel = wx.StaticText(volumePane, label="Transfer Function: ")
         self.volumeCollapsible.add_item(tfLabel)
 
@@ -106,8 +106,8 @@ class ChargeFrame(GeneralCollapsible):
 
         # Override default binding
         # Note that it should be called "on_collapse" to work
+        
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
-
         self.counter = 0
 
     def add_tf_point(self, value, alpha, colour):
@@ -148,6 +148,7 @@ class ChargeFrame(GeneralCollapsible):
 
 
         self.volumeCollapsible.update_collapse()
+        self.update_collapse()
 
     def remove_tf_point(self, tfPointWidget):
         # Removes tfPoint from inviwo processor
