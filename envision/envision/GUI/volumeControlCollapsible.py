@@ -36,25 +36,61 @@
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
-import wx,sys,os
-# from parameter_utils import *
+import wx
 from generalCollapsible import GeneralCollapsible
-from volumeControlCollapsible import VoluneControlCollapsible
 from tfPointItem import TFPointWidget
 
-class ChargeFrame(GeneralCollapsible):
-    def __init__(self, parent):
-        super().__init__(parent, label = "Charge")
 
+class VoluneControlCollapsible(GeneralCollapsible):
+    def __init__(self, parent, label):
+        super().__init__(parent, label = label)
 
-        # Setup volume rendering controls
-        self.volumeCollapsible = VoluneControlCollapsible(self.GetPane(), "Volume Rendering")
-        self.add_sub_collapsible(self.volumeCollapsible)
+        volumePane = self.GetPane()
 
-        # Override default binding
-        # Note that function should be called "on_collapse" to work
-        self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
-        self.counter = 0
+        # Shading controls
+        shadingHBox = wx.BoxSizer(wx.HORIZONTAL)
+        shadingLabel = wx.StaticText(volumePane, label="Shading mode: ")
+        shadingDropDown = wx.ComboBox(volumePane,
+                                    value = "Default",
+                                    choices= ("mode2","mode3","mode4"))
+        shadingHBox.Add(shadingLabel)
+        shadingHBox.Add(shadingDropDown)
+        self.add_item(shadingHBox)
+
+        # ------------------------------------
+        # --Setup transfer function controls--
+        
+        tfLabel = wx.StaticText(volumePane, label="Transfer Function: ")
+        self.add_item(tfLabel)
+
+        # Vertical box to hold all tf point elements 
+        self.tfpointsVBox = wx.BoxSizer(wx.VERTICAL)
+        
+        # List holds all added tfpoint sizers for later access
+        # Empty on initialization, fills up with user input
+        self.tfPointWidgets = []
+
+        # Controls for adding new tf points
+        # TODO: add color picker
+        valueText = wx.TextCtrl(volumePane, value="value")
+        alphaText = wx.TextCtrl(volumePane, value="alpha")
+        tfAddButton = wx.Button(volumePane, label = '+', size = wx.Size(23, 23))
+
+        # Button adds new point when pressed with values specified in TextCtrls
+        tfAddButton.Bind(wx.EVT_BUTTON, 
+            lambda event : self.add_tf_point(
+                valueText.GetLineText(0), 
+                alphaText.GetLineText(0), 
+                wx.Colour(0, 0, 0)))
+
+        # Put items in a horizontal sizer
+        tfHBox = wx.BoxSizer(wx.HORIZONTAL)
+        tfHBox.Add(valueText)
+        tfHBox.Add(alphaText)
+        tfHBox.Add(tfAddButton)
+        self.tfpointsVBox.Add(tfHBox)
+
+        self.add_item(self.tfpointsVBox)
 
     def add_tf_point(self, value, alpha, colour):
         # Adds a new tf point
@@ -84,7 +120,7 @@ class ChargeFrame(GeneralCollapsible):
                 break
 
     
-        tfPointWidget = TFPointWidget(self.volumeCollapsible.GetPane(), value, alpha, colour)
+        tfPointWidget = TFPointWidget(self.GetPane(), value, alpha, colour)
 
         self.tfpointsVBox.Insert(insertion_idx, tfPointWidget)
 
@@ -93,7 +129,6 @@ class ChargeFrame(GeneralCollapsible):
         self.tfPointWidgets.insert(insertion_idx, tfPointWidget)
 
 
-        self.volumeCollapsible.update_collapse()
         self.update_collapse()
 
     def remove_tf_point(self, tfPointWidget):
@@ -106,28 +141,5 @@ class ChargeFrame(GeneralCollapsible):
         self.tfPointWidgets.remove(tfPointWidget)
         self.tfpointsVBox.Remove(tfPointWidget)
         self.volumeCollapsible.update_collapse()
-
-    # def tf_text_focused(self, textCtrl, default_value):
-    #     if textCtrl.GetValue() == default_value:
-    #         textCtrl.SetValue("")
-
-    # def tf_text_unfocused(self, textCtrl, default_value):
-    #     if textCtrl.GetValue() == "":
-    #         textCtrl.SetValue(default_value)
-
-
-    def on_collapse(self, event = None):
-        self.update_collapse()
-        # Needs to be called to update the layout properly
-        if self.IsCollapsed():
-            # Disable charge vis
-            print("Not Charge")
-        else:
-            #Start Charge vis
-            print("Charge")
-            envision.inviwo.charge(self.parent_collapsible.path, 
-                                iso = None, slice = False, 
-                                xpos = 0, ypos = 0)
-        
         
         
