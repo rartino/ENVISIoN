@@ -89,6 +89,9 @@ LinePlotProcessor::LinePlotProcessor()
     : Processor()
     , dataFrameInport_("dataFrameInport")
     , meshOutport_("outport")
+    , xSelectionProperty_("xSelectionProperty", "Select X data")
+    , ySelectionProperty_("ySelectionProperty", "Select Y data")
+    , allYSelection_("allYSelection", "Select all Y")
     , colour_("colour", "Colour", vec4(1, 0, 0, 1), vec4(0), vec4(1), vec4(0.1f),
             InvalidationLevel::InvalidOutput, PropertySemantics::Color)
     , x_range_("x_range", "X Range")
@@ -120,6 +123,10 @@ LinePlotProcessor::LinePlotProcessor()
     addPort(dataFrameInport_);
     addPort(meshOutport_);
     addPort(labels_);
+
+    addProperty(xSelectionProperty_);
+    addProperty(ySelectionProperty_);
+    addProperty(allYSelection_);
     addProperty(colour_);
     addProperty(x_range_);
     addProperty(y_range_);
@@ -140,6 +147,7 @@ LinePlotProcessor::LinePlotProcessor()
     addProperty(text_colour_);
     addProperty(label_number_);
 
+    allYSelection_.set(false);
     scale_.setMaxValue(1);
     scale_.setMinValue(0.01);
     scale_.setIncrement(0.01);
@@ -173,89 +181,132 @@ LinePlotProcessor::LinePlotProcessor()
 }
 
 void LinePlotProcessor::process() {
+    std::shared_ptr<const Column> x;
+    std::shared_ptr<const Column> y;
     std::shared_ptr<const Column> xData;
     std::vector<std::shared_ptr<const Column>> yData;
+    std::vector<std::shared_ptr<const Column>> data;
     std::shared_ptr<BasicMesh> mesh = std::make_shared<BasicMesh>();
     IndexBufferRAM *indices = mesh->addIndexBuffer(DrawType::Lines, ConnectivityType::None).get();
     // Get the input data.
     std::shared_ptr<const DataFrame> inputFrame = dataFrameInport_.getData();
 
     // We want at least two columns.
-    if (inputFrame->getNumberOfColumns() >= 2) {
+    if (inputFrame->getNumberOfColumns() >= 3) {
         // Store y-data in vector and x-data in column.
         for (size_t i = 0; i < inputFrame->getNumberOfColumns(); i++) {
-            if (inputFrame->getHeader(i) == "X") {
-                xData = inputFrame->getColumn(i);
-            } else if (inputFrame->getHeader(i).at(0) == 'Y') {
-                yData.push_back(inputFrame->getColumn(i));
+            if (inputFrame->getHeader(i) != "index") {
+                data.push_back(inputFrame->getColumn(i));
             }
         }
-    }
-    else {
+    } else {
         LogInfo("This processor needs two columns to exist in the DataFrame.")
         return;
     }
-
-    if (!xData) {
-        LogError("Could not find any column named X in the DataFrame!");
-        return;
-    }
-    if (!yData.at(0)) {
-        LogError("Could only find column named X in the DataFrame!");
-        return;
-    }
-
-    size_t xSize = xData->getSize();
-    size_t ySize = yData.at(0)->getSize();
-    if (xSize == 0 || ySize == 0) {
-        LogError("Columns doesn't have data.");
-        return;
-    }
-    for(size_t i = 0; i < yData.size(); i++)
-        if (yData.at(i)->getSize() != xSize) {
-            LogError("All columns needs to be the same size.");
-            return;
-    }
-
-    // Find the maximum and minimum values.
-    double xMax = xData->getAsDouble(0);
-    double xMin = xData->getAsDouble(0);
-    double yMax = yData.at(0)->getAsDouble(0);
-    double yMin = yData.at(0)->getAsDouble(0);
-
-    for (size_t i = 0; i < xSize; i++) {
-        if (xData->getAsDouble(i) > xMax) {
-            xMax = xData->getAsDouble(i);
-        }
-        if (xData->getAsDouble(i) < xMin) {
-            xMin = xData->getAsDouble(i);
-        }
-    }
-
-    for (size_t column = 0; column < yData.size(); column++) {
-        for (size_t i = 0; i < yData.at(column)->getSize(); i++) {
-            if (yData.at(column)->getAsDouble(i) > yMax) {
-                yMax = yData.at(column)->getAsDouble(i);
-            }
-            if (yData.at(column)->getAsDouble(i) < yMin) {
-                yMin = yData.at(column)->getAsDouble(i);
-            }
-        }
-    }
-
-    // Set default values if data changes.
+    // Clear all options before adding new options.
+    // This is done to prevent doubling all options every run.
     if (dataFrameInport_.isChanged()) {
-        y_range_.setMaxValue(vec2(yMax, yMax));
-        y_range_.setMinValue(vec2(yMin, yMin));
-
-        x_range_.setMaxValue(vec2(xMax, xMax));
-        x_range_.setMinValue(vec2(xMin, xMin));
-        line_x_coordinate_.setMaxValue(xMax);
-        line_x_coordinate_.setMinValue(xMin);
-
-        x_range_.set(vec2(xMax, xMin));
-        y_range_.set(vec2(yMax, yMin));
+        xSelectionProperty_.clearOptions();
+        ySelectionProperty_.clearOptions();
+        for (size_t i = 0; i < data.size(); i++) {
+            xSelectionProperty_.addOption(data.at(i)->getHeader(),
+                                          data.at(i)->getHeader(),
+                                          data.at(i)->getHeader());
+            ySelectionProperty_.addOption(data.at(i)->getHeader(),
+                                          data.at(i)->getHeader(),
+                                          data.at(i)->getHeader());
+        }
     }
+    // Declare global size boundries.
+    size_t xSize, ySize;
+    double xMax, xMin, yMax, yMin;
+    // If we only want to plot one X against one Y.
+    if (!allYSelection_.get()) {
+        for (size_t i = 0; i < data.size(); i++) {
+            if (xSelectionProperty_.getSelectedIdentifier() == data.at(i)->getHeader()) {
+                x = data.at(i);
+            }
+            if (ySelectionProperty_.getSelectedIdentifier() == data.at(i)->getHeader()) {
+                y = data.at(i);
+            }
+        }
+        // Set local boundries for one vs one plot.
+        xSize = x->getSize();
+        ySize = y->getSize();
+        if (xSize != ySize) {
+            LogError("Columns doesn't have same amount of data.");
+            return;
+        }
+        double localXMax = x->getAsDouble(0);
+        double localXMin = x->getAsDouble(0);
+        double localYMax = y->getAsDouble(0);
+        double localYMin = y->getAsDouble(0);
+        for (size_t i = 0; i < xSize; i++) {
+            if (x->getAsDouble(i) > localXMax) {
+                localXMax = x->getAsDouble(i);
+            }
+            if (x->getAsDouble(i) < localXMin) {
+                localXMin = x->getAsDouble(i);
+            }
+        }
+        for (size_t i = 0; i < ySize; i++) {
+            if (y->getAsDouble(i) > localYMax) {
+                localYMax = y->getAsDouble(i);
+            }
+            if (y->getAsDouble(i) < localYMin) {
+                localYMin = y->getAsDouble(i);
+            }
+        }
+        xMax = localXMax;
+        xMin = localXMin;
+        yMax = localYMax;
+        yMin = localYMin;
+    } else {
+        // If we want to plot X against all Y.
+        for (size_t i = 0; i < data.size(); i++) {
+            if (xSelectionProperty_.getSelectedIdentifier() == data.at(i)->getHeader()) {
+                xData = data.at(i);
+            } else {
+                yData.push_back(data.at(i));
+            }
+        }
+        xSize = xData->getSize();
+        ySize = yData.at(0)->getSize();
+        for(size_t i = 0; i < yData.size(); i++)
+            if (yData.at(i)->getSize() != xSize) {
+                LogError("All columns needs to be the same size.");
+                return;
+        }
+        for (size_t i = 0; i < xSize; i++) {
+            if (xData->getAsDouble(i) > xMax) {
+                xMax = xData->getAsDouble(i);
+            }
+            if (xData->getAsDouble(i) < xMin) {
+                xMin = xData->getAsDouble(i);
+            }
+        }
+        for (size_t column = 0; column < yData.size(); column++) {
+            for (size_t i = 0; i < yData.at(column)->getSize(); i++) {
+                if (yData.at(column)->getAsDouble(i) > yMax) {
+                    yMax = yData.at(column)->getAsDouble(i);
+                }
+                if (yData.at(column)->getAsDouble(i) < yMin) {
+                    yMin = yData.at(column)->getAsDouble(i);
+                }
+            }
+        }
+    }
+    // Set boundries for viewing range.
+    y_range_.setMaxValue(vec2(yMax, yMax));
+    y_range_.setMinValue(vec2(yMin, yMin));
+
+    x_range_.setMaxValue(vec2(xMax, xMax));
+    x_range_.setMinValue(vec2(xMin, xMin));
+    line_x_coordinate_.setMaxValue(xMax);
+    line_x_coordinate_.setMinValue(xMin);
+
+    x_range_.set(vec2(xMax, xMin));
+    y_range_.set(vec2(yMax, yMin));
 
     // If ll values in one dimension have the same value we let
     // them normalise to a range that is one wide by subtracting
@@ -331,21 +382,21 @@ void LinePlotProcessor::process() {
     // at the next point. Subtract one from the end criteria,
     // since the last point is included when the segment is drawn
     // from the next-to-last point.
-    for (size_t column = 0; column < yData.size(); column++) {
+    if (!allYSelection_.get()) {
         for (size_t i = 0; i < xSize - 1; i++) {
             //Make sure the data is within viewing range
-            if (xData->getAsDouble(i + 1) < x_range_.get()[0] && xData->getAsDouble(i) > x_range_.get()[1] &&
-                yData.at(column)->getAsDouble(i + 1) < y_range_.get()[0] && yData.at(column)->getAsDouble(i) > y_range_.get()[1]) {
+            if (x->getAsDouble(i + 1) < x_range_.get()[0] && x->getAsDouble(i) > x_range_.get()[1] &&
+                y->getAsDouble(i + 1) < y_range_.get()[0] && y->getAsDouble(i) > y_range_.get()[1]) {
                 // Get coordinates, normalise them to [0, 1], scale them
                 // and center them.
                 float s = scale_.get();
-                double xStart = s * normalise(xData->getAsDouble(i), xMin, xMax)
+                double xStart = s * normalise(x->getAsDouble(i), xMin, xMax)
                                 + (1 - s) / 2;
-                double yStart = s * normalise(yData.at(column)->getAsDouble(i), yMin, yMax)
+                double yStart = s * normalise(y->getAsDouble(i), yMin, yMax)
                                 + (1 - s) / 2;
-                double xEnd = s * normalise(xData->getAsDouble(i + 1), xMin, xMax)
+                double xEnd = s * normalise(x->getAsDouble(i + 1), xMin, xMax)
                               + (1 - s) / 2;
-                double yEnd = s * normalise(yData.at(column)->getAsDouble(i + 1), yMin, yMax)
+                double yEnd = s * normalise(y->getAsDouble(i + 1), yMin, yMax)
                               + (1 - s) / 2;
 
                 vec3 startPoint = vec3(xStart, yStart, 0);
@@ -355,7 +406,34 @@ void LinePlotProcessor::process() {
                 vec3 endPoint = vec3(xEnd, yEnd, 0);
                 indices->add(mesh->addVertex(endPoint, endPoint,
                                              endPoint, colour_));
+            }
+        }
+    } else {
+        for (size_t column = 0; column < yData.size(); column++) {
+            for (size_t i = 0; i < xSize - 1; i++) {
+                //Make sure the data is within viewing range
+                if (xData->getAsDouble(i + 1) < x_range_.get()[0] && xData->getAsDouble(i) > x_range_.get()[1] &&
+                    yData.at(column)->getAsDouble(i + 1) < y_range_.get()[0] && yData.at(column)->getAsDouble(i) > y_range_.get()[1]) {
+                    // Get coordinates, normalise them to [0, 1], scale them
+                    // and center them.
+                    float s = scale_.get();
+                    double xStart = s * normalise(xData->getAsDouble(i), xMin, xMax)
+                                    + (1 - s) / 2;
+                    double yStart = s * normalise(yData.at(column)->getAsDouble(i), yMin, yMax)
+                                    + (1 - s) / 2;
+                    double xEnd = s * normalise(xData->getAsDouble(i + 1), xMin, xMax)
+                                  + (1 - s) / 2;
+                    double yEnd = s * normalise(yData.at(column)->getAsDouble(i + 1), yMin, yMax)
+                                  + (1 - s) / 2;
 
+                    vec3 startPoint = vec3(xStart, yStart, 0);
+                    indices->add(mesh->addVertex(startPoint, startPoint,
+                                                 startPoint, colour_));
+
+                    vec3 endPoint = vec3(xEnd, yEnd, 0);
+                    indices->add(mesh->addVertex(endPoint, endPoint,
+                                                 endPoint, colour_));
+                }
             }
         }
     }
@@ -468,7 +546,7 @@ void LinePlotProcessor::drawScale(double xMin, double xMax,
             drawText(ss.str(), imageCoords);
         }
     }
-
+    // Iterate over the length of the Y axis and add the number scale.
     double yStepSize = std::abs(yMax - yMin) / label_number_.get();
     for (double y = yMin; y <= yMax; y += yStepSize) {
         float s = scale_.get();
@@ -496,10 +574,10 @@ void LinePlotProcessor::drawText(const std::string& text, vec2 position, bool an
                                        texture);
 
     // If anchor_right is set, the text will be moved its own length
-    // to the left, plus 100 %.
+    // to the left, plus 50 %.
     if (anchor_right) {
         vec2 offset = vec2(texture->getDimensions()[0], 0);
-        position -= 2.0f * offset;
+        position -= 1.5f * offset;
         offset = vec2(0, texture->getDimensions()[1]);
         position += offset / 2.0f;
     } else {
