@@ -211,7 +211,7 @@ def _write_pcdat(h5file, pcdat_data, APACO_val, NPACO_val):
     #    Bool: True if parsed, False otherwise.
 
 
-    with h5py.File(h5file, "a") as h5:
+    with h5py.File(h5file, 'a') as h5:
         dset_name = "PairCorrelationFunc/Iterations"
         normal_arr = arr.array('f', [])
 
@@ -230,23 +230,25 @@ def _write_pcdat(h5file, pcdat_data, APACO_val, NPACO_val):
             dset_groupname = "PairCorrelationFunc/Elements/{}".format(element_symbol)
             #Iterate for every time frame.
             original_list = pcdat_data[element_symbol]
-            value_list = []
 
-            for i in range(len(original_list)):
+            for t_value in range(len(original_list)):
                 fill_list = []
                 for i in range(NPACO_val):
                     fill_list.append(original_list[0])
                     del original_list[0]
-
+                
                 tmp_name = str(dset_groupname) + "/{}"
-                dset_name = tmp_name.format("t_" + str(i))
-                h5.create_dataset(dset_name, data=fill_list, dtype=np.float32)
-                h5[dset_name].attrs["element"] = element_symbol
+                dset_name2 = tmp_name.format("t_" + str(t_value))
+                h5.create_dataset(dset_name2, data=np.array(fill_list), dtype=np.float32)
+                #h5[dset_name2].attrs["element"] = element_symbol
+                
 
-                if len(original_list) == 0:
-                    break
-                else:
+                if len(original_list) == 0: 
+                    break 
+                else: 
                     del original_list[0]
+            
+
 
             # if NPACO= 256, there are 3 time frames (t1,t2 and t3).
 
