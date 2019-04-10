@@ -47,52 +47,38 @@ from VisFrame import VisualizationFrame
 from ParserPane import ParserPane 
 from generalCollapsible import GeneralCollapsible
 
-
-class Coll_Panel(wx.lib.scrolledpanel.ScrolledPanel):
+class Main_Frame(wx.Frame):
     def __init__(self, *args, **kwargs):
-        wx.lib.scrolledpanel.ScrolledPanel.__init__(self, *args, **kwargs)
+        wx.Frame.__init__(self, *args, **kwargs)
+        
+        self.main_panel = wx.Panel(self)
         sizer = wx.BoxSizer(wx.VERTICAL)
-
-        self.visFrame = VisualizationFrame(self)
-        self.parseFrame = ParserPane(self)
-        sizer.Add(self.parseFrame,0)
-        sizer.Add(self.visFrame,0)
-
-        self.SetSizer(sizer)
-        self.SetupScrolling(scroll_x=False, 
+    
+    #Scrollable panel
+        scrollSizer = wx.BoxSizer(wx.VERTICAL)
+        self.scroll_panel =wx.lib.scrolledpanel.ScrolledPanel(self.main_panel,-1)
+        sizer.Add(self.scroll_panel,2, wx.EXPAND)
+        self.parseFrame = ParserPane(self.scroll_panel)
+        scrollSizer.Add(self.parseFrame,0)
+        self.visFrame = VisualizationFrame(self.scroll_panel)
+        scrollSizer.Add(self.visFrame,0)
+        self.scroll_panel.SetSizer(scrollSizer)
+        self.scroll_panel.SetupScrolling(scroll_x=False, 
                                         scroll_y=True, rate_x=20, 
                                         rate_y=20, scrollToTop=True, 
                                         scrollIntoView=False)
 
-class Main_Frame(wx.Frame):
-    def __init__(self, *args, **kwargs):
-        wx.Frame.__init__(self, *args, **kwargs)
-        self.main_panel = wx.Panel(self)
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        self.coll_panel =Coll_Panel(self.main_panel,-1)
-        
-        sizer.Add(self.coll_panel,2, wx.EXPAND )
         self.main_panel.SetSizer(sizer)
-
-        self.Bind(wx.EVT_CLOSE, self.OnCloseWindow)
-
-    def OnCloseWindow(self, event):
-        self.coll_panel.parseFrame.messageFrame.Destroy()
-        self.coll_panel.parseFrame.dirFrame.Destroy()
-        self.coll_panel.parseFrame.Destroy()
-        self.coll_panel.visFrame.Destroy()
-        self.coll_panel.Destroy()
-        self.Destroy()
         
 
 class ENVISIoN(wx.App):
     def OnInit(self):
-        frame = Main_Frame(None, title = "ENVISIoN")
-        frame.SetSize(0,0,300,600)
-        bg_colour = wx.Colour(76,75,77)
-        frame.SetBackgroundColour(bg_colour)
-        frame.Show(True)
-        frame.Centre()
+        self.frame = Main_Frame(None, title = "ENVISIoN")
+        self.frame.SetSize(0,0,300,600)
+        bg_colour = wx.Colour(208,206,206)
+        self.frame.SetBackgroundColour(bg_colour)
+        self.frame.Show(True)
+        self.frame.Centre()
         return True
 
 def main():

@@ -51,17 +51,17 @@ from frameParchg import ParchgFrame
 
 from generalCollapsible import GeneralCollapsible
 
-# sys.path.insert(0, os.path.expanduser("C:/ENVISIoN/envision"))
-# import envision
-# import envision.inviwo
-# import parameter_utils
-# PATH_TO_HDF5=os.path.expanduser("C:/Users/sille/Downloads/demo_charge.hdf5")
+sys.path.insert(0, os.path.expanduser("C:/ENVISIoN/envision"))
+import envision
+import envision.inviwo
+import parameter_utils
+
 
 class VisualizationFrame(GeneralCollapsible):
     def __init__(self, parent):
         super().__init__(parent, "Visualization")
 
-        #Path-selection to file for visualization
+    #Path-selection to file for visualization
         self.fileText = wx.StaticText(self.GetPane(), label="File to Visualize:")
         
         self.fileText.SetForegroundColour(self.text_colour)                                    
@@ -76,19 +76,19 @@ class VisualizationFrame(GeneralCollapsible):
         self.add_item(self.enterPath)
         self.add_item(self.chooseFile)
 
-        # Initializa all the collapsible visualization menues
+    # Initializa all the collapsible visualization menues
         chargeFrame = ChargeFrame(self.GetPane())
         pcFrame = PKFFrame(self.GetPane())
         dosFrame = DosFrame(self.GetPane())
         parchgFrame = ParchgFrame(self.GetPane())
 
-        # Add them to the sizer
+    # Add them to the sizer
         self.add_sub_collapsible(chargeFrame)
         self.add_sub_collapsible(pcFrame)
         self.add_sub_collapsible(dosFrame)
         self.add_sub_collapsible(parchgFrame)
 
-        # Set some callbacks
+    # Set some callbacks
         self.chooseFile.Bind(wx.EVT_BUTTON, self.file_pressed)
         self.enterPath.Bind(wx.EVT_TEXT_ENTER, self.path_OnEnter)
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_change)
@@ -112,6 +112,7 @@ class VisualizationFrame(GeneralCollapsible):
         fileFrame.Destroy()
         self.enterPath.SetValue(self.path)
         print(self.path)
+
     #When path entered in text and Enter-key is pressed
     def path_OnEnter(self,event):
         tmpPath = self.enterPath.GetLineText(0)
@@ -127,21 +128,3 @@ class VisualizationFrame(GeneralCollapsible):
             messageFrame.Destroy()
         else: 
             self.path = tmpPath
-    
-    def update_self(self):
-        self.Collapse(True)
-        self.Collapse(False)
-
-    def collapse_all(self):
-        self.chargeFrame.Collapse(True)
-        self.PKFFrame.Collapse(True)
-        self.dosFrame.Collapse(True)
-        self.parchgFrame.Collapse(True)
-        self.unitcellFrame.Collapse(True)
-        self.collapsed = False
-        self.chargeCollapsed = True
-        self.PKFCollapsed = True
-        self.dosCollapsed = False
-        self.parchgCollapsed = True
-        self.unitcellCollapsed = True
-        
