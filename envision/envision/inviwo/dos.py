@@ -254,7 +254,7 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
 
         for plotter_source in plotter_source_list:
             ypostemp = ypos
-            plotter_processor = _add_processor("org.inviwo.lineplotprocessor", "DOS Plotter", xpos, ypostemp)
+            plotter_processor = _add_processor("org.inviwo.LinePlotProcessor", "DOS Plotter", xpos, ypostemp)
             plotter_source_outport = plotter_source.getOutport('dataframeOutport')
             plotter_processor_labels_outport = plotter_processor.getOutport('labels')
             plotter_processor_mesh_outport = plotter_processor.getOutport('outport')

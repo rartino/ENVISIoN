@@ -28,6 +28,7 @@
 import inviwopy
 import numpy as np
 import h5py
+import math
 from .common import _add_h5source, _add_processor
 
 app = inviwopy.app
@@ -93,20 +94,14 @@ def bandstructure(h5file, xpos=0, ypos=0):
                 "functionFlatMultiInport"))
             ypos_temp += 75
 
-            plotter_processor = _add_processor("org.inviwo.lineplotprocessor", "Band Structure Plotter " + i, xpos_temp, ypos_temp)
+            plotter_processor = _add_processor("org.inviwo.LinePlotProcessor", "Band Structure Plotter " + i, xpos_temp, ypos_temp)
             plotter_list.append(plotter_processor)
             network.addConnection(operation_processor.getOutport("dataframeOutport"), plotter_processor.getInport("dataFrameInport"))
             ypos_temp += 75
 
             network.addConnection(plotter_processor.getOutport("outport"), mesh_renderer.getInport('inputMesh'))
 
-        for plotter in plotter_list[1:]:
-            network.addLink(plotter_list[0].scale, plotter.scale)
-            network.addLink(plotter_list[0].x_range, plotter.x_range)
-            network.addLink(plotter_list[0].y_range, plotter.y_range)
-
         network.addConnection(plotter_list[0].getOutport("labels"), mesh_renderer.getInport('imageInport'))
-
         ypos += 4 * 75
 
         """
@@ -130,20 +125,24 @@ def bandstructure(h5file, xpos=0, ypos=0):
         canvas_processor = _add_processor("org.inviwo.CanvasGL", "Band Structure Canvas", xpos, ypos)
         network.addConnection(energy_text_processor.getOutport('outport'), canvas_processor.getInport("inport"))
 
-        bandstructure_processor.getPropertyByIdentifier('selection').value = '/Bandstructure/Bands'
+        bandstructure_processor.selection.value = '/Bandstructure/Bands'
         for i in range(len(hdf5_to_list)):
-            hdf5_to_list[i].getPropertyByIdentifier('implicitXProperty').value = True
-            #hdf5_to.getPropertyByIdentifier('xPathSelectionProperty').value = '/n/Energy'
-            hdf5_to_list[i].getPropertyByIdentifier('yPathSelectionProperty').value = '/{}/Energy'.format(str(i))
-        operation_processor.getPropertyByIdentifier('operationProperty').value = 'add'
-        background_processor.getPropertyByIdentifier('bgColor1').value = inviwopy.glm.vec4(1, 1, 1, 1)
-        background_processor.getPropertyByIdentifier('bgColor2').value = inviwopy.glm.vec4(1, 1, 1, 1)
-        energy_text_processor.getPropertyByIdentifier('text').value = 'Energy [eV]'
-        energy_text_processor.getPropertyByIdentifier('position').value = inviwopy.glm.vec2(0.82, 0.03)
-        energy_text_processor.getPropertyByIdentifier('color').value = inviwopy.glm.vec4(0, 0, 0, 1)
-        canvas_processor.getPropertyByIdentifier('inputSize').getPropertyByIdentifier('dimensions').value = inviwopy.glm.ivec2(640, 480)
-        #plotter_processor.getPropertyByIdentifier("x_range").value = inviwopy.glm.vec2(1000, 0)
-        #plotter_processor.getPropertyByIdentifier("y_range").value = inviwopy.glm.vec2(1000, -1000)
-        for plotter in plotter_list:
-            print(plotter.y_range.value)
-
+            hdf5_to_list[i].implicitXProperty.value = True
+            hdf5_to_list[i].yPathSelectionProperty.value = '/{}/Energy'.format(str(i))
+        operation_processor.operationProperty.value = 'add'
+        background_processor.bgColor1.value = inviwopy.glm.vec4(1, 1, 1, 1)
+        background_processor.bgColor2.value = inviwopy.glm.vec4(1, 1, 1, 1)
+        energy_text_processor.text.value = 'Energy [eV]'
+        energy_text_processor.position.value = inviwopy.glm.vec2(0.0252, 0.9401)
+        energy_text_processor.color.value = inviwopy.glm.vec4(0, 0, 0, 1)
+        energy_text_processor.font.fontSize.value = 20
+        canvas_processor.inputSize.dimensions.value = inviwopy.glm.ivec2(640, 480)
+        for plotter in plotter_list[1:]:
+            network.addLink(plotter_list[0].scale, plotter.scale)
+            network.addLink(plotter_list[0].x_range, plotter.x_range)
+            network.addLink(plotter_list[0].y_range, plotter.y_range)
+            network.addLink(plotter_list[0].grid_width, plotter.grid_width)
+            network.addLink(plotter_list[0].grid_colour, plotter.grid_colour)
+            plotter.axis_width.value = 0
+        plotter_list[0].scale.value = 0.8
+        plotter_list[0].grid_width.value = 0
