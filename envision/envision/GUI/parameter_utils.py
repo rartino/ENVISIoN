@@ -107,6 +107,8 @@ def charge_get_points():
 #--Background and lighting--
 
 def charge_set_shading_mode(mode):
+    Raycaster = network.getProcessorByIdentifier('Charge raycaster')
+    Raycaster.lighting.shadingMode.value = mode
     pass
 
 def charge_set_background(color_1 = None, color_2 = None, style = None):

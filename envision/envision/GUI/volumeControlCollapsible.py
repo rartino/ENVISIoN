@@ -52,12 +52,14 @@ class VolumeControlCollapsible(GeneralCollapsible):
         # Shading controls
         shadingHBox = wx.BoxSizer(wx.HORIZONTAL)
         shadingLabel = wx.StaticText(volumePane, label="Shading mode: ")
-        shadingDropDown = wx.ComboBox(volumePane,
-                                    value = "Default",
-                                    choices= ("mode2","mode3","mode4"))
+        shadingChoices = ["No Shading", "Ambient", "Diffuse", "Specular", "Blinn Phong", "Phong"]
+        self.shadingDropDown = wx.Choice(volumePane,choices=shadingChoices)
+        self.shadingDropDown.SetSelection(4)
         shadingHBox.Add(shadingLabel)
-        shadingHBox.Add(shadingDropDown)
+        shadingHBox.Add(self.shadingDropDown)
         self.add_item(shadingHBox)
+
+        self.shadingDropDown.Bind(wx.EVT_CHOICE, self.shading_drop_down_changed)
 
         # ------------------------------------
         # --Setup transfer function controls--
@@ -79,9 +81,17 @@ class VolumeControlCollapsible(GeneralCollapsible):
                 self.tf_point_adder.valueText.GetLineText(0),
                 self.tf_point_adder.alphaText.GetLineText(0),
                 self.tf_point_adder.colorPicker.GetColour()))
-        self.tfpointsVBox.Add(self.tf_point_adder)
 
+        self.tfpointsVBox.Add(self.tf_point_adder)
         self.add_item(self.tfpointsVBox)
+
+
+    # Shader editing
+    def shading_drop_down_changed(self, event):
+        parameter_utils.charge_set_shading_mode(self.shadingDropDown.GetCurrentSelection())
+
+
+    # Transfer function editing
 
     def add_tf_point(self, value, alpha, colour):
         # Adds a new tf point to volume rendering
@@ -115,7 +125,6 @@ class VolumeControlCollapsible(GeneralCollapsible):
 
         tfPointWidget = TFPointWidget(self.GetPane(), value, alpha, colour)
 
-
         self.tfpointsVBox.Insert(insertion_idx, tfPointWidget)
 
         # Set event bindings
@@ -127,8 +136,6 @@ class VolumeControlCollapsible(GeneralCollapsible):
         tfPointWidget.alphaText.Bind(wx.EVT_KILL_FOCUS, lambda event : self.update_tf_point(tfPointWidget))
         tfPointWidget.alphaText.Bind(wx.EVT_TEXT_ENTER, lambda event : self.update_tf_point(tfPointWidget))
         tfPointWidget.colorPicker.Bind(wx.EVT_COLOURPICKER_CHANGED, lambda event : self.update_tf_point(tfPointWidget))
-
-
 
         self.tfPointWidgets.insert(insertion_idx, tfPointWidget)
         self.update_collapse()
