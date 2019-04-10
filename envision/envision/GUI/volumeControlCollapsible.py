@@ -38,7 +38,6 @@
 
 import wx
 from generalCollapsible import GeneralCollapsible
-from tfPointItem import TFPointWidget
 
 
 class VoluneControlCollapsible(GeneralCollapsible):
@@ -71,34 +70,22 @@ class VoluneControlCollapsible(GeneralCollapsible):
         self.tfPointWidgets = []
 
         # Controls for adding new tf points
-        # TODO: add color picker
-        valueText = wx.TextCtrl(volumePane, value="value")
-        alphaText = wx.TextCtrl(volumePane, value="alpha")
-        tfAddButton = wx.Button(volumePane, label = '+', size = wx.Size(23, 23))
-
-        # Button adds new point when pressed with values specified in TextCtrls
-        tfAddButton.Bind(wx.EVT_BUTTON, 
+        # self.tf_point_adder = TFPointWidget(volumePane, 0, 0, wx.Colour(0, 0, 0), button_label="+")
+        self.tf_point_adder.button.Bind(wx.EVT_BUTTON, 
             lambda event : self.add_tf_point(
-                valueText.GetLineText(0), 
-                alphaText.GetLineText(0), 
-                wx.Colour(0, 0, 0)))
-
-        # Put items in a horizontal sizer
-        tfHBox = wx.BoxSizer(wx.HORIZONTAL)
-        tfHBox.Add(valueText)
-        tfHBox.Add(alphaText)
-        tfHBox.Add(tfAddButton)
-        self.tfpointsVBox.Add(tfHBox)
+                self.tf_point_adder.valueText.GetLineText(0),
+                self.tf_point_adder.alphaText.GetLineText(0),
+                self.tf_point_adder.colorPicker.GetColour()))
+        self.tfpointsVBox.Add(self.tf_point_adder)
 
         self.add_item(self.tfpointsVBox)
 
     def add_tf_point(self, value, alpha, colour):
-        # Adds a new tf point
+        # Adds a new tf point to volume rendering
         # Adds a ui element to show and edit the new point
 
         # TODO: Bind text field events to change the tf point
         # TODO: Sort by "value" so points are in correct order
-
         try:
             value = float(value)
             alpha = float(alpha)
@@ -124,11 +111,9 @@ class VoluneControlCollapsible(GeneralCollapsible):
 
         self.tfpointsVBox.Insert(insertion_idx, tfPointWidget)
 
-        tfPointWidget.delButton.Bind(wx.EVT_BUTTON, lambda event : self.remove_tf_point(tfPointWidget))
+        tfPointWidget.button.Bind(wx.EVT_BUTTON, lambda event : self.remove_tf_point(tfPointWidget))
 
         self.tfPointWidgets.insert(insertion_idx, tfPointWidget)
-
-
         self.update_collapse()
 
     def remove_tf_point(self, tfPointWidget):
@@ -140,6 +125,29 @@ class VoluneControlCollapsible(GeneralCollapsible):
         tfPointWidget.Clear(delete_windows = True)
         self.tfPointWidgets.remove(tfPointWidget)
         self.tfpointsVBox.Remove(tfPointWidget)
-        self.volumeCollapsible.update_collapse()
+        self.update_collapse()
+
+
+
+class TFPointWidget(wx.BoxSizer):
+    # Class managing the UI for a single TF point in the collapsible
+    def __init__(self, parent, value, alpha, colour, button_label="-"):
+        super().__init__(wx.HORIZONTAL)
+
+        self.value = float(value)
+        self.alpha = float(alpha)
+        self.colour = colour
+
+        self.valueText = wx.TextCtrl(parent, value=str(value))
+        self.alphaText = wx.TextCtrl(parent, value=str(alpha))
+        self.button = wx.Button(parent, label = button_label, size = wx.Size(23, 23))
+
+        self.colorPicker = wx.ColourPickerCtrl(parent)
+        self.colorPicker.SetColour(colour)
+
+        self.Add(self.valueText)
+        self.Add(self.alphaText)
+        self.Add(self.colorPicker)
+        self.Add(self.button)
         
         

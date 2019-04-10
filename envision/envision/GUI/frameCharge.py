@@ -40,8 +40,6 @@ import wx,sys,os
 # from parameter_utils import *
 from generalCollapsible import GeneralCollapsible
 from volumeControlCollapsible import VoluneControlCollapsible
-from tfPointItem import TFPointWidget
-
 class ChargeFrame(GeneralCollapsible):
     def __init__(self, parent):
         super().__init__(parent, label = "Charge")
@@ -125,9 +123,9 @@ class ChargeFrame(GeneralCollapsible):
         else:
             #Start Charge vis
             print("Charge")
-            envision.inviwo.charge(self.parent_collapsible.path, 
-                                iso = None, slice = False, 
-                                xpos = 0, ypos = 0)
+            # envision.inviwo.charge(self.parent_collapsible.path, 
+            #                     iso = None, slice = False, 
+            #                     xpos = 0, ypos = 0)
         
         
         
