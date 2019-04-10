@@ -42,13 +42,11 @@ import parameter_utils
 import inviwopy
 # TODO: make Transferfunction saveable
 # TODO: add option for transperacy before first tf point
+# TODO maybe: add option for toggling tf points?
 
 class VolumeControlCollapsible(GeneralCollapsible):
     def __init__(self, parent, label):
         super().__init__(parent, label = label)
-
-        
-
         volumePane = self.GetPane()
 
         # Shading controls
@@ -152,9 +150,7 @@ class VolumeControlCollapsible(GeneralCollapsible):
 
     def update_tf_point(self, tfPointWidget):
         # Update the tf point if its text or color is changed
-        print("Swapping tf point")
         new_tf_data = tfPointWidget.read_inputs()
-        print(new_tf_data)
         self.remove_tf_point(tfPointWidget)
         self.add_tf_point(new_tf_data[0], new_tf_data[1], new_tf_data[2])
 
