@@ -40,8 +40,8 @@ import wx
 from generalCollapsible import GeneralCollapsible
 import parameter_utils
 import inviwopy
-# TODO: add support for editing points
 # TODO: make Transferfunction saveable
+# TODO: add option for transperacy before first tf point
 
 class VolumeControlCollapsible(GeneralCollapsible):
     def __init__(self, parent, label):
@@ -117,9 +117,20 @@ class VolumeControlCollapsible(GeneralCollapsible):
 
         tfPointWidget = TFPointWidget(self.GetPane(), value, alpha, colour)
 
+
         self.tfpointsVBox.Insert(insertion_idx, tfPointWidget)
 
+        # Set event bindings
         tfPointWidget.button.Bind(wx.EVT_BUTTON, lambda event : self.remove_tf_point(tfPointWidget))
+
+        # Update on theese
+        tfPointWidget.valueText.Bind(wx.EVT_KILL_FOCUS, lambda event : self.update_tf_point(tfPointWidget))
+        tfPointWidget.valueText.Bind(wx.EVT_TEXT_ENTER, lambda event : self.update_tf_point(tfPointWidget))
+        tfPointWidget.alphaText.Bind(wx.EVT_KILL_FOCUS, lambda event : self.update_tf_point(tfPointWidget))
+        tfPointWidget.alphaText.Bind(wx.EVT_TEXT_ENTER, lambda event : self.update_tf_point(tfPointWidget))
+        tfPointWidget.colorPicker.Bind(wx.EVT_COLOURPICKER_CHANGED, lambda event : self.update_tf_point(tfPointWidget))
+
+
 
         self.tfPointWidgets.insert(insertion_idx, tfPointWidget)
         self.update_collapse()
@@ -139,6 +150,15 @@ class VolumeControlCollapsible(GeneralCollapsible):
         self.tfpointsVBox.Remove(tfPointWidget)
         self.update_collapse()
 
+    def update_tf_point(self, tfPointWidget):
+        # Update the tf point if its text or color is changed
+        print("Swapping tf point")
+        new_tf_data = tfPointWidget.read_inputs()
+        print(new_tf_data)
+        self.remove_tf_point(tfPointWidget)
+        self.add_tf_point(new_tf_data[0], new_tf_data[1], new_tf_data[2])
+
+
 class TFPointWidget(wx.BoxSizer):
     # Class managing the UI for a single TF point in the collapsible
     def __init__(self, parent, value, alpha, colour, button_label="-"):
@@ -148,8 +168,8 @@ class TFPointWidget(wx.BoxSizer):
         self.alpha = float(alpha)
         self.colour = colour
 
-        self.valueText = wx.TextCtrl(parent, value=str(value))
-        self.alphaText = wx.TextCtrl(parent, value=str(alpha))
+        self.valueText = wx.TextCtrl(parent, value=str(value), style=wx.TE_PROCESS_ENTER)
+        self.alphaText = wx.TextCtrl(parent, value=str(alpha), style=wx.TE_PROCESS_ENTER)
         self.button = wx.Button(parent, label = button_label, size = wx.Size(23, 23))
 
         self.colorPicker = wx.ColourPickerCtrl(parent)
@@ -167,14 +187,27 @@ class TFPointWidget(wx.BoxSizer):
         #     self.valueText.GetLineText(0)))
 
 
-    # def get_value(self):
-    #     pass
+    def get_text_value(self):
+        try:
+            return float(self.valueText.GetLineText(0))
+        except:
+            self.valueText.SetValue(str(self.value))
+            raise AssertionError("Input values must be valid float values")
 
-    # def get_alpha(self):
-    #     pass
+    def get_text_alpha(self):
+        try:
+            return float(self.alphaText.GetLineText(0))
+        except:
+            self.alphaText.SetValue(str(self.alpha))
+            raise AssertionError("Input values must be valid float values")
+    
+    
+    def read_inputs(self):
+        # Read all input fields and resets variables
+        
+        res = [self.get_text_value(), self.get_text_alpha(), self.colorPicker.GetColour()]
+        return res
 
-    # def get_color(self):
-    #     pass
 
     # def text_focused(self, textCtrl, default_value, value):
     #     if default_value == value:
