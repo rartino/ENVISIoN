@@ -58,6 +58,7 @@
 #include <inviwo/core/ports/meshport.h>
 #include <inviwo/core/processors/processor.h>
 #include <inviwo/core/properties/ordinalproperty.h>
+#include <inviwo/core/properties/optionproperty.h>
 #include <modules/fontrendering/properties/fontproperty.h>
 #include <modules/fontrendering/textrenderer.h>
 #include <modules/graph2d/graph2dmoduledefine.h>
@@ -137,6 +138,10 @@ private:
 
     DataFrameInport dataFrameInport_;
     MeshOutport meshOutport_;
+
+    OptionPropertyString xSelectionProperty_;
+    OptionPropertyString ySelectionProperty_;
+    BoolProperty allYSelection_;
     FloatVec4Property colour_;
     FloatVec2Property x_range_;
     FloatVec2Property y_range_;
