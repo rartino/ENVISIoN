@@ -43,7 +43,6 @@
 """*****************************************************************************"""
 import wx, sys, os
 
-sys.path.insert(0, os.path.expanduser(os.getcwd()))
 from frameCharge import ChargeFrame
 from framePKF import PKFFrame
 from frameDoS import DosFrame
