@@ -1,7 +1,7 @@
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2019 Anton Hjert
+#  Copyright (c) 2019 Jesper Ericsson
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by Anton Hjert
+#  Alterations to this file by Jesper Ericsson
 #
 #  To the extent possible under law, the person who associated CC0
 #  with the alterations to this file has waived all copyright and related
@@ -38,11 +38,16 @@
 
 import wx
 from generalCollapsible import GeneralCollapsible
+import parameter_utils
+import inviwopy
+# TODO: add support for editing points
+# TODO: make Transferfunction saveable
 
-
-class VoluneControlCollapsible(GeneralCollapsible):
+class VolumeControlCollapsible(GeneralCollapsible):
     def __init__(self, parent, label):
         super().__init__(parent, label = label)
+
+        
 
         volumePane = self.GetPane()
 
@@ -70,7 +75,7 @@ class VoluneControlCollapsible(GeneralCollapsible):
         self.tfPointWidgets = []
 
         # Controls for adding new tf points
-        # self.tf_point_adder = TFPointWidget(volumePane, 0, 0, wx.Colour(0, 0, 0), button_label="+")
+        self.tf_point_adder = TFPointWidget(volumePane, 0, 0, wx.Colour(0, 0, 0), button_label="+")
         self.tf_point_adder.button.Bind(wx.EVT_BUTTON, 
             lambda event : self.add_tf_point(
                 self.tf_point_adder.valueText.GetLineText(0),
@@ -86,16 +91,20 @@ class VoluneControlCollapsible(GeneralCollapsible):
 
         # TODO: Bind text field events to change the tf point
         # TODO: Sort by "value" so points are in correct order
+
+        # Assert that user input is valid
         try:
             value = float(value)
             alpha = float(alpha)
         except:
             raise AssertionError("Input values must be valid float values")
-        
         assert value >= 0 and 1 >= value, "Transfer function: Invalid value range"
         assert alpha >= 0 and 255 >= alpha, "Transfer function: Invalid alpha range"
 
+        # Add point to GUI
+
         # Find the correct index to insert the new point at
+        # Makes sure points are always sorted by value
         insertion_idx = len(self.tfPointWidgets)
         for i in range(len(self.tfPointWidgets)):
             item_value = self.tfPointWidgets[i].value
@@ -106,7 +115,6 @@ class VoluneControlCollapsible(GeneralCollapsible):
                 insertion_idx = i
                 break
 
-    
         tfPointWidget = TFPointWidget(self.GetPane(), value, alpha, colour)
 
         self.tfpointsVBox.Insert(insertion_idx, tfPointWidget)
@@ -116,18 +124,20 @@ class VoluneControlCollapsible(GeneralCollapsible):
         self.tfPointWidgets.insert(insertion_idx, tfPointWidget)
         self.update_collapse()
 
+        # Add point to inviwo
+        glmColor = inviwopy.glm.vec4(float(colour.Red())/255, float(colour.Green())/255, float(colour.Blue())/255, alpha)
+        parameter_utils.charge_add_tf_point(value, glmColor)
+
     def remove_tf_point(self, tfPointWidget):
-        # Removes tfPoint from inviwo processor
+        # Remove tfPoint from inviwo processor
+        index = self.tfPointWidgets.index(tfPointWidget)
+        parameter_utils.charge_remove_tf_point(index)
+
         # Removes the TFPointWidget and deletes all its child items
-
-        # TODO remove tf point in inviwo
-
         tfPointWidget.Clear(delete_windows = True)
         self.tfPointWidgets.remove(tfPointWidget)
         self.tfpointsVBox.Remove(tfPointWidget)
         self.update_collapse()
-
-
 
 class TFPointWidget(wx.BoxSizer):
     # Class managing the UI for a single TF point in the collapsible
@@ -149,5 +159,31 @@ class TFPointWidget(wx.BoxSizer):
         self.Add(self.alphaText)
         self.Add(self.colorPicker)
         self.Add(self.button)
+
+        # wx.EVT_SET_FOCUS EVT_KILL_FOCUS
+        # self.valueText.Bind(wx.EVT_SET_FOCUS, lambda event: self.text_focused(
+        #     self.valueText, 
+        #     str(self.get_value()), 
+        #     self.valueText.GetLineText(0)))
+
+
+    # def get_value(self):
+    #     pass
+
+    # def get_alpha(self):
+    #     pass
+
+    # def get_color(self):
+    #     pass
+
+    # def text_focused(self, textCtrl, default_value, value):
+    #     if default_value == value:
+    #         textCtrl.SetValue("")
+
+    #     print("text pressed")
+    #     pass
+
+    # def text_unfocused(self, event):
+    #     pass
         
         

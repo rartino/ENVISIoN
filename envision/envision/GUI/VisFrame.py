@@ -51,10 +51,10 @@ from frameParchg import ParchgFrame
 
 from generalCollapsible import GeneralCollapsible
 
-sys.path.insert(0, os.path.expanduser("C:/ENVISIoN/envision"))
-import envision
-import envision.inviwo
-import parameter_utils
+# sys.path.insert(0, os.path.expanduser("C:/ENVISIoN/envision"))
+# import envision
+# import envision.inviwo
+# import parameter_utils
 
 
 class VisualizationFrame(GeneralCollapsible):
