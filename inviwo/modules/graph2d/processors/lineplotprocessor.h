@@ -2,7 +2,7 @@
  *
  * Inviwo - Interactive Visualization Workshop
  *
- * Copyright (c) 2017-2018 Inviwo Foundation, Andreas Kempe
+ * Copyright (c) 2017-2019 Inviwo Foundation, Andreas Kempe, Abdullatif Ismail
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,18 @@
  *   You should have received a copy of the CC0 legalcode along with
  *   this work.  If not, see
  *   <http://creativecommons.org/publicdomain/zero/1.0/>.
- */
+ *********************************************************************************/
+ /*
+  *   Alterations to this file by Abdullatif Ismail
+  *
+  *   To the extent possible under law, the person who associated CC0
+  *   with the alterations to this file has waived all copyright and
+  *   related or neighboring rights to the alterations made to this file.
+  *
+  *   You should have received a copy of the CC0 legalcode along with
+  *   this work.  If not, see
+  *   <http://creativecommons.org/publicdomain/zero/1.0/>.
+  */
 
 #ifndef IVW_LINEPLOTPROCESSOR_H
 #define IVW_LINEPLOTPROCESSOR_H
@@ -47,6 +58,7 @@
 #include <inviwo/core/ports/meshport.h>
 #include <inviwo/core/processors/processor.h>
 #include <inviwo/core/properties/ordinalproperty.h>
+#include <inviwo/core/properties/optionproperty.h>
 #include <modules/fontrendering/properties/fontproperty.h>
 #include <modules/fontrendering/textrenderer.h>
 #include <modules/graph2d/graph2dmoduledefine.h>
@@ -58,8 +70,8 @@ namespace inviwo {
 
 using plot::DataFrameInport;
 
-/** \docpage{org.inviwo.lineplotprocessor, lineplotprocessor}
- * ![](org.inviwo.lineplotprocessor.png?classIdentifier=org.inviwo.lineplotprocessor)
+/** \docpage{org.inviwo.LinePlotProcessor, Line Plot Processor}
+ * ![](org.inviwo.LinePlotProcessor.png?classIdentifier=org.inviwo.LinePlotProcessor)
  * This processor draws a diagram from a DataFrame containing two
  * columns, one named "X" and one named "Y". It plots the values of
  * the "X" column on the horizontal axis versus the "Y" values on the
@@ -67,8 +79,10 @@ using plot::DataFrameInport;
  *
  * ### Inports
  *   * __dataFrameInport__ is an inport that takes a DataFrame
- *   expected to contain two columns. One named "X" and one named "Y",
- *   containing the x values to be plotted against the y values.
+ *   expected to contain at least two columns. One named "X" and
+ *   one starting with "Y", containing the x values to be plotted
+ *   against the y values. This can be produced from the 'Function
+ *   to Data Frame' processor.
  *
  * ### Outports
  *   * __outport__ outport that outputs a mesh representing the
@@ -85,13 +99,16 @@ using plot::DataFrameInport;
  *   axis.
  *   * __scale__ contains a constant by which the graph will be
  *   scaled.
- *   * __enable_line__ enables a vertical line at x =
+ *   * __enable_line__ enables a vertical line at x = line_x_coordinate_
  *   line_x_coordinate.
  *   * __line_x_coordinate__ x coordinate at which to draw a vertical
  *   * __line_colour__ is the colour of the static vertical line.
  *   line.
+ *   * __show_x_lables__ shows labels on x axis.
+ *   * __show_y_lables__ shows labels on y axis.
  *   * __axis_colour__ contains the colour of the graph axes.
  *   * __axis_width__ sets how wide the graph axes should be.
+ *   * __enable_grid__ enables the background grid.
  *   * __grid_colour__ sets the colour of the coordinate grid in the
  *   graph.
  *   * __grid_width__ sets the line width for the coordinate grid in
@@ -102,16 +119,10 @@ using plot::DataFrameInport;
  *   to make of the coordinate axes.
  */
 
-
-/**
- * \class lineplotprocessor
- * \brief VERY_BRIEFLY_DESCRIBE_THE_PROCESSOR
- * DESCRIBE_THE_PROCESSOR_FROM_A_DEVELOPER_PERSPECTIVE
- */
-class IVW_MODULE_GRAPH2D_API lineplotprocessor : public Processor {
+class IVW_MODULE_GRAPH2D_API LinePlotProcessor : public Processor {
 public:
-    lineplotprocessor();
-    virtual ~lineplotprocessor() = default;
+    LinePlotProcessor();
+    virtual ~LinePlotProcessor() = default;
 
     virtual void process() override;
 
@@ -127,6 +138,10 @@ private:
 
     DataFrameInport dataFrameInport_;
     MeshOutport meshOutport_;
+
+    OptionPropertyString xSelectionProperty_;
+    OptionPropertyString ySelectionProperty_;
+    BoolProperty allYSelection_;
     FloatVec4Property colour_;
     FloatVec2Property x_range_;
     FloatVec2Property y_range_;
@@ -135,10 +150,12 @@ private:
     BoolProperty enable_line_;
     FloatProperty line_x_coordinate_;
     FloatVec4Property line_colour_;
-
+    BoolProperty show_x_labels_;
+    BoolProperty show_y_labels_;
     FloatVec4Property axis_colour_;
     FloatProperty axis_width_;
 
+    BoolProperty enable_grid_;
     FloatVec4Property grid_colour_;
     FloatProperty grid_width_;
 
@@ -154,4 +171,3 @@ private:
 } // namespace
 
 #endif // IVW_LINEPLOTPROCESSOR_H
-
