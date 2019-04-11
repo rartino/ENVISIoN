@@ -47,6 +47,7 @@ from frameCharge import ChargeFrame
 from framePKF import PKFFrame
 from frameDoS import DosFrame
 from frameParchg import ParchgFrame
+from frameUnitcell import UnitcellFrame
 
 from generalCollapsible import GeneralCollapsible
 
@@ -80,12 +81,14 @@ class VisualizationFrame(GeneralCollapsible):
         pcFrame = PKFFrame(self.GetPane())
         dosFrame = DosFrame(self.GetPane())
         parchgFrame = ParchgFrame(self.GetPane())
+        unitcellFrame = UnitcellFrame(self.GetPane())
 
     # Add them to the sizer
         self.add_sub_collapsible(chargeFrame)
         self.add_sub_collapsible(pcFrame)
         self.add_sub_collapsible(dosFrame)
         self.add_sub_collapsible(parchgFrame)
+        self.add_sub_collapsible(unitcellFrame)
 
     # Set some callbacks
         self.chooseFile.Bind(wx.EVT_BUTTON, self.file_pressed)
@@ -109,7 +112,8 @@ class VisualizationFrame(GeneralCollapsible):
         self.path = openFileDialog.GetPath()
         openFileDialog.Destroy()
         fileFrame.Destroy()
-        self.enterPath.SetValue(self.path)
+        if not self.path == "":
+            self.enterPath.SetValue(self.path)
         print(self.path)
 
     #When path entered in text and Enter-key is pressed

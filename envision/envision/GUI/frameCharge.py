@@ -36,7 +36,7 @@
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
-import wx,sys,os
+import wx, sys, os, h5py
 from parameter_utils import *
 from generalCollapsible import GeneralCollapsible
 
@@ -69,12 +69,18 @@ class ChargeFrame(GeneralCollapsible):
         if self.IsCollapsed():
             # Disable charge vis
             print("Not Charge")
-        else:
+        elif '/{}'.format('CHG') in h5py.File(self.parent_collapsible.path, 'r'):
             #Start Charge vis
-            print("Charge")
             envision.inviwo.charge(self.parent_collapsible.path, 
                                 iso = None, slice = False, 
                                 xpos = 0, ypos = 0)
+            print("Charge")
+        else:
+            self.open_message('The file of choice does not contain Charge-data',
+                                'Visualization failed!')
+            
+			
+                
         
         
         

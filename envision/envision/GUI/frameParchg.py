@@ -35,7 +35,8 @@
 #  You should have received a copy of the CC0 legalcode along with
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
-import wx,sys,os
+import wx, sys, os, h5py
+from parameter_utils import *
 from generalCollapsible import GeneralCollapsible
 
 class ParchgFrame(GeneralCollapsible):
@@ -49,3 +50,26 @@ class ParchgFrame(GeneralCollapsible):
         self.add_item(button1)
         self.add_item(button2)
         self.add_item(slider)
+
+        self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
+
+    
+    def on_collapse(self, event = None):
+        self.update_collapse()
+        # Needs to be called to update the layout properly
+        if self.IsCollapsed():
+            # Disable Parchg vis
+            print("Not Parchg")
+        elif "/PARCHG" and "/UnitCell" in  h5py.File(self.parent_collapsible.path, 'r'):
+            #Start Parchg vis
+            envision.inviwo.unitcell(self.parent_collapsible.path, 
+                                xpos = 0, ypos = 0, smallAtoms = True)
+            envision.inviwo.parchg(self.parent_collapsible.path, 
+                            sli = False, parchg_list = [1,2,3,4], 
+                            parchg_mode = 'total', mode_list = [0,1,2,3], 
+                            xstart_pos = 600, ystart_pos = 0)
+            print("Phrchg")
+        else:
+            self.open_message('The file of choice does not contain Partial charge-data',
+                                'Visualization failed!')
+

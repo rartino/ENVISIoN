@@ -25,14 +25,16 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 ##############################################################################################
-
-import os
+path_to_envision = 'C:/ENVISIoN' 
+import wx, sys, os
+sys.path.insert(0, os.path.expanduser(path_to_envision+'/envision/envision/parser'))
+sys.path.insert(0, os.path.expanduser(path_to_envision+'/envision/envision/parser/vasp'))
 import re
 import numpy as np
 import h5py
 import math
-from .unitcell import *
-from ..h5writer import _write_parcharges
+from unitcell import *
+from h5writer import _write_parcharges
 
 def _parse_parcharges(fileobj):
         """Parses partial charge data from a PARCHG.nb.ALLK file in VASP
@@ -119,7 +121,7 @@ def parchg(h5file, vasp_dir, poscar_equiv='POSCAR'):
             True if PARCHG was parsed, False otherwise.
         """
 
-        unitcell(h5file, vasp_dir, None, poscar_equiv)
+        unitcell(h5file, vasp_dir)
 
         regex = re.compile('PARCHG.(.+?).ALLK')
         if os.path.isfile(h5file):
