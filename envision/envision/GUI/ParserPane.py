@@ -40,11 +40,11 @@
 """This file sets up the Parser-section of the GUI, which is a collapsible pane."""
 """*****************************************************************************"""
 
-path_to_envision = 'C:/ENVISIoN' 
 import wx, sys, os
-
-sys.path.insert(0, os.path.expanduser(path_to_envision+'/envision/envision'))
-sys.path.insert(0, os.path.expanduser(path_to_envision+'/envision/envision/parser/vasp'))
+import inspect
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder+'/../'))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder+'/../parser/vasp'))
 from bandstructure import bandstructure
 from doscar import dos
 from md import md

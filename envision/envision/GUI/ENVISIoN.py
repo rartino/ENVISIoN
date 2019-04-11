@@ -39,12 +39,15 @@
 """The main file for the GUI of ENVISIoN. The app, main frame and main panel is """
 """defined here.                                                                """
 """*****************************************************************************"""
-path_to_envision="C:/ENVISIoN"
+
 import wx, os, sys, wx.lib.scrolledpanel
-sys.path.insert(0, os.path.expanduser(path_to_envision+'/envision/envision/GUI'))
+import inspect
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder))
 from VisFrame import VisualizationFrame
 from ParserPane import ParserPane 
 from generalCollapsible import GeneralCollapsible
+
 
 class Main_Frame(wx.Frame):
     def __init__(self, *args, **kwargs):
