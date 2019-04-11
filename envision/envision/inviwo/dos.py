@@ -36,11 +36,13 @@
 #  You should have received a copy of the CC0 legalcode along with this
 #  work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
-
+path_to_envision='C:/ENVISIoN'
+import os, sys
+sys.path.insert(0, os.path.expanduser(path_to_envision+'/envision/envision/inviwo'))
 import inviwopy
 import numpy as np
 import h5py
-from .common import _add_h5source, _add_processor
+from common import _add_h5source, _add_processor
 
 app = inviwopy.app
 network = app.network
