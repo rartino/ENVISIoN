@@ -118,22 +118,31 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
     # Add processors, connections and properties for slice function if slice=True and "iso" hasn't been assigned a value        
     if slice:
         if iso==None:
-            VolumeSlice = _add_processor('org.inviwo.VolumeSliceGL', 'Volume Slice', xstart_pos-170, ystart_pos+300)          
-            ImageLayout = _add_processor('org.inviwo.ImageLayoutGL', 'Image Layout', xstart_pos, ystart_pos+375)     
-            Background = _add_processor('org.inviwo.Background', 'Background', xstart_pos, ystart_pos+450)
-            Canvas = _add_processor('org.inviwo.CanvasGL', 'Canvas', xstart_pos, ystart_pos+525)
-            network.addConnection(HDFvolume.getOutport('outport'), VolumeSlice.getInport('volume'))
-            network.addConnection(VolumeSlice.getOutport('outport'), ImageLayout.getInport('multiinport'))
-            network.addConnection(Raycaster.getOutport('outport'), ImageLayout.getInport('multiinport'))
-            network.addConnection(ImageLayout.getOutport('outport'), Background.getInport('inport'))
-
-            ImageLayout.layout = 2
             
+            # Setup Slice rendering part
+            VolumeSlice = _add_processor('org.inviwo.VolumeSliceGL', 'Volume Slice', xstart_pos-25*7, ystart_pos+300)          
+            SliceCanvas = _add_processor('org.inviwo.CanvasGL', 'SliceCanvas', xstart_pos-25*7, ystart_pos+525)
+            SliceBackground = _add_processor('org.inviwo.Background', 'SliceBackground', xstart_pos-25*7, ystart_pos+450)
+            
+            network.addConnection(HDFvolume.getOutport('outport'), VolumeSlice.getInport('volume'))
+            network.addConnection(VolumeSlice.getOutport('outport'), SliceBackground.getInport('inport'))
+            network.addConnection(SliceBackground.getOutport('outport'), SliceCanvas.getInport('inport'))
+
+            # Setup volume rendering part
+            Canvas = _add_processor('org.inviwo.CanvasGL', 'Canvas', xstart_pos, ystart_pos+525)
+            VolumeBackground = _add_processor('org.inviwo.Background', 'VolumeBackground', xstart_pos, ystart_pos+450)
+            
+            network.addConnection(Raycaster.getOutport('outport'), VolumeBackground.getInport('inport'))
+            network.addConnection(VolumeBackground.getOutport('outport'), Canvas.getInport('inport'))
+
             network.addLink(VolumeSlice.getPropertyByIdentifier('planePosition'), Raycaster.getPropertyByIdentifier('positionindicator').plane1.position)
             network.addLink(VolumeSlice.getPropertyByIdentifier('planeNormal'), Raycaster.getPropertyByIdentifier('positionindicator').plane1.normal)
 
-            canvas_dimensions_property = Canvas.getPropertyByIdentifier('inputSize').getPropertyByIdentifier('dimensions')
-            canvas_dimensions_property.value = inviwopy.glm.ivec2(700,300)
+            # set canvas size
+            # canvas_dimensions_property = Canvas.getPropertyByIdentifier('inputSize').getPropertyByIdentifier('dimensions')
+            # canvas_dimensions_property.value = inviwopy.glm.ivec2(700,300)
+
+            # Set the transferfunction
             volumeSlice_transferfunction_property = VolumeSlice.getPropertyByIdentifier('tfGroup').getPropertyByIdentifier('transferFunction')
             volumeSlice_transferfunction_property.add(0 ,inviwopy.glm.vec4(0.0,0.0,1.0,0.01))
             volumeSlice_transferfunction_property.add(0.25,inviwopy.glm.vec4(0.0,1.0,1.0,0.01))
@@ -146,9 +155,9 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
             print("Slice is not possible with ISO Raycasting, therefore no slice-function is showing.")
     # Add processors, connections and properties for no slice function if slice=False or "iso" has been assigned a value   
     if not slice or iso != None:
-        Background = _add_processor('org.inviwo.Background', 'Background', xstart_pos, ystart_pos+375)
+        VolumeBackground = _add_processor('org.inviwo.Background', 'Background', xstart_pos, ystart_pos+375)
         Canvas = _add_processor('org.inviwo.CanvasGL', 'Canvas', xstart_pos, ystart_pos+450)
-        network.addConnection(Raycaster.getOutport('outport'), Background.getInport('inport'))
+        network.addConnection(Raycaster.getOutport('outport'), VolumeBackground.getInport('inport'))
         canvas_dimensions_property = Canvas.getPropertyByIdentifier('inputSize').getPropertyByIdentifier('dimensions')
         canvas_dimensions_property.value = inviwopy.glm.ivec2(400,400)
     
@@ -162,7 +171,7 @@ def volume_network(h5file, volume, iso, slice, xstart_pos, ystart_pos):
     network.addConnection(HDFvolume.getOutport('outport'), Raycaster.getInport('volume'))
     network.addConnection(BoundingBox.getOutport('mesh'), MeshRenderer.getInport('geometry'))
     network.addConnection(CubeProxyGeometry.getOutport('proxyGeometry'), EntryExitPoints.getInport('geometry'))
-    network.addConnection(Background.getOutport('outport'), Canvas.getInport('inport'))
+    network.addConnection(VolumeBackground.getOutport('outport'), Canvas.getInport('inport'))
     network.addLink(MeshRenderer.getPropertyByIdentifier('camera'), EntryExitPoints.getPropertyByIdentifier('camera'))
 
     # Set correct path to volume data
