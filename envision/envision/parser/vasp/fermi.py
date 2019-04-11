@@ -27,7 +27,7 @@
 ##############################################################################################
 #
 #  Alterations to this file by Anders Rehult, Marian Brännvall,
-#  Andreas Kempe and Viktor Bernholtz
+#  Andreas Kempe and Viktor Bernholtz, Anton Hjert
 #
 #  To the extent possible under law, the person who associated CC0
 #  with the alterations to this file has waived all copyright and related
@@ -37,11 +37,14 @@
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
-import os
+import os,sys
+import inspect
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder+'/..'))
 import re
 import h5py
 import numpy as np
-from ..h5writer import _write_fermisurface
+from h5writer import _write_fermisurface
 
 line_reg_int = re.compile(r'^( *[+-]?[0-9]+){3} *$')
 line_reg_float = re.compile(r'( *[+-]?[0-9]*\.[0-9]+(?:[eE][+-]?[0-9]+)? *){4}')
@@ -103,7 +106,7 @@ def fermi_parse(vasp_dir):
                        i = 0
     except OSError:
         print('EIGENVAL file not in directory. Skipping.')
-        return [], 0
+        return [], 0, []
 
     # Parses fermi energy from DOSCAR
     doscar_file = os.path.join(vasp_dir, 'DOSCAR')
@@ -119,7 +122,7 @@ def fermi_parse(vasp_dir):
 
     except OSError:
         print('DOSCAR file not in directory. Skipping.')
-        return [], 0
+        return [], 0, []
 
     # Parses reciprocal lattice vectors from OUTCAR
     outcar_file = os.path.join(vasp_dir, 'OUTCAR')
@@ -141,7 +144,7 @@ def fermi_parse(vasp_dir):
                                                    vectors[5]])
     except OSError:
         print('OUTCAR file not in directory. Skipping.')
-        return [], 0
+        return [], 0, []
     
     return kval_list, fermi_energy, reciprocal_lattice_vectors
 

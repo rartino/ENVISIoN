@@ -25,8 +25,9 @@
 #   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
 import sys, os
-
-
+import inspect
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder+'/../../'))
 
 import inviwopy
 import inspect

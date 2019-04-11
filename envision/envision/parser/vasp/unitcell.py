@@ -31,7 +31,7 @@ and element symbols from POTCAR.
 #
 ##############################################################################################
 #
-#  Alterations to this file by Anders Rehult, Marian Brännvall
+#  Alterations to this file by Anders Rehult, Marian Brännvall, Anton Hjert
 #
 #  To the extent possible under law, the person who associated CC0
 #  with the alterations to this file has waived all copyright and related
@@ -41,11 +41,14 @@ and element symbols from POTCAR.
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
-import os
+import os,sys
+import inspect
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder+'/..'))
 import re
 import numpy as np
 import h5py
-from ..h5writer import _write_basis, _write_scaling_factor, _write_coordinates
+from h5writer import _write_basis, _write_scaling_factor, _write_coordinates
 
 # Define coordinates regex.
 coordinates_re = re.compile(r' +'.join([r'([+-]?[0-9]+\.[0-9]+)'] * 3))
@@ -211,7 +214,6 @@ def _find_elements(fileobj, elements, vasp_dir):
         last_comment = atoms_per_species
     if last_comment:
         poscar_elements = last_comment.split()
-
     # Number of atoms
     atoms = [int(n) for n in atoms_per_species.split()]
 

@@ -26,7 +26,7 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by Marian Brännvall
+#  Alterations to this file by Marian Brännvall and Anton Hjert
 #
 #  To the extent possible under law, the person who associated CC0
 #  with the alterations to this file has waived all copyright and related
@@ -38,12 +38,16 @@
 
 from itertools import *
 from functools import *
-import os
+import os,sys
+import inspect
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder+'/..'))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder))
 import h5py
 import regex
-from .log import *
-from .util import *
-from ..h5writer import _write_incar
+from log import *
+from util import *
+from h5writer import _write_incar
 
 def parse_incar(h5file, vasp_file):
     """

@@ -25,14 +25,27 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 ##############################################################################################
-
-import os
+#
+#  Alterations to this file by Anton Hjert
+#
+#  To the extent possible under law, the person who associated CC0
+#  with the alterations to this file has waived all copyright and related
+#  or neighboring rights to the alterations made to this file.
+#
+#  You should have received a copy of the CC0 legalcode along with
+#  this work.  If not, see
+#  <http://creativecommons.org/publicdomain/zero/1.0/>.
+import wx, sys, os
+import inspect
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder+'/..'))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder))
 import re
 import numpy as np
 import h5py
 import math
-from .unitcell import *
-from ..h5writer import _write_parcharges
+from unitcell import *
+from h5writer import _write_parcharges
 
 def _parse_parcharges(fileobj):
         """Parses partial charge data from a PARCHG.nb.ALLK file in VASP
@@ -119,7 +132,7 @@ def parchg(h5file, vasp_dir, poscar_equiv='POSCAR'):
             True if PARCHG was parsed, False otherwise.
         """
 
-        unitcell(h5file, vasp_dir, None, poscar_equiv)
+        unitcell(h5file, vasp_dir)
 
         regex = re.compile('PARCHG.(.+?).ALLK')
         if os.path.isfile(h5file):

@@ -26,7 +26,7 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by Anders Rehult and Marian Brännvall
+#  Alterations to this file by Anders Rehult, Anton Hjert and Marian Brännvall
 #
 #  To the extent possible under law, the person who associated CC0
 #  with the alterations to this file has waived all copyright and related
@@ -36,11 +36,16 @@
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
-import os
+
+import os,sys
+import inspect
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder+'/..'))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder))
 import h5py
 import numpy as np
-from ..h5writer import _write_dos
-from .incar import *
+from h5writer import _write_dos
+from incar import *
 
 def dos_line(f, ndos):
     """

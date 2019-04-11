@@ -24,10 +24,28 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-
-import os
+##############################################################################################
+#
+#  Alterations to this file by Anton Hjert
+#
+#  To the extent possible under law, the person who associated CC0 with
+#  the alterations to this file has waived all copyright and related
+#  or neighboring rights to the alterations made to this file.
+#
+#  You should have received a copy of the CC0 legalcode along with
+#  this work.  If not, see
+#  <http://creativecommons.org/publicdomain/zero/1.0/>.
+import os,sys
 import h5py
-from . import parser
+import inspect
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder+'/parser/vasp'))
+from bandstructure import bandstructure
+from doscar import dos
+from md import md
+from unitcell import unitcell
+from volume import charge, elf
+from fermi import fermi_surface
 
 def parse_all(h5_path, dir):
     """parse_all
@@ -48,13 +66,13 @@ def parse_all(h5_path, dir):
         List of names of groups in HDF5-file if it exists, None otherwise
     """
     func_dict = {
-        'unitcell from VASP': parser.vasp.unitcell,
-        'molecular dynamics from VASP': parser.vasp.md,
-        'charge from VASP': parser.vasp.charge,
-        'ELF from VASP': parser.vasp.elf,
-        'DOS from VASP': parser.vasp.dos,
-        'bandstructure from VASP': parser.vasp.bandstructure,
-        'fermi surface from VASP': parser.vasp.fermi_surface
+        'unitcell from VASP': unitcell,
+        'molecular dynamics from VASP': md,
+        'charge from VASP': charge,
+        'ELF from VASP': elf,
+        'DOS from VASP': dos,
+        'bandstructure from VASP': bandstructure
+        ,'fermi surface from VASP': fermi_surface
     }
     parsed_list = []
     for key, function in func_dict.items():
@@ -67,7 +85,7 @@ def parse_all(h5_path, dir):
 
     if os.path.isfile(h5_path):
         with h5py.File(h5_path, 'r') as h5:
-            keys = list(h5.keys())
-            return keys
+            #keys = list(h5.keys())
+            return parsed_list
     else:
         return None

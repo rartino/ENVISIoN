@@ -26,7 +26,7 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by Anton Hjert
+#  Alterations to this file by
 #
 #  To the extent possible under law, the person who associated CC0
 #  with the alterations to this file has waived all copyright and related
@@ -43,18 +43,19 @@
 """*****************************************************************************"""
 import wx, sys, os
 
-sys.path.insert(0, os.path.expanduser(os.getcwd()))
 from frameCharge import ChargeFrame
 from framePKF import PKFFrame
 from frameDoS import DosFrame
 from frameParchg import ParchgFrame
+from frameUnitcell import UnitcellFrame
 
 from generalCollapsible import GeneralCollapsible
-
-# sys.path.insert(0, os.path.expanduser("C:/ENVISIoN/envision"))
-# import envision
-# import envision.inviwo
-# import parameter_utils
+import inspect
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder+'/../..'))
+import envision
+import envision.inviwo
+import parameter_utils
 
 
 class VisualizationFrame(GeneralCollapsible):
@@ -81,12 +82,14 @@ class VisualizationFrame(GeneralCollapsible):
         pcFrame = PKFFrame(self.GetPane())
         dosFrame = DosFrame(self.GetPane())
         parchgFrame = ParchgFrame(self.GetPane())
+        unitcellFrame = UnitcellFrame(self.GetPane())
 
     # Add them to the sizer
         self.add_sub_collapsible(chargeFrame)
         self.add_sub_collapsible(pcFrame)
         self.add_sub_collapsible(dosFrame)
         self.add_sub_collapsible(parchgFrame)
+        self.add_sub_collapsible(unitcellFrame)
 
     # Set some callbacks
         self.chooseFile.Bind(wx.EVT_BUTTON, self.file_pressed)
@@ -110,7 +113,8 @@ class VisualizationFrame(GeneralCollapsible):
         self.path = openFileDialog.GetPath()
         openFileDialog.Destroy()
         fileFrame.Destroy()
-        self.enterPath.SetValue(self.path)
+        if not self.path == "":
+            self.enterPath.SetValue(self.path)
         print(self.path)
 
     #When path entered in text and Enter-key is pressed
