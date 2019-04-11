@@ -39,29 +39,19 @@
 import wx, sys, os, h5py
 from parameter_utils import *
 from generalCollapsible import GeneralCollapsible
-
+from volumeControlCollapsible import VolumeControlCollapsible
+import parameter_utils
 class ChargeFrame(GeneralCollapsible):
     def __init__(self, parent):
         super().__init__(parent, label = "Charge")
 
-        # Initialize some items
-        clearButton = wx.Button(self.GetPane(), label = 'Clear')
-        testButton = wx.Button(self.GetPane(), label = 'test')
-        
-        # Add buttons to sizer
-        self.add_item(clearButton)
-        self.add_item(testButton)
-
-        clearButton.Bind(wx.EVT_BUTTON, self.clear_pressed)
+        # Setup volume rendering controls
+        self.volumeCollapsible = VolumeControlCollapsible(self.GetPane(), "Volume Rendering")
+        self.add_sub_collapsible(self.volumeCollapsible)
 
         # Override default binding
-        # Note that it should be called "on_collapse" to work
+        # Note that function should be called "on_collapse" to work
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
-
-    def clear_pressed(self,event):
-        charge_clear_tf()
-        print('Clear something')
-        pass
 
     def on_collapse(self, event = None):
         self.update_collapse()
@@ -78,9 +68,6 @@ class ChargeFrame(GeneralCollapsible):
         else:
             self.open_message('The file of choice does not contain Charge-data',
                                 'Visualization failed!')
-            
-			
-                
-        
+
         
         

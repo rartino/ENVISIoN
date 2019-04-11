@@ -52,8 +52,19 @@ class GeneralCollapsible(wx.CollapsiblePane):
         self.SetBackgroundColour(self.bg_colour)
 
         self.pane = self.GetPane()
+
+        hbox = wx.BoxSizer(wx.HORIZONTAL)
+
+        fillBox = wx.BoxSizer(wx.HORIZONTAL)
+        fillBox.AddSpacer(10)
+
         self.sizer = wx.BoxSizer(wx.VERTICAL)
-        self.pane.SetSizer(self.sizer)
+
+        hbox.Add(fillBox)
+        hbox.Add(self.sizer)
+        self.pane.SetSizer(hbox)
+        # self.pane.SetSizer(self.sizer)
+
     
         # Default callback when collapsing panel, just updates the layouts to make sizers expand
         # Can freely be changed in subclasses, just make sure to call update_layout there aswell
@@ -78,7 +89,7 @@ class GeneralCollapsible(wx.CollapsiblePane):
     def collapse_children(self):
         for collapsible in self.sub_collapsibles:
             collapsible.Collapse(True)
-            collapsible.on_collapse(event = None)
+            # collapsible.on_collapse()
 
     def on_collapse(self, event = None):
         # Default collapse callback, only updates layout
@@ -109,14 +120,17 @@ class GeneralCollapsible(wx.CollapsiblePane):
         # If collapsed collapse all sub collapsibles
         if self.IsCollapsed():
             self.collapse_children()
-            
+
+        
+
         # For some reason this makes the sub panels expand correctly
         # Seems to be needed on linux, can maybe be simplified tho.
+        
+        self.Collapse(not self.IsCollapsed())
+        self.Collapse(not self.IsCollapsed())
         if self.parent_collapsible != None:
-            self.parent_collapsible.Collapse(not self.parent_collapsible.IsCollapsed())
-            self.parent_collapsible.Collapse(not self.parent_collapsible.IsCollapsed())
             self.parent_collapsible.Layout()
-            # self.parent_collapsible.update_collapse()
+            self.parent_collapsible.update_collapse()
 
         # Update the layout of parent widgets
         self.Layout()
@@ -126,3 +140,5 @@ class GeneralCollapsible(wx.CollapsiblePane):
          widget.Layout()
          if widget.IsTopLevel():
              break
+
+        
