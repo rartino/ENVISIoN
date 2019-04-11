@@ -213,7 +213,6 @@ def _find_elements(fileobj, elements, vasp_dir):
         last_comment = atoms_per_species
     if last_comment:
         poscar_elements = last_comment.split()
-
     # Number of atoms
     atoms = [int(n) for n in atoms_per_species.split()]
 

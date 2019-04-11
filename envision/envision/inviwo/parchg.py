@@ -36,12 +36,14 @@
 #  You should have received a copy of the CC0 legalcode along with
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
-
+path_to_envision = 'C:/ENVISIoN'
+import os,sys
+sys.path.insert(0, os.path.expanduser(path_to_envision+'/envision/envision/inviwo'))
 import inviwopy
 import numpy as np
 import h5py
 import math
-from .common import _add_h5source, _add_processor
+from common import _add_h5source, _add_processor
 
 app = inviwopy.app
 network = app.network
@@ -176,32 +178,32 @@ def parchg(h5file, sli, parchg_list=[], parchg_mode='total', mode_list = [], xst
     
     raycaster_transferfunction_property = Raycaster.getPropertyByIdentifier('transfer-functions').getPropertyByIdentifier('transferFunction1')
     raycaster_transferfunction_property.clear()
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.0,0.01),inviwopy.glm.vec3(0.0,0.0,1.0))
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.25,0.01),inviwopy.glm.vec3(0.0,1.0,1.0))
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.5,0.0),inviwopy.glm.vec3(0.0,1.0,0.0))
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.75,0.01),inviwopy.glm.vec3(1.0,1.0,0.0))
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(1.0,0.01),inviwopy.glm.vec3(1.0,0.0,0.0))
+    raycaster_transferfunction_property.add(0,inviwopy.glm.vec4(0.0,0.0,1.0,0.01))
+    raycaster_transferfunction_property.add(0.25,inviwopy.glm.vec4(0.0,1.0,1.0,0.01))
+    raycaster_transferfunction_property.add(0.5,inviwopy.glm.vec4(0.0,1.0,0.0,0.01))
+    raycaster_transferfunction_property.add(0.75,inviwopy.glm.vec4(1.0,1.0,0.0,0.01))
+    raycaster_transferfunction_property.add(1,inviwopy.glm.vec4(1.0,0.0,0.0,0.01))
     raycaster_transferfunction_property = Raycaster.getPropertyByIdentifier('transfer-functions').getPropertyByIdentifier('transferFunction2')
     raycaster_transferfunction_property.clear()
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.0,0.01),inviwopy.glm.vec3(0.0,0.0,1.0))
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.25,0.01),inviwopy.glm.vec3(0.0,1.0,1.0))
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.5,0.0),inviwopy.glm.vec3(0.0,1.0,0.0))
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.75,0.01),inviwopy.glm.vec3(1.0,1.0,0.0))
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(1.0,0.01),inviwopy.glm.vec3(1.0,0.0,0.0))
+    raycaster_transferfunction_property.add(0,inviwopy.glm.vec4(0.0,0.0,1.0,0.01))
+    raycaster_transferfunction_property.add(0.25,inviwopy.glm.vec4(0.0,1.0,1.0,0.01))
+    raycaster_transferfunction_property.add(0.5,inviwopy.glm.vec4(0.0,1.0,0.0,0.01))
+    raycaster_transferfunction_property.add(0.75,inviwopy.glm.vec4(1.0,1.0,0.0,0.01))
+    raycaster_transferfunction_property.add(1,inviwopy.glm.vec4(1.0,0.0,0.0,0.01))
     raycaster_transferfunction_property = Raycaster.getPropertyByIdentifier('transfer-functions').getPropertyByIdentifier('transferFunction3')
     raycaster_transferfunction_property.clear()
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.0,0.01),inviwopy.glm.vec3(0.0,0.0,1.0))
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.25,0.01),inviwopy.glm.vec3(0.0,1.0,1.0))
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.5,0.0),inviwopy.glm.vec3(0.0,1.0,0.0))
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.75,0.01),inviwopy.glm.vec3(1.0,1.0,0.0))
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(1.0,0.01),inviwopy.glm.vec3(1.0,0.0,0.0))
+    raycaster_transferfunction_property.add(0,inviwopy.glm.vec4(0.0,0.0,1.0,0.01))
+    raycaster_transferfunction_property.add(0.25,inviwopy.glm.vec4(0.0,1.0,1.0,0.01))
+    raycaster_transferfunction_property.add(0.5,inviwopy.glm.vec4(0.0,1.0,0.0,0.01))
+    raycaster_transferfunction_property.add(0.75,inviwopy.glm.vec4(1.0,1.0,0.0,0.01))
+    raycaster_transferfunction_property.add(1,inviwopy.glm.vec4(1.0,0.0,0.0,0.01))
     raycaster_transferfunction_property = Raycaster.getPropertyByIdentifier('transfer-functions').getPropertyByIdentifier('transferFunction4')
     raycaster_transferfunction_property.clear()
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.0,0.01),inviwopy.glm.vec3(0.0,0.0,1.0))
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.25,0.01),inviwopy.glm.vec3(0.0,1.0,1.0))
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.5,0.0),inviwopy.glm.vec3(0.0,1.0,0.0))
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(0.75,0.01),inviwopy.glm.vec3(1.0,1.0,0.0))
-    raycaster_transferfunction_property.addPoint(inviwopy.glm.vec2(1.0,0.01),inviwopy.glm.vec3(1.0,0.0,0.0))
+    raycaster_transferfunction_property.add(0,inviwopy.glm.vec4(0.0,0.0,1.0,0.01))
+    raycaster_transferfunction_property.add(0.25,inviwopy.glm.vec4(0.0,1.0,1.0,0.01))
+    raycaster_transferfunction_property.add(0.5,inviwopy.glm.vec4(0.0,1.0,0.0,0.01))
+    raycaster_transferfunction_property.add(0.75,inviwopy.glm.vec4(1.0,1.0,0.0,0.01))
+    raycaster_transferfunction_property.add(1,inviwopy.glm.vec4(1.0,0.0,0.0,0.01))
 
     Raycaster.lighting.shadingMode.selectedIdentifier = 'none'
    
@@ -232,11 +234,11 @@ def parchg(h5file, sli, parchg_list=[], parchg_mode='total', mode_list = [], xst
         canvas_dimensions_property = Canvas.getPropertyByIdentifier('inputSize').getPropertyByIdentifier('dimensions')
         canvas_dimensions_property.value = inviwopy.glm.ivec2(700,300)
         volumeSlice_transferfunction_property = VolumeSlice.getPropertyByIdentifier('tfGroup').getPropertyByIdentifier('transferFunction')
-        volumeSlice_transferfunction_property.addPoint(inviwopy.glm.vec2(0.0,1.0),inviwopy.glm.vec3(0.0,0.0,1.0))
-        volumeSlice_transferfunction_property.addPoint(inviwopy.glm.vec2(0.25,1.0),inviwopy.glm.vec3(0.0,1.0,1.0))
-        volumeSlice_transferfunction_property.addPoint(inviwopy.glm.vec2(0.5,1.0),inviwopy.glm.vec3(0.0,1.0,0.0))
-        volumeSlice_transferfunction_property.addPoint(inviwopy.glm.vec2(0.75,1.0),inviwopy.glm.vec3(1.0,1.0,0.0))
-        volumeSlice_transferfunction_property.addPoint(inviwopy.glm.vec2(1.0,1.0),inviwopy.glm.vec3(1.0,0.0,0.0))
+        volumeSlice_transferfunction_property.add(inviwopy.glm.vec2(0.0,1.0),inviwopy.glm.vec4(0.0,0.0,1.0))
+        volumeSlice_transferfunction_property.add(inviwopy.glm.vec2(0.25,1.0),inviwopy.glm.vec4(0.0,1.0,1.0))
+        volumeSlice_transferfunction_property.add(inviwopy.glm.vec2(0.5,1.0),inviwopy.glm.vec4(0.0,1.0,0.0))
+        volumeSlice_transferfunction_property.add(inviwopy.glm.vec2(0.75,1.0),inviwopy.glm.vec4(1.0,1.0,0.0))
+        volumeSlice_transferfunction_property.add(inviwopy.glm.vec2(1.0,1.0),inviwopy.glm.vec4(1.0,0.0,0.0))
         
         Raycaster_plane1_property = Raycaster.getPropertyByIdentifier('positionindicator').plane1
         Raycaster_plane2_property = Raycaster.getPropertyByIdentifier('positionindicator').plane2
