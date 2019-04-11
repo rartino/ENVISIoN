@@ -58,7 +58,11 @@ fi
 git checkout v.0.9.9.1
 
 # Apply 2019 patch.
+<<<<<<< HEAD
 git apply < "$1/inviwo/patches/2019/patch2019.patch"
+=======
+git apply < "$1/inviwo/patches/2019/paneProperty2019.patch"
+>>>>>>> 2c6df37b7212d0705c6b357f3028e4609fe249ec
 
 # Init and update submodules.
 git submodule init

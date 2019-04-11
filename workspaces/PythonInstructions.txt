@@ -1,0 +1,8 @@
+Bandstructure:
+    HDF Source: Identifier "HDF Source"
+        Identifier "filename"
+            Enter the file path to HDF5 file.
+    HDF5 Path Selection: Identifier "HDF5 Path Selection"
+        Identifier "selection"
+            Enter "/Bandstructure/Bands"
+
