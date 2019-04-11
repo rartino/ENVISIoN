@@ -50,8 +50,9 @@ from frameParchg import ParchgFrame
 from frameUnitcell import UnitcellFrame
 
 from generalCollapsible import GeneralCollapsible
-
-sys.path.insert(0, os.path.expanduser("C:/ENVISIoN/envision"))
+import inspect
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder+'/../..'))
 import envision
 import envision.inviwo
 import parameter_utils

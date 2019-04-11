@@ -24,11 +24,26 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+##############################################################################################
+#
+#  Alterations to this file by Anders Rehult, Marian Brännvall, Anton Hjert
+#  and Andreas Kempe
+#
+#  To the extent possible under law, the person who associated CC0 with
+#  the alterations to this file has waived all copyright and related
+#  or neighboring rights to the alterations made to this file.
+#
+#  You should have received a copy of the CC0 legalcode along with
+#  this work.  If not, see
+#  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import inviwopy
+import inspect,os,sys
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder))
 import numpy as np
 import h5py
-from .common import _add_h5source, _add_processor
+from common import _add_h5source, _add_processor
 
 def bandstructure(h5file, xpos=0, ypos=0):
     """Creates an Inviwo network for band structure visualization
