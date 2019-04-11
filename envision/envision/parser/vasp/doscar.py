@@ -36,11 +36,14 @@
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
-import os
+path_to_envision='C:/ENVISIoN'
+import os,sys
+sys.path.insert(0, os.path.expanduser(path_to_envision+'/envision/envision/parser'))
+sys.path.insert(0, os.path.expanduser(path_to_envision+'/envision/envision/parser/vasp'))
 import h5py
 import numpy as np
-from ..h5writer import _write_dos
-from .incar import *
+from h5writer import _write_dos
+from incar import *
 
 def dos_line(f, ndos):
     """

@@ -25,11 +25,13 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-import os
+path_to_envision='C:/ENVISIoN'
+import os,sys
+sys.path.insert(0, os.path.expanduser(path_to_envision+'/envision/envision/parser'))
 import re
 import h5py
 import numpy as np
-from ..h5writer import _write_bandstruct
+from h5writer import _write_bandstruct
 
 line_reg_int = re.compile(r'^( *[+-]?[0-9]+){3} *$')
 line_reg_float = re.compile(r'( *[+-]?[0-9]*\.[0-9]+(?:[eE][+-]?[0-9]+)? *){4}')

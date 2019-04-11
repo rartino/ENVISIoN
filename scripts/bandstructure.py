@@ -1,7 +1,8 @@
+
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2019 Anton Hjert
+#  Copyright (c) 2019 Abdullatif Ismail
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -25,27 +26,23 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 ##############################################################################################
-#
-#  Alterations to this file by Anton Hjert
-#
-#  To the extent possible under law, the person who associated CC0
-#  with the alterations to this file has waived all copyright and related
-#  or neighboring rights to the alterations made to this file.
-#
-#  You should have received a copy of the CC0 legalcode along with
-#  this work.  If not, see
-#  <http://creativecommons.org/publicdomain/zero/1.0/>.
-import wx,sys,os
-from generalCollapsible import GeneralCollapsible
 
-class DosFrame(GeneralCollapsible):
-    def __init__(self, parent):
-        super().__init__(parent, "Density of States")
-    
-        button1 = wx.Button(self.GetPane(), label="X")
-        button2 = wx.Button(self.GetPane(), label="Y")
-        slider = wx.Slider(self.GetPane())
+import os, sys
 
-        self.add_item(button1)
-        self.add_item(button2)
-        self.add_item(slider)
+# Configuration
+PATH_TO_ENVISION=os.path.expanduser("/home/ofaismail/inviwo/ENVISIoN/envision")
+PATH_TO_VASP_CALC=os.path.expanduser("/home/ofaismail/VASP-filer/fermi-surface-no-sym")
+PATH_TO_HDF5=os.path.expanduser("/home/ofaismail/HDF5/testingBand.hdf5")
+
+sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION))
+
+import envision
+import envision.inviwo
+
+envision.parser.vasp.bandstructure(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+
+#To visualise charge as an isosurface change the iso-argument
+#from None to a value between 0 and 1.
+#To add the slice-function change the slice-argument from False to True. 
+#The slice-function is not compatible with isosurface.
+envision.inviwo.bandstructure(PATH_TO_HDF5, xpos = 0, ypos = 0)

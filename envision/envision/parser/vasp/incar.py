@@ -38,12 +38,15 @@
 
 from itertools import *
 from functools import *
-import os
+path_to_envision='C:/ENVISIoN'
+import os,sys
+sys.path.insert(0, os.path.expanduser(path_to_envision+'/envision/envision/parser'))
+sys.path.insert(0, os.path.expanduser(path_to_envision+'/envision/envision/parser/vasp'))
 import h5py
 import regex
-from .log import *
-from .util import *
-from ..h5writer import _write_incar
+from log import *
+from util import *
+from h5writer import _write_incar
 
 def _parse_incar(h5file, vasp_file):
     """
