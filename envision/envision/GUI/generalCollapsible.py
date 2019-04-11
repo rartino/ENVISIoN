@@ -95,6 +95,18 @@ class GeneralCollapsible(wx.CollapsiblePane):
         # Default collapse callback, only updates layout
         # Binding can be changed in sub-classes
         self.update_collapse()
+    
+    #Dialog for messages, fail or successes
+    def open_message(self,message,label):
+        messageFrame = wx.Frame(None, -1, 'win.py')
+        messageFrame.SetSize(0,0,60,50)
+        messageFrame.Centre()
+        pathDialog = wx.MessageDialog(messageFrame, message, 
+                                        label, wx.FD_OPEN)
+     #Show dialog
+        pathDialog.ShowModal()
+        pathDialog.Destroy()
+        messageFrame.Destroy()
 
 
     def update_collapse(self, event = None):

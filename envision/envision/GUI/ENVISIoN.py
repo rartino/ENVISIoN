@@ -26,7 +26,7 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by Anton Hjert
+#  Alterations to this file by
 #
 #  To the extent possible under law, the person who associated CC0
 #  with the alterations to this file has waived all copyright and related
@@ -41,11 +41,13 @@
 """*****************************************************************************"""
 
 import wx, os, sys, wx.lib.scrolledpanel
-sys.path.insert(0, os.path.expanduser(os.getcwd()))
-
+import inspect
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder))
 from VisFrame import VisualizationFrame
 from ParserPane import ParserPane 
 from generalCollapsible import GeneralCollapsible
+
 
 class Main_Frame(wx.Frame):
     def __init__(self, *args, **kwargs):

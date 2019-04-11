@@ -24,13 +24,27 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-
-import os
+##################################################################################
+#
+#  Alterations to this file by Anton Hjert
+#
+#  To the extent possible under law, the person who associated CC0
+#  with the alterations to this file has waived all copyright and related
+#  or neighboring rights to the alterations made to this file.
+#
+#  You should have received a copy of the CC0 legalcode along with
+#  this work.  If not, see
+#  <http://creativecommons.org/publicdomain/zero/1.0/>.
+import os,sys
+import inspect
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder+'/..'))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder))
 import re
 import h5py
 import numpy as np
-from .unitcell import _parse_lattice, _find_elements, _parse_coordinates, _cartesian
-from ..h5writer import _write_basis, _write_md, _write_steps
+from unitcell import _parse_lattice, _find_elements, _parse_coordinates, _cartesian
+from h5writer import _write_basis, _write_md, _write_steps
 
 def md(h5_path, vasp_dir, elements=None):
     """XDATCAR parser
