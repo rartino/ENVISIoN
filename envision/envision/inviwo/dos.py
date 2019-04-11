@@ -37,7 +37,7 @@
 #  work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 path_to_envision='C:/ENVISIoN'
-import os, sys
+import sys, os
 sys.path.insert(0, os.path.expanduser(path_to_envision+'/envision/envision/inviwo'))
 import inviwopy
 import numpy as np
