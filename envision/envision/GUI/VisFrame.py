@@ -26,7 +26,7 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by
+#  Alterations to this file by 
 #
 #  To the extent possible under law, the person who associated CC0
 #  with the alterations to this file has waived all copyright and related
@@ -110,12 +110,12 @@ class VisualizationFrame(GeneralCollapsible):
                                       "HDF5 files (*.hdf5)|*.hdf5", 
                                        wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
         openFileDialog.ShowModal()
-        self.path = openFileDialog.GetPath()
-        openFileDialog.Destroy()
-        fileFrame.Destroy()
         if not self.path == "":
+            self.path = openFileDialog.GetPath()
             self.enterPath.SetValue(self.path)
         print(self.path)
+        openFileDialog.Destroy()
+        fileFrame.Destroy()
 
     #When path entered in text and Enter-key is pressed
     def path_OnEnter(self,event):

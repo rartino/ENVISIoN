@@ -40,6 +40,7 @@ import wx, sys, os, h5py
 from parameter_utils import *
 from generalCollapsible import GeneralCollapsible
 from volumeControlCollapsible import VolumeControlCollapsible
+from backgroundCollapsible import BackgroundCollapsible
 import parameter_utils
 class ChargeFrame(GeneralCollapsible):
     def __init__(self, parent):
@@ -48,6 +49,10 @@ class ChargeFrame(GeneralCollapsible):
         # Setup volume rendering controls
         self.volumeCollapsible = VolumeControlCollapsible(self.GetPane(), "Volume Rendering")
         self.add_sub_collapsible(self.volumeCollapsible)
+
+        # Setup background controls
+        self.backgroundCollapsibe = BackgroundCollapsible(self.GetPane(), "Background")
+        self.add_sub_collapsible(self.backgroundCollapsibe)
 
         # Override default binding
         # Note that function should be called "on_collapse" to work
