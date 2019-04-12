@@ -189,7 +189,7 @@ def _write_parcharges(h5file, array_tot, data_dim_tot, array_mag, data_dim_mag, 
             h5.create_dataset('PARCHG/Bands/{}/magnetic'.format(band_nr), data = np.reshape(array_mag, (data_dim_mag[2],data_dim_mag[1],data_dim_mag[0])), dtype=np.float32)
     return
 
-def _write_pcdat(h5file, pcdat_data, APACO_val, NPACO_val):
+def _write_pcdat_multicol(h5file, pcdat_data, APACO_val, NPACO_val):
     #   The function is called to write data from PCDAT to HDF5-file. A dataset is created for each element in the system.
 
     #    Parameters
@@ -255,5 +255,51 @@ def _write_pcdat(h5file, pcdat_data, APACO_val, NPACO_val):
 
 
     return None
+
+def _write_pcdat_onecol(h5file, pcdat_data, APACO_val, NPACO_val):
+
+    with h5py.File(h5file, 'a') as h5:
+        dset_name = "PairCorrelationFunc/Iterations"
+        normal_arr = arr.array('f', [])
+
+        #creating x-values, equally spaced (space APACO_val/NPACO_val)
+        for i in range(0, NPACO_val):
+            x = (APACO_val / NPACO_val) * i
+            normal_arr.append(x)
+        value = np.asarray(normal_arr)
+        h5.create_dataset(dset_name, data=value, dtype=np.float32)
+
+        # create dataset for paircorrelation function for every time frames for every element.
+        #len(pcdat_data) gives the amount of elements
+            # By making a dict a list, its keys are accessable.
+    
+        #Iterate for every time frame.
+        original_list = pcdat_data["general paircorr"]
+
+        for t_value in range(len(original_list)):
+            fill_list = []
+            for i in range(NPACO_val):
+                fill_list.append(original_list[0])
+                del original_list[0]
+                
+            dset_name2 = "PairCorrelationFunc/{}".format("t_" + str(t_value))
+            h5.create_dataset(dset_name2, data=np.array(fill_list), dtype=np.float32)                
+
+            if len(original_list) == 0: 
+                break 
+            else: 
+                del original_list[0]
+            
+
+
+            # if NPACO= 256, there are 3 time frames (t1,t2 and t3).
+
+
+    return None
+        
+
+
+
+
 
 
