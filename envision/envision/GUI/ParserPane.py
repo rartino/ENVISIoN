@@ -184,9 +184,6 @@ class ParserPane(GeneralCollapsible):
 
 #When Parse-button is pressed
     def parse_pressed(self,event):
-    #Create new hdf5-file if needed
-        if not os.path.isfile(self.savePath+'/'+self.newFileHdf5+'.hdf5'):
-            open(self.newFileHdf5+'.hdf5',"w+")
     #Parse with suitable function
         if self.visType == 'All':
             self.parseOut = parse_all(self.savePath+'/'+self.newFileHdf5+'.hdf5', self.path)
