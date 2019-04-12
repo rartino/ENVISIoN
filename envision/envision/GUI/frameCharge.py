@@ -26,7 +26,7 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by Anton Hjert
+#  Alterations to this file by
 #
 #  To the extent possible under law, the person who associated CC0
 #  with the alterations to this file has waived all copyright and related
@@ -36,32 +36,27 @@
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
-import wx,sys,os
+import wx, sys, os, h5py
 from parameter_utils import *
 from generalCollapsible import GeneralCollapsible
-
+from volumeControlCollapsible import VolumeControlCollapsible
+from backgroundCollapsible import BackgroundCollapsible
+import parameter_utils
 class ChargeFrame(GeneralCollapsible):
     def __init__(self, parent):
         super().__init__(parent, label = "Charge")
 
-        # Initialize some items
-        clearButton = wx.Button(self.GetPane(), label = 'Clear')
-        testButton = wx.Button(self.GetPane(), label = 'test')
-        
-        # Add buttons to sizer
-        self.add_item(clearButton)
-        self.add_item(testButton)
+        # Setup volume rendering controls
+        self.volumeCollapsible = VolumeControlCollapsible(self.GetPane(), "Volume Rendering")
+        self.add_sub_collapsible(self.volumeCollapsible)
 
-        clearButton.Bind(wx.EVT_BUTTON, self.clear_pressed)
+        # Setup background controls
+        self.backgroundCollapsibe = BackgroundCollapsible(self.GetPane(), "Background")
+        self.add_sub_collapsible(self.backgroundCollapsibe)
 
         # Override default binding
-        # Note that it should be called "on_collapse" to work
+        # Note that function should be called "on_collapse" to work
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
-
-    def clear_pressed(self,event):
-        charge_clear_tf()
-        print('Clear something')
-        pass
 
     def on_collapse(self, event = None):
         self.update_collapse()
@@ -69,12 +64,15 @@ class ChargeFrame(GeneralCollapsible):
         if self.IsCollapsed():
             # Disable charge vis
             print("Not Charge")
-        else:
+        elif '/{}'.format('CHG') in h5py.File(self.parent_collapsible.path, 'r'):
             #Start Charge vis
-            print("Charge")
             envision.inviwo.charge(self.parent_collapsible.path, 
                                 iso = None, slice = False, 
                                 xpos = 0, ypos = 0)
-        
+            print("Charge")
+        else:
+            self.open_message('The file of choice does not contain Charge-data',
+                                'Visualization failed!')
+
         
         

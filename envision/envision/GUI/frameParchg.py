@@ -1,22 +1,3 @@
-<<<<<<< HEAD
-import wx,sys,os
-
-class ParchgFrame(wx.CollapsiblePane):
-    def __init__(self, *args, **kwargs,):
-        wx.CollapsiblePane.__init__(self,*args,**kwargs)
-        
-        parchgPane = self.GetPane()
-        parchgSizer = wx.BoxSizer(wx.VERTICAL)
-        parchgPane.SetSizer(parchgSizer)
-        
-                
-        button1 = wx.Button(parchgPane, label="X")
-        button2 = wx.Button(parchgPane, label="Y")
-        slider = wx.Slider(parchgPane)
-        parchgSizer.Add(button1,wx.GROW, 1)
-        parchgSizer.Add(button2,wx.GROW, 1)
-        parchgSizer.Add(slider,wx.GROW, 1)
-=======
 #
 #  ENVISIoN
 #
@@ -45,7 +26,7 @@ class ParchgFrame(wx.CollapsiblePane):
 #
 ##############################################################################################
 #
-#  Alterations to this file by Anton Hjert
+#  Alterations to this file by
 #
 #  To the extent possible under law, the person who associated CC0
 #  with the alterations to this file has waived all copyright and related
@@ -54,7 +35,8 @@ class ParchgFrame(wx.CollapsiblePane):
 #  You should have received a copy of the CC0 legalcode along with
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
-import wx,sys,os
+import wx, sys, os, h5py
+from parameter_utils import *
 from generalCollapsible import GeneralCollapsible
 
 class ParchgFrame(GeneralCollapsible):
@@ -68,4 +50,26 @@ class ParchgFrame(GeneralCollapsible):
         self.add_item(button1)
         self.add_item(button2)
         self.add_item(slider)
->>>>>>> 2c6df37b7212d0705c6b357f3028e4609fe249ec
+
+        self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
+
+    
+    def on_collapse(self, event = None):
+        self.update_collapse()
+        # Needs to be called to update the layout properly
+        if self.IsCollapsed():
+            # Disable Parchg vis
+            print("Not Parchg")
+        elif "/PARCHG" and "/UnitCell" in  h5py.File(self.parent_collapsible.path, 'r'):
+            #Start Parchg vis
+            envision.inviwo.unitcell(self.parent_collapsible.path, 
+                                xpos = 0, ypos = 0, smallAtoms = True)
+            envision.inviwo.parchg(self.parent_collapsible.path, 
+                            sli = False, parchg_list = [1,2,3,4], 
+                            parchg_mode = 'total', mode_list = [0,1,2,3], 
+                            xstart_pos = 600, ystart_pos = 0)
+            print("Phrchg")
+        else:
+            self.open_message('The file of choice does not contain Partial charge-data',
+                                'Visualization failed!')
+
