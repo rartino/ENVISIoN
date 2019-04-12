@@ -76,7 +76,7 @@ class Main_Frame(wx.Frame):
 class ENVISIoN(wx.App):
     def OnInit(self):
         self.frame = Main_Frame(None, title = "ENVISIoN")
-        self.frame.SetSize(0,0,300,600)
+        self.frame.SetSize(0,0,400,600)
         bg_colour = wx.Colour(208,206,206)
         self.frame.SetBackgroundColour(bg_colour)
         self.frame.Show(True)
