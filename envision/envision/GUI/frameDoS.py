@@ -64,6 +64,7 @@ class DosFrame(GeneralCollapsible):
             #Start DoS vis
             envision.inviwo.dos(self.parent_collapsible.path, 
                                 atom = 1, xpos = 0, ypos = 0)
+            self.set_canvas_pos()
             print("DoS")
         else:
             self.open_message('The file of choice does not contain DoS-data',

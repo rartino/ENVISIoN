@@ -41,7 +41,6 @@ from parameter_utils import *
 from generalCollapsible import GeneralCollapsible
 from volumeControlCollapsible import VolumeControlCollapsible
 from backgroundCollapsible import BackgroundCollapsible
-import parameter_utils
 class ChargeFrame(GeneralCollapsible):
     def __init__(self, parent):
         super().__init__(parent, label = "Charge")
@@ -69,6 +68,7 @@ class ChargeFrame(GeneralCollapsible):
             envision.inviwo.charge(self.parent_collapsible.path, 
                                 iso = None, slice = False, 
                                 xpos = 0, ypos = 0)
+            self.set_canvas_pos()
             print("Charge")
         else:
             self.open_message('The file of choice does not contain Charge-data',
