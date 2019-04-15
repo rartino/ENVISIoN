@@ -37,7 +37,7 @@
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import wx, sys, os
-
+from parameter_utils import *
 class GeneralCollapsible(wx.CollapsiblePane):
 
     # Initialize with parent pane and desired label-string
@@ -140,5 +140,22 @@ class GeneralCollapsible(wx.CollapsiblePane):
          widget.Layout()
          if widget.IsTopLevel():
              break
+    
+    def set_canvas_pos(self,type=''):
+        widget = self
+        while True:
+         widget = widget.GetParent()
+         widget.Layout()
+         if widget.IsTopLevel():
+            windowPosition=widget.GetPosition()
+            windowSize = widget.GetSize()
+            break
+        canvasPosition = inviwopy.glm.ivec2(windowPosition.x+windowSize.width,windowPosition.y)
+        if type == 'Unitcell':
+            set_unitcell_canvas_position(canvasPosition)
+        elif type == 'DoS':
+            set_dos_canvas_position(canvasPosition)
+        else:
+            set_canvas_position(canvasPosition)
 
         
