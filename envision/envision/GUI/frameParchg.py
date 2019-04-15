@@ -59,11 +59,13 @@ class ParchgFrame(GeneralCollapsible):
         # Needs to be called to update the layout properly
         if self.IsCollapsed():
             # Disable Parchg vis
+            clear_processor_network()
             print("Not Parchg")
         elif "/PARCHG" and "/UnitCell" in  h5py.File(self.parent_collapsible.path, 'r'):
             #Start Parchg vis
             envision.inviwo.unitcell(self.parent_collapsible.path, 
                                 xpos = 0, ypos = 0, smallAtoms = True)
+            self.set_canvas_pos()
             envision.inviwo.parchg(self.parent_collapsible.path, 
                             sli = False, parchg_list = [1,2,3,4], 
                             parchg_mode = 'total', mode_list = [0,1,2,3], 
