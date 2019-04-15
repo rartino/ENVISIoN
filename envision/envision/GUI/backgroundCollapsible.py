@@ -36,7 +36,7 @@
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
-import wx, glm
+import wx
 from generalCollapsible import GeneralCollapsible
 from parameter_utils import charge_set_background
 import inviwopy
