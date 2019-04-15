@@ -108,11 +108,10 @@ class BackgroundCollapsible(GeneralCollapsible):
 
     # background and blend editing
     def background_drop_down_changed(self, event):
-        #parameter_utils.charge_set_shading_mode(self.backgroundDropDown.GetCurrentSelection())
-        pass
+        self.update_bg_colour()
 
     def blend_drop_down_changed(self,event):
-        pass
+        self.update_bg_colour()
 
     # Transfer function editing
 
@@ -144,7 +143,7 @@ class BackgroundCollapsible(GeneralCollapsible):
         bgColourWidget.value3Text.Bind(wx.EVT_TEXT_ENTER, self.update_bg_colour)
         bgColourWidget.value4Text.Bind(wx.EVT_KILL_FOCUS, self.update_bg_colour)
         bgColourWidget.value4Text.Bind(wx.EVT_TEXT_ENTER, self.update_bg_colour)
-        bgColourWidget.colorPicker.Bind(wx.EVT_COLOURPICKER_CHANGED,self.update_bg_colour)
+        bgColourWidget.colorPicker.Bind(wx.EVT_COLOURPICKER_CHANGED, lambda event : self.new_bg_colour(bgColourWidget))
 
         self.update_collapse()
         return bgColourWidget
@@ -159,7 +158,12 @@ class BackgroundCollapsible(GeneralCollapsible):
                             self.backgroundDropDown.GetCurrentSelection(),
                             self.blendDropDown.GetCurrentSelection())
 
-        
+    def new_bg_colour(self,bgWidget):
+        colour = bgWidget.colorPicker.GetColour()
+        colourList = [float(colour.Red())/255, float(colour.Green())/255, float(colour.Blue())/255]
+        bgWidget.write_inputs(colourList[0],colourList[1],colourList[2],1.000,colour)
+        self.update_bg_colour()
+
 
 
 class BgColourWidget(wx.BoxSizer):
@@ -251,4 +255,4 @@ class BgColourWidget(wx.BoxSizer):
     # def text_unfocused(self, event):
     #     pass
         
-        
+    

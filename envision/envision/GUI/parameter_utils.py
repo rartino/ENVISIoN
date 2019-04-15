@@ -112,16 +112,16 @@ def charge_set_shading_mode(mode):
     Raycaster.lighting.shadingMode.value = mode
     pass
 
-def charge_set_background(color_1 = None, color_2 = None, style = None, blendMode = None):
+def charge_set_background(color_1 = None, color_2 = None, styleIndex = None, blendModeIndex = None):
     Background = network.getProcessorByIdentifier('Background')
-    if style != None:
-        Background.backgroundStyle.value = style
+    if styleIndex != None:
+        Background.backgroundStyle.selectedIndex = styleIndex
     if color_1 != None:
         Background.bgColor1.value = color_1
     if color_2 != None:
         Background.bgColor2.value = color_2
-    if blendMode != None:
-        Background.blendMode.value = blendMode
+    if blendModeIndex != None:
+        Background.blendMode.selectedIndex = blendModeIndex
 
 # --Slice planes--
 
