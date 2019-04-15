@@ -135,18 +135,19 @@ class BackgroundCollapsible(GeneralCollapsible):
         # Set event bindings
 
         # Update on theese
-        bgColourWidget.value1Text.Bind(wx.EVT_KILL_FOCUS, self.update_bg_colour)
-        bgColourWidget.value1Text.Bind(wx.EVT_TEXT_ENTER, self.update_bg_colour)
-        bgColourWidget.value2Text.Bind(wx.EVT_KILL_FOCUS, self.update_bg_colour)
-        bgColourWidget.value2Text.Bind(wx.EVT_TEXT_ENTER, self.update_bg_colour)
-        bgColourWidget.value3Text.Bind(wx.EVT_KILL_FOCUS, self.update_bg_colour)
-        bgColourWidget.value3Text.Bind(wx.EVT_TEXT_ENTER, self.update_bg_colour)
-        bgColourWidget.value4Text.Bind(wx.EVT_KILL_FOCUS, self.update_bg_colour)
-        bgColourWidget.value4Text.Bind(wx.EVT_TEXT_ENTER, self.update_bg_colour)
-        bgColourWidget.colorPicker.Bind(wx.EVT_COLOURPICKER_CHANGED, lambda event : self.new_bg_colour(bgColourWidget))
+        bgColourWidget.value1Text.Bind(wx.EVT_KILL_FOCUS, lambda event : self.new_text_colour(bgColourWidget))
+        bgColourWidget.value1Text.Bind(wx.EVT_TEXT_ENTER, lambda event : self.new_text_colour(bgColourWidget))
+        bgColourWidget.value2Text.Bind(wx.EVT_KILL_FOCUS, lambda event : self.new_text_colour(bgColourWidget))
+        bgColourWidget.value2Text.Bind(wx.EVT_TEXT_ENTER, lambda event : self.new_text_colour(bgColourWidget))
+        bgColourWidget.value3Text.Bind(wx.EVT_KILL_FOCUS, lambda event : self.new_text_colour(bgColourWidget))
+        bgColourWidget.value3Text.Bind(wx.EVT_TEXT_ENTER, lambda event : self.new_text_colour(bgColourWidget))
+        bgColourWidget.value4Text.Bind(wx.EVT_KILL_FOCUS, lambda event : self.new_text_colour(bgColourWidget))
+        bgColourWidget.value4Text.Bind(wx.EVT_TEXT_ENTER, lambda event : self.new_text_colour(bgColourWidget))
+        bgColourWidget.colorPicker.Bind(wx.EVT_COLOURPICKER_CHANGED, lambda event : self.new_colourpicker_colour(bgColourWidget))
 
         self.update_collapse()
         return bgColourWidget
+
 
     def update_bg_colour(self, event = None):
         # Update the tf point if its text or color is changed
@@ -158,9 +159,15 @@ class BackgroundCollapsible(GeneralCollapsible):
                             self.backgroundDropDown.GetCurrentSelection(),
                             self.blendDropDown.GetCurrentSelection())
 
-    def new_bg_colour(self,bgWidget):
+    def new_text_colour(self,bgWidget):
+        colour = bgWidget.read_inputs()
+        colourItem = wx.Colour(colour[0]*255, colour[1]*255, colour[2]*255, colour[3]*255)
+        bgWidget.colorPicker.SetColour(colourItem)
+        self.update_bg_colour()
+
+    def new_colourpicker_colour(self,bgWidget):
         colour = bgWidget.colorPicker.GetColour()
-        colourList = [float(colour.Red())/255, float(colour.Green())/255, float(colour.Blue())/255]
+        colourList = [float(colour.Red())/255, float(colour.Green())/255, float(colour.Blue())/255, float(colour.Alpha())/255]
         bgWidget.write_inputs(colourList[0],colourList[1],colourList[2],1.000,colour)
         self.update_bg_colour()
 
