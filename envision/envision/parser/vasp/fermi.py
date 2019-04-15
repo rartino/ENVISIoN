@@ -1,7 +1,8 @@
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2017-2018 Anders Rehult, Marian Brännvall, Andreas Kempe, Viktor Bernholtz
+#  Copyright (c) 2017-2019 Anders Rehult, Marian Brännvall, Andreas Kempe,
+#  Viktor Bernholtz, Abdullatif Ismail
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -36,14 +37,23 @@
 #  You should have received a copy of the CC0 legalcode along with
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
+##############################################################################################
+#
+#  Alterations to this file by Abdullatif Ismail
+#
+#  To the extent possible under law, the person who associated CC0
+#  with the alterations to this file has waived all copyright and related
+#  or neighboring rights to the alterations made to this file.
+#
+#  You should have received a copy of the CC0 legalcode along with
+#  this work.  If not, see
+#  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
-path_to_envision='C:/ENVISIoN'
-import os,sys
-sys.path.insert(0, os.path.expanduser(path_to_envision+'/envision/envision/parser'))
-import re
-import h5py
-import numpy as np
+import os,sys, inspect, re, h5py
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder))
 from h5writer import _write_fermisurface
+from fermiEnergy import fermi_energy_parser
 
 line_reg_int = re.compile(r'^( *[+-]?[0-9]+){3} *$')
 line_reg_float = re.compile(r'( *[+-]?[0-9]*\.[0-9]+(?:[eE][+-]?[0-9]+)? *){4}')
@@ -108,20 +118,7 @@ def fermi_parse(vasp_dir):
         return [], 0, []
 
     # Parses fermi energy from DOSCAR
-    doscar_file = os.path.join(vasp_dir, 'DOSCAR')
-    try:
-        with open(doscar_file, "r") as f:
-            next(f)
-            next(f)
-            next(f)
-            next(f)
-            next(f)
-            line = next(f)
-            fermi_energy = float(line.split()[3])
-
-    except OSError:
-        print('DOSCAR file not in directory. Skipping.')
-        return [], 0, []
+    fermi_energy = fermi_energy_parser(vasp_dir)
 
     # Parses reciprocal lattice vectors from OUTCAR
     outcar_file = os.path.join(vasp_dir, 'OUTCAR')
