@@ -77,6 +77,7 @@ const ProcessorInfo LinePlotProcessor::getProcessorInfo() const {
 LinePlotProcessor::LinePlotProcessor()
     : Processor()
     , dataFrameInport_("dataFrameInport")
+    , pointInport_("pointInport")
     , meshOutport_("outport")
     , xSelectionProperty_("xSelectionProperty", "Select X data")
     , ySelectionProperty_("ySelectionProperty", "Select Y data")
@@ -110,6 +111,7 @@ LinePlotProcessor::LinePlotProcessor()
     , labels_("labels", "Lable Outport") {
 
     addPort(dataFrameInport_);
+    addPort(pointInport_);
     addPort(meshOutport_);
     addPort(labels_);
 
@@ -136,6 +138,7 @@ LinePlotProcessor::LinePlotProcessor()
     addProperty(text_colour_);
     addProperty(label_number_);
 
+    pointInport_.setOptional(true);
     allYSelection_.set(false);
     scale_.setMaxValue(1);
     scale_.setMinValue(0.01);
