@@ -49,6 +49,31 @@ def enable_visualization(type, path):
     if type == 'Charge':
         start_charge_vis(path)
     
+def set_canvas_position(position = None):
+    #Change the canvas-position
+    Canvas = network.getProcessorByIdentifier('Canvas')
+    if position != None:
+        Canvas.position.value = position
+
+def set_unitcell_canvas_position(position = None):
+    #Change the canvas-position
+    Canvas = network.getProcessorByIdentifier('Unit Cell Canvas')
+    if position != None:
+        Canvas.position.value = position
+
+def set_dos_canvas_position(position = None):
+    #Change the canvas-position
+    Canvas = network.getProcessorByIdentifier('DOS Canvas')
+    if position != None:
+        Canvas.position.value = position
+    for n in range(2,5):
+        position = position + 20
+        Canvas = network.getProcessorByIdentifier('DOS Canvas'+str(n))
+        if position != None:
+            Canvas.position.value = position
+    else:
+        pass
+
 
 def set_hd5_source(path):
     # set the hdf5 source of all active visualizations

@@ -41,7 +41,6 @@ from parameter_utils import *
 from generalCollapsible import GeneralCollapsible
 from volumeControlCollapsible import VolumeControlCollapsible
 from backgroundCollapsible import BackgroundCollapsible
-import parameter_utils
 class ChargeFrame(GeneralCollapsible):
     def __init__(self, parent):
         super().__init__(parent, label = "Charge")
@@ -63,13 +62,13 @@ class ChargeFrame(GeneralCollapsible):
         # Needs to be called to update the layout properly
         if self.IsCollapsed():
             # Disable charge vis
-            print("Not Charge")
+            clear_processor_network()
         elif '/{}'.format('CHG') in h5py.File(self.parent_collapsible.path, 'r'):
             #Start Charge vis
             envision.inviwo.charge(self.parent_collapsible.path, 
                                 iso = None, slice = False, 
                                 xpos = 0, ypos = 0)
-            print("Charge")
+            self.set_canvas_pos()
         else:
             self.open_message('The file of choice does not contain Charge-data',
                                 'Visualization failed!')

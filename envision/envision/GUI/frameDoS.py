@@ -59,12 +59,14 @@ class DosFrame(GeneralCollapsible):
         # Needs to be called to update the layout properly
         if self.IsCollapsed():
             # Disable DoS vis
-            print("Not DoS")
+            clear_processor_network()
         elif '/FermiEnergy' and 'DOS/Total' and 'DOS/Partial' in  h5py.File(self.parent_collapsible.path, 'r'):
             #Start DoS vis
+            self.open_message("When hitting ok, wait until all four windows are fully loaded",
+                            "Be patient!")
             envision.inviwo.dos(self.parent_collapsible.path, 
                                 atom = 1, xpos = 0, ypos = 0)
-            print("DoS")
+            self.set_canvas_pos('DoS')
         else:
             self.open_message('The file of choice does not contain DoS-data',
                                 'Visualization failed!')

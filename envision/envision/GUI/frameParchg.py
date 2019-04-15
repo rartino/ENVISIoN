@@ -59,16 +59,22 @@ class ParchgFrame(GeneralCollapsible):
         # Needs to be called to update the layout properly
         if self.IsCollapsed():
             # Disable Parchg vis
+            clear_processor_network()
             print("Not Parchg")
         elif "/PARCHG" and "/UnitCell" in  h5py.File(self.parent_collapsible.path, 'r'):
             #Start Parchg vis
             envision.inviwo.unitcell(self.parent_collapsible.path, 
                                 xpos = 0, ypos = 0, smallAtoms = True)
+            self.set_canvas_pos('Unitcell')
             envision.inviwo.parchg(self.parent_collapsible.path, 
                             sli = False, parchg_list = [1,2,3,4], 
                             parchg_mode = 'total', mode_list = [0,1,2,3], 
                             xstart_pos = 600, ystart_pos = 0)
-            print("Phrchg")
+            self.set_canvas_pos()
+        #Remove the extra unitcell window
+            unitcellCanvas = network.getProcessorByIdentifier('Unit Cell Canvas')
+            network.removeProcessor(unitcellCanvas)
+            print("Parchg")
         else:
             self.open_message('The file of choice does not contain Partial charge-data',
                                 'Visualization failed!')

@@ -59,11 +59,13 @@ class UnitcellFrame(GeneralCollapsible):
         # Needs to be called to update the layout properly
         if self.IsCollapsed():
             # Disable Unitcell vis
+            clear_processor_network()
             print("Not Unitcell")
         elif "/UnitCell" in  h5py.File(self.parent_collapsible.path, 'r'):
             #Start Unitcell vis
             envision.inviwo.unitcell(self.parent_collapsible.path, 
                                     xpos = 0, ypos = 0)
+            self.set_canvas_pos('Unitcell')
             print("Unitcell")
         else:
             self.open_message('The file of choice does not contain Unitcell-data',
