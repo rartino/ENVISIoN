@@ -68,6 +68,7 @@ class ParchgFrame(GeneralCollapsible):
                             sli = False, parchg_list = [1,2,3,4], 
                             parchg_mode = 'total', mode_list = [0,1,2,3], 
                             xstart_pos = 600, ystart_pos = 0)
+            self.set_canvas_pos()
             print("Phrchg")
         else:
             self.open_message('The file of choice does not contain Partial charge-data',

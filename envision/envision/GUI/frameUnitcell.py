@@ -64,6 +64,7 @@ class UnitcellFrame(GeneralCollapsible):
             #Start Unitcell vis
             envision.inviwo.unitcell(self.parent_collapsible.path, 
                                     xpos = 0, ypos = 0)
+            self.set_canvas_pos()
             print("Unitcell")
         else:
             self.open_message('The file of choice does not contain Unitcell-data',

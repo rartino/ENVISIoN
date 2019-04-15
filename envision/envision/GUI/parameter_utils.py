@@ -153,3 +153,9 @@ def charge_set_plane_height(height):
     diff = max_val - min_val
 
     VolumeSlice.sliceX.value = height * diff + min_val
+
+def set_canvas_position(position = None):
+    Canvas = network.getProcessorByIdentifier('Canvas')
+    print('pos')
+    if position != None:
+        Canvas.position.value = position

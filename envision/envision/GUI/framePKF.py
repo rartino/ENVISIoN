@@ -62,6 +62,7 @@ class PKFFrame(GeneralCollapsible):
             print("Not paircorr")
         else:
             #Start vis
+            self.set_canvas_pos()
             print("Paircorr")
         
         
