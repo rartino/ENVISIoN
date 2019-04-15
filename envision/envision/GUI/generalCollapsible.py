@@ -141,7 +141,7 @@ class GeneralCollapsible(wx.CollapsiblePane):
          if widget.IsTopLevel():
              break
     
-    def set_canvas_pos(self):
+    def set_canvas_pos(self,type=''):
         widget = self
         while True:
          widget = widget.GetParent()
@@ -151,6 +151,11 @@ class GeneralCollapsible(wx.CollapsiblePane):
             windowSize = widget.GetSize()
             break
         canvasPosition = inviwopy.glm.ivec2(windowPosition.x+windowSize.width,windowPosition.y)
-        set_canvas_position(canvasPosition)
+        if type == 'Unitcell':
+            set_unitcell_canvas_position(canvasPosition)
+        elif type == 'DoS':
+            set_dos_canvas_position(canvasPosition)
+        else:
+            set_canvas_position(canvasPosition)
 
         

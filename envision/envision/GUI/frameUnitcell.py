@@ -59,6 +59,7 @@ class UnitcellFrame(GeneralCollapsible):
         # Needs to be called to update the layout properly
         if self.IsCollapsed():
             # Disable Unitcell vis
+            clear_processor_network()
             print("Not Unitcell")
         elif "/UnitCell" in  h5py.File(self.parent_collapsible.path, 'r'):
             #Start Unitcell vis

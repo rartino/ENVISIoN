@@ -59,6 +59,7 @@ class PKFFrame(GeneralCollapsible):
         # Needs to be called to update the layout properly
         if self.IsCollapsed():
             # Disable vis
+            clear_processor_network()
             print("Not paircorr")
         else:
             #Start vis
