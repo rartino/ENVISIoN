@@ -48,7 +48,7 @@ def disable_visualization(type):
 def enable_visualization(type, path):
     # Build specified network or enable canvas if already exists
     if type == 'Charge':
-        start_charge_vis(path)
+        start_charge_vis(path,False)
     
 def set_canvas_position(position = None, type='Canvas'):
     #Change the canvas-position
@@ -84,19 +84,29 @@ def set_hd5_source(path):
 # -------------------
 # --Charge specific--
 
-def start_charge_vis(path):
+def start_charge_vis(path,isSlice):
     # Start the charge visualization
     # Hdf5 needs to be charge and unitcell-parsed
+    envision.inviwo.charge(path, 
+                                iso = None, slice = isSlice, 
+                                xpos = 0, ypos = 0)
+    charge_clear_tf()
+    charge_toggle_plane(isSlice)
+    if isSlice:
+        charge_set_plane_normal()
+        charge_set_background(inviwopy.glm.vec4(1,1,1,1),
+                            inviwopy.glm.vec4(0,0,0,1),3,0,'SliceBackground')
+        
 
     # TODO: if charge network exists, only enable the canvas
-
+"""
     network.clear()
     envision.parser.vasp.unitcell(path, "/home/labb/VASP_files/NaCl_charge_density")
     envision.parser.vasp.charge(path, "/home/labb/VASP_files/NaCl_charge_density")
     envision.inviwo.unitcell(path, 0)
     envision.inviwo.charge(path, iso = None, slice = True, xpos = -600, ypos = 0)
     charge_set_plane_height(2)
-    charge_toggle_plane(True)
+    charge_toggle_plane(True)"""
 
 def charge_set_slice(enable):
     # Toggle slice visualisation on or off
@@ -187,7 +197,7 @@ def charge_toggle_plane(enable):
     pos_indicator.plane3.enable.value = False
     pos_indicator.enable.value = enable
 
-def charge_set_plane_normal(x, y, z):
+def charge_set_plane_normal(x=0, y=1, z=0):
 # Set the normal of the slice plane
 # x, y, and z can vary between 0 and 1
 # TODO: move sliceAxis.value to some initialization code

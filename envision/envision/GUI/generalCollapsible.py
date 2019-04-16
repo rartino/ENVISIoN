@@ -56,7 +56,7 @@ class GeneralCollapsible(wx.CollapsiblePane):
         hbox = wx.BoxSizer(wx.HORIZONTAL)
 
         fillBox = wx.BoxSizer(wx.HORIZONTAL)
-        fillBox.AddSpacer(10)
+        fillBox.AddSpacer(30)
 
         self.sizer = wx.BoxSizer(wx.VERTICAL)
 
@@ -138,7 +138,7 @@ class GeneralCollapsible(wx.CollapsiblePane):
         self.Collapse(not self.IsCollapsed())
         if self.parent_collapsible != None:
             self.parent_collapsible.Layout()
-            self.parent_collapsible.update_collapse()
+            #self.parent_collapsible.update_collapse()
 
         # Update the layout of parent widgets
         self.Layout()
@@ -153,7 +153,6 @@ class GeneralCollapsible(wx.CollapsiblePane):
         widget = self
         while True:
          widget = widget.GetParent()
-         widget.Layout()
          if widget.IsTopLevel():
             windowPosition=widget.GetPosition()
             windowSize = widget.GetSize()
