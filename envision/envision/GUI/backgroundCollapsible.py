@@ -135,17 +135,7 @@ class BackgroundCollapsible(GeneralCollapsible):
         # Set event bindings
 
         # Update on theese
-<<<<<<< HEAD
-        bgColourWidget.value1Text.Bind(wx.EVT_KILL_FOCUS, self.update_bg_colour)
-        bgColourWidget.value1Text.Bind(wx.EVT_TEXT_ENTER, self.update_bg_colour)
-        bgColourWidget.value2Text.Bind(wx.EVT_KILL_FOCUS, self.update_bg_colour)
-        bgColourWidget.value2Text.Bind(wx.EVT_TEXT_ENTER, self.update_bg_colour)
-        bgColourWidget.value3Text.Bind(wx.EVT_KILL_FOCUS, self.update_bg_colour)
-        bgColourWidget.value3Text.Bind(wx.EVT_TEXT_ENTER, self.update_bg_colour)
-        bgColourWidget.value4Text.Bind(wx.EVT_KILL_FOCUS, self.update_bg_colour)
-        bgColourWidget.value4Text.Bind(wx.EVT_TEXT_ENTER, self.update_bg_colour)
-        bgColourWidget.colorPicker.Bind(wx.EVT_COLOURPICKER_CHANGED, lambda event : self.new_bg_colour(bgColourWidget))
-=======
+
         bgColourWidget.value1Text.Bind(wx.EVT_KILL_FOCUS, lambda event : self.new_text_colour(bgColourWidget))
         bgColourWidget.value1Text.Bind(wx.EVT_TEXT_ENTER, lambda event : self.new_text_colour(bgColourWidget))
         bgColourWidget.value2Text.Bind(wx.EVT_KILL_FOCUS, lambda event : self.new_text_colour(bgColourWidget))
@@ -155,7 +145,7 @@ class BackgroundCollapsible(GeneralCollapsible):
         bgColourWidget.value4Text.Bind(wx.EVT_KILL_FOCUS, lambda event : self.new_text_colour(bgColourWidget))
         bgColourWidget.value4Text.Bind(wx.EVT_TEXT_ENTER, lambda event : self.new_text_colour(bgColourWidget))
         bgColourWidget.colorPicker.Bind(wx.EVT_COLOURPICKER_CHANGED, lambda event : self.new_colourpicker_colour(bgColourWidget))
->>>>>>> GUI
+
 
         self.update_collapse()
         return bgColourWidget
