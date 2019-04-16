@@ -38,8 +38,8 @@
 
 import wx
 from generalCollapsible import GeneralCollapsible
-# import parameter_utils
-# import inviwopy
+import parameter_utils
+import inviwopy
 # TODO: add option for transperacy before first tf point
 # TODO maybe: add option for toggling tf points?
 
@@ -78,7 +78,7 @@ class VolumeControlCollapsible(GeneralCollapsible):
             "If checked volume will be transperant at densities lower " +
             "than the first transfer function point.\n" + 
             "If unchecked lower densities will get an interpolated color.")
-        transperacyCheckbox.Bind(wx.EVT_CHECKBOX, )
+        transperacyCheckbox.Bind(wx.EVT_CHECKBOX, self.transperacy_checkbox_changed)
         
         self.add_item(transperacyCheckbox)
 
@@ -100,10 +100,10 @@ class VolumeControlCollapsible(GeneralCollapsible):
         self.tfpointsVBox.Add(self.tf_point_adder)
         self.add_item(self.tfpointsVBox)
 
-        self.add_tf_point(0.1, 0.1, wx.Colour(200, 0, 0))
-        self.add_tf_point(0.2, 0.1, wx.Colour(0, 200, 0))
-        self.add_tf_point(0.3, 0.1, wx.Colour(0, 0, 200))
-        self.add_tf_point(0.4, 0.1, wx.Colour(200, 200, 200))
+        # self.add_tf_point(0.1, 0.1, wx.Colour(200, 0, 0))
+        # self.add_tf_point(0.2, 0.1, wx.Colour(0, 200, 0))
+        # self.add_tf_point(0.3, 0.1, wx.Colour(0, 0, 200))
+        # self.add_tf_point(0.4, 0.1, wx.Colour(200, 200, 200))
 
         # Load and save controls
 
@@ -125,6 +125,7 @@ class VolumeControlCollapsible(GeneralCollapsible):
         # TODO: add transfer function masking mybe
         # or add a transfer function point with alpha 0 just before the first point
         # indexes need to be fixed then?
+        print("hello")
         pass
 
     def load_transfer_function(self, path=None):
@@ -217,8 +218,8 @@ class VolumeControlCollapsible(GeneralCollapsible):
         self.update_collapse()
 
         # Add point to inviwo
-        # glmColor = inviwopy.glm.vec4(float(colour.Red())/255, float(colour.Green())/255, float(colour.Blue())/255, alpha)
-        # parameter_utils.charge_add_tf_point(value, glmColor)
+        glmColor = inviwopy.glm.vec4(float(colour.Red())/255, float(colour.Green())/255, float(colour.Blue())/255, alpha)
+        parameter_utils.charge_add_tf_point(value, glmColor)
 
     def clear_tf_points(self):
         while len(self.tfPointWidgets) > 0:
@@ -235,7 +236,7 @@ class VolumeControlCollapsible(GeneralCollapsible):
         self.update_collapse()
 
         # Remove point in inviwo
-        # parameter_utils.charge_remove_tf_point(index)
+        parameter_utils.charge_remove_tf_point(index)
 
     def update_tf_point(self, tfPointWidget):
         # Update the tf point if its text or color is changed
