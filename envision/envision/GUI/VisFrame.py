@@ -110,7 +110,7 @@ class VisualizationFrame(GeneralCollapsible):
                                       "HDF5 files (*.hdf5)|*.hdf5", 
                                        wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
         openFileDialog.ShowModal()
-        if not self.path == "":
+        if not self.path == None:
             self.path = openFileDialog.GetPath()
             self.enterPath.SetValue(self.path)
         print(self.path)

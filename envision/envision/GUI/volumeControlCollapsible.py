@@ -40,7 +40,6 @@ import wx
 from generalCollapsible import GeneralCollapsible
 import parameter_utils
 import inviwopy
-# TODO: make Transferfunction saveable
 # TODO: add option for transperacy before first tf point
 # TODO maybe: add option for toggling tf points?
 
@@ -61,15 +60,35 @@ class VolumeControlCollapsible(GeneralCollapsible):
 
         self.shadingDropDown.Bind(wx.EVT_CHOICE, self.shading_drop_down_changed)
 
-        # ------------------------------------
-        # --Setup transfer function controls--
-        
+        # Setup transfer function controls
+
         tfLabel = wx.StaticText(volumePane, label="Transfer Function: ")
+        tfLabel.SetToolTip(
+            "Edit the transfer function.\n" + 
+            "Choose value from 0 to 1 in the first text field\n" +
+            "Choose alpha from 0 to 1 in the second text field\n" + 
+            "Choose color by clicking the color picker on the right\n" + 
+            "Press \"+\" to add new point with specified values\n" + 
+            "Press \"-\" to remove point")
         self.add_item(tfLabel)
+
+        # Checkbox to choose transperancy before first tf point
+        transperacyCheckbox = wx.CheckBox(volumePane, label="Transperancy before first point")
+        transperacyCheckbox.SetToolTip(
+            "If checked volume will be transperant at densities lower " +
+            "than the first transfer function point.\n" + 
+            "If unchecked lower densities will get an interpolated color.")
+        transperacyCheckbox.Bind(wx.EVT_CHECKBOX, self.transperacy_checkbox_changed)
+
+        transperacyCheckbox.SetValue(True)
+        self.tf_transperancy_enabled = True
+
+        self.add_item(transperacyCheckbox)
 
         # Vertical box to hold all tf point elements 
         self.tfpointsVBox = wx.BoxSizer(wx.VERTICAL)
         
+
         # List holds all added tfpoint sizers for later access
         # Empty on initialization, fills up with user input
         self.tfPointWidgets = []
@@ -85,20 +104,94 @@ class VolumeControlCollapsible(GeneralCollapsible):
         self.tfpointsVBox.Add(self.tf_point_adder)
         self.add_item(self.tfpointsVBox)
 
+        # self.add_tf_point(0.1, 0.1, wx.Colour(200, 0, 0))
+        # self.add_tf_point(0.2, 0.1, wx.Colour(0, 200, 0))
+        # self.add_tf_point(0.3, 0.1, wx.Colour(0, 0, 200))
+        # self.add_tf_point(0.4, 0.1, wx.Colour(200, 200, 200) 
 
-    # Shader editing
+        # Load and save controls
+
+        saveButton = wx.Button(volumePane, label = "Save transfer func", size = wx.Size(100, 23))
+        loadButton = wx.Button(volumePane, label = "Load transfer func", size = wx.Size(100, 23))
+        
+        saveButton.Bind(wx.EVT_BUTTON, lambda event : self.save_transfer_function())
+        loadButton.Bind(wx.EVT_BUTTON, lambda event : self.load_transfer_function())
+
+        self.add_item(saveButton)
+        self.add_item(loadButton)
+        
     def shading_drop_down_changed(self, event):
+    # Change the shading mode
         parameter_utils.charge_set_shading_mode(self.shadingDropDown.GetCurrentSelection())
 
 
-    # Transfer function editing
+    def transperacy_checkbox_changed(self, event):
+    # Update the transperancy mode
+        self.tf_transperancy_enabled = event.IsChecked()
+        self.update_mask()
+        
+    def update_mask(self):
+    # Sets a mask to the transferfunction
+    # Makes o
+        if len(self.tfPointWidgets) <= 0:
+            return
+        if self.tf_transperancy_enabled:
+            print("Add mask")
+            parameter_utils.charge_set_mask(self.tfPointWidgets[0].value, 1)
+        else:
+            print("Reset mask")
+            parameter_utils.charge_set_mask(0, 1)
+
+        
+
+    def load_transfer_function(self, path=None):
+    # Save the transfer function to specified path
+    # If no path is specified let the user pick one 
+        if path == None:
+            fileDialog = wx.FileDialog(self, "Load transfer function", wildcard="tf files (*.tf)|*.tf",
+                                       style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
+            fileDialog.ShowModal() 
+            path = fileDialog.GetPath()
+        # Open the file
+        try:
+            with open(path, 'r') as file:
+                self.clear_tf_points()
+                # Read each line and add a point for it
+                for line in [x.strip() for x in file.readlines()]:
+                    line = line.split()
+                    self.add_tf_point(line[0], line[1], wx.Colour(int(line[2]), int(line[3]), int(line[4])))
+        except:
+            wx.LogError("Cannot open file '%s'." % path)
+
+    def save_transfer_function(self, path=None):
+    # Load transfer function from specified file
+    # If no path is specified let the user pick one 
+        if path == None:
+        # Open a dialog to choose path
+            fileDialog = wx.FileDialog(self, "Save transfer function", wildcard="tf files (*.tf)|*.tf",
+                                       style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) 
+            fileDialog.ShowModal() 
+            path = fileDialog.GetPath()
+            print(path)
+
+        # Save the file
+        try:
+            with open(path, 'w') as file:
+                for tfpt in self.tfPointWidgets:
+                    # Write info for one point on each line
+                    # Format: value alpha red green blue 
+                    file.write(
+                        str(tfpt.value) + " " + str(tfpt.alpha) + " " + 
+                        str(tfpt.colour.Red()) + " "  + str(tfpt.colour.Green()) + " " + str(tfpt.colour.Blue()) + "\n")
+                # for line in [x.strip() for x in file.readlines()]:
+                #     line = line.split()
+                #     file.
+        except:
+            wx.LogError("Cannot open file '%s'." % path)
 
     def add_tf_point(self, value, alpha, colour):
-        # Adds a new tf point to volume rendering
-        # Adds a ui element to show and edit the new point
-
-        # TODO: Bind text field events to change the tf point
-        # TODO: Sort by "value" so points are in correct order
+    # Adds a new tf point to volume rendering
+    # Adds a ui element to show and edit the new point
 
         # Assert that user input is valid
         try:
@@ -107,7 +200,7 @@ class VolumeControlCollapsible(GeneralCollapsible):
         except:
             raise AssertionError("Input values must be valid float values")
         assert value >= 0 and 1 >= value, "Transfer function: Invalid value range"
-        assert alpha >= 0 and 255 >= alpha, "Transfer function: Invalid alpha range"
+        assert alpha >= 0 and 1 >= alpha, "Transfer function: Invalid alpha range"
 
         # Add point to GUI
 
@@ -139,21 +232,33 @@ class VolumeControlCollapsible(GeneralCollapsible):
 
         self.tfPointWidgets.insert(insertion_idx, tfPointWidget)
         self.update_collapse()
+        
+        # Update the transperancy mask
+        self.update_mask()
 
         # Add point to inviwo
         glmColor = inviwopy.glm.vec4(float(colour.Red())/255, float(colour.Green())/255, float(colour.Blue())/255, alpha)
         parameter_utils.charge_add_tf_point(value, glmColor)
 
+    def clear_tf_points(self):
+        while len(self.tfPointWidgets) > 0:
+            self.remove_tf_point(self.tfPointWidgets[0])
+
     def remove_tf_point(self, tfPointWidget):
-        # Remove tfPoint from inviwo processor
+    # Remove a tfPoint from inviwo processor and UI
         index = self.tfPointWidgets.index(tfPointWidget)
-        parameter_utils.charge_remove_tf_point(index)
 
         # Removes the TFPointWidget and deletes all its child items
         tfPointWidget.Clear(delete_windows = True)
         self.tfPointWidgets.remove(tfPointWidget)
         self.tfpointsVBox.Remove(tfPointWidget)
         self.update_collapse()
+
+        # Update the transperancy mask
+        self.update_mask()
+
+        # Remove point in inviwo
+        parameter_utils.charge_remove_tf_point(index)
 
     def update_tf_point(self, tfPointWidget):
         # Update the tf point if its text or color is changed
@@ -171,24 +276,17 @@ class TFPointWidget(wx.BoxSizer):
         self.alpha = float(alpha)
         self.colour = colour
 
-        self.valueText = wx.TextCtrl(parent, value=str(value), style=wx.TE_PROCESS_ENTER)
-        self.alphaText = wx.TextCtrl(parent, value=str(alpha), style=wx.TE_PROCESS_ENTER)
+        self.valueText = wx.TextCtrl(parent, value=str(value), style=wx.TE_PROCESS_ENTER, size=wx.Size(45, 23))
+        self.alphaText = wx.TextCtrl(parent, value=str(alpha), style=wx.TE_PROCESS_ENTER, size=wx.Size(45, 23))
         self.button = wx.Button(parent, label = button_label, size = wx.Size(23, 23))
 
-        self.colorPicker = wx.ColourPickerCtrl(parent)
+        self.colorPicker = wx.ColourPickerCtrl(parent, size=wx.Size(30, 23))
         self.colorPicker.SetColour(colour)
 
         self.Add(self.valueText)
         self.Add(self.alphaText)
         self.Add(self.colorPicker)
         self.Add(self.button)
-
-        # wx.EVT_SET_FOCUS EVT_KILL_FOCUS
-        # self.valueText.Bind(wx.EVT_SET_FOCUS, lambda event: self.text_focused(
-        #     self.valueText, 
-        #     str(self.get_value()), 
-        #     self.valueText.GetLineText(0)))
-
 
     def get_text_value(self):
         try:
@@ -204,22 +302,8 @@ class TFPointWidget(wx.BoxSizer):
             self.alphaText.SetValue(str(self.alpha))
             raise AssertionError("Input values must be valid float values")
     
-    
     def read_inputs(self):
         # Read all input fields and resets variables
-        
         res = [self.get_text_value(), self.get_text_alpha(), self.colorPicker.GetColour()]
         return res
-
-
-    # def text_focused(self, textCtrl, default_value, value):
-    #     if default_value == value:
-    #         textCtrl.SetValue("")
-
-    #     print("text pressed")
-    #     pass
-
-    # def text_unfocused(self, event):
-    #     pass
-        
         

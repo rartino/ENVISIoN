@@ -48,7 +48,7 @@ class BackgroundCollapsible(GeneralCollapsible):
     def __init__(self, parent, label):
         super().__init__(parent, label = label)
         backgroundPane = self.GetPane()
-
+        self.type = 'Background'
         # style controls
         backgroundSizer = wx.BoxSizer(wx.HORIZONTAL)
         backgroundLabel = wx.StaticText(backgroundPane, label="Background style: ")
@@ -59,9 +59,9 @@ class BackgroundCollapsible(GeneralCollapsible):
         backgroundSizer.Add(backgroundLabel)
         backgroundSizer.Add(self.backgroundDropDown)
         self.add_item(backgroundSizer)
-
         self.backgroundDropDown.Bind(wx.EVT_CHOICE, self.background_drop_down_changed)
 
+    
         # ------------------------------------
         # --Setup background controls--
         
@@ -169,7 +169,7 @@ class BackgroundCollapsible(GeneralCollapsible):
         bgc2 = inviwopy.glm.vec4(new_bg_colour2[0],new_bg_colour2[1],new_bg_colour2[2],new_bg_colour2[3])
         charge_set_background(bgc1,bgc2,
                             self.backgroundDropDown.GetCurrentSelection(),
-                            self.blendDropDown.GetCurrentSelection())
+                            self.blendDropDown.GetCurrentSelection(),self.type)
 
 
     def new_text_colour(self,bgWidget):
