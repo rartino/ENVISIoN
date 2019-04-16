@@ -49,7 +49,7 @@ def enable_visualization(type, path):
     if type == 'Charge':
         start_charge_vis(path)
     
-def set_canvas_position(position = None):
+def set_canvas_position(position = None, type='Canvas'):
     #Change the canvas-position
     Canvas = network.getProcessorByIdentifier('Canvas')
     if position != None:
@@ -137,8 +137,8 @@ def charge_set_shading_mode(mode):
     Raycaster.lighting.shadingMode.value = mode
     pass
 
-def charge_set_background(color_1 = None, color_2 = None, styleIndex = None, blendModeIndex = None):
-    Background = network.getProcessorByIdentifier('Background')
+def charge_set_background(color_1 = None, color_2 = None, styleIndex = None, blendModeIndex = None, type = 'Background'):
+    Background = network.getProcessorByIdentifier(type)
     if styleIndex != None:
         Background.backgroundStyle.selectedIndex = styleIndex
     if color_1 != None:
