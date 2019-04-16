@@ -38,7 +38,7 @@
 
 import wx
 from generalCollapsible import GeneralCollapsible
-
+import parameter_utils
 # TODO: Integrate with inviwo
 # TODO: height slider does not work with custom normal
 
@@ -101,7 +101,8 @@ class SliceControlCollapsible(GeneralCollapsible):
         print(str(x) + ":" + str(y) + ":" + str(z))
 
     def slider_changed(self, event):
-        print(self.heightSlider.GetValue())
+        height = float(self.heightSlider.GetValue()) / 100
+        parameter_utils.charge_set_plane_height(height)
 
 
 
