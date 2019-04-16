@@ -65,8 +65,8 @@ class SliceControlCollapsible(GeneralCollapsible):
         self.sliceBackgroundCollapsibe.type = 'SliceBackground'
         self.sliceBackgroundCollapsibe.SetLabel('Slice Background')
         self.sliceBackgroundCollapsibe.backgroundDropDown.SetSelection(3)
-        self.sliceBackgroundCollapsibe.bgColourPicker1.write_inputs(1, 1, 1, 1,wx.Colour(255,255,255))
-        self.sliceBackgroundCollapsibe.bgColourPicker2.write_inputs(0, 0, 0, 1,wx.Colour(0,0,0))
+        self.sliceBackgroundCollapsibe.bgColourPicker1.write_inputs(0, 0, 0, 1,wx.Colour(0,0,0))
+        self.sliceBackgroundCollapsibe.bgColourPicker2.write_inputs(1, 1, 1, 1,wx.Colour(255,255,255))
 
         normalHBox = wx.BoxSizer(wx.HORIZONTAL)
         normalHBox.Add(self.xInput)

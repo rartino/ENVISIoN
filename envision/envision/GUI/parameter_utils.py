@@ -94,8 +94,8 @@ def start_charge_vis(path,isSlice):
     charge_toggle_plane(isSlice)
     if isSlice:
         charge_set_plane_normal()
-        charge_set_background(inviwopy.glm.vec4(1,1,1,1),
-                            inviwopy.glm.vec4(0,0,0,1),3,0,'SliceBackground')
+        charge_set_background(inviwopy.glm.vec4(0,0,0,1),
+                            inviwopy.glm.vec4(1,1,1,1),3,0,'SliceBackground')
         
 
     # TODO: if charge network exists, only enable the canvas
@@ -124,6 +124,9 @@ def charge_set_mask(maskMin, maskMax):
     print(tf_property.mask)
     tf_property.setMask(maskMin, maskMax)
     print(tf_property.mask)
+    VolumeSlice = network.getProcessorByIdentifier('Volume Slice')
+    if VolumeSlice:
+        VolumeSlice.tfGroup.transferFunction.setMask(maskMin,maskMax)
     # vec2 = inviwopy.glm.dvec2(min, max)
     # print(vec2)
     # tf_property.mask = vec2
@@ -133,20 +136,23 @@ def charge_add_tf_point(value, color):
     Raycaster = network.getProcessorByIdentifier('Charge raycaster')
     tf_property = Raycaster.isotfComposite.transferFunction
     tf_property.add(value, color)
+    slice_copy_tf()
 
+def slice_copy_tf():
     VolumeSlice = network.getProcessorByIdentifier('Volume Slice')
+    Raycaster = network.getProcessorByIdentifier('Charge raycaster')
+    tf_property = Raycaster.isotfComposite.transferFunction
     if VolumeSlice:
         VolumeSlice.tfGroup.transferFunction.value = tf_property.value
+        VolumeSlice.tfGroup.transferFunction.add(0.0, inviwopy.glm.vec4(0.0, 0.0, 0.0, 1.0))
+        VolumeSlice.tfGroup.transferFunction.add(1.0, inviwopy.glm.vec4(1.0, 1.0, 1.0, 1.0))
 
 def charge_clear_tf():
     Raycaster = network.getProcessorByIdentifier('Charge raycaster')
     tf_property = Raycaster.isotfComposite.transferFunction
     print(dir(tf_property.mask))
     tf_property.clear()
-
-    VolumeSlice = network.getProcessorByIdentifier('Volume Slice')
-    if VolumeSlice:
-        VolumeSlice.tfGroup.transferFunction.value = tf_property.value
+    slice_copy_tf()
 
 def charge_remove_tf_point(index):
     Raycaster = network.getProcessorByIdentifier('Charge raycaster')
@@ -156,10 +162,7 @@ def charge_remove_tf_point(index):
         return
     point_to_remove = tf_property.getValueAt(index)
     tf_property.remove(point_to_remove)
-
-    VolumeSlice = network.getProcessorByIdentifier('Volume Slice')
-    if VolumeSlice:
-        VolumeSlice.tfGroup.transferFunction.value = tf_property.value
+    slice_copy_tf()
 
 
 def charge_get_points():
