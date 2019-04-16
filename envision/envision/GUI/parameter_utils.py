@@ -190,6 +190,5 @@ def charge_set_plane_height(height):
     min_val = VolumeSlice.sliceX.maxValue
     max_val = VolumeSlice.sliceX.minValue
     diff = max_val - min_val
-
-    VolumeSlice.sliceX.value = height * diff + min_val
+    VolumeSlice.sliceX.value = int(height * diff + min_val)
 
