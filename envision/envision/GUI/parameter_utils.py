@@ -123,11 +123,19 @@ def charge_add_tf_point(value, color):
     tf_property = Raycaster.isotfComposite.transferFunction
     tf_property.add(value, color)
 
+    VolumeSlice = network.getProcessorByIdentifier('Volume Slice')
+    if VolumeSlice:
+        VolumeSlice.tfGroup.transferFunction.value = tf_property.value
+
 def charge_clear_tf():
     Raycaster = network.getProcessorByIdentifier('Charge raycaster')
     tf_property = Raycaster.isotfComposite.transferFunction
     print(dir(tf_property.mask))
     tf_property.clear()
+
+    VolumeSlice = network.getProcessorByIdentifier('Volume Slice')
+    if VolumeSlice:
+        VolumeSlice.tfGroup.transferFunction.value = tf_property.value
 
 def charge_remove_tf_point(index):
     Raycaster = network.getProcessorByIdentifier('Charge raycaster')
@@ -138,6 +146,10 @@ def charge_remove_tf_point(index):
     point_to_remove = tf_property.getValueAt(index)
     tf_property.remove(point_to_remove)
 
+    VolumeSlice = network.getProcessorByIdentifier('Volume Slice')
+    if VolumeSlice:
+        VolumeSlice.tfGroup.transferFunction.value = tf_property.value
+
 
 def charge_get_points():
     Raycaster = network.getProcessorByIdentifier('Charge raycaster')
@@ -147,7 +159,7 @@ def charge_get_points():
 #--Background and lighting--
 
 def charge_set_shading_mode(mode):
-    Raycaster = network.getProcessorByIdentifier('Charge raycaster')
+    Raycaster = network.getProcessorByIdentifier('Volume Slice')
     Raycaster.lighting.shadingMode.value = mode
     pass
 
