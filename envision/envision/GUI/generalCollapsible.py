@@ -138,7 +138,7 @@ class GeneralCollapsible(wx.CollapsiblePane):
         self.Collapse(not self.IsCollapsed())
         if self.parent_collapsible != None:
             self.parent_collapsible.Layout()
-            #self.parent_collapsible.update_collapse()
+            self.parent_collapsible.update_collapse()
 
         # Update the layout of parent widgets
         self.Layout()
