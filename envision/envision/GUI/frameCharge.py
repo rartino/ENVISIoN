@@ -37,12 +37,11 @@
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import wx, sys, os, h5py
-# from parameter_utils import *
+import parameter_utils
 from generalCollapsible import GeneralCollapsible
 from volumeControlCollapsible import VolumeControlCollapsible
 from backgroundCollapsible import BackgroundCollapsible
 from sliceControlCollapsible import SliceControlCollapsible
-import parameter_utils
 import envision
 class ChargeFrame(GeneralCollapsible):
     def __init__(self, parent):
@@ -88,7 +87,7 @@ class ChargeFrame(GeneralCollapsible):
             self.sliceBackgroundCollapsibe.SetLabel('Slice Background')
             self.backgroundCollapsibe.type = 'VolumeBackground'
         self.update_collapse()
-        clear_processor_network()
+        parameter_utils.clear_processor_network()
         self.start_vis()
 
     def on_collapse(self, event = None):
@@ -96,18 +95,21 @@ class ChargeFrame(GeneralCollapsible):
         # Needs to be called to update the layout properly
         if self.IsCollapsed():
             # Disable charge vis
-            clear_processor_network()
+            parameter_utils.clear_processor_network()
         else:
             #Start Charge vis
             self.start_vis()
-            charge_clear_tf()
             
 
     def start_vis(self):
-        if '/{}'.format('CHG') in h5py.File(self.parent_collapsible.path, 'r'):
+        if self.parent_collapsible.path=='':
+            self.open_message('The file of choice does not contain Charge-data',
+                                'Visualization failed!')
+        elif '/{}'.format('CHG') in h5py.File(self.parent_collapsible.path, 'r'):
             envision.inviwo.charge(self.parent_collapsible.path, 
                                 iso = None, slice = self.slice, 
                                 xpos = 0, ypos = 0)
+            parameter_utils.charge_clear_tf()
             if self.slice:
                 self.set_canvas_pos('VolumeCanvas')
                 self.set_canvas_pos('SliceCanvas')
