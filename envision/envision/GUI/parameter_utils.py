@@ -105,6 +105,19 @@ def charge_set_slice(enable):
 
 #--Transfer function editing--
 
+def charge_set_mask(maskMin, maskMax):
+# Set the mask of the transfer function
+# Only values between maskMin and maskMax are visible
+    Raycaster = network.getProcessorByIdentifier('Charge raycaster')
+    tf_property = Raycaster.isotfComposite.transferFunction
+    print(tf_property.mask)
+    tf_property.setMask(maskMin, maskMax)
+    print(tf_property.mask)
+    # vec2 = inviwopy.glm.dvec2(min, max)
+    # print(vec2)
+    # tf_property.mask = vec2
+
+
 def charge_add_tf_point(value, color):
     Raycaster = network.getProcessorByIdentifier('Charge raycaster')
     tf_property = Raycaster.isotfComposite.transferFunction
@@ -113,6 +126,7 @@ def charge_add_tf_point(value, color):
 def charge_clear_tf():
     Raycaster = network.getProcessorByIdentifier('Charge raycaster')
     tf_property = Raycaster.isotfComposite.transferFunction
+    print(dir(tf_property.mask))
     tf_property.clear()
 
 def charge_remove_tf_point(index):
@@ -178,3 +192,4 @@ def charge_set_plane_height(height):
     diff = max_val - min_val
 
     VolumeSlice.sliceX.value = height * diff + min_val
+
