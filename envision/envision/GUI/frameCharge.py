@@ -37,10 +37,12 @@
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import wx, sys, os, h5py
-from parameter_utils import *
+# from parameter_utils import *
 from generalCollapsible import GeneralCollapsible
 from volumeControlCollapsible import VolumeControlCollapsible
 from backgroundCollapsible import BackgroundCollapsible
+from sliceControlCollapsible import SliceControlCollapsible
+import parameter_utils
 class ChargeFrame(GeneralCollapsible):
     def __init__(self, parent):
         super().__init__(parent, label = "Charge")
@@ -52,6 +54,10 @@ class ChargeFrame(GeneralCollapsible):
         # Setup background controls
         self.backgroundCollapsibe = BackgroundCollapsible(self.GetPane(), "Background")
         self.add_sub_collapsible(self.backgroundCollapsibe)
+        
+        # Setup slice controls
+        self.sliceCollapsible = SliceControlCollapsible(self.GetPane(), "Volume Slice")
+        self.add_sub_collapsible(self.sliceCollapsible)
 
         # Override default binding
         # Note that function should be called "on_collapse" to work
