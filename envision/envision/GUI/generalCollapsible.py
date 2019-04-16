@@ -83,9 +83,13 @@ class GeneralCollapsible(wx.CollapsiblePane):
         self.sub_collapsibles.append(item)
         item.parent_collapsible = self
     
-    def remove_sub_collapsible(self, item):
-        # Add a collapsible panel
-        self.sizer.Remove(item)
+    def hide_sub_collapsible(self, itemidx):
+        # Hide a collapsible panel
+        self.sizer.Hide(itemidx)
+    
+    def show_sub_collapsible(self, itemidx):
+        # show a collapsible panel
+        self.sizer.Show(itemidx)
 
     def set_path(self,path):
         self.path=path
@@ -159,10 +163,10 @@ class GeneralCollapsible(wx.CollapsiblePane):
             set_unitcell_canvas_position(canvasPosition)
         elif type == 'DoS':
             set_dos_canvas_position(canvasPosition)
-        elif type=='SliceCanvas':
-            canvasPosition.x = canvasPosition.x + 60
+        elif type =='SliceCanvas':
+            canvasPosition = inviwopy.glm.ivec2(windowPosition.x+windowSize.width,windowPosition.y+296)
             set_canvas_position(canvasPosition, type)
         else:
-            set_canvas_position(canvasPosition, type)
+            set_canvas_position(canvasPosition)
 
         

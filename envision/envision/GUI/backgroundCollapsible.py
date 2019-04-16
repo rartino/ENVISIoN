@@ -59,9 +59,9 @@ class BackgroundCollapsible(GeneralCollapsible):
         backgroundSizer.Add(backgroundLabel)
         backgroundSizer.Add(self.backgroundDropDown)
         self.add_item(backgroundSizer)
-        self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
         self.backgroundDropDown.Bind(wx.EVT_CHOICE, self.background_drop_down_changed)
 
+    
         # ------------------------------------
         # --Setup background controls--
         
@@ -112,9 +112,6 @@ class BackgroundCollapsible(GeneralCollapsible):
 
     def blend_drop_down_changed(self,event):
         self.update_bg_colour()
-
-    def on_collapse(self,event):
-        self.update_collapse()
 
     # Transfer function editing
 

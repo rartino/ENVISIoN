@@ -49,17 +49,20 @@ class ChargeFrame(GeneralCollapsible):
         # Setup volume rendering controls
         self.volumeCollapsible = VolumeControlCollapsible(self.GetPane(), "Volume Rendering")
         self.add_sub_collapsible(self.volumeCollapsible)
-        
-        self.sliceBackgroundCollapsibe = BackgroundCollapsible(self.GetPane(), "Slice background")
-        self.sliceBackgroundCollapsibe.type = 'SliceBackground'
 
         # Setup background controls
         self.backgroundCollapsibe = BackgroundCollapsible(self.GetPane(), "Background")
         self.add_sub_collapsible(self.backgroundCollapsibe)
         
+        #Setup slice-checkbox
         self.sliceBox = wx.CheckBox(self.GetPane(), label="Slice")
         self.add_item(self.sliceBox)
 
+        #Setup the possibility of slice-background control
+        self.sliceBackgroundCollapsibe = BackgroundCollapsible(self.GetPane(), "Slice background")
+        self.sliceBackgroundCollapsibe.type = 'SliceBackground'
+        self.add_sub_collapsible(self.sliceBackgroundCollapsibe)
+        self.hide_sub_collapsible(3)
         # Override default binding
         # Note that function should be called "on_collapse" to work
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
@@ -70,11 +73,12 @@ class ChargeFrame(GeneralCollapsible):
             self.slice = False
             self.backgroundCollapsibe.type = 'Background'
             self.backgroundCollapsibe.SetLabel('Background')
-            self.remove_sub_collapsible(3)
+            self.hide_sub_collapsible(3)
         else:
             self.slice = True
-            self.add_sub_collapsible(self.sliceBackgroundCollapsibe)
+            self.show_sub_collapsible(3)
             self.backgroundCollapsibe.SetLabel('Volume background')
+            self.sliceBackgroundCollapsibe.SetLabel('Slice Background')
             self.backgroundCollapsibe.type = 'VolumeBackground'
         self.update_collapse()
         clear_processor_network()
@@ -89,6 +93,7 @@ class ChargeFrame(GeneralCollapsible):
         else:
             #Start Charge vis
             self.start_vis()
+            charge_clear_tf()
             
 
     def start_vis(self):
@@ -97,8 +102,8 @@ class ChargeFrame(GeneralCollapsible):
                                 iso = None, slice = self.slice, 
                                 xpos = 0, ypos = 0)
             if self.slice:
-                self.set_canvas_pos('SliceCanvas')
                 self.set_canvas_pos('VolumeCanvas')
+                self.set_canvas_pos('SliceCanvas')
             else:
                 self.set_canvas_pos()
         else:
