@@ -36,6 +36,7 @@ import envision.inviwo
 app = inviwopy.app
 network = app.network
 
+# TODO: make better visualization intialization code
 
 def clear_processor_network():
     network.clear()
@@ -177,6 +178,8 @@ def charge_set_background(color_1 = None, color_2 = None, styleIndex = None, ble
 # --Slice planes--
 
 def charge_toggle_plane(enable):
+# Set if the slice plane should be visible in the volume
+# TODO: remove plane.enable.value, move to some initialization code
     Raycaster = network.getProcessorByIdentifier('Charge raycaster')
     pos_indicator = Raycaster.positionindicator
     pos_indicator.plane1.enable.value = True
@@ -185,23 +188,25 @@ def charge_toggle_plane(enable):
     pos_indicator.enable.value = enable
 
 def charge_set_plane_normal(x, y, z):
-    #Raycaster = network.getProcessorByIdentifier('Charge raycaster')
-    #plane = Raycaster.positionindicator.plane1
-    #plane.normal.value = inviwopy.glm.vec3(x, y, z)
-
-    vol_slice = network.getProcessorByIdentifier('Volume Slice')
-    vol_slice.sliceAxis.value = 3
-    vol_slice.planeNormal.value = inviwopy.glm.vec3(x, y, z)
-
+# Set the normal of the slice plane
+# x, y, and z can vary between 0 and 1
+# TODO: move sliceAxis.value to some initialization code
+    VolumeSlice = network.getProcessorByIdentifier('Volume Slice')
+    VolumeSlice.sliceAxis.value = 3
+    VolumeSlice.planeNormal.value = inviwopy.glm.vec3(x, y, z)
 
 def charge_set_plane_height(height):
-    # Set the height of the volume slice plane
-    # height = 0 bottom, height = 1 top
-    # TODO: now only handles x-slice place, if plane normal has been set it wont work
+# Set the height of the volume slice plane
+# Height can vary between 0 and 1.
     VolumeSlice = network.getProcessorByIdentifier('Volume Slice')
-    min_val = VolumeSlice.sliceX.maxValue
-    max_val = VolumeSlice.sliceX.minValue
-    diff = max_val - min_val
 
-    VolumeSlice.sliceX.value = height * diff + min_val
+    # Create position vector based on plane normal 
+    normal = VolumeSlice.planeNormal.value
+    xHeight = normal.x * height
+    yHeight = normal.y * height
+    zHeight = normal.z * height
+    VolumeSlice.planePosition.value = inviwopy.glm.vec3(xHeight, yHeight, zHeight)
+
+    
+
 

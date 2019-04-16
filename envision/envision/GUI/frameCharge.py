@@ -110,6 +110,7 @@ class ChargeFrame(GeneralCollapsible):
                                 iso = None, slice = self.slice, 
                                 xpos = 0, ypos = 0)
             parameter_utils.charge_clear_tf()
+            parameter_utils.charge_toggle_plane(self.slice)
             if self.slice:
                 self.set_canvas_pos('VolumeCanvas')
                 self.set_canvas_pos('SliceCanvas')
