@@ -56,7 +56,7 @@ class GeneralCollapsible(wx.CollapsiblePane):
         hbox = wx.BoxSizer(wx.HORIZONTAL)
 
         fillBox = wx.BoxSizer(wx.HORIZONTAL)
-        fillBox.AddSpacer(10)
+        fillBox.AddSpacer(30)
 
         self.sizer = wx.BoxSizer(wx.VERTICAL)
 
@@ -83,6 +83,14 @@ class GeneralCollapsible(wx.CollapsiblePane):
         self.sub_collapsibles.append(item)
         item.parent_collapsible = self
     
+    def hide_sub_collapsible(self, itemidx):
+        # Hide a collapsible panel
+        self.sizer.Hide(itemidx)
+    
+    def show_sub_collapsible(self, itemidx):
+        # show a collapsible panel
+        self.sizer.Show(itemidx)
+
     def set_path(self,path):
         self.path=path
 
@@ -130,7 +138,7 @@ class GeneralCollapsible(wx.CollapsiblePane):
         self.Collapse(not self.IsCollapsed())
         if self.parent_collapsible != None:
             self.parent_collapsible.Layout()
-            self.parent_collapsible.update_collapse()
+            #self.parent_collapsible.update_collapse()
 
         # Update the layout of parent widgets
         self.Layout()
@@ -145,7 +153,6 @@ class GeneralCollapsible(wx.CollapsiblePane):
         widget = self
         while True:
          widget = widget.GetParent()
-         widget.Layout()
          if widget.IsTopLevel():
             windowPosition=widget.GetPosition()
             windowSize = widget.GetSize()
@@ -155,6 +162,9 @@ class GeneralCollapsible(wx.CollapsiblePane):
             set_unitcell_canvas_position(canvasPosition)
         elif type == 'DoS':
             set_dos_canvas_position(canvasPosition)
+        elif type =='SliceCanvas':
+            canvasPosition = inviwopy.glm.ivec2(windowPosition.x+windowSize.width,windowPosition.y+296)
+            set_canvas_position(canvasPosition, type)
         else:
             set_canvas_position(canvasPosition)
 
