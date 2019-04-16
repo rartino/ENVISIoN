@@ -50,9 +50,10 @@
 #include <inviwo/core/properties/optionproperty.h>
 #include <modules/fontrendering/properties/fontproperty.h>
 #include <modules/fontrendering/textrenderer.h>
-#include <modules/graph2d/graph2dmoduledefine.h>
 #include <modules/opengl/rendering/texturequadrenderer.h>
 #include <modules/plotting/datastructures/dataframe.h>
+#include <modules/graph2d/graph2dmoduledefine.h>
+#include <modules/graph2d/datastructures/graph2ddata.h>
 #include <modules/graph2d/datastructures/geometry/linemesh.h>
 
 namespace inviwo {
@@ -124,6 +125,7 @@ private:
     double normalise(double value, double min, double max) const;
 
     DataFrameInport dataFrameInport_;
+    DataInport<Point, 0, true> pointInport_;
     MeshOutport meshOutport_;
 
     OptionPropertyString xSelectionProperty_;
