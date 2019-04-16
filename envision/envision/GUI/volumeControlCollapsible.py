@@ -307,5 +307,3 @@ class TFPointWidget(wx.BoxSizer):
         res = [self.get_text_value(), self.get_text_alpha(), self.colorPicker.GetColour()]
         return res
         
-
-['__add__', '__class__', '__delattr__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__iadd__', '__imul__', '__init__', '__init_subclass__', '__isub__', '__itruediv__', '__le__', '__lt__', '__module__', '__mul__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__setitem__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', 'array', 'g', 'r', 's', 't', 'x', 'y']
