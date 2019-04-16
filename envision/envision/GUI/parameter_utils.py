@@ -144,8 +144,11 @@ def slice_copy_tf():
     tf_property = Raycaster.isotfComposite.transferFunction
     if VolumeSlice:
         VolumeSlice.tfGroup.transferFunction.value = tf_property.value
-        VolumeSlice.tfGroup.transferFunction.add(0.0, inviwopy.glm.vec4(0.0, 0.0, 0.0, 1.0))
-        VolumeSlice.tfGroup.transferFunction.add(1.0, inviwopy.glm.vec4(1.0, 1.0, 1.0, 1.0))
+        #VolumeSlice.tfGroup.transferFunction.add(0.0, inviwopy.glm.vec4(0.0, 0.0, 0.0, 1.0))
+        #VolumeSlice.tfGroup.transferFunction.add(1.0, inviwopy.glm.vec4(1.0, 1.0, 1.0, 1.0))
+        tf_points = charge_get_points()
+        if len(tf_points) > 0:
+            VolumeSlice.tfGroup.transferFunction.add(0.99*tf_points[0][0], inviwopy.glm.vec4(1.0, 1.0, 1.0, 1.0))
 
 def charge_clear_tf():
     Raycaster = network.getProcessorByIdentifier('Charge raycaster')
@@ -173,7 +176,7 @@ def charge_get_points():
 #--Background and lighting--
 
 def charge_set_shading_mode(mode):
-    Raycaster = network.getProcessorByIdentifier('Volume Slice')
+    Raycaster = network.getProcessorByIdentifier('Charge raycaster')
     Raycaster.lighting.shadingMode.value = mode
     pass
 
