@@ -87,6 +87,7 @@ class SliceControlCollapsible(GeneralCollapsible):
         self.add_item(self.heightSlider)
 
     def normal_input_changed(self, event):
+        # TODO clamp values in [0, 1] range
         try:
             x = float(self.xInput.GetLineText(0))
             y = float(self.yInput.GetLineText(0))
@@ -97,7 +98,7 @@ class SliceControlCollapsible(GeneralCollapsible):
         if x == y == z == 0:
             raise ValueError("Normal must be separated from 0")
 
-        
+        parameter_utils.charge_set_plane_normal(x, y, z)
         print(str(x) + ":" + str(y) + ":" + str(z))
 
     def slider_changed(self, event):
