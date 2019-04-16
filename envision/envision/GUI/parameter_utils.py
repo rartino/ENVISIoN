@@ -51,7 +51,7 @@ def enable_visualization(type, path):
     
 def set_canvas_position(position = None, type='Canvas'):
     #Change the canvas-position
-    Canvas = network.getProcessorByIdentifier('Canvas')
+    Canvas = network.getProcessorByIdentifier(type)
     if position != None:
         Canvas.position.value = position
 
