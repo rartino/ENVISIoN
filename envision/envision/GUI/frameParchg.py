@@ -61,7 +61,8 @@ class ParchgFrame(GeneralCollapsible):
             # Disable Parchg vis
             clear_processor_network()
             print("Not Parchg")
-        elif "/PARCHG" and "/UnitCell" in  h5py.File(self.parent_collapsible.path, 'r'):
+        elif "/PARCHG" in  h5py.File(self.parent_collapsible.path, 'r') and\
+                "/UnitCell" in  h5py.File(self.parent_collapsible.path, 'r'):
             #Start Parchg vis
             envision.inviwo.unitcell(self.parent_collapsible.path, 
                                 xpos = 0, ypos = 0, smallAtoms = True)

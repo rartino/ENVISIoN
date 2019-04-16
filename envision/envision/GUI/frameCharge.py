@@ -44,18 +44,41 @@ from backgroundCollapsible import BackgroundCollapsible
 class ChargeFrame(GeneralCollapsible):
     def __init__(self, parent):
         super().__init__(parent, label = "Charge")
+        self.slice=False
 
         # Setup volume rendering controls
         self.volumeCollapsible = VolumeControlCollapsible(self.GetPane(), "Volume Rendering")
         self.add_sub_collapsible(self.volumeCollapsible)
+        
+        self.sliceBackgroundCollapsibe = BackgroundCollapsible(self.GetPane(), "Slice background")
+        self.sliceBackgroundCollapsibe.type = 'SliceBackground'
 
         # Setup background controls
         self.backgroundCollapsibe = BackgroundCollapsible(self.GetPane(), "Background")
         self.add_sub_collapsible(self.backgroundCollapsibe)
+        
+        self.sliceBox = wx.CheckBox(self.GetPane(), label="Slice")
+        self.add_item(self.sliceBox)
 
         # Override default binding
         # Note that function should be called "on_collapse" to work
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
+        self.sliceBox.Bind(wx.EVT_CHECKBOX,self.on_check)
+
+    def on_check(self,event):
+        if self.slice:
+            self.slice = False
+            self.backgroundCollapsibe.type = 'Background'
+            self.backgroundCollapsibe.SetLabel('Background')
+            self.remove_sub_collapsible(3)
+        else:
+            self.slice = True
+            self.add_sub_collapsible(self.sliceBackgroundCollapsibe)
+            self.backgroundCollapsibe.SetLabel('Volume background')
+            self.backgroundCollapsibe.type = 'VolumeBackground'
+        self.update_collapse()
+        clear_processor_network()
+        self.start_vis()
 
     def on_collapse(self, event = None):
         self.update_collapse()
@@ -63,15 +86,21 @@ class ChargeFrame(GeneralCollapsible):
         if self.IsCollapsed():
             # Disable charge vis
             clear_processor_network()
-        elif '/{}'.format('CHG') in h5py.File(self.parent_collapsible.path, 'r'):
+        else:
             #Start Charge vis
+            self.start_vis()
+
+    def start_vis(self):
+        if '/{}'.format('CHG') in h5py.File(self.parent_collapsible.path, 'r'):
             envision.inviwo.charge(self.parent_collapsible.path, 
-                                iso = None, slice = False, 
+                                iso = None, slice = self.slice, 
                                 xpos = 0, ypos = 0)
-            self.set_canvas_pos()
+            if self.slice:
+                self.set_canvas_pos('SliceCanvas')
+                self.set_canvas_pos('VolumeCanvas')
+            else:
+                self.set_canvas_pos()
         else:
             self.open_message('The file of choice does not contain Charge-data',
                                 'Visualization failed!')
-
-        
         
