@@ -37,10 +37,13 @@
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import wx, sys, os, h5py
-from parameter_utils import *
+# from parameter_utils import *
 from generalCollapsible import GeneralCollapsible
 from volumeControlCollapsible import VolumeControlCollapsible
 from backgroundCollapsible import BackgroundCollapsible
+from sliceControlCollapsible import SliceControlCollapsible
+import parameter_utils
+import envision
 class ChargeFrame(GeneralCollapsible):
     def __init__(self, parent):
         super().__init__(parent, label = "Charge")
@@ -57,12 +60,16 @@ class ChargeFrame(GeneralCollapsible):
         #Setup slice-checkbox
         self.sliceBox = wx.CheckBox(self.GetPane(), label="Slice")
         self.add_item(self.sliceBox)
+        
+        # Setup slice controls
+        self.sliceCollapsible = SliceControlCollapsible(self.GetPane(), "Volume Slice")
+        self.add_sub_collapsible(self.sliceCollapsible)
 
         #Setup the possibility of slice-background control
         self.sliceBackgroundCollapsibe = BackgroundCollapsible(self.GetPane(), "Slice background")
         self.sliceBackgroundCollapsibe.type = 'SliceBackground'
         self.add_sub_collapsible(self.sliceBackgroundCollapsibe)
-        self.hide_sub_collapsible(3)
+        self.hide_sub_collapsible(4)
         # Override default binding
         # Note that function should be called "on_collapse" to work
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
@@ -73,10 +80,10 @@ class ChargeFrame(GeneralCollapsible):
             self.slice = False
             self.backgroundCollapsibe.type = 'Background'
             self.backgroundCollapsibe.SetLabel('Background')
-            self.hide_sub_collapsible(3)
+            self.hide_sub_collapsible(4)
         else:
             self.slice = True
-            self.show_sub_collapsible(3)
+            self.show_sub_collapsible(4)
             self.backgroundCollapsibe.SetLabel('Volume background')
             self.sliceBackgroundCollapsibe.SetLabel('Slice Background')
             self.backgroundCollapsibe.type = 'VolumeBackground'

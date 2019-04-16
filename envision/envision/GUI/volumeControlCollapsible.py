@@ -79,12 +79,16 @@ class VolumeControlCollapsible(GeneralCollapsible):
             "than the first transfer function point.\n" + 
             "If unchecked lower densities will get an interpolated color.")
         transperacyCheckbox.Bind(wx.EVT_CHECKBOX, self.transperacy_checkbox_changed)
-        
+
+        transperacyCheckbox.SetValue(True)
+        self.tf_transperancy_enabled = True
+
         self.add_item(transperacyCheckbox)
 
         # Vertical box to hold all tf point elements 
         self.tfpointsVBox = wx.BoxSizer(wx.VERTICAL)
         
+
         # List holds all added tfpoint sizers for later access
         # Empty on initialization, fills up with user input
         self.tfPointWidgets = []
@@ -103,7 +107,7 @@ class VolumeControlCollapsible(GeneralCollapsible):
         # self.add_tf_point(0.1, 0.1, wx.Colour(200, 0, 0))
         # self.add_tf_point(0.2, 0.1, wx.Colour(0, 200, 0))
         # self.add_tf_point(0.3, 0.1, wx.Colour(0, 0, 200))
-        # self.add_tf_point(0.4, 0.1, wx.Colour(200, 200, 200))
+        # self.add_tf_point(0.4, 0.1, wx.Colour(200, 200, 200) 
 
         # Load and save controls
 
@@ -122,11 +126,23 @@ class VolumeControlCollapsible(GeneralCollapsible):
 
 
     def transperacy_checkbox_changed(self, event):
-        # TODO: add transfer function masking mybe
-        # or add a transfer function point with alpha 0 just before the first point
-        # indexes need to be fixed then?
-        print("hello")
-        pass
+    # Update the transperancy mode
+        self.tf_transperancy_enabled = event.IsChecked()
+        self.update_mask()
+        
+    def update_mask(self):
+    # Sets a mask to the transferfunction
+    # Makes o
+        if len(self.tfPointWidgets) <= 0:
+            return
+        if self.tf_transperancy_enabled:
+            print("Add mask")
+            parameter_utils.charge_set_mask(self.tfPointWidgets[0].value, 1)
+        else:
+            print("Reset mask")
+            parameter_utils.charge_set_mask(0, 1)
+
+        
 
     def load_transfer_function(self, path=None):
     # Save the transfer function to specified path
@@ -216,6 +232,9 @@ class VolumeControlCollapsible(GeneralCollapsible):
 
         self.tfPointWidgets.insert(insertion_idx, tfPointWidget)
         self.update_collapse()
+        
+        # Update the transperancy mask
+        self.update_mask()
 
         # Add point to inviwo
         glmColor = inviwopy.glm.vec4(float(colour.Red())/255, float(colour.Green())/255, float(colour.Blue())/255, alpha)
@@ -234,6 +253,9 @@ class VolumeControlCollapsible(GeneralCollapsible):
         self.tfPointWidgets.remove(tfPointWidget)
         self.tfpointsVBox.Remove(tfPointWidget)
         self.update_collapse()
+
+        # Update the transperancy mask
+        self.update_mask()
 
         # Remove point in inviwo
         parameter_utils.charge_remove_tf_point(index)
@@ -285,3 +307,5 @@ class TFPointWidget(wx.BoxSizer):
         res = [self.get_text_value(), self.get_text_alpha(), self.colorPicker.GetColour()]
         return res
         
+
+['__add__', '__class__', '__delattr__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__iadd__', '__imul__', '__init__', '__init_subclass__', '__isub__', '__itruediv__', '__le__', '__lt__', '__module__', '__mul__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__setitem__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', 'array', 'g', 'r', 's', 't', 'x', 'y']
