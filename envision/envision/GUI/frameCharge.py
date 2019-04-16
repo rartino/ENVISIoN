@@ -89,6 +89,7 @@ class ChargeFrame(GeneralCollapsible):
         else:
             #Start Charge vis
             self.start_vis()
+            
 
     def start_vis(self):
         if '/{}'.format('CHG') in h5py.File(self.parent_collapsible.path, 'r'):
