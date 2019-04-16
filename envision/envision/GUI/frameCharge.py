@@ -64,11 +64,7 @@ class ChargeFrame(GeneralCollapsible):
         self.sliceCollapsible = SliceControlCollapsible(self.GetPane(), "Volume Slice")
         self.add_sub_collapsible(self.sliceCollapsible)
 
-        #Setup the possibility of slice-background control
-        self.sliceBackgroundCollapsibe = BackgroundCollapsible(self.GetPane(), "Slice background")
-        self.sliceBackgroundCollapsibe.type = 'SliceBackground'
-        self.add_sub_collapsible(self.sliceBackgroundCollapsibe)
-        self.hide_sub_collapsible(4)
+        self.hide_sub_collapsible(3)
         # Override default binding
         # Note that function should be called "on_collapse" to work
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
@@ -79,13 +75,13 @@ class ChargeFrame(GeneralCollapsible):
             self.slice = False
             self.backgroundCollapsibe.type = 'Background'
             self.backgroundCollapsibe.SetLabel('Background')
-            self.hide_sub_collapsible(4)
+            self.hide_sub_collapsible(3)
         else:
             self.slice = True
-            self.show_sub_collapsible(4)
+            self.show_sub_collapsible(3)
             self.backgroundCollapsibe.SetLabel('Volume background')
-            self.sliceBackgroundCollapsibe.SetLabel('Slice Background')
             self.backgroundCollapsibe.type = 'VolumeBackground'
+            self.sliceCollapsible.Collapse(False)
         self.update_collapse()
         parameter_utils.clear_processor_network()
         self.start_vis()
@@ -106,11 +102,7 @@ class ChargeFrame(GeneralCollapsible):
             self.open_message('The file of choice does not contain Charge-data',
                                 'Visualization failed!')
         elif '/{}'.format('CHG') in h5py.File(self.parent_collapsible.path, 'r'):
-            envision.inviwo.charge(self.parent_collapsible.path, 
-                                iso = None, slice = self.slice, 
-                                xpos = 0, ypos = 0)
-            parameter_utils.charge_clear_tf()
-            parameter_utils.charge_toggle_plane(self.slice)
+            parameter_utils.start_charge_vis(self.parent_collapsible.path,self.slice)
             if self.slice:
                 self.set_canvas_pos('VolumeCanvas')
                 self.set_canvas_pos('SliceCanvas')
@@ -119,4 +111,4 @@ class ChargeFrame(GeneralCollapsible):
         else:
             self.open_message('The file of choice does not contain Charge-data',
                                 'Visualization failed!')
-        
+    

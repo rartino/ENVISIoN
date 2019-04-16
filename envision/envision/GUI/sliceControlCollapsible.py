@@ -39,6 +39,7 @@
 import wx
 from generalCollapsible import GeneralCollapsible
 import parameter_utils
+from backgroundCollapsible import BackgroundCollapsible
 # TODO: Integrate with inviwo
 # TODO: height slider does not work with custom normal
 
@@ -59,12 +60,20 @@ class SliceControlCollapsible(GeneralCollapsible):
         self.yInput = wx.TextCtrl(pane, value="1", style=wx.TE_PROCESS_ENTER, size=wx.Size(40, 23))
         self.zInput = wx.TextCtrl(pane, value="0", style=wx.TE_PROCESS_ENTER, size=wx.Size(40, 23))
 
+        #Setup the possibility of slice-background control
+        self.sliceBackgroundCollapsibe = BackgroundCollapsible(self.GetPane(), "Slice background")
+        self.sliceBackgroundCollapsibe.type = 'SliceBackground'
+        self.sliceBackgroundCollapsibe.SetLabel('Slice Background')
+        self.sliceBackgroundCollapsibe.backgroundDropDown.SetSelection(3)
+        self.sliceBackgroundCollapsibe.bgColourPicker1.write_inputs(1, 1, 1, 1,wx.Colour(255,255,255))
+        self.sliceBackgroundCollapsibe.bgColourPicker2.write_inputs(0, 0, 0, 1,wx.Colour(0,0,0))
+
         normalHBox = wx.BoxSizer(wx.HORIZONTAL)
         normalHBox.Add(self.xInput)
         normalHBox.Add(self.yInput)
         normalHBox.Add(self.zInput)
         self.add_item(normalHBox)
-
+        
         # Events to read input on
         self.xInput.Bind(wx.EVT_KILL_FOCUS, self.normal_input_changed)
         self.xInput.Bind(wx.EVT_TEXT_ENTER, self.normal_input_changed)
@@ -85,6 +94,7 @@ class SliceControlCollapsible(GeneralCollapsible):
         self.heightSlider.Bind(wx.EVT_SCROLL, self.slider_changed)
 
         self.add_item(self.heightSlider)
+        self.add_sub_collapsible(self.sliceBackgroundCollapsibe)
 
     def normal_input_changed(self, event):
         # TODO clamp values in [0, 1] range
