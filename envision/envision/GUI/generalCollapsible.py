@@ -168,4 +168,13 @@ class GeneralCollapsible(wx.CollapsiblePane):
         else:
             set_canvas_position(canvasPosition)
 
+    def isPathEmpty(self):
+        if not os.path.exists(self.parent_collapsible.path):
+            self.open_message('No path given!',
+                                'Visualization failed!')
+            self.Collapse(True)
+            self.update_collapse()
+            return True
+        else:
+            return False
         

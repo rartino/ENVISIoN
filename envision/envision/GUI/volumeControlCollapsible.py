@@ -109,14 +109,18 @@ class VolumeControlCollapsible(GeneralCollapsible):
         # self.add_tf_point(0.3, 0.1, wx.Colour(0, 0, 200))
         # self.add_tf_point(0.4, 0.1, wx.Colour(200, 200, 200) 
 
-        # Load and save controls
+        #Histogram button
+        histoButton = wx.Button(volumePane, label = "Show volume distribution", size = wx.Size(50, 23))
+        histoButton.Bind(wx.EVT_BUTTON, lambda event : parameter_utils.show_volume_dist(self.parent_collapsible.parent_collapsible.path))
 
+        # Load and save controls
         saveButton = wx.Button(volumePane, label = "Save transfer func", size = wx.Size(100, 23))
         loadButton = wx.Button(volumePane, label = "Load transfer func", size = wx.Size(100, 23))
         
         saveButton.Bind(wx.EVT_BUTTON, lambda event : self.save_transfer_function())
         loadButton.Bind(wx.EVT_BUTTON, lambda event : self.load_transfer_function())
 
+        self.add_item(histoButton)
         self.add_item(saveButton)
         self.add_item(loadButton)
         

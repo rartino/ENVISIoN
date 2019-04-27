@@ -66,7 +66,7 @@ class VisualizationFrame(GeneralCollapsible):
         self.fileText = wx.StaticText(self.GetPane(), label="File to Visualize:")
         
         self.fileText.SetForegroundColour(self.text_colour)                                    
-        self.path = "Enter path.."
+        self.path = 'Enter path..'
         self.chooseFile = wx.Button(self.GetPane(), size=self.itemSize,
                                     label = str('..or select file'))
         self.enterPath = wx.TextCtrl(self.GetPane(), size=self.itemSize,

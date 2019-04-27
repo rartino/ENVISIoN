@@ -28,7 +28,9 @@ import sys, os
 import inspect
 path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 sys.path.insert(0, os.path.expanduser(path_to_current_folder+'/../../'))
-
+import h5py
+import numpy
+from matplotlib import pyplot as plt 
 import inviwopy
 import inspect
 import envision
@@ -87,6 +89,7 @@ def set_hd5_source(path):
 def start_charge_vis(path,isSlice):
     # Start the charge visualization
     # Hdf5 needs to be charge and unitcell-parsed
+    clear_processor_network()
     envision.inviwo.charge(path, 
                                 iso = None, slice = isSlice, 
                                 xpos = 0, ypos = 0)
@@ -96,6 +99,7 @@ def start_charge_vis(path,isSlice):
         charge_set_plane_normal()
         charge_set_background(inviwopy.glm.vec4(0,0,0,1),
                             inviwopy.glm.vec4(1,1,1,1),3,0,'SliceBackground')
+    slice_copy_tf()
         
 
     # TODO: if charge network exists, only enable the canvas
@@ -131,6 +135,19 @@ def charge_set_mask(maskMin, maskMax):
     # print(vec2)
     # tf_property.mask = vec2
 
+def show_volume_dist(path_to_hdf5):
+    volume = network.getProcessorByIdentifier('HDF5 To Volume')
+    with h5py.File(path_to_hdf5,"r") as h5:
+        data = h5[volume.volumeSelection.value].value
+        result = []
+        [ result.extend(el) for el in data[0] ]
+        #newResult = []
+        #[ newResult.append((element + abs(min(result)))/(max(result) + abs(min(result)))) \
+        #    for element in result ]
+        dataList= numpy.array(result)
+        plt.hist(dataList,bins=200, density = True)
+        plt.title("TF and ISO data") 
+        plt.show()
 
 def charge_add_tf_point(value, color):
     Raycaster = network.getProcessorByIdentifier('Charge raycaster')
