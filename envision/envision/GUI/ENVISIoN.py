@@ -42,8 +42,8 @@
 
 import wx, os, sys, wx.lib.scrolledpanel
 import inspect
-path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-sys.path.insert(0, os.path.expanduser(path_to_current_folder))
+path_to_current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_dir))
 from VisFrame import VisualizationFrame
 from ParserPane import ParserPane 
 from generalCollapsible import GeneralCollapsible

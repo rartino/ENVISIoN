@@ -49,7 +49,7 @@ from log import *
 from util import *
 from h5writer import _write_incar
 
-def parse_incar(h5file, vasp_file):
+def _parse_incar(h5file, vasp_file):
     """
 	Parses set values from INCAR
 
@@ -80,6 +80,7 @@ def parse_incar(h5file, vasp_file):
             "NBANDS",
             "NBLK",
             "SYSTEM",
+	    "START",
             "NWRITE",
             "ISTART",
             "ICHARG",
@@ -89,11 +90,15 @@ def parse_incar(h5file, vasp_file):
             "ENCUT",
             "PREC",
             "PREC",
+	    "NSIM",
             "NELM",
             "NELMINandNELMDL",
+	    "NCORE",
             "EDIFF",
             "EDIFFG",
             "NSW",
+            "NELMIN",
+	    "NELMDL",
             "NBLOCKandKBLOCK",
             "IBRION",
             "ISIF",
@@ -111,6 +116,7 @@ def parse_incar(h5file, vasp_file):
             "RWIGS",
             "NELECT",
             "NUPDOWN",
+	    "MDALGO",
             "EMIN",
             "EMAX",
             "ISMEAR",
