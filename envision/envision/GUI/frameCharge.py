@@ -83,7 +83,6 @@ class ChargeFrame(GeneralCollapsible):
             self.backgroundCollapsibe.type = 'VolumeBackground'
             self.sliceCollapsible.Collapse(False)
         self.update_collapse()
-        parameter_utils.clear_processor_network()
         self.start_vis()
 
     def on_collapse(self, event = None):
@@ -98,9 +97,8 @@ class ChargeFrame(GeneralCollapsible):
             
 
     def start_vis(self):
-        if self.parent_collapsible.path=='':
-            self.open_message('The file of choice does not contain Charge-data',
-                                'Visualization failed!')
+        if self.isPathEmpty():
+            return    
         elif '/{}'.format('CHG') in h5py.File(self.parent_collapsible.path, 'r'):
             parameter_utils.start_charge_vis(self.parent_collapsible.path,self.slice)
             if self.slice:
@@ -111,4 +109,6 @@ class ChargeFrame(GeneralCollapsible):
         else:
             self.open_message('The file of choice does not contain Charge-data',
                                 'Visualization failed!')
+            self.Collapse(True)
+            self.update_collapse()
     

@@ -60,6 +60,12 @@ class DosFrame(GeneralCollapsible):
         if self.IsCollapsed():
             # Disable DoS vis
             clear_processor_network()
+        else:
+            self.start_vis()
+
+    def start_vis(self):
+        if self.isPathEmpty():
+            return    
         elif '/FermiEnergy' in  h5py.File(self.parent_collapsible.path, 'r')\
             and 'DOS' in  h5py.File(self.parent_collapsible.path, 'r'):
             #Start DoS vis
@@ -71,3 +77,6 @@ class DosFrame(GeneralCollapsible):
         else:
             self.open_message('The file of choice does not contain DoS-data',
                                 'Visualization failed!')
+            self.Collapse(True)
+            self.update_collapse()
+

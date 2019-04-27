@@ -61,6 +61,12 @@ class ParchgFrame(GeneralCollapsible):
             # Disable Parchg vis
             clear_processor_network()
             print("Not Parchg")
+        else:
+            self.start_vis()
+
+    def start_vis(self):
+        if self.isPathEmpty():
+            return
         elif "/PARCHG" in  h5py.File(self.parent_collapsible.path, 'r') and\
                 "/UnitCell" in  h5py.File(self.parent_collapsible.path, 'r'):
             #Start Parchg vis
@@ -79,4 +85,6 @@ class ParchgFrame(GeneralCollapsible):
         else:
             self.open_message('The file of choice does not contain Partial charge-data',
                                 'Visualization failed!')
+            self.Collapse(True)
+            self.update_collapse()
 

@@ -36,6 +36,7 @@
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 import wx,sys,os
+import h5py
 from generalCollapsible import GeneralCollapsible
 
 class PKFFrame(GeneralCollapsible):
@@ -63,8 +64,20 @@ class PKFFrame(GeneralCollapsible):
             print("Not paircorr")
         else:
             #Start vis
-            self.set_canvas_pos()
+            self.start_vis()
             print("Paircorr")
         
-        
+    
+    def start_vis(self):
+        if self.isPathEmpty():
+            return
+        elif "/PCF" in  h5py.File(self.parent_collapsible.path, 'r'):
+            #Start vis
+            self.set_canvas_pos()
+            print("Paircorr")
+        else:
+            self.open_message('The file of choice does not contain PCF-data',
+                                'Visualization failed!')
+            self.Collapse(True)
+            self.update_collapse()     
         

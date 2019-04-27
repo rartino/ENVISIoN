@@ -61,6 +61,12 @@ class UnitcellFrame(GeneralCollapsible):
             # Disable Unitcell vis
             clear_processor_network()
             print("Not Unitcell")
+        else:
+            self.start_vis()
+
+    def start_vis(self):
+        if self.isPathEmpty():
+            return
         elif "/UnitCell" in  h5py.File(self.parent_collapsible.path, 'r'):
             #Start Unitcell vis
             envision.inviwo.unitcell(self.parent_collapsible.path, 
@@ -70,3 +76,5 @@ class UnitcellFrame(GeneralCollapsible):
         else:
             self.open_message('The file of choice does not contain Unitcell-data',
                                 'Visualization failed!')
+            self.Collapse(True)
+            self.update_collapse()
