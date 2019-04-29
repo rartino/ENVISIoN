@@ -35,9 +35,13 @@
 #  You should have received a copy of the CC0 legalcode along with
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
-import wx,sys,os
+import wx,sys,os,inspect
 import h5py
 from generalCollapsible import GeneralCollapsible
+
+path_to_current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_dir+"/../inviwo"))
+from PKFVisualisering import paircorrelation
 
 class PKFFrame(GeneralCollapsible):
     def __init__(self, parent):
@@ -73,6 +77,7 @@ class PKFFrame(GeneralCollapsible):
             return
         elif "/PCF" in  h5py.File(self.parent_collapsible.path, 'r'):
             #Start vis
+            paircorrelation(self.parent_collapsible.path, xpos=0, ypos=0)
             self.set_canvas_pos()
             print("Paircorr")
         else:
