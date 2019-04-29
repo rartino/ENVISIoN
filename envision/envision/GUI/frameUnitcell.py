@@ -78,3 +78,4 @@ class UnitcellFrame(GeneralCollapsible):
                                 'Visualization failed!')
             self.Collapse(True)
             self.update_collapse()
+

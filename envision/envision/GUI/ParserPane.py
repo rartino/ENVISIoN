@@ -229,3 +229,15 @@ class ParserPane(GeneralCollapsible):
         dirFrame.Destroy()
         return path
 
+#Dialog for messages, fail or successes
+    def open_message(self,message,label):
+        messageFrame = wx.Frame(None, -1, 'win.py')
+        messageFrame.SetSize(0,0,60,50)
+        messageFrame.Centre()
+        pathDialog = wx.MessageDialog(messageFrame, message, 
+                                        label, wx.FD_OPEN)
+        #Show dialog
+        pathDialog.ShowModal()
+        pathDialog.Destroy()
+        messageFrame.Destroy()
+

@@ -71,8 +71,7 @@ class PKFFrame(GeneralCollapsible):
             #Start vis
             self.start_vis()
             print("Paircorr")
-        
-    
+
     def start_vis(self):
         if self.isPathEmpty():
             return
