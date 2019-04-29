@@ -141,13 +141,17 @@ def show_volume_dist(path_to_hdf5):
         data = h5[volume.volumeSelection.value].value
         result = []
         [ result.extend(el) for el in data[0] ]
-        #newResult = []
-        #[ newResult.append((element + abs(min(result)))/(max(result) + abs(min(result)))) \
-        #    for element in result ]
-        dataList= numpy.array(result)
+        newResult = []
+        [ newResult.append((element + abs(min(result)))/(max(result) + abs(min(result)))) \
+            for element in result ]
+        dataList= numpy.array(newResult)
         plt.hist(dataList,bins=200, density = True)
         plt.title("TF and ISO data") 
         plt.show()
+
+def show_canvas(show=True,type='Canvas'):
+    canvas = network.getProcessorByIdentifier(type)
+    canvas.meta.visible = show
 
 def charge_add_tf_point(value, color):
     Raycaster = network.getProcessorByIdentifier('Charge raycaster')
