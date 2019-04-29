@@ -6,10 +6,10 @@ import inspect
 path_to_current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 sys.path.insert(0, os.path.expanduser(path_to_current_dir))
 sys.path.insert(0, os.path.expanduser(path_to_current_dir+'/../'))
-
 from incar import _parse_incar
 from unitcell import _find_elements
 from h5writer import _write_pcdat
+
 
 def _parse_pcdat(h5file, vasp_file, vasp_dir):
     #   The function parse PCDAT-file and is called upon by paircorrelation(h5file, vasp_dir)
