@@ -26,7 +26,7 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by Anton Hjert
+#  Alterations to this file by
 #
 #  To the extent possible under law, the person who associated CC0
 #  with the alterations to this file has waived all copyright and related
@@ -35,7 +35,8 @@
 #  You should have received a copy of the CC0 legalcode along with
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
-import wx,sys,os
+import wx ,sys ,os , h5py
+from parameter_utils import *
 from generalCollapsible import GeneralCollapsible
 
 class DosFrame(GeneralCollapsible):
@@ -49,3 +50,24 @@ class DosFrame(GeneralCollapsible):
         self.add_item(button1)
         self.add_item(button2)
         self.add_item(slider)
+
+        self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
+
+    
+    def on_collapse(self, event = None):
+        self.update_collapse()
+        # Needs to be called to update the layout properly
+        if self.IsCollapsed():
+            # Disable DoS vis
+            clear_processor_network()
+        elif '/FermiEnergy' in  h5py.File(self.parent_collapsible.path, 'r')\
+            and 'DOS' in  h5py.File(self.parent_collapsible.path, 'r'):
+            #Start DoS vis
+            self.open_message("When hitting ok, wait until all four windows are fully loaded",
+                            "Be patient!")
+            envision.inviwo.dos(self.parent_collapsible.path, 
+                                atom = 0, xpos = 0, ypos = 0)
+            self.set_canvas_pos('DoS')
+        else:
+            self.open_message('The file of choice does not contain DoS-data',
+                                'Visualization failed!')

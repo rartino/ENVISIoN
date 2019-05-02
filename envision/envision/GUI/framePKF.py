@@ -26,7 +26,7 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by Anton Hjert
+#  Alterations to this file by
 #
 #  To the extent possible under law, the person who associated CC0
 #  with the alterations to this file has waived all copyright and related
@@ -59,9 +59,11 @@ class PKFFrame(GeneralCollapsible):
         # Needs to be called to update the layout properly
         if self.IsCollapsed():
             # Disable vis
+            clear_processor_network()
             print("Not paircorr")
         else:
             #Start vis
+            self.set_canvas_pos()
             print("Paircorr")
         
         
