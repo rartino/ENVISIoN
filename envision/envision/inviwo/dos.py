@@ -27,7 +27,7 @@
 ##############################################################################################
 #
 #  Alterations to this file by Anders Rehult, Viktor Bernholtz and
-#  Marian Brännvall
+#  Marian Brännvall, Anton Hjert
 #
 #  To the extent possible under law, the person who associated CC0 with
 #  the alterations to this file has waived all copyright and related or
@@ -36,11 +36,14 @@
 #  You should have received a copy of the CC0 legalcode along with this
 #  work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
-
+import sys, os
+import inspect
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder))
 import inviwopy
 import numpy as np
 import h5py
-from .common import _add_h5source, _add_processor
+from common import _add_h5source, _add_processor
 
 app = inviwopy.app
 network = app.network
@@ -254,7 +257,7 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
 
         for plotter_source in plotter_source_list:
             ypostemp = ypos
-            plotter_processor = _add_processor("org.inviwo.lineplotprocessor", "DOS Plotter", xpos, ypostemp)
+            plotter_processor = _add_processor("org.inviwo.LinePlotProcessor", "DOS Plotter", xpos, ypostemp)
             plotter_source_outport = plotter_source.getOutport('dataframeOutport')
             plotter_processor_labels_outport = plotter_processor.getOutport('labels')
             plotter_processor_mesh_outport = plotter_processor.getOutport('outport')

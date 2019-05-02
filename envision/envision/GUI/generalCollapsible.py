@@ -37,7 +37,7 @@
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import wx, sys, os
-
+from parameter_utils import *
 class GeneralCollapsible(wx.CollapsiblePane):
 
     # Initialize with parent pane and desired label-string
@@ -52,8 +52,19 @@ class GeneralCollapsible(wx.CollapsiblePane):
         self.SetBackgroundColour(self.bg_colour)
 
         self.pane = self.GetPane()
+
+        hbox = wx.BoxSizer(wx.HORIZONTAL)
+
+        fillBox = wx.BoxSizer(wx.HORIZONTAL)
+        fillBox.AddSpacer(30)
+
         self.sizer = wx.BoxSizer(wx.VERTICAL)
-        self.pane.SetSizer(self.sizer)
+
+        hbox.Add(fillBox)
+        hbox.Add(self.sizer)
+        self.pane.SetSizer(hbox)
+        # self.pane.SetSizer(self.sizer)
+
     
         # Default callback when collapsing panel, just updates the layouts to make sizers expand
         # Can freely be changed in subclasses, just make sure to call update_layout there aswell
@@ -72,18 +83,38 @@ class GeneralCollapsible(wx.CollapsiblePane):
         self.sub_collapsibles.append(item)
         item.parent_collapsible = self
     
+    def hide_sub_collapsible(self, itemidx):
+        # Hide a collapsible panel
+        self.sizer.Hide(itemidx)
+    
+    def show_sub_collapsible(self, itemidx):
+        # show a collapsible panel
+        self.sizer.Show(itemidx)
+
     def set_path(self,path):
         self.path=path
 
     def collapse_children(self):
         for collapsible in self.sub_collapsibles:
             collapsible.Collapse(True)
-            collapsible.on_collapse(event = None)
+            # collapsible.on_collapse()
 
     def on_collapse(self, event = None):
         # Default collapse callback, only updates layout
         # Binding can be changed in sub-classes
         self.update_collapse()
+    
+    #Dialog for messages, fail or successes
+    def open_message(self,message,label):
+        messageFrame = wx.Frame(None, -1, 'win.py')
+        messageFrame.SetSize(0,0,60,50)
+        messageFrame.Centre()
+        pathDialog = wx.MessageDialog(messageFrame, message, 
+                                        label, wx.FD_OPEN)
+     #Show dialog
+        pathDialog.ShowModal()
+        pathDialog.Destroy()
+        messageFrame.Destroy()
 
 
     def update_collapse(self, event = None):
@@ -97,14 +128,17 @@ class GeneralCollapsible(wx.CollapsiblePane):
         # If collapsed collapse all sub collapsibles
         if self.IsCollapsed():
             self.collapse_children()
-            
+
+        
+
         # For some reason this makes the sub panels expand correctly
         # Seems to be needed on linux, can maybe be simplified tho.
+        
+        self.Collapse(not self.IsCollapsed())
+        self.Collapse(not self.IsCollapsed())
         if self.parent_collapsible != None:
-            self.parent_collapsible.Collapse(not self.parent_collapsible.IsCollapsed())
-            self.parent_collapsible.Collapse(not self.parent_collapsible.IsCollapsed())
             self.parent_collapsible.Layout()
-            # self.parent_collapsible.update_collapse()
+            self.parent_collapsible.update_collapse()
 
         # Update the layout of parent widgets
         self.Layout()
@@ -114,3 +148,24 @@ class GeneralCollapsible(wx.CollapsiblePane):
          widget.Layout()
          if widget.IsTopLevel():
              break
+    
+    def set_canvas_pos(self,type=''):
+        widget = self
+        while True:
+         widget = widget.GetParent()
+         if widget.IsTopLevel():
+            windowPosition=widget.GetPosition()
+            windowSize = widget.GetSize()
+            break
+        canvasPosition = inviwopy.glm.ivec2(windowPosition.x+windowSize.width,windowPosition.y)
+        if type == 'Unitcell':
+            set_unitcell_canvas_position(canvasPosition)
+        elif type == 'DoS':
+            set_dos_canvas_position(canvasPosition)
+        elif type =='SliceCanvas':
+            canvasPosition = inviwopy.glm.ivec2(windowPosition.x+windowSize.width,windowPosition.y+296)
+            set_canvas_position(canvasPosition, type)
+        else:
+            set_canvas_position(canvasPosition)
+
+        

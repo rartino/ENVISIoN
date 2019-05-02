@@ -28,7 +28,7 @@
 ##############################################################################################
 #
 #  Alterations to this file by Anders Rehult, Marian Brännvall,
-#  Andreas Kempe and Viktor Bernholtz
+#  Andreas Kempe and Viktor Bernholtz, Anton Hjert
 #
 #  To the extent possible under law, the person who associated CC0
 #  with the alterations to this file has waived all copyright and related
@@ -51,7 +51,7 @@
 
 import os,sys, inspect, re, h5py
 path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-sys.path.insert(0, os.path.expanduser(path_to_current_folder))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder + '/..'))
 from h5writer import _write_fermisurface
 from fermiEnergy import fermi_energy_parser
 
