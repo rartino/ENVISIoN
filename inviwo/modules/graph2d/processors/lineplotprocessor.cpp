@@ -185,7 +185,7 @@ void LinePlotProcessor::process() {
 
     // We want at least two columns.
     if (inputFrame->getNumberOfColumns() >= 3) {
-        // Store y-data in vector and x-data in column.
+        // Store all data in a vector.
         for (size_t i = 0; i < inputFrame->getNumberOfColumns(); i++) {
             if (inputFrame->getHeader(i) != "index") {
                 data.push_back(inputFrame->getColumn(i));
@@ -212,6 +212,7 @@ void LinePlotProcessor::process() {
     // Declare global size boundries.
     size_t xSize, ySize;
     double xMax, xMin, yMax, yMin;
+    double range;
     // If we only want to plot one X against one Y.
     if (!allYSelection_.get()) {
         for (size_t i = 0; i < data.size(); i++) {
@@ -249,10 +250,11 @@ void LinePlotProcessor::process() {
                 localYMin = y->getAsDouble(i);
             }
         }
+        range = abs(localYMin + localYMax);
         xMax = localXMax;
         xMin = localXMin;
-        yMax = localYMax;
-        yMin = localYMin;
+        yMax = localYMax + 0.1 * range;
+        yMin = localYMin - 0.1 * range;
     } else {
         // If we want to plot X against all Y.
         for (size_t i = 0; i < data.size(); i++) {
@@ -286,6 +288,9 @@ void LinePlotProcessor::process() {
                 }
             }
         }
+        range = abs(yMin + yMax);
+        yMin -= 0.1 * range;
+        yMax += 0.1 * range;
     }
     if (dataFrameInport_.isChanged() ||
         xSelectionProperty_.isModified() ||
