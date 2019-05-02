@@ -1,7 +1,7 @@
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2017-2018 Josef Adamsson, Robert Cranston, David Hartman, Denise Härnström,
+#  Copyright (c) 2017-2019 Josef Adamsson, Robert Cranston, David Hartman, Denise Härnström,
 #  Fredrik Segerhammar, Anders Rehult, Viktor Bernholtz, Elvis Jakobsson, Abdullatif Ismail
 #  All rights reserved.
 #
