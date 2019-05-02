@@ -78,7 +78,7 @@ def _write_md(h5file, atom_count, coordinates_list, elements, step):
                     data=np.asarray(coordinates_list[p:atom_count[n]+p]),
                     dtype=np.float32,
                     maxshape=(None, 3)
-                    )
+                )
                 h5[dataset_name].attrs["element"] = elements[n]
                 h5[dataset_name].attrs["atoms"] = atom_count[n]
                 p=p+atom_count[n]
@@ -94,7 +94,7 @@ def _write_steps(h5file, steps):
     with h5py.File(h5file, "a") as h5:
         h5['/MD'].attrs["steps"] = steps
     return
-    
+
 def _write_bandstruct(h5file, band_data, kval_list):
     with h5py.File(h5file, "a") as h5:
         h5.create_dataset('BandStructure/KPoints', data=np.array(kval_list), dtype = np.float32)
@@ -125,7 +125,7 @@ def _write_fermisurface(h5file, kval_list, fermi_energy, reciprocal_lattice_vect
         h5.create_dataset('/FermiSurface/FermiEnergy',
                           data = np.float(fermi_energy),
                           dtype = np.float32)
-        
+
         for i in range(0, len(reciprocal_lattice_vectors)):
             h5.create_dataset('/FermiSurface/ReciprocalLatticeVectors/{}'.format(i),
                               data = np.array([float(x) for x in reciprocal_lattice_vectors[i]]),
@@ -133,16 +133,16 @@ def _write_fermisurface(h5file, kval_list, fermi_energy, reciprocal_lattice_vect
 
 
 def _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy):
-    
+
     def set_attrs(dataset, VariableName = '', VariableSymbol = '', QuantityName = '', QuantitySymbol = '', Unit = ''):
         dataset.attrs.update({
             'VariableName' : VariableName,
             'VariableSymbol' : VariableSymbol,
             'QuantityName' : QuantityName,
-            'QuantitySymbol' : QuantitySymbol,        
+            'QuantitySymbol' : QuantitySymbol,
             'Unit' : Unit
         })
-        
+
     with h5py.File(h5file, "a") as h5:
         dataset = h5.create_dataset('FermiEnergy', data = np.array(fermi_energy), dtype = np.float32)
         set_attrs(dataset, 'Fermi Energy', '$E_f$', 'Energy', '$E$', 'eV')
@@ -175,8 +175,8 @@ def _write_volume(h5file, i, array, data_dim, hdfgroup):
         else:
             h5['{}/final'.format(hdfgroup)] = h5['{}/{}'.format(hdfgroup, i-1)]
     return
-            
-            
+
+
 def _write_incar(h5file, incar_data):
     with h5py.File(h5file, 'a') as h5:
         for key, value in incar_data.items():
@@ -220,7 +220,7 @@ def _write_pcdat_multicol(h5file, pcdat_data, APACO_val, NPACO_val):
             x = (APACO_val / NPACO_val) * i
             normal_arr.append(x)
         value = np.asarray(normal_arr)
-        h5.create_dataset(dset_name, data=value, dtype=np.float32)
+        h5.create_dataset(dset_name, data=value, dtype=np.float64)
 
         # create dataset for paircorrelation function for every time frames for every element.
         #len(pcdat_data) gives the amount of elements
@@ -230,24 +230,25 @@ def _write_pcdat_multicol(h5file, pcdat_data, APACO_val, NPACO_val):
             dset_groupname = "PairCorrelationFunc/Elements/{}".format(element_symbol)
             #Iterate for every time frame.
             original_list = pcdat_data[element_symbol]
+            ioriginal_list = pcdat_data[element_symbol]
 
             for t_value in range(len(original_list)):
                 fill_list = []
                 for i in range(NPACO_val):
                     fill_list.append(original_list[0])
                     del original_list[0]
-                
+
                 tmp_name = str(dset_groupname) + "/{}"
                 dset_name2 = tmp_name.format("t_" + str(t_value))
-                h5.create_dataset(dset_name2, data=np.array(fill_list), dtype=np.float32)
-                #h5[dset_name2].attrs["element"] = element_symbol
-                
+                h5.create_dataset(dset_name2, data=np.array(fill_list), dtype=np.float64)
+                h5[dset_name2].attrs["element"] = element_symbol
 
-                if len(original_list) == 0: 
-                    break 
-                else: 
+
+                if len(original_list) == 0:
+                    break
+                else:
                     del original_list[0]
-            
+
 
 
             # if NPACO= 256, there are 3 time frames (t1,t2 and t3).
@@ -267,12 +268,12 @@ def _write_pcdat_onecol(h5file, pcdat_data, APACO_val, NPACO_val):
             x = (APACO_val / NPACO_val) * i
             normal_arr.append(x)
         value = np.asarray(normal_arr)
-        h5.create_dataset(dset_name, data=value, dtype=np.float32)
+        h5.create_dataset(dset_name, data=value, dtype=np.float64)
 
         # create dataset for paircorrelation function for every time frames for every element.
         #len(pcdat_data) gives the amount of elements
-            # By making a dict a list, its keys are accessable.
-    
+        # By making a dict a list, its keys are accessible.
+
         #Iterate for every time frame.
         original_list = pcdat_data["general paircorr"]
 
@@ -281,15 +282,16 @@ def _write_pcdat_onecol(h5file, pcdat_data, APACO_val, NPACO_val):
             for i in range(NPACO_val):
                 fill_list.append(original_list[0])
                 del original_list[0]
-                
-            dset_name2 = "PairCorrelationFunc/{}".format("t_" + str(t_value))
-            h5.create_dataset(dset_name2, data=np.array(fill_list), dtype=np.float32)                
 
-            if len(original_list) == 0: 
-                break 
-            else: 
+            dset_name2 = "PairCorrelationFunc/{}".format("t_" + str(t_value))
+            h5.create_dataset(dset_name2, data=np.array(fill_list), dtype=np.float64)
+
+
+            if len(original_list) == 0:
+                break
+            else:
                 del original_list[0]
-            
+
 
 
             # if NPACO= 256, there are 3 time frames (t1,t2 and t3).
