@@ -23,8 +23,8 @@ from h5writer import _write_pcdat_onecol, _write_pcdat_multicol
 class except_n_error(unittest.TestCase):
 	# Tests - for exception thrown for empty PCDAT-file
 	def test_empty_file(self):
-		dir_testfiles = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/testfiles")
-		vasp_dir = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/testfiles/testdata")
+		dir_testfiles = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/Tests")
+		vasp_dir = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/Tests/testdata")
 		h5file_path = os.path.join(dir_testfiles, "testh5file.hdf5")
 		empty_file = os.path.join(vasp_dir, "PCDAT_empty")
 
@@ -34,7 +34,7 @@ class except_n_error(unittest.TestCase):
 
 	# Tests - to skip parsing if it's already done
 	def test_is_parsed(self):
-		dir_testfiles = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/testfiles")
+		dir_testfiles = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/Tests")
 		h5file_path = os.path.join(dir_testfiles, "testh5file.hdf5")
 
 		testh5 = h5py.File(h5file_path, 'w')
@@ -45,8 +45,8 @@ class except_n_error(unittest.TestCase):
 
 	# Tests - for exception to be thrown when PCDAT file is not found
 	def test_pcdat_file(self):
-		dir_testfiles = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/testfiles")
-		vasp_dir = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/testfiles/testdata")
+		dir_testfiles = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/Tests")
+		vasp_dir = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/Tests/testdata")
 		h5file_path = os.path.join(dir_testfiles, "testh5file.hdf5")
 
 		with self.assertRaises(Exception) as ex:
@@ -56,8 +56,8 @@ class except_n_error(unittest.TestCase):
 class parse_multitimes(unittest.TestCase):
 
 	def test_write_pcdat_multicol(self):
-		dir_testfiles = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/testfiles")
-		dir_Cu = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/testfiles/testdata/Cu")
+		dir_testfiles = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/Tests")
+		dir_Cu = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/Tests/testdata/Cu")
 		file_Cu_t0nt1 = os.path.join(dir_Cu, "PCDAT")
 		h5file_path = os.path.join(dir_testfiles, "testh5file.hdf5")
 
@@ -138,8 +138,8 @@ class parse_multitimes(unittest.TestCase):
 
 	#This class make sure that the whole parsing system works.
 	def test_parsing(self):
-		dir_testfiles = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/testfiles")
-		dir_Cu = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/testfiles/testdata/Cu")
+		dir_testfiles = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/Tests")
+		dir_Cu = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/Tests/testdata/Cu")
 		h5file_path = os.path.join(dir_testfiles, "testh5file.hdf5")
 
 		# Create empty HDF5-file
@@ -197,8 +197,8 @@ class parse_multitimes(unittest.TestCase):
 
 class parse_average_PKF(unittest.TestCase):
 		def test_write_pcdat_onecol(self):
-			dir_testfiles = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/testfiles")
-			dir_generalPKF = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/testfiles/testdata/LiC")
+			dir_testfiles = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/Tests")
+			dir_generalPKF = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/Tests/testdata/LiC")
 			file_general = os.path.join(dir_generalPKF, "PCDAT")
 			h5file_path = os.path.join(dir_testfiles, "testh5file.hdf5")
 
@@ -260,8 +260,8 @@ class parse_average_PKF(unittest.TestCase):
 
 		#This class make sure that the whole parsing system works.
 		def test_parsing(self):
-			dir_testfiles = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/testfiles")
-			dir_generalPKF = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/testfiles/testdata/LiC")
+			dir_testfiles = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/Tests")
+			dir_generalPKF = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/Tests/testdata/LiC")
 			h5file_path = os.path.join(dir_testfiles, "testh5file.hdf5")
 
 			# Create empty HDF5-file
