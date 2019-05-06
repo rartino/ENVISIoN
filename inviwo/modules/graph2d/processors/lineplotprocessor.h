@@ -26,17 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *********************************************************************************/
-/*
- *   Alterations to this file by Andreas Kempe
- *
- *   To the extent possible under law, the person who associated CC0
- *   with the alterations to this file has waived all copyright and
- *   related or neighboring rights to the alterations made to this file.
- *
- *   You should have received a copy of the CC0 legalcode along with
- *   this work.  If not, see
- *   <http://creativecommons.org/publicdomain/zero/1.0/>.
- *********************************************************************************/
  /*
   *   Alterations to this file by Abdullatif Ismail
   *
@@ -61,9 +50,10 @@
 #include <inviwo/core/properties/optionproperty.h>
 #include <modules/fontrendering/properties/fontproperty.h>
 #include <modules/fontrendering/textrenderer.h>
-#include <modules/graph2d/graph2dmoduledefine.h>
 #include <modules/opengl/rendering/texturequadrenderer.h>
 #include <modules/plotting/datastructures/dataframe.h>
+#include <modules/graph2d/graph2dmoduledefine.h>
+#include <modules/graph2d/datastructures/graph2ddata.h>
 #include <modules/graph2d/datastructures/geometry/linemesh.h>
 
 namespace inviwo {
@@ -123,20 +113,19 @@ class IVW_MODULE_GRAPH2D_API LinePlotProcessor : public Processor {
 public:
     LinePlotProcessor();
     virtual ~LinePlotProcessor() = default;
-
     virtual void process() override;
-
     virtual const ProcessorInfo getProcessorInfo() const override;
     static const ProcessorInfo processorInfo_;
 private:
-    void drawAxes(std::shared_ptr<BasicMesh>& mesh, double x_min, double x_max,
-                  double y_min, double y_max);
-    void drawScale(double x_min, double x_max,
-                   double y_min, double y_max);
-    void drawText(const std::string& text, vec2 position, bool anchor_right = false);
+    void drawAxes(std::shared_ptr<BasicMesh>& mesh, double xMin, double xMax,
+                  double yMin, double yMax);
+    void drawScale(double xMin, double xMax,
+                   double yMin, double yMax);
+    void drawText(const std::string& text, vec2 position, bool anchorRight = false);
     double normalise(double value, double min, double max) const;
 
     DataFrameInport dataFrameInport_;
+    DataInport<Point, 0, true> pointInport_;
     MeshOutport meshOutport_;
 
     OptionPropertyString xSelectionProperty_;

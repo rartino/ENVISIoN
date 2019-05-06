@@ -26,17 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *********************************************************************************/
-/*
- *   Alterations to this file by Andreas Kempe
- *
- *   To the extent possible under law, the person who associated CC0
- *   with the alterations to this file has waived all copyright and
- *   related or neighboring rights to the alterations made to this file.
- *
- *   You should have received a copy of the CC0 legalcode along with
- *   this work.  If not, see
- *   <http://creativecommons.org/publicdomain/zero/1.0/>.
- *********************************************************************************/
  /*
   *   Alterations to this file by Abdullatif Ismail
   *
@@ -72,6 +61,7 @@ namespace inviwo {
 
 using plot::DataFrame;
 using plot::Column;
+using plot::TemplateColumn;
 
 // The Class Identifier has to be globally unique. Use a reverse DNS naming scheme
 const ProcessorInfo LinePlotProcessor::processorInfo_{
@@ -88,6 +78,7 @@ const ProcessorInfo LinePlotProcessor::getProcessorInfo() const {
 LinePlotProcessor::LinePlotProcessor()
     : Processor()
     , dataFrameInport_("dataFrameInport")
+    , pointInport_("pointInport")
     , meshOutport_("outport")
     , xSelectionProperty_("xSelectionProperty", "Select X data")
     , ySelectionProperty_("ySelectionProperty", "Select Y data")
@@ -121,6 +112,7 @@ LinePlotProcessor::LinePlotProcessor()
     , labels_("labels", "Lable Outport") {
 
     addPort(dataFrameInport_);
+    addPort(pointInport_);
     addPort(meshOutport_);
     addPort(labels_);
 
@@ -147,6 +139,7 @@ LinePlotProcessor::LinePlotProcessor()
     addProperty(text_colour_);
     addProperty(label_number_);
 
+    pointInport_.setOptional(true);
     allYSelection_.set(false);
     scale_.setMaxValue(1);
     scale_.setMinValue(0.01);
@@ -193,7 +186,6 @@ void LinePlotProcessor::process() {
 
     // We want at least two columns.
     if (inputFrame->getNumberOfColumns() >= 3) {
-        // Store y-data in vector and x-data in column.
         for (size_t i = 0; i < inputFrame->getNumberOfColumns(); i++) {
             if (inputFrame->getHeader(i) != "index") {
                 data.push_back(inputFrame->getColumn(i));
@@ -203,6 +195,7 @@ void LinePlotProcessor::process() {
         LogInfo("This processor needs two columns to exist in the DataFrame.")
         return;
     }
+
     // Clear all options before adding new options.
     // This is done to prevent doubling all options every run.
     if (dataFrameInport_.isChanged()) {
@@ -220,6 +213,7 @@ void LinePlotProcessor::process() {
     // Declare global size boundries.
     size_t xSize, ySize;
     double xMax, xMin, yMax, yMin;
+    double range;
     // If we only want to plot one X against one Y.
     if (!allYSelection_.get()) {
         for (size_t i = 0; i < data.size(); i++) {
@@ -227,7 +221,15 @@ void LinePlotProcessor::process() {
                 x = data.at(i);
             }
             if (ySelectionProperty_.getSelectedIdentifier() == data.at(i)->getHeader()) {
-                y = data.at(i);
+                if (pointInport_.isConnected()) {
+                    std::shared_ptr<TemplateColumn<float>> yTmp = std::make_shared<TemplateColumn<float>>(data.at(i)->getHeader());
+                    for (size_t j = 0; j < data.at(i)->getSize(); j++) {
+                        yTmp->add(data.at(i)->getAsDouble(j) - pointInport_.getData()->value);
+                    }
+                    y = yTmp;
+                } else {
+                    y = data.at(i);
+                }
             }
         }
         // Set local boundries for one vs one plot.
@@ -257,21 +259,29 @@ void LinePlotProcessor::process() {
                 localYMin = y->getAsDouble(i);
             }
         }
+        range = abs(localYMin + localYMax);
         xMax = localXMax;
         xMin = localXMin;
-        yMax = localYMax;
-        yMin = localYMin;
+        yMax = localYMax + 0.1 * range;
+        yMin = localYMin - 0.1 * range;
     } else {
         // If we want to plot X against all Y.
         for (size_t i = 0; i < data.size(); i++) {
             if (xSelectionProperty_.getSelectedIdentifier() == data.at(i)->getHeader()) {
                 xData = data.at(i);
             } else {
-                yData.push_back(data.at(i));
+                if (pointInport_.isConnected()) {
+                    std::shared_ptr<TemplateColumn<float>> yTmp = std::make_shared<TemplateColumn<float>>(data.at(i)->getHeader());
+                    for (size_t j = 0; j < data.at(i)->getSize(); j++) {
+                        yTmp->add(data.at(i)->getAsDouble(j) - pointInport_.getData()->value);
+                    }
+                    yData.push_back(yTmp);
+                } else {
+                    yData.push_back(data.at(i));
+                }
             }
         }
         xSize = xData->getSize();
-        ySize = yData.at(0)->getSize();
         for(size_t i = 0; i < yData.size(); i++)
             if (yData.at(i)->getSize() != xSize) {
                 LogError("All columns needs to be the same size.");
@@ -295,20 +305,28 @@ void LinePlotProcessor::process() {
                 }
             }
         }
+        range = abs(yMin + yMax);
+        yMin -= 0.1 * range;
+        yMax += 0.1 * range;
     }
-    // Set boundries for viewing range.
-    y_range_.setMaxValue(vec2(yMax, yMax));
-    y_range_.setMinValue(vec2(yMin, yMin));
+    if (dataFrameInport_.isChanged() ||
+        xSelectionProperty_.isModified() ||
+        ySelectionProperty_.isModified() ||
+        allYSelection_.isModified()) {
+        // Set boundries for viewing range.
+        y_range_.setMaxValue(vec2(yMax, yMax));
+        y_range_.setMinValue(vec2(yMin, yMin));
+        x_range_.setMaxValue(vec2(xMax, xMax));
+        x_range_.setMinValue(vec2(xMin, xMin));
 
-    x_range_.setMaxValue(vec2(xMax, xMax));
-    x_range_.setMinValue(vec2(xMin, xMin));
-    line_x_coordinate_.setMaxValue(xMax);
-    line_x_coordinate_.setMinValue(xMin);
+        line_x_coordinate_.setMaxValue(xMax);
+        line_x_coordinate_.setMinValue(xMin);
 
-    x_range_.set(vec2(xMax, xMin));
-    y_range_.set(vec2(yMax, yMin));
+        x_range_.set(vec2(xMax, xMin));
+        y_range_.set(vec2(yMax, yMin));
+    }
 
-    // If ll values in one dimension have the same value we let
+    // If all values in one dimension have the same value we let
     // them normalise to a range that is one wide by subtracting
     // one from the minimum value.
     if (yMax == yMin) {
@@ -363,7 +381,9 @@ void LinePlotProcessor::process() {
     utilgl::deactivateCurrentTarget();
 
     // If the static line is enabled, add it.
-    if (enable_line_.get() && (line_x_coordinate_.get() <= x_range_.get()[0] && line_x_coordinate_.get() >= x_range_.get()[1])) {
+    if (enable_line_.get() &&
+        (line_x_coordinate_.get() <= x_range_.get()[0] &&
+         line_x_coordinate_.get() >= x_range_.get()[1])) {
         float s = scale_.get();
         vec3 yStartPoint = vec3(s * normalise(line_x_coordinate_.get(), xMin, xMax) + (1 - s) / 2,
                                 s * normalise(y_range_.getMinValue()[0], yMin, yMax) + (1 - s) / 2,
@@ -574,14 +594,12 @@ void LinePlotProcessor::drawText(const std::string& text, vec2 position, bool an
                                        texture);
 
     // If anchor_right is set, the text will be moved its own length
-    // to the left, plus 50 %.
+    // to the left, plus 20 %.
+    // Else shift the text half of it's length to the right.
+    vec2 offset = vec2(texture->getDimensions()[0], 0);
     if (anchor_right) {
-        vec2 offset = vec2(texture->getDimensions()[0], 0);
-        position -= 1.5f * offset;
-        offset = vec2(0, texture->getDimensions()[1]);
-        position += offset / 2.0f;
+        position -= 1.2f * offset;
     } else {
-        vec2 offset = vec2(texture->getDimensions()[0], 0);
         position -= offset / 2.0f;
     }
 
