@@ -105,3 +105,4 @@ ENV/
 # Editor stuff
 .vscode
 .idea/
+.DS_Store
