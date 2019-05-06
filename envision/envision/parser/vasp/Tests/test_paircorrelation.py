@@ -24,7 +24,7 @@ class except_n_error(unittest.TestCase):
 	# Tests - for exception thrown for empty PCDAT-file
 	def test_empty_file(self):
 		dir_testfiles = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/Tests")
-		vasp_dir = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/Tests/testdata")
+		vasp_dir = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/Tests/testdata/Modified VASP-files")
 		h5file_path = os.path.join(dir_testfiles, "testh5file.hdf5")
 		empty_file = os.path.join(vasp_dir, "PCDAT_empty")
 
@@ -46,7 +46,7 @@ class except_n_error(unittest.TestCase):
 	# Tests - for exception to be thrown when PCDAT file is not found
 	def test_pcdat_file(self):
 		dir_testfiles = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/Tests")
-		vasp_dir = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/Tests/testdata")
+		vasp_dir = os.path.expanduser("~/ENVISIoN/envision/envision/parser/vasp/Tests/testdata/Modified VASP-files")
 		h5file_path = os.path.join(dir_testfiles, "testh5file.hdf5")
 
 		with self.assertRaises(Exception) as ex:
