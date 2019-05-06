@@ -2,7 +2,7 @@
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2018 Viktor Bernholtz
+#  Copyright (c) 2019 Lloyd Kizito
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by Linda Le och Lloyd Kizito
+#  Alterations to this file by Linda Le
 #
 #  To the extent possible under law, the person who associated CC0
 #  with the alterations to this file has waived all copyright and related
@@ -40,9 +40,9 @@
 import os, sys
 
 # Configuration
-PATH_TO_ENVISION=os.path.expanduser("~/ENVISIoN-gui-dev/envision")
-PATH_TO_VASP_CALC=os.path.expanduser("/home/labb/VASP_files/Cu-DoS/Cu/1/10")
-PATH_TO_HDF5=os.path.expanduser("~/ENVISIoN-gui-dev/HDF5/BP4-demonstration.hdf5")
+PATH_TO_ENVISION=os.path.expanduser("/home/labb/ENVISIoN-appDev/envision")
+PATH_TO_VASP_CALC=os.path.expanduser("/home/labb/VASP_files/LiC_pair_corr_fun")
+PATH_TO_HDF5=os.path.expanduser("/home/labb/HDF5/PKF_new.hdf5")
 
 sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION))
 
@@ -50,6 +50,8 @@ import envision
 import envision.inviwo
 
 envision.parser.vasp.paircorrelation(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+
+envision.inviwo.paircorrelation(PATH_TO_HDF5, xpos = 0, ypos = 0)
 
 
 

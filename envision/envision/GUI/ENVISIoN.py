@@ -26,7 +26,7 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by Anton Hjert
+#  Alterations to this file by
 #
 #  To the extent possible under law, the person who associated CC0
 #  with the alterations to this file has waived all copyright and related
@@ -39,12 +39,15 @@
 """The main file for the GUI of ENVISIoN. The app, main frame and main panel is """
 """defined here.                                                                """
 """*****************************************************************************"""
-path_to_envision="C:/ENVISIoN"
+
 import wx, os, sys, wx.lib.scrolledpanel
-sys.path.insert(0, os.path.expanduser(path_to_envision+'/envision/envision/GUI'))
+import inspect
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder))
 from VisFrame import VisualizationFrame
 from ParserPane import ParserPane 
 from generalCollapsible import GeneralCollapsible
+
 
 class Main_Frame(wx.Frame):
     def __init__(self, *args, **kwargs):
@@ -73,7 +76,7 @@ class Main_Frame(wx.Frame):
 class ENVISIoN(wx.App):
     def OnInit(self):
         self.frame = Main_Frame(None, title = "ENVISIoN")
-        self.frame.SetSize(0,0,300,600)
+        self.frame.SetSize(0,0,400,600)
         bg_colour = wx.Colour(208,206,206)
         self.frame.SetBackgroundColour(bg_colour)
         self.frame.Show(True)
