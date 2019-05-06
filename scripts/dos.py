@@ -39,15 +39,15 @@
 import os, sys
 
 # Configuration
-PATH_TO_ENVISION=os.path.expanduser("~/ENVISIoN/envision")
-PATH_TO_VASP_CALC=os.path.expanduser("~/ENVISIoN/data/Cu/1/11")
-PATH_TO_HDF5=os.path.expanduser("/tmp/envision_demo_dos.hdf5")
+PATH_TO_ENVISION=os.path.expanduser("C:/ENVISIoN/envision")
+#PATH_TO_VASP_CALC=os.path.expanduser("~/ENVISIoN/data/Cu/1/11")
+PATH_TO_HDF5=os.path.expanduser("C:/Users/sille/Downloads/dostest.hdf5")
 
 sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION))
 
 import envision
 import envision.inviwo
 
-envision.parser.vasp.dos(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+#envision.parser.vasp.dos(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
 envision.inviwo.dos(PATH_TO_HDF5, atom = 0, xpos = 0, ypos = 0)
