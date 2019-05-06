@@ -2,7 +2,9 @@ import os
 import sys
 import h5py
 import numpy as np
-
+import inspect
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder + '/..'))
 from incar import _parse_incar
 from unitcell import _find_elements
 from h5writer import _write_pcdat_onecol

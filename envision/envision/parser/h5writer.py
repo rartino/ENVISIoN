@@ -1,7 +1,8 @@
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2017-2018 Josef Adamsson, Robert Cranston, David Hartman, Denise Härnström, Fredrik Segerhammar, Anders Rehult, Viktor Bernholtz, Elvis Jakobsson
+#  Copyright (c) 2017-2019 Josef Adamsson, Robert Cranston, David Hartman, Denise Härnström,
+#  Fredrik Segerhammar, Anders Rehult, Viktor Bernholtz, Elvis Jakobsson, Abdullatif Ismail
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -27,6 +28,17 @@
 ##############################################################################################
 #
 #  Alterations to this file by Anders Rehult and Viktor Bernholtz
+#
+#  To the extent possible under law, the person who associated CC0 with
+#  the alterations to this file has waived all copyright and related
+#  or neighboring rights to the alterations made to this file.
+#
+#  You should have received a copy of the CC0 legalcode along with
+#  this work.  If not, see
+#  <http://creativecommons.org/publicdomain/zero/1.0/>.
+##############################################################################################
+#
+#  Alterations to this file by Abdullatif Ismail
 #
 #  To the extent possible under law, the person who associated CC0 with
 #  the alterations to this file has waived all copyright and related
@@ -106,6 +118,13 @@ def _write_bandstruct(h5file, band_data, kval_list):
             dataset.attrs['VariableName'] = 'Band {}'.format(i)
             dataset.attrs['VariableSymbol'] = '$B_{{{}}}$'.format(i)
 
+def _write_fermi_energy(h5file, fermi_energy):
+    with h5py.File(h5file,"a") as h5:
+        h5.create_dataset('/FermiEnergy',
+                          data = np.float(fermi_energy),
+                          dtype = np.float32)
+
+
 def _write_fermisurface(h5file, kval_list, fermi_energy, reciprocal_lattice_vectors):
     with h5py.File(h5file,"a") as h5:
         for i in range(0, len(kval_list)):
@@ -121,10 +140,12 @@ def _write_fermisurface(h5file, kval_list, fermi_energy, reciprocal_lattice_vect
             h5.create_dataset('/FermiSurface/KPoints/{}/Coordinates'.format(i),
                               data = np.array(kval_list[i].coordinates),
                               dtype = np.float32)
+            
+        if '/FermiEnergy' in h5:
+            print('Fermi energy already parsed. Skipping.')
+        else:
+            _write_fermi_energy(h5file, fermi_energy)
 
-        h5.create_dataset('/FermiSurface/FermiEnergy',
-                          data = np.float(fermi_energy),
-                          dtype = np.float32)
 
         for i in range(0, len(reciprocal_lattice_vectors)):
             h5.create_dataset('/FermiSurface/ReciprocalLatticeVectors/{}'.format(i),
