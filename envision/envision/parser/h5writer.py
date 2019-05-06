@@ -2,7 +2,7 @@
 #  ENVISIoN
 #
 #  Copyright (c) 2017-2019 Josef Adamsson, Robert Cranston, David Hartman, Denise Härnström,
-#  Fredrik Segerhammar, Anders Rehult, Viktor Bernholtz, Elvis Jakobsson, Abdullatif Ismail
+#  Fredrik Segerhammar, Anders Rehult, Viktor Bernholtz, Elvis Jakobsson, Abdullatif Ismail, Linda Le
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by Anders Rehult and Viktor Bernholtz
+#  Alterations to this file by Anders Rehult, Viktor Bernholtz, Abdullatif Ismail and Linda Le
 #
 #  To the extent possible under law, the person who associated CC0 with
 #  the alterations to this file has waived all copyright and related
@@ -47,6 +47,7 @@
 #  You should have received a copy of the CC0 legalcode along with
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
+
 
 import numpy as np
 import h5py
