@@ -28,6 +28,7 @@
 #include <modules/graph2d/graph2dmodule.h>
 
 #include <modules/graph2d/datastructures/graph2ddata.h>
+#include <modules/graph2d/processors/dataframecollector.h>
 #include <modules/graph2d/processors/hdf5pathselectionint.h>
 #include <modules/graph2d/processors/hdf5pathselectionintvector.h>
 #include <modules/graph2d/processors/hdf5pathselectionallchildren.h>
@@ -43,6 +44,7 @@ namespace inviwo {
 graph2dModule::graph2dModule(InviwoApplication* app) : InviwoModule(app, "graph2d") {
 
     // Processors.
+    registerProcessor<DataFrameCollector>();
     registerProcessor<HDF5PathSelectionInt>();
     registerProcessor<HDF5PathSelectionIntVector>();
     registerProcessor<HDF5PathSelectionAllChildren>();
