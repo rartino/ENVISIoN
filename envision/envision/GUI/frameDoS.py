@@ -101,13 +101,14 @@ class DosFrame(GeneralCollapsible):
         self.yRangeBox2.Add(self.yRangeMin2)
         self.yRangeBox2.Add(self.yRangeMax2)
 
-        #Help line
+        #Help line setup
         self.selectLine = wx.CheckBox(self.GetPane(),label='Help line: ')
         self.lineSlider = wx.Slider(self.GetPane())
 
         self.selectLine2 = wx.CheckBox(self.GetPane(),label='Help line: ')
         self.lineSlider2 = wx.Slider(self.GetPane())
 
+        #Add items in collapsible
         self.add_item(self.xRangeBox)
         self.add_item(self.yRangeBox)
         self.add_item(self.scaleBox)
@@ -119,6 +120,7 @@ class DosFrame(GeneralCollapsible):
         self.add_item(self.selectLine2)
         self.add_item(self.lineSlider2)
 
+        #Bind signals
         self.scale.Bind(wx.EVT_TEXT_ENTER, self.on_scale_change)
         self.xRangeMax.Bind(wx.EVT_TEXT_ENTER, self.on_xmax_change)
         self.xRangeMin.Bind(wx.EVT_TEXT_ENTER, self.on_xmin_change)
@@ -126,7 +128,7 @@ class DosFrame(GeneralCollapsible):
         self.yRangeMin.Bind(wx.EVT_TEXT_ENTER, self.on_ymin_change)
         self.selectLine.Bind(wx.EVT_CHECKBOX, self.on_check_line)
         self.lineSlider.Bind(wx.EVT_SLIDER, self.on_slide_line)
-        self.scale.Bind(wx.EVT_TEXT_ENTER, self.on_scale_change2)
+        self.scale2.Bind(wx.EVT_TEXT_ENTER, self.on_scale_change2)
         self.xRangeMax2.Bind(wx.EVT_TEXT_ENTER, self.on_xmax_change2)
         self.xRangeMin2.Bind(wx.EVT_TEXT_ENTER, self.on_xmin_change2)
         self.yRangeMax2.Bind(wx.EVT_TEXT_ENTER, self.on_ymax_change2)
@@ -151,84 +153,20 @@ class DosFrame(GeneralCollapsible):
         elif '/FermiEnergy' in  h5py.File(self.parent_collapsible.path, 'r')\
             and 'DOS' in  h5py.File(self.parent_collapsible.path, 'r'):
             #Start DoS vis
-            self.open_message("When hitting ok, wait until all four windows are fully loaded",
+            self.open_message("When hitting ok, wait until both windows are fully loaded",
                             "Be patient!")
             envision.inviwo.dos(self.parent_collapsible.path, 
                                 atom = 0, xpos = 0, ypos = 0)
-            self.scale.SetValue(str(parameter_utils.get_scale('DOS Plotter')))
-            self.init_ranges()
-            self.lineSlider.SetMax(parameter_utils.get_x_range('DOS Plotter')[0])
-            self.lineSlider.SetMin(parameter_utils.get_x_range('DOS Plotter')[1])
-            self.scale2.SetValue(str(parameter_utils.get_scale('DOS Plotter2')))
-            self.lineSlider2.SetMax(parameter_utils.get_x_range('DOS Plotter2')[0])
-            self.lineSlider2.SetMin(parameter_utils.get_x_range('DOS Plotter2')[1])
+            
+            self.init_DoS()
             self.set_canvas_pos('DoS')
-
         else:
             self.open_message('The file of choice does not contain DoS-data',
                                 'Visualization failed!')
             self.Collapse(True)
             self.update_collapse()
 
-    def on_scale_change(self,event):
-        if (float(self.scale.GetLineText(0)) < 1) and (float(self.scale.GetLineText(0)) > 0):
-            parameter_utils.change_scale(float(self.scale.GetLineText(0)), 'DOS Plotter')
-
-    def on_scale_change2(self,event):
-        if (float(self.scale.GetLineText(0)) < 1) and (float(self.scale.GetLineText(0)) > 0):
-            parameter_utils.change_scale(float(self.scale.GetLineText(0)), 'DOS Plotter2')
-
-    def on_xmax_change(self,event):
-        if (float(self.xRangeMax.GetLineText(0)) < 600) and (float(self.xRangeMax.GetLineText(0)) > parameter_utils.get_x_range()[1]):
-            parameter_utils.set_x_range(float(self.xRangeMax.GetLineText(0)),'max', 'DOS Plotter')
-
-    def on_xmax_change2(self,event):
-        if (float(self.xRangeMax.GetLineText(0)) < 600) and (float(self.xRangeMax.GetLineText(0)) > parameter_utils.get_x_range()[1]):
-            parameter_utils.set_x_range(float(self.xRangeMax.GetLineText(0)),'max', 'DOS Plotter2')
-    
-    def on_xmin_change(self,event):
-        if (float(self.xRangeMin.GetLineText(0)) > 0) and (float(self.xRangeMin.GetLineText(0)) < parameter_utils.get_x_range()[0]):
-            parameter_utils.set_x_range(float(self.xRangeMin.GetLineText(0)),'min', 'DOS Plotter')
-
-    def on_xmin_change2(self,event):
-        if (float(self.xRangeMin.GetLineText(0)) > 0) and (float(self.xRangeMin.GetLineText(0)) < parameter_utils.get_x_range()[0]):
-            parameter_utils.set_x_range(float(self.xRangeMin.GetLineText(0)),'min', 'DOS Plotter2')
-
-    def on_ymax_change(self,event):
-        if (float(self.yRangeMax.GetLineText(0)) < 15) and (float(self.yRangeMax.GetLineText(0)) > parameter_utils.get_y_range()[1]):
-            parameter_utils.set_y_range(float(self.yRangeMax.GetLineText(0)),'max', 'DOS Plotter')
-
-    def on_ymax_change2(self,event):
-        if (float(self.yRangeMax.GetLineText(0)) < 15) and (float(self.yRangeMax.GetLineText(0)) > parameter_utils.get_y_range()[1]):
-            parameter_utils.set_y_range(float(self.yRangeMax.GetLineText(0)),'max', 'DOS Plotter2')
-
-    def on_ymin_change(self,event):
-        if (float(self.yRangeMin.GetLineText(0)) > -55) and (float(self.yRangeMin.GetLineText(0)) < parameter_utils.get_y_range()[0]):
-            parameter_utils.set_y_range(float(self.yRangeMin.GetLineText(0)),'min', 'DOS Plotter')
-
-    def on_ymin_change2(self,event):
-        if (float(self.yRangeMin.GetLineText(0)) > -55) and (float(self.yRangeMin.GetLineText(0)) < parameter_utils.get_y_range()[0]):
-            parameter_utils.set_y_range(float(self.yRangeMin.GetLineText(0)),'min', 'DOS Plotter2')
-
-    def on_check_line(self,event):
-        if self.selectLine.IsChecked():
-            parameter_utils.enable_help_line(True, 'DOS Plotter')
-        else:
-            parameter_utils.enable_help_line(False, 'DOS Plotter')
-    
-    def on_check_line2(self,event):
-        if self.selectLine.IsChecked():
-            parameter_utils.enable_help_line(True, 'DOS Plotter2')
-        else:
-            parameter_utils.enable_help_line(False, 'DOS Plotter2')
-
-    def on_slide_line(self,event):
-        parameter_utils.set_help_line(self.lineSlider.GetValue(), 'DOS Plotter')
-
-    def on_slide_line2(self,event):
-        parameter_utils.set_help_line(self.lineSlider.GetValue(), 'DOS Plotter2')
-
-    def init_ranges(self):
+    def init_DoS(self):
         x_range = parameter_utils.get_x_range('DOS Plotter')
         y_range = parameter_utils.get_y_range('DOS Plotter')
         x2_range = parameter_utils.get_x_range('DOS Plotter2')
@@ -241,5 +179,62 @@ class DosFrame(GeneralCollapsible):
         self.xRangeMin2.SetValue(str(x2_range[1])) 
         self.yRangeMax2.SetValue(str(y2_range[0]))
         self.yRangeMin2.SetValue(str(y2_range[1]))
+        self.scale.SetValue(str(parameter_utils.get_scale('DOS Plotter')))
+        self.lineSlider.SetMax(parameter_utils.get_x_range('DOS Plotter')[0])
+        self.lineSlider.SetMin(parameter_utils.get_x_range('DOS Plotter')[1])
+        self.scale2.SetValue(str(parameter_utils.get_scale('DOS Plotter2')))
+        self.lineSlider2.SetMax(parameter_utils.get_x_range('DOS Plotter2')[0])
+        self.lineSlider2.SetMin(parameter_utils.get_x_range('DOS Plotter2')[1])
+    
+    #Control for scale, range and help line
+    def on_scale_change(self,event):
+        if (float(self.scale.GetLineText(0)) <= 1) and (float(self.scale.GetLineText(0)) > 0):
+            parameter_utils.change_scale(float(self.scale.GetLineText(0)), 'DOS Plotter')
+
+    def on_scale_change2(self,event):
+        if (float(self.scale2.GetLineText(0)) <= 1) and (float(self.scale2.GetLineText(0)) > 0):
+            parameter_utils.change_scale(float(self.scale2.GetLineText(0)), 'DOS Plotter2')
+
+    def on_xmax_change(self,event):
+        parameter_utils.set_x_range(float(self.xRangeMax.GetLineText(0)),'max', 'DOS Plotter')
+
+    def on_xmax_change2(self,event):
+        parameter_utils.set_x_range(float(self.xRangeMax2.GetLineText(0)),'max', 'DOS Plotter2')
+    
+    def on_xmin_change(self,event):
+        parameter_utils.set_x_range(float(self.xRangeMin.GetLineText(0)),'min', 'DOS Plotter')
+
+    def on_xmin_change2(self,event):
+        parameter_utils.set_x_range(float(self.xRangeMin2.GetLineText(0)),'min', 'DOS Plotter2')
+
+    def on_ymax_change(self,event):
+        parameter_utils.set_y_range(float(self.yRangeMax.GetLineText(0)),'max', 'DOS Plotter')
+
+    def on_ymax_change2(self,event):
+        parameter_utils.set_y_range(float(self.yRangeMax2.GetLineText(0)),'max', 'DOS Plotter2')
+
+    def on_ymin_change(self,event):
+        parameter_utils.set_y_range(float(self.yRangeMin.GetLineText(0)),'min', 'DOS Plotter')
+
+    def on_ymin_change2(self,event):
+        parameter_utils.set_y_range(float(self.yRangeMin2.GetLineText(0)),'min', 'DOS Plotter2')
+
+    def on_check_line(self,event):
+        if self.selectLine.IsChecked():
+            parameter_utils.enable_help_line(True, 'DOS Plotter')
+        else:
+            parameter_utils.enable_help_line(False, 'DOS Plotter')
+    
+    def on_check_line2(self,event):
+        if self.selectLine2.IsChecked():
+            parameter_utils.enable_help_line(True, 'DOS Plotter2')
+        else:
+            parameter_utils.enable_help_line(False, 'DOS Plotter2')
+
+    def on_slide_line(self,event):
+        parameter_utils.set_help_line(self.lineSlider.GetValue(), 'DOS Plotter')
+
+    def on_slide_line2(self,event):
+        parameter_utils.set_help_line(self.lineSlider2.GetValue(), 'DOS Plotter2')        
 
     

@@ -23,6 +23,17 @@
 #   ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 #   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 #   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+##############################################################################################
+#
+#  Alterations to this file by Anton Hjert
+#
+#  To the extent possible under law, the person who associated CC0
+#  with the alterations to this file has waived all copyright and related
+#  or neighboring rights to the alterations made to this file.
+#
+#  You should have received a copy of the CC0 legalcode along with
+#  this work.  If not, see
+#  <http://creativecommons.org/publicdomain/zero/1.0/>.
  
 import sys, os
 import inspect
@@ -75,15 +86,16 @@ def get_y_range(type='Line plot'):
     dataProcessor = network.getProcessorByIdentifier(type)
     return dataProcessor.y_range.value
 
-def set_x_range(value, type='Line plot'):
-    dataProcessor = network.getProcessorByIdentifier(type)
+def set_x_range(value, type, processor='Line plot'):
+    dataProcessor = network.getProcessorByIdentifier(processor)
+    print('xrange')
     if type == 'min':
         dataProcessor.x_range.value = inviwopy.glm.vec2(dataProcessor.x_range.value[0],value)
     else:
         dataProcessor.x_range.value = inviwopy.glm.vec2(value, dataProcessor.x_range.value[1])
 
-def set_y_range(value, type='Line plot'):
-    dataProcessor = network.getProcessorByIdentifier(type)
+def set_y_range(value, type, processor='Line plot'):
+    dataProcessor = network.getProcessorByIdentifier(processor)
     if type == 'min':
         dataProcessor.y_range.value = inviwopy.glm.vec2(dataProcessor.y_range.value[0],value)
     else:
