@@ -83,12 +83,16 @@ class ParchgNetworkHandler:
         self.hdf5_path = hdf5_path
         self.HDFvolume_processors = []
         self.merger_processors = []
+        self.current_bands = band_list
+        self.current_modes = mode_list
         self.build_network(hdf5_path, False, band_list, mode_list)
 
     def select_bands(self, band_list, mode_list):
     # Re-selects bands. Clears old bands and adds the new ones.
         self.clear_band_processors()
         self.setup_band_processors(band_list, mode_list, 0, 0)
+        self.current_bands = band_list
+        self.current_modes = mode_list
 
     def clear_band_processors(self):
     # Removes all the band selection and merging processors
@@ -112,6 +116,10 @@ class ParchgNetworkHandler:
             else:
                 network.removeProcessor(i)
 
+        self.merger_processors = []
+        self.HDFvolume_processors = []
+        self.current_bands = []
+        self.current_modes = []
 
     def merger_calc(self, l, previous_level):
         """ Calculates the number of volume merger processors needed per level recursively
@@ -147,7 +155,8 @@ class ParchgNetworkHandler:
         
         n_bands = len(band_list)
         if n_bands == 0:
-            raise Exception("No bands selected")
+            print("No bands selected")
+            return
         if len(band_list) != len(mode_list):
             raise Exception("Unequal bands and modes. Each band must have one corresponding mode.")
         
