@@ -1,6 +1,8 @@
 /*********************************************************************************
  *
- * Copyright (c) 2017 Robert Cranston
+ * Inviwo - Interactive Visualization Workshop
+ *
+ * Copyright (c) 2019 Abdullatif Ismail
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,41 +27,38 @@
  *
  *********************************************************************************/
 
-#include <modules/graph2d/graph2dmodule.h>
+#ifndef IVW_DATAFRAMECOLLECTOR_H
+#define IVW_DATAFRAMECOLLECTOR_H
 
+#include <modules/graph2d/graph2dmoduledefine.h>
+#include <inviwo/core/common/inviwo.h>
+#include <inviwo/core/ports/datainport.h>
+#include <inviwo/core/processors/processor.h>
+#include <modules/plotting/datastructures/dataframe.h>
 #include <modules/graph2d/datastructures/graph2ddata.h>
-#include <modules/graph2d/processors/dataframecollector.h>
-#include <modules/graph2d/processors/hdf5pathselectionint.h>
-#include <modules/graph2d/processors/hdf5pathselectionintvector.h>
-#include <modules/graph2d/processors/hdf5pathselectionallchildren.h>
-#include <modules/graph2d/processors/hdf5topoint.h>
-#include <modules/graph2d/processors/hdf5tofunction.h>
-#include <modules/graph2d/processors/functionoperationunary.h>
-#include <modules/graph2d/processors/functionoperationnary.h>
-#include <modules/graph2d/processors/functiontodataframe.h>
-#include <modules/graph2d/processors/lineplotprocessor.h>
+
+using inviwo::plot::DataFrame;
+using inviwo::plot::DataFrameOutport;
 
 namespace inviwo {
 
-graph2dModule::graph2dModule(InviwoApplication* app) : InviwoModule(app, "graph2d") {
+/**
+ * \class DataFrameCollector
+ * Collects data frames into a single data frame.
+ */
+    class IVW_MODULE_GRAPH2D_API DataFrameCollector : public Processor {
 
-    // Processors.
-    registerProcessor<DataFrameCollector>();
-    registerProcessor<HDF5PathSelectionInt>();
-    registerProcessor<HDF5PathSelectionIntVector>();
-    registerProcessor<HDF5PathSelectionAllChildren>();
-    registerProcessor<HDF5ToPoint>();
-    registerProcessor<HDF5ToFunction>();
-    registerProcessor<FunctionOperationUnary>();
-    registerProcessor<FunctionOperationNary>();
-    registerProcessor<FunctionToDataFrame>();
-    registerProcessor<LinePlotProcessor>();
-
-    // Ports.
-    registerPort<DataOutport<Point>>();
-    registerPort<DataInport<Point>>();
-    registerPort<DataOutport<Function>>();
-    registerPort<DataInport<Function>>();
-}
+    public:
+    DataFrameCollector();
+    virtual ~DataFrameCollector() = default;
+    virtual void process() override;
+    virtual const ProcessorInfo getProcessorInfo() const override;
+    static const ProcessorInfo processorInfo_;
+    private:
+    DataInport<DataFrame, 0> dataframeInport_;
+    DataFrameOutport dataframeOutport_;
+};
 
 } // namespace
+
+#endif // IVW_DATAFRAMECOLLECTOR_H
