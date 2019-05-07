@@ -129,3 +129,5 @@ class DosFrame(GeneralCollapsible):
     def enable_window(self,show,type):
         parameter_utils.show_canvas(show,type)
         print('enable')
+
+    
