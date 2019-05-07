@@ -81,12 +81,11 @@ def paircorrelation(h5file, xpos=0, ypos=0):
 
         plotter_processor = _add_processor("org.inviwo.LinePlotProcessor", "pair correlation plotter", xpos, ypos)
         network.addConnection(operation_processor.getOutport("dataframeOutport"), plotter_processor.getInport("dataFrameInport"))
-        #network.addConnection(operation_processor.getOutport("labels"),
-         #                     plotter_processor.getInport("imageInport"))
         ypos += 75
 
         mesh_renderer = _add_processor("org.inviwo.Mesh2DRenderProcessorGL", "Renderer", xpos, ypos)
         network.addConnection(plotter_processor.getOutport("outport"), mesh_renderer.getInport('inputMesh'))
+        network.addConnection(plotter_processor.getOutport("labels"), mesh_renderer.getInport("imageInport"))
         ypos += 75
 
         background_processor = _add_processor("org.inviwo.Background", "Background", xpos, ypos)
@@ -101,21 +100,17 @@ def paircorrelation(h5file, xpos=0, ypos=0):
         canvas_processor = _add_processor("org.inviwo.CanvasGL", "paircorrelation Canvas", xpos, ypos)
         network.addConnection(RadialDistribution_text_processor.getOutport('outport'), canvas_processor.getInport("inport"))
         ypos += 75
-        """
-        paircorrelation_processor.selection.value = '/PairCorrelationFunc'
-        """
-        """
-        elements_processor.yPathSelectionProperty.value = '/elements'
-        
-        #for i in range(len(hdf5_to_list)):
-            #hdf5_to_list[i].getPropertyByIdentifier('implicitXProperty').value = True
-            #hdf5_to_list[i].getPropertyByIdentifier('yPathSelection').value = '/elements'.format(str(i))
 
+        #Setting procesor properties
+
+
+        paircorrelation_processor.selection.value = '/PairCorrelationFunc'
+        elements_processor.yPathSelectionProperty.value = '/elements'
         operation_processor.operationProperty.value = 'add'
-        background_processor.bgColor1.value = inviwopy.glm.vec4(1,1,1,1)
-        background_processor.bgColor2.value = inviwopy.glm.vec4(1,1,1,1)
+        background_processor.bgColor1.value = inviwopy.glm.vec4(1)
+        background_processor.bgColor2.value = inviwopy.glm.vec4(1)
         RadialDistrubution_Text_processor.text.value = 'RadialDistribution'
         RadialDistrubution_Text_processor.position.value = inviwopy.glm.vec(0.82, 0.03)
         RadialDistrubution_Text_processor.color.value = inviwopy.glm.vec(0,0,0,1)
         canvas_processor.inputSize.dimensions.value = inviwopy.glm.vec2(640,480)
-        """
+
