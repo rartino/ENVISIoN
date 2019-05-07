@@ -1,28 +1,40 @@
- 
-#   Inviwo - Interactive Visualization Workshop
- 
-#   Copyright (c) 2014-2019 Inviwo Foundation, Jesper Ericsson
-#   All rights reserved.
- 
-#   Redistribution and use in source and binary forms, with or without
-#   modification, are permitted provided that the following conditions are met:
- 
-#   1. Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-#   2. Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
- 
-#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-#   ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-#   WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-#   DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-#   ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-#   (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-#   LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-#   ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-#   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-#   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+#  ENVISIoN
+#
+#  Copyright (c) 2019 Jesper Ericsson
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#
+#  1. Redistributions of source code must retain the above copyright notice, this
+#  list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright notice,
+#  this list of conditions and the following disclaimer in the documentation
+#  and/or other materials provided with the distribution.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+#  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+#  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+#  ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+#  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+##############################################################################################
+#
+#  Alterations to this file by Anton Hjert
+#
+#  To the extent possible under law, the person who associated CC0
+#  with the alterations to this file has waived all copyright and related
+#  or neighboring rights to the alterations made to this file.
+#
+#  You should have received a copy of the CC0 legalcode along with
+#  this work.  If not, see
+#  <http://creativecommons.org/publicdomain/zero/1.0/>.
  
 import sys, os
 import inspect
@@ -77,14 +89,28 @@ def set_dos_canvas_position(position = None):
     else:
         pass
 
-
 def set_hd5_source(path):
     # set the hdf5 source of all active visualizations
     # maybe close those who are not compatible?
     pass
 
-# -------------------
-# --Charge specific--
+# ----------------------
+# ----Partial Charge----
+
+def start_parchg_vis(path, parchg_list = [0, 0, 0, 0], mode_list = [0, 0, 0, 0]):
+    envision.inviwo.unitcell(path, xpos=0, ypos=0, smallAtoms=True)
+    envision.inviwo.parchg(path, sli=False, parchg_list=parchg_list, parchg_mode='mixed', mode_list=mode_list, xstart_pos=600, ystart_pos=0)
+
+def parchg_get_bands(path):
+    with h5py.File(path, 'r') as file:
+        parchg_band_keys = []
+        for key in file.get("CHG").keys():
+            parchg_band_keys.append(key)
+        parchg_band_keys.remove("final")
+        return parchg_band_keys
+
+# -----------------------
+# ----Charge specific----
 
 def start_charge_vis(path,isSlice):
     # Start the charge visualization
@@ -101,8 +127,6 @@ def start_charge_vis(path,isSlice):
                             inviwopy.glm.vec4(1,1,1,1),3,0,'SliceBackground')
     slice_copy_tf()
         
-
-    # TODO: if charge network exists, only enable the canvas
 """
     network.clear()
     envision.parser.vasp.unitcell(path, "/home/labb/VASP_files/NaCl_charge_density")
