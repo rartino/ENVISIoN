@@ -125,24 +125,20 @@ class BandstructureFrame(GeneralCollapsible):
             self.update_collapse()
 
     def on_scale_change(self,event):
-        if (float(self.scale.GetLineText(0)) < 1) and (float(self.scale.GetLineText(0)) > 0):
+        if (float(self.scale.GetLineText(0)) <= 1) and (float(self.scale.GetLineText(0)) > 0):
             parameter_utils.change_scale(float(self.scale.GetLineText(0)))
 
     def on_xmax_change(self,event):
-        if (float(self.xRangeMax.GetLineText(0)) < 600) and (float(self.xRangeMax.GetLineText(0)) > parameter_utils.get_x_range()[1]):
-            parameter_utils.set_x_range(float(self.xRangeMax.GetLineText(0)),'max')
+        parameter_utils.set_x_range(float(self.xRangeMax.GetLineText(0)),'max')
     
     def on_xmin_change(self,event):
-        if (float(self.xRangeMin.GetLineText(0)) > 0) and (float(self.xRangeMin.GetLineText(0)) < parameter_utils.get_x_range()[0]):
-            parameter_utils.set_x_range(float(self.xRangeMin.GetLineText(0)),'min')
+        parameter_utils.set_x_range(float(self.xRangeMin.GetLineText(0)),'min')
 
     def on_ymax_change(self,event):
-        if (float(self.yRangeMax.GetLineText(0)) < 15) and (float(self.yRangeMax.GetLineText(0)) > parameter_utils.get_y_range()[1]):
-            parameter_utils.set_y_range(float(self.yRangeMax.GetLineText(0)),'max')
+        parameter_utils.set_y_range(float(self.yRangeMax.GetLineText(0)),'max')
 
     def on_ymin_change(self,event):
-        if (float(self.yRangeMin.GetLineText(0)) > -55) and (float(self.yRangeMin.GetLineText(0)) < parameter_utils.get_y_range()[0]):
-            parameter_utils.set_y_range(float(self.yRangeMin.GetLineText(0)),'min')
+        parameter_utils.set_y_range(float(self.yRangeMin.GetLineText(0)),'min')
 
     def on_check_line(self,event):
         if self.selectLine.IsChecked():
