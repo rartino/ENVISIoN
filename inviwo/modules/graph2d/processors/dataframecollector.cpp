@@ -47,7 +47,7 @@ const ProcessorInfo DataFrameCollector::getProcessorInfo() const {
 }
 
 DataFrameCollector::DataFrameCollector()
-        : Processor(), dataframeInport_("dataframetMultiInport"), dataframeOutport_("dataframeOutport") {
+        : Processor(), dataframeInport_("dataframeMultiInport"), dataframeOutport_("dataframeOutport") {
 
     addPort(dataframeInport_);
     addPort(dataframeOutport_);

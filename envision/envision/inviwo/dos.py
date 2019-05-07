@@ -1,7 +1,7 @@
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2017-2018 Robert Cranston, Anders Rehult, Viktor Bernholtz, Marian Brännvall
+#  Copyright (c) 2017-2019 Robert Cranston, Anders Rehult, Viktor Bernholtz, Marian Brännvall
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -26,8 +26,8 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by Anders Rehult, Viktor Bernholtz and
-#  Marian Brännvall, Anton Hjert
+#  Alterations to this file by Anders Rehult, Viktor Bernholtz, Marian Brännvall,
+#  Anton Hjert and Abdullatif Ismail
 #
 #  To the extent possible under law, the person who associated CC0 with
 #  the alterations to this file has waived all copyright and related or
@@ -47,6 +47,7 @@ from common import _add_h5source, _add_processor
 
 app = inviwopy.app
 network = app.network
+
 
 def dos(h5file, atom = 0, xpos=0, ypos=0):
     """Creates an Inviwo network for density of states visualization
@@ -90,7 +91,8 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
         # store the relevant processors for later configuration (see end of file).
         path_selector_list = []
         hdf5_to_function_list = []
-        plotter_source_list = []
+        pair_processors = []
+        plotter_processor_list = []
 
         h5source_processor = _add_h5source(h5file, xpos, ypos)
         ypos += 100
@@ -104,6 +106,7 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
 
         has_partial = "/DOS/Partial" in h5
         def totalpartial(name, xpos, ypos):
+            plotter_source_list = []
 
             totalpartial_processor = _add_processor("org.inviwo.hdf5.PathSelection", "Select {}".format(name), xpos, ypos)
             path_selector_list.append(totalpartial_processor)
@@ -150,7 +153,6 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
 
                 down_type_y_name_property = down_type_processor.getPropertyByIdentifier('yNamePrependParentsProperty')
                 down_type_y_name_property.value = y_name_prepend_parents
-
 
                 xpos_down += 200
 
@@ -199,7 +201,6 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
                 up_add_operation_property = up_add_processor.getPropertyByIdentifier('operationProperty')
                 up_add_operation_property.value = 'add'
 
-
                 up_add_inport = up_add_processor.getInport('functionFlatMultiInport')
                 for up_type in up_type_list:
                     up_type_processor = network.getProcessorByIdentifier(up_type)
@@ -232,6 +233,16 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
                 network.addConnection(down_add_outport, down_negate_inport)
                 plotter_source_list.append(down_negate_processor)
                 ypos += 100
+
+            if down_type_list and up_type_list:
+                collector = _add_processor("org.inviwo.DataFrameCollector", "Collect", xpos, ypos)
+                negate_source_outport = plotter_source_list[0].getOutport('dataframeOutport')
+                up_source_outport = plotter_source_list[1].getOutport('dataframeOutport')
+                collector_inport = collector.getInport('dataframeMultiInport')
+                network.addConnection(negate_source_outport, collector_inport)
+                network.addConnection(up_source_outport, collector_inport)
+                pair_processors.append(collector)
+
             return xpos_other, ypos
 
         xpos_total, ypos_total = totalpartial("Total", xpos, ypos)
@@ -255,7 +266,7 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
                 network.addConnection(h5source_outport, fermi_energy_inport)
                 ypos += 100"""
 
-        for plotter_source in plotter_source_list:
+        for plotter_source in pair_processors:
             ypostemp = ypos
             plotter_processor = _add_processor("org.inviwo.LinePlotProcessor", "DOS Plotter", xpos, ypostemp)
             plotter_source_outport = plotter_source.getOutport('dataframeOutport')
@@ -263,6 +274,7 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
             plotter_processor_mesh_outport = plotter_processor.getOutport('outport')
             plotter_processor_inport = plotter_processor.getInport('dataFrameInport')
             network.addConnection(plotter_source_outport, plotter_processor_inport)
+            plotter_processor_list.append(plotter_processor)
 
             ypostemp += 100
 
@@ -283,7 +295,6 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
             network.addConnection(mesh_renderer_outport, background_processor_inport)
 
             ypostemp += 100
-
 
             energy_text_processor = _add_processor("org.inviwo.TextOverlayGL", "Energy Text", xpos, ypostemp)
             energy_text_processor.getPropertyByIdentifier('text').value = 'Energy [eV]'
@@ -312,7 +323,6 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
 
             xpos += 200
 
-
         # Check for a Unit Cell Mesh processor and connect it for
         # picking of specific atoms if it exists, i.e. connect the two
         # properties describing what atom has been selected/should be
@@ -328,8 +338,6 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
             pick_enable = unit_cell_processor.getPropertyByIdentifier('enablePicking')
             pick_enable.value = True
 
-
-
         # Selects correct paths.
         for path_selector in path_selector_list:
             path_selector.getPropertyByIdentifier('selection').value = '/{}'.format(path_selector.identifier.split()[1])
@@ -339,3 +347,5 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
             hdf5_to_function.getPropertyByIdentifier('yPathSelectionProperty').value = '/{}'.format(hdf5_to_function.identifier.split(' ')[0])
             hdf5_to_function.getPropertyByIdentifier('xPathFreeze').value = True
             hdf5_to_function.getPropertyByIdentifier('yPathFreeze').value = True
+        for plotter_processor in plotter_processor_list:
+            plotter_processor.allYSelection.value = True
