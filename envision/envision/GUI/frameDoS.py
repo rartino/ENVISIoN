@@ -43,27 +43,96 @@ import envision
 class DosFrame(GeneralCollapsible):
     def __init__(self, parent):
         super().__init__(parent, "Density of States")
-    
-        button1 = wx.Button(self.GetPane(), label="X")
-        button2 = wx.Button(self.GetPane(), label="Y")
-        slider = wx.Slider(self.GetPane())
-        self.window1 = wx.CheckBox(self.GetPane(), label="Enable window 1")
-        self.window2 = wx.CheckBox(self.GetPane(), label="Enable window 2")
-        self.window3 = wx.CheckBox(self.GetPane(), label="Enable window 3")
-        self.window4 = wx.CheckBox(self.GetPane(), label="Enable window 4")
 
-        self.add_item(button1)
-        self.add_item(button2)
-        self.add_item(slider)
-        self.add_item(self.window1)
-        self.add_item(self.window2)
-        self.add_item(self.window3)
-        self.add_item(self.window4)
+        #Sizer for scale
+        self.scaleBox = wx.BoxSizer(wx.HORIZONTAL)
+        self.scaleText = wx.StaticText(self.GetPane(),label="Scale: ")
+        self.scale = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
+                                     name='Scale1')
+        self.scaleBox.Add(self.scaleText)
+        self.scaleBox.Add(self.scale)
 
-        self.window1.Bind(wx.EVT_CHECKBOX, self.on_check1)
-        self.window2.Bind(wx.EVT_CHECKBOX, self.on_check2)
-        self.window3.Bind(wx.EVT_CHECKBOX, self.on_check3)
-        self.window4.Bind(wx.EVT_CHECKBOX, self.on_check4)
+        self.scaleBox2 = wx.BoxSizer(wx.HORIZONTAL)
+        self.scaleText2 = wx.StaticText(self.GetPane(),label="Scale: ")
+        self.scale2 = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
+                                     name='Scale2')
+        self.scaleBox2.Add(self.scaleText2)
+        self.scaleBox2.Add(self.scale2)
+
+        #Sizer for X range
+        self.xRangeBox = wx.BoxSizer(wx.HORIZONTAL)
+        self.xRangeText = wx.StaticText(self.GetPane(),label="X Range: ")
+        self.xRangeMax = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
+                                     name='Max')
+        self.xRangeMin = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
+                                     name='Min')
+        self.xRangeBox.Add(self.xRangeText)
+        self.xRangeBox.Add(self.xRangeMin)
+        self.xRangeBox.Add(self.xRangeMax)
+        
+        self.xRangeBox2 = wx.BoxSizer(wx.HORIZONTAL)
+        self.xRangeText2 = wx.StaticText(self.GetPane(),label="X Range: ")
+        self.xRangeMax2 = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
+                                     name='Max')
+        self.xRangeMin2 = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
+                                     name='Min')
+        self.xRangeBox2.Add(self.xRangeText2)
+        self.xRangeBox2.Add(self.xRangeMin2)
+        self.xRangeBox2.Add(self.xRangeMax2)
+
+        #Sizer for Y range
+        self.yRangeBox = wx.BoxSizer(wx.HORIZONTAL)
+        self.yRangeText = wx.StaticText(self.GetPane(),label="Y Range: ")
+        self.yRangeMax = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
+                                     name='Max')
+        self.yRangeMin = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
+                                     name='Min')
+        self.yRangeBox.Add(self.yRangeText)
+        self.yRangeBox.Add(self.yRangeMin)
+        self.yRangeBox.Add(self.yRangeMax)
+        
+        self.yRangeBox2 = wx.BoxSizer(wx.HORIZONTAL)
+        self.yRangeText2 = wx.StaticText(self.GetPane(),label="Y Range: ")
+        self.yRangeMax2 = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
+                                     name='Max')
+        self.yRangeMin2 = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
+                                     name='Min')
+        self.yRangeBox2.Add(self.yRangeText2)
+        self.yRangeBox2.Add(self.yRangeMin2)
+        self.yRangeBox2.Add(self.yRangeMax2)
+
+        #Help line
+        self.selectLine = wx.CheckBox(self.GetPane(),label='Help line: ')
+        self.lineSlider = wx.Slider(self.GetPane())
+
+        self.selectLine2 = wx.CheckBox(self.GetPane(),label='Help line: ')
+        self.lineSlider2 = wx.Slider(self.GetPane())
+
+        self.add_item(self.xRangeBox)
+        self.add_item(self.yRangeBox)
+        self.add_item(self.scaleBox)
+        self.add_item(self.selectLine)
+        self.add_item(self.lineSlider)
+        self.add_item(self.xRangeBox2)
+        self.add_item(self.yRangeBox2)
+        self.add_item(self.scaleBox2)
+        self.add_item(self.selectLine2)
+        self.add_item(self.lineSlider2)
+
+        self.scale.Bind(wx.EVT_TEXT_ENTER, self.on_scale_change)
+        self.xRangeMax.Bind(wx.EVT_TEXT_ENTER, self.on_xmax_change)
+        self.xRangeMin.Bind(wx.EVT_TEXT_ENTER, self.on_xmin_change)
+        self.yRangeMax.Bind(wx.EVT_TEXT_ENTER, self.on_ymax_change)
+        self.yRangeMin.Bind(wx.EVT_TEXT_ENTER, self.on_ymin_change)
+        self.selectLine.Bind(wx.EVT_CHECKBOX, self.on_check_line)
+        self.lineSlider.Bind(wx.EVT_SLIDER, self.on_slide_line)
+        self.scale.Bind(wx.EVT_TEXT_ENTER, self.on_scale_change2)
+        self.xRangeMax2.Bind(wx.EVT_TEXT_ENTER, self.on_xmax_change2)
+        self.xRangeMin2.Bind(wx.EVT_TEXT_ENTER, self.on_xmin_change2)
+        self.yRangeMax2.Bind(wx.EVT_TEXT_ENTER, self.on_ymax_change2)
+        self.yRangeMin2.Bind(wx.EVT_TEXT_ENTER, self.on_ymin_change2)
+        self.selectLine2.Bind(wx.EVT_CHECKBOX, self.on_check_line2)
+        self.lineSlider2.Bind(wx.EVT_SLIDER, self.on_slide_line2)
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
 
     
@@ -73,10 +142,6 @@ class DosFrame(GeneralCollapsible):
         if self.IsCollapsed():
             # Disable DoS vis
             parameter_utils.clear_processor_network()
-            self.window1.SetValue(False)
-            self.window2.SetValue(False)
-            self.window3.SetValue(False)
-            self.window4.SetValue(False)
         else:
             self.start_vis()
 
@@ -90,44 +155,91 @@ class DosFrame(GeneralCollapsible):
                             "Be patient!")
             envision.inviwo.dos(self.parent_collapsible.path, 
                                 atom = 0, xpos = 0, ypos = 0)
+            self.scale.SetValue(str(parameter_utils.get_scale('DOS Plotter')))
+            self.init_ranges()
+            self.lineSlider.SetMax(parameter_utils.get_x_range('DOS Plotter')[0])
+            self.lineSlider.SetMin(parameter_utils.get_x_range('DOS Plotter')[1])
+            self.scale2.SetValue(str(parameter_utils.get_scale('DOS Plotter2')))
+            self.lineSlider2.SetMax(parameter_utils.get_x_range('DOS Plotter2')[0])
+            self.lineSlider2.SetMin(parameter_utils.get_x_range('DOS Plotter2')[1])
             self.set_canvas_pos('DoS')
-            self.window1.SetValue(True)
-            self.window2.SetValue(True)
-            self.window3.SetValue(True)
-            self.window4.SetValue(True)
+
         else:
             self.open_message('The file of choice does not contain DoS-data',
                                 'Visualization failed!')
             self.Collapse(True)
             self.update_collapse()
 
-    def on_check1(self,event):
-        if self.window1.IsChecked():
-            self.enable_window(True,'DOS Canvas')
-            print('oncheck1')
-        else:
-            self.enable_window(False,'DOS Canvas')
+    def on_scale_change(self,event):
+        if (float(self.scale.GetLineText(0)) < 1) and (float(self.scale.GetLineText(0)) > 0):
+            parameter_utils.change_scale(float(self.scale.GetLineText(0)), 'DOS Plotter')
 
-    def on_check2(self,event):
-        if self.window2.IsChecked():
-            self.enable_window(True,'DOS Canvas2')
-        else:
-            self.enable_window(False,'DOS Canvas2')
+    def on_scale_change2(self,event):
+        if (float(self.scale.GetLineText(0)) < 1) and (float(self.scale.GetLineText(0)) > 0):
+            parameter_utils.change_scale(float(self.scale.GetLineText(0)), 'DOS Plotter2')
 
-    def on_check3(self,event):
-        if self.window3.IsChecked():
-            self.enable_window(True,'DOS Canvas3')
-        else:
-            self.enable_window(False,'DOS Canvas3')
+    def on_xmax_change(self,event):
+        if (float(self.xRangeMax.GetLineText(0)) < 600) and (float(self.xRangeMax.GetLineText(0)) > parameter_utils.get_x_range()[1]):
+            parameter_utils.set_x_range(float(self.xRangeMax.GetLineText(0)),'max', 'DOS Plotter')
 
-    def on_check4(self,event):
-        if self.window4.IsChecked():
-            self.enable_window(True,'DOS Canvas4')
-        else:
-            self.enable_window(False,'DOS Canvas4')
+    def on_xmax_change2(self,event):
+        if (float(self.xRangeMax.GetLineText(0)) < 600) and (float(self.xRangeMax.GetLineText(0)) > parameter_utils.get_x_range()[1]):
+            parameter_utils.set_x_range(float(self.xRangeMax.GetLineText(0)),'max', 'DOS Plotter2')
+    
+    def on_xmin_change(self,event):
+        if (float(self.xRangeMin.GetLineText(0)) > 0) and (float(self.xRangeMin.GetLineText(0)) < parameter_utils.get_x_range()[0]):
+            parameter_utils.set_x_range(float(self.xRangeMin.GetLineText(0)),'min', 'DOS Plotter')
 
-    def enable_window(self,show,type):
-        parameter_utils.show_canvas(show,type)
-        print('enable')
+    def on_xmin_change2(self,event):
+        if (float(self.xRangeMin.GetLineText(0)) > 0) and (float(self.xRangeMin.GetLineText(0)) < parameter_utils.get_x_range()[0]):
+            parameter_utils.set_x_range(float(self.xRangeMin.GetLineText(0)),'min', 'DOS Plotter2')
+
+    def on_ymax_change(self,event):
+        if (float(self.yRangeMax.GetLineText(0)) < 15) and (float(self.yRangeMax.GetLineText(0)) > parameter_utils.get_y_range()[1]):
+            parameter_utils.set_y_range(float(self.yRangeMax.GetLineText(0)),'max', 'DOS Plotter')
+
+    def on_ymax_change2(self,event):
+        if (float(self.yRangeMax.GetLineText(0)) < 15) and (float(self.yRangeMax.GetLineText(0)) > parameter_utils.get_y_range()[1]):
+            parameter_utils.set_y_range(float(self.yRangeMax.GetLineText(0)),'max', 'DOS Plotter2')
+
+    def on_ymin_change(self,event):
+        if (float(self.yRangeMin.GetLineText(0)) > -55) and (float(self.yRangeMin.GetLineText(0)) < parameter_utils.get_y_range()[0]):
+            parameter_utils.set_y_range(float(self.yRangeMin.GetLineText(0)),'min', 'DOS Plotter')
+
+    def on_ymin_change2(self,event):
+        if (float(self.yRangeMin.GetLineText(0)) > -55) and (float(self.yRangeMin.GetLineText(0)) < parameter_utils.get_y_range()[0]):
+            parameter_utils.set_y_range(float(self.yRangeMin.GetLineText(0)),'min', 'DOS Plotter2')
+
+    def on_check_line(self,event):
+        if self.selectLine.IsChecked():
+            parameter_utils.enable_help_line(True, 'DOS Plotter')
+        else:
+            parameter_utils.enable_help_line(False, 'DOS Plotter')
+    
+    def on_check_line2(self,event):
+        if self.selectLine.IsChecked():
+            parameter_utils.enable_help_line(True, 'DOS Plotter2')
+        else:
+            parameter_utils.enable_help_line(False, 'DOS Plotter2')
+
+    def on_slide_line(self,event):
+        parameter_utils.set_help_line(self.lineSlider.GetValue(), 'DOS Plotter')
+
+    def on_slide_line2(self,event):
+        parameter_utils.set_help_line(self.lineSlider.GetValue(), 'DOS Plotter2')
+
+    def init_ranges(self):
+        x_range = parameter_utils.get_x_range('DOS Plotter')
+        y_range = parameter_utils.get_y_range('DOS Plotter')
+        x2_range = parameter_utils.get_x_range('DOS Plotter2')
+        y2_range = parameter_utils.get_y_range('DOS Plotter2')
+        self.xRangeMax.SetValue(str(x_range[0]))
+        self.xRangeMin.SetValue(str(x_range[1])) 
+        self.yRangeMax.SetValue(str(y_range[0]))
+        self.yRangeMin.SetValue(str(y_range[1]))
+        self.xRangeMax2.SetValue(str(x2_range[0]))
+        self.xRangeMin2.SetValue(str(x2_range[1])) 
+        self.yRangeMax2.SetValue(str(y2_range[0]))
+        self.yRangeMin2.SetValue(str(y2_range[1]))
 
     

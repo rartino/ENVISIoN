@@ -114,9 +114,8 @@ def set_dos_canvas_position(position = None):
     Canvas = network.getProcessorByIdentifier('DOS Canvas')
     if position != None:
         Canvas.position.value = position
-    for n in range(2,5):
         position = position + 20
-        Canvas = network.getProcessorByIdentifier('DOS Canvas'+str(n))
+        Canvas = network.getProcessorByIdentifier('DOS Canvas2')
         if position != None:
             Canvas.position.value = position
     else:
