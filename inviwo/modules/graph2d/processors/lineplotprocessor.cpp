@@ -61,6 +61,7 @@ namespace inviwo {
 
 using plot::DataFrame;
 using plot::Column;
+using plot::TemplateColumn;
 
 // The Class Identifier has to be globally unique. Use a reverse DNS naming scheme
 const ProcessorInfo LinePlotProcessor::processorInfo_{
@@ -185,7 +186,6 @@ void LinePlotProcessor::process() {
 
     // We want at least two columns.
     if (inputFrame->getNumberOfColumns() >= 3) {
-        // Store y-data in vector and x-data in column.
         for (size_t i = 0; i < inputFrame->getNumberOfColumns(); i++) {
             if (inputFrame->getHeader(i) != "index") {
                 data.push_back(inputFrame->getColumn(i));
@@ -195,6 +195,7 @@ void LinePlotProcessor::process() {
         LogInfo("This processor needs two columns to exist in the DataFrame.")
         return;
     }
+
     // Clear all options before adding new options.
     // This is done to prevent doubling all options every run.
     if (dataFrameInport_.isChanged()) {
@@ -212,6 +213,7 @@ void LinePlotProcessor::process() {
     // Declare global size boundries.
     size_t xSize, ySize;
     double xMax, xMin, yMax, yMin;
+    double range;
     // If we only want to plot one X against one Y.
     if (!allYSelection_.get()) {
         for (size_t i = 0; i < data.size(); i++) {
@@ -219,7 +221,15 @@ void LinePlotProcessor::process() {
                 x = data.at(i);
             }
             if (ySelectionProperty_.getSelectedIdentifier() == data.at(i)->getHeader()) {
-                y = data.at(i);
+                if (pointInport_.isConnected()) {
+                    std::shared_ptr<TemplateColumn<float>> yTmp = std::make_shared<TemplateColumn<float>>(data.at(i)->getHeader());
+                    for (size_t j = 0; j < data.at(i)->getSize(); j++) {
+                        yTmp->add(data.at(i)->getAsDouble(j) - pointInport_.getData()->value);
+                    }
+                    y = yTmp;
+                } else {
+                    y = data.at(i);
+                }
             }
         }
         // Set local boundries for one vs one plot.
@@ -249,17 +259,26 @@ void LinePlotProcessor::process() {
                 localYMin = y->getAsDouble(i);
             }
         }
+        range = abs(localYMin + localYMax);
         xMax = localXMax;
         xMin = localXMin;
-        yMax = localYMax;
-        yMin = localYMin;
+        yMax = localYMax + 0.1 * range;
+        yMin = localYMin - 0.1 * range;
     } else {
         // If we want to plot X against all Y.
         for (size_t i = 0; i < data.size(); i++) {
             if (xSelectionProperty_.getSelectedIdentifier() == data.at(i)->getHeader()) {
                 xData = data.at(i);
             } else {
-                yData.push_back(data.at(i));
+                if (pointInport_.isConnected()) {
+                    std::shared_ptr<TemplateColumn<float>> yTmp = std::make_shared<TemplateColumn<float>>(data.at(i)->getHeader());
+                    for (size_t j = 0; j < data.at(i)->getSize(); j++) {
+                        yTmp->add(data.at(i)->getAsDouble(j) - pointInport_.getData()->value);
+                    }
+                    yData.push_back(yTmp);
+                } else {
+                    yData.push_back(data.at(i));
+                }
             }
         }
         xSize = xData->getSize();
@@ -286,6 +305,9 @@ void LinePlotProcessor::process() {
                 }
             }
         }
+        range = abs(yMin + yMax);
+        yMin -= 0.1 * range;
+        yMax += 0.1 * range;
     }
     if (dataFrameInport_.isChanged() ||
         xSelectionProperty_.isModified() ||
