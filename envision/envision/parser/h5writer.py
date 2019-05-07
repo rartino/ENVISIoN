@@ -246,7 +246,7 @@ def _write_pcdat_multicol(h5file, pcdat_data, APACO_val, NPACO_val):
             x = (APACO_val / NPACO_val) * i
             normal_arr.append(x)
         value = np.asarray(normal_arr)
-        h5.create_dataset(dset_name, data=value, dtype=np.float64)
+        h5.create_dataset(dset_name, data=value, dtype=np.float32)
 
         # create dataset for paircorrelation function for every time frames for every element.
         #len(pcdat_data) gives the amount of elements
@@ -266,7 +266,7 @@ def _write_pcdat_multicol(h5file, pcdat_data, APACO_val, NPACO_val):
 
                 tmp_name = str(dset_groupname) + "/{}"
                 dset_name2 = tmp_name.format("t_" + str(t_value))
-                h5.create_dataset(dset_name2, data=np.array(fill_list), dtype=np.float64)
+                h5.create_dataset(dset_name2, data=np.array(fill_list), dtype=np.float32)
                 h5[dset_name2].attrs["element"] = element_symbol
 
 
@@ -294,7 +294,7 @@ def _write_pcdat_onecol(h5file, pcdat_data, APACO_val, NPACO_val):
             x = (APACO_val / NPACO_val) * i
             normal_arr.append(x)
         value = np.asarray(normal_arr)
-        h5.create_dataset(dset_name, data=value, dtype=np.float64)
+        h5.create_dataset(dset_name, data=value, dtype=np.float32)
 
         # create dataset for paircorrelation function for every time frames for every element.
         #len(pcdat_data) gives the amount of elements
@@ -310,7 +310,7 @@ def _write_pcdat_onecol(h5file, pcdat_data, APACO_val, NPACO_val):
                 del original_list[0]
 
             dset_name2 = "PairCorrelationFunc/{}".format("t_" + str(t_value))
-            h5.create_dataset(dset_name2, data=np.array(fill_list), dtype=np.float64)
+            h5.create_dataset(dset_name2, data=np.array(fill_list), dtype=np.float32)
 
 
             if len(original_list) == 0:
