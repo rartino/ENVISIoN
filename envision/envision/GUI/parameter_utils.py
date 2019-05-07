@@ -50,6 +50,8 @@ import envision.inviwo
 app = inviwopy.app
 network = app.network
 
+from envision.inviwo.ParchgHandler import ParchgNetworkHandler
+
 # TODO: make better visualization intialization code
 
 def clear_processor_network():
@@ -97,9 +99,12 @@ def set_hd5_source(path):
 # ----------------------
 # ----Partial Charge----
 
-def start_parchg_vis(path, parchg_list = [0, 0, 0, 0], mode_list = [0, 0, 0, 0]):
-    envision.inviwo.unitcell(path, xpos=0, ypos=0, smallAtoms=True)
-    envision.inviwo.parchg(path, sli=False, parchg_list=parchg_list, parchg_mode='mixed', mode_list=mode_list, xstart_pos=600, ystart_pos=0)
+def start_parchg_vis(path, band_list = [0, 0, 0, 0], mode_list = [0, 1, 2, 3]):
+    # envision.inviwo.unitcell(path, xpos=0, ypos=0, smallAtoms=True)
+    # envision.inviwo.parchg(path, sli=False, parchg_list=parchg_list, parchg_mode='mixed', mode_list=mode_list, xstart_pos=600, ystart_pos=0)
+
+    networkHandler = ParchgNetworkHandler(path, band_list, mode_list)
+    return networkHandler
 
 def parchg_get_bands(path):
     with h5py.File(path, 'r') as file:
