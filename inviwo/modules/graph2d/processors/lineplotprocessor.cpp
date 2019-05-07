@@ -2,7 +2,7 @@
  *
  * Inviwo - Interactive Visualization Workshop
  *
- * Copyright (c) 2017-2019 Inviwo Foundation, Andreas Kempe, Abdullatif Ismail
+ * Copyright (c) 2017-2019 Inviwo Foundation, Andreas Kempe
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
  *
  *********************************************************************************/
  /*
-  *   Alterations to this file by Abdullatif Ismail
+  *   Alterations to this file by Abdullatif Ismail, Anton Hjert
   *
   *   To the extent possible under law, the person who associated CC0
   *   with the alterations to this file has waived all copyright and
@@ -212,7 +212,10 @@ void LinePlotProcessor::process() {
     }
     // Declare global size boundries.
     size_t xSize, ySize;
-    double xMax, xMin, yMax, yMin;
+    double xMax {};
+    double xMin {};
+    double yMax {};
+    double yMin {};
     double range;
     // If we only want to plot one X against one Y.
     if (!allYSelection_.get()) {

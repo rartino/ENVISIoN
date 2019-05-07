@@ -51,7 +51,52 @@ def enable_visualization(type, path):
     # Build specified network or enable canvas if already exists
     if type == 'Charge':
         start_charge_vis(path,False)
-    
+
+def change_scale(scaleValue,processor='Line plot'):
+    dataProcessor = network.getProcessorByIdentifier(processor)
+    if dataProcessor:
+        dataProcessor.scale.value = scaleValue
+
+def get_scale(processor='Line plot'):
+    dataProcessor = network.getProcessorByIdentifier(processor)
+    if dataProcessor:
+        return dataProcessor.scale.value
+
+def set_all_data(processor='',setAll=True):
+    dataProcessor = network.getProcessorByIdentifier(processor)
+    if dataProcessor:
+        dataProcessor.allYSelection.value = setAll
+
+def get_x_range(type='Line plot'):
+    dataProcessor = network.getProcessorByIdentifier(type)
+    return dataProcessor.x_range.value
+
+def get_y_range(type='Line plot'):
+    dataProcessor = network.getProcessorByIdentifier(type)
+    return dataProcessor.y_range.value
+
+def set_x_range(value, type='Line plot'):
+    dataProcessor = network.getProcessorByIdentifier(type)
+    if type == 'min':
+        dataProcessor.x_range.value = inviwopy.glm.vec2(dataProcessor.x_range.value[0],value)
+    else:
+        dataProcessor.x_range.value = inviwopy.glm.vec2(value, dataProcessor.x_range.value[1])
+
+def set_y_range(value, type='Line plot'):
+    dataProcessor = network.getProcessorByIdentifier(type)
+    if type == 'min':
+        dataProcessor.y_range.value = inviwopy.glm.vec2(dataProcessor.y_range.value[0],value)
+    else:
+        dataProcessor.y_range.value = inviwopy.glm.vec2(value, dataProcessor.y_range.value[1])
+
+def enable_help_line(setLine=False, type='Line plot'):
+    dataProcessor = network.getProcessorByIdentifier(type)
+    dataProcessor.enable_line.value = setLine
+
+def set_help_line(value, type='Line plot'):
+    dataProcessor = network.getProcessorByIdentifier(type)
+    dataProcessor.line_x_coordinate.value = value
+
 def set_canvas_position(position = None, type='Canvas'):
     #Change the canvas-position
     Canvas = network.getProcessorByIdentifier(type)

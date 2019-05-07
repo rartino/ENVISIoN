@@ -199,7 +199,7 @@ def incar(h5file, vasp_dir):
                 return False
     vasp_file = os.path.join(vasp_dir, 'INCAR')
     try:
-        incar_data = parse_incar(h5file, vasp_file)
+        incar_data = _parse_incar(h5file, vasp_file)
     except FileNotFoundError:
         print('INCAR file not in directory. Skipping.')
         return False

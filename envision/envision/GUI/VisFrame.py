@@ -48,6 +48,7 @@ from framePKF import PKFFrame
 from frameDoS import DosFrame
 from frameParchg import ParchgFrame
 from frameUnitcell import UnitcellFrame
+from frameBandstructure import BandstructureFrame
 
 from generalCollapsible import GeneralCollapsible
 import inspect
@@ -83,11 +84,13 @@ class VisualizationFrame(GeneralCollapsible):
         dosFrame = DosFrame(self.GetPane())
         parchgFrame = ParchgFrame(self.GetPane())
         unitcellFrame = UnitcellFrame(self.GetPane())
+        bandstructureFrame = BandstructureFrame(self.GetPane())
 
     # Add them to the sizer
+        self.add_sub_collapsible(bandstructureFrame)
         self.add_sub_collapsible(chargeFrame)
-        self.add_sub_collapsible(pcFrame)
         self.add_sub_collapsible(dosFrame)
+        self.add_sub_collapsible(pcFrame)
         self.add_sub_collapsible(parchgFrame)
         self.add_sub_collapsible(unitcellFrame)
 
