@@ -35,56 +35,65 @@
 #  You should have received a copy of the CC0 legalcode along with
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
-import wx, sys, os, h5py
-from parameter_utils import *
+import wx
+import parameter_utils
 from generalCollapsible import GeneralCollapsible
 
 class ParchgFrame(GeneralCollapsible):
     def __init__(self, parent):
         super().__init__(parent, "Partial Charge")
-         
-        button1 = wx.Button(self.GetPane(), label="X")
-        button2 = wx.Button(self.GetPane(), label="Y")
-        slider = wx.Slider(self.GetPane())
+        
 
-        self.add_item(button1)
-        self.add_item(button2)
-        self.add_item(slider)
+
+
+
+
+
+        # Setup band chooser choise box
+        self.bandChoosers = []
+        self.modeChoosers = []
+        choiceSizer = wx.GridSizer(2, wx.Size(2, 2))
+
+        # TODO add labels
+
+        for i in range(4):
+            bandChooser = wx.Choice(self.GetPane(), choices = ['None'])
+            modeChooser = wx.Choice(self.GetPane(), choices = ['Total', "Something"])
+            bandChooser.SetSelection(0)
+            modeChooser.SetSelection(1)
+            choiceSizer.Add(bandChooser)
+            choiceSizer.Add(modeChooser)
+            self.bandChoosers.append(bandChooser)
+            self.modeChoosers.append(modeChooser)
+
+
+        # Add stuff to sizer
+        self.add_item(choiceSizer)
+
 
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
 
     
     def on_collapse(self, event = None):
         self.update_collapse()
-        # Needs to be called to update the layout properly
+
         if self.IsCollapsed():
-            # Disable Parchg vis
-            clear_processor_network()
-            print("Not Parchg")
+            parameter_utils.clear_processor_network()
         else:
-            self.start_vis()
+            bandKeys = parameter_utils.parchg_get_bands(self.parent_collapsible.path)
+            for key in bandKeys:
+                self.bandChoosers[0].Append(key)
+                self.bandChoosers[1].Append(key)
+                self.bandChoosers[2].Append(key)
+                self.bandChoosers[3].Append(key)
+            parameter_utils.start_parchg_vis(self.parent_collapsible.path)
+
 
     def start_vis(self):
         if self.isPathEmpty():
             return
-        elif "/PARCHG" in  h5py.File(self.parent_collapsible.path, 'r') and\
-                "/UnitCell" in  h5py.File(self.parent_collapsible.path, 'r'):
-            #Start Parchg vis
-            envision.inviwo.unitcell(self.parent_collapsible.path, 
-                                xpos = 0, ypos = 0, smallAtoms = True)
-            self.set_canvas_pos('Unitcell')
-            envision.inviwo.parchg(self.parent_collapsible.path, 
-                            sli = False, parchg_list = [1,2,3,4], 
-                            parchg_mode = 'total', mode_list = [0,1,2,3], 
-                            xstart_pos = 600, ystart_pos = 0)
-            self.set_canvas_pos()
-        #Remove the extra unitcell window
-            unitcellCanvas = network.getProcessorByIdentifier('Unit Cell Canvas')
-            network.removeProcessor(unitcellCanvas)
-            print("Parchg")
-        else:
-            self.open_message('The file of choice does not contain Partial charge-data',
-                                'Visualization failed!')
-            self.Collapse(True)
-            self.update_collapse()
-
+        
+        # try:
+        self.start_vis()
+        # except:
+            # print("Wawa")

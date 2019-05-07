@@ -26,7 +26,7 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by
+#  Alterations to this file by Jesper Ericsson
 #
 #  To the extent possible under law, the person who associated CC0
 #  with the alterations to this file has waived all copyright and related
