@@ -62,10 +62,12 @@ def paircorrelation(h5file, xpos=0, ypos=0):
 
         ypos += 75
 
+
         #all_processor = _add_processor("org.inviwo.HDF5PathSelectionAllChildren", "Select All", xpos, ypos)
 
         #network.addConnection(paircorrelation_processor.getOutport("outport"), all_processor.getInport("hdf5HandleInport"))
         #ypos += 75
+
 
         elements_processor = _add_processor("org.inviwo.HDF5ToFunction", "To Function", xpos, ypos)
         hdf5_to_list.append(elements_processor)
