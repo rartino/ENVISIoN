@@ -1,7 +1,7 @@
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2019 Jesper Ericsson
+#  Copyright (c) 2019 Anton Hjert
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ from envision.inviwo.ELFNetworkHandler import ELFNetworkHandler
 
 class ELFFrame(GeneralCollapsible):
     def __init__(self, parent):
-        super().__init__(parent, label = "Charge")
+        super().__init__(parent, label = "ELF")
 
         # Setup band selector choice box
         bandChoiceLabel = wx.StaticText(self.GetPane(), label="Select band: ")
@@ -55,6 +55,7 @@ class ELFFrame(GeneralCollapsible):
             "Choose what band to visualize")
 
         self.bandChoice = wx.Choice(self.GetPane())
+
 
         bandChoiceHBox = wx.BoxSizer(wx.HORIZONTAL)
         bandChoiceHBox.Add(bandChoiceLabel)
@@ -95,13 +96,27 @@ class ELFFrame(GeneralCollapsible):
         
         if not self.IsCollapsed():
             # Initialize network handler which starts visualization
-            self.networkHandler = ELFNetworkHandler(self.parent_collapsible.path)
+            # Exception caught if hdf5 file is not valid
+            try:
+                self.networkHandler = ELFNetworkHandler(self.parent_collapsible.path)
+            except AssertionError as error:
+                print(error)
+                self.Collapse(True)
+                self.update_collapse()
+                return
+
+            # Set the Network Handler of everyone that needs it
             self.volumeCollapsible.networkHandler = self.networkHandler
             self.sliceCollapsible.networkHandler = self.networkHandler
+            self.sliceCollapsible.sliceBackgroundCollapsibe.networkHandler = self.networkHandler
             self.backgroundCollapsibe.networkHandler = self.networkHandler
 
+            # Add a default tf-point, just so volume is not empty on startup
             self.volumeCollapsible.add_tf_point(0.5, 0.1, wx.Colour(20, 200, 20, 20))
             self.volumeCollapsible.re_read_tf_points()
+
+            # Set canvases to appear next to window
+            self.reset_canvas_positions()
 
             self.bandChoice.Clear()
             for key in self.networkHandler.get_available_bands(self.parent_collapsible.path):
@@ -115,5 +130,12 @@ class ELFFrame(GeneralCollapsible):
 
     def on_band_selection(self, event):
         self.networkHandler.set_active_band(event.GetString())
+
+
+    def reset_canvas_positions(self):
+        window = self.GetTopLevelParent()
+        print(window.GetPosition().x + window.GetSize().width)
+        print(window.GetPosition().y)
+        self.networkHandler.position_canvases(window.GetPosition().x + window.GetSize().width, window.GetPosition().y)
             
     
