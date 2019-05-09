@@ -62,7 +62,6 @@ from VolumeNetworkHandler import VolumeNetworkHandler
 
 class ParchgNetworkHandler(VolumeNetworkHandler):
     """ Class for setting up and handling the inviwo network for partial charge visualization
-        
     """
     def __init__(self, hdf5_path, band_list, mode_list):
         """ Initializes the partial charge network 
@@ -82,7 +81,6 @@ class ParchgNetworkHandler(VolumeNetworkHandler):
         super().__init__() # Will setup generic part of network
         self.setup_hdf5_source(hdf5_path)
         self.setup_band_processors(band_list, mode_list)
-
 
         self.hdf5_path = hdf5_path
         self.HDFvolume_processors = []
