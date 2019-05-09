@@ -94,6 +94,7 @@ class ChargeFrame(GeneralCollapsible):
         else:
             #Start Charge vis
             self.start_vis()
+        
             
 
     def start_vis(self):
@@ -111,4 +112,3 @@ class ChargeFrame(GeneralCollapsible):
                                 'Visualization failed!')
             self.Collapse(True)
             self.update_collapse()
-    
