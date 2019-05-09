@@ -126,9 +126,20 @@ def bandstructure(h5file, xpos = 0, ypos = 0):
                               background_processor.getInport("inport"))
         ypos += 75
 
+        energy_text_processor = _add_processor("org.inviwo.TextOverlayGL", "Energy Text", xpos, ypos)
+        network.addConnection(background_processor.getOutport('outport'), energy_text_processor.getInport('inport'))
+        if has_fermi_energy:
+            energy_text_processor.text.value = 'Energy - Fermi energy  [eV]'
+        else:
+            energy_text_processor.text.value = 'Energy [eV]'
+        energy_text_processor.font.fontSize.value = 20
+        energy_text_processor.position.value = inviwopy.glm.vec2(0.31, 0.93)
+        energy_text_processor.color.value = inviwopy.glm.vec4(0,0,0,1)
+
+        ypos += 75
+
         canvas_processor = _add_processor("org.inviwo.CanvasGL", "Canvas", xpos, ypos)
-        network.addConnection(background_processor.getOutport('outport'),
-                              canvas_processor.getInport("inport"))
+        network.addConnection(energy_text_processor.getOutport('outport'), canvas_processor.getInport('inport'))
 
         # Start modifying properties.
         path_selection_processor.selection.value = '/Bandstructure/Bands'
