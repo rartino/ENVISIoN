@@ -83,8 +83,6 @@ class ParchgFrame(GeneralCollapsible):
             # Add new selection widged with None as selection
             newBandSelector = BandSelectorWidget(self.GetPane(), self.bandChoices)
             newBandSelector.bandChooser.Bind(wx.EVT_CHOICE, lambda event : self.band_selection_changed(newBandSelector))
-            newBandSelector.modeChooser.Bind(wx.EVT_CHOICE, lambda event : self.mode_selection_changed(newBandSelector))
-            #self.selectorVBox.Insert(len(self.selectorWidgets)-1, newBandSelector)
             self.selectorVBox.Add(newBandSelector)
             self.selectorWidgets.append(newBandSelector)
 
@@ -110,8 +108,6 @@ class ParchgFrame(GeneralCollapsible):
                 continue
         self.networkHandler.select_bands(bandList, modeList)
             
-
-
     def on_collapse(self, event = None):
         self.update_collapse()
 
@@ -120,7 +116,6 @@ class ParchgFrame(GeneralCollapsible):
         else:
             self.networkHandler.clear_processor_network()
             del self.networkHandler
-
 
 class BandSelectorWidget(wx.BoxSizer):
     # Class managing the UI for a single TF point in the collapsible

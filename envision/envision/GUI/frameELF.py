@@ -68,6 +68,10 @@ class ELFFrame(GeneralCollapsible):
         self.spheresCheckbox.SetValue(True)
         self.add_item(self.spheresCheckbox)
 
+        #Setup slice-checkbox
+        self.sliceBox = wx.CheckBox(self.GetPane(), label="Enable volume slice")
+        self.add_item(self.sliceBox)
+
         # Setup volume rendering controls
         self.volumeCollapsible = VolumeControlCollapsible(self.GetPane(), "Volume Rendering")
         self.add_sub_collapsible(self.volumeCollapsible)
@@ -75,10 +79,6 @@ class ELFFrame(GeneralCollapsible):
         # Setup background controls
         self.backgroundCollapsibe = BackgroundCollapsible(self.GetPane(), "Background")
         self.add_sub_collapsible(self.backgroundCollapsibe)
-        
-        #Setup slice-checkbox
-        self.sliceBox = wx.CheckBox(self.GetPane(), label="Slice")
-        self.add_item(self.sliceBox)
         
         # Setup slice controls
         self.sliceCollapsible = SliceControlCollapsible(self.GetPane(), "Volume Slice")
@@ -117,6 +117,7 @@ class ELFFrame(GeneralCollapsible):
                 inviwopy.app.network.clear()
                 self.Collapse(True)
                 self.update_collapse()
+                self.open_message(str(error), "Cannot start visualization")
                 return
 
             # Set the Network Handler of everyone that needs it
@@ -137,6 +138,14 @@ class ELFFrame(GeneralCollapsible):
             for key in self.networkHandler.get_available_bands(self.parent_collapsible.path):
                 self.bandChoice.Append(key)
                 self.bandChoice.SetSelection(self.bandChoice.FindString('final'))
+
+            # Check if unitcell is available
+            self.spheresCheckbox.SetValue(self.networkHandler.unitcellAvailable)
+            self.spheresCheckbox.Enable(self.networkHandler.unitcellAvailable)
+            if not self.networkHandler.unitcellAvailable:
+                self.spheresCheckbox.SetToolTip("No unitcell parsed into HDF5 file.")
+            else:
+                self.spheresCheckbox.SetToolTip("")
 
         elif self.networkHandler:
             # Disable charge visualization

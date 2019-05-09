@@ -116,7 +116,10 @@ class VolumeNetworkHandler():
             if len(tf_points) > 0:
                 VolumeSlice.tfGroup.transferFunction.add(0.99*tf_points[0][0], inviwopy.glm.vec4(1.0, 1.0, 1.0, 1.0))
 
+# ---- Transferfunction ----
+
     def clear_tf(self):
+    # Clears the transfer function of all points
         network = inviwopy.app.network
         Raycaster = network.getProcessorByIdentifier('Raycaster')
         Raycaster.isotfComposite.transferFunction.clear()
@@ -126,9 +129,11 @@ class VolumeNetworkHandler():
     # Add point to the raycaster transferfunction
         network = inviwopy.app.network
         Raycaster = network.getProcessorByIdentifier('Raycaster')
+        for p in Raycaster.isotfComposite.properties:
+            print(p)
+            print(dir(p))
         if Raycaster:
-            tf_property = Raycaster.isotfComposite.transferFunction
-            tf_property.add(value, color)
+            Raycaster.isotfComposite.transferFunction.add(value, color)
             self.slice_copy_tf()
 
     def remove_tf_point(self, index):
@@ -153,6 +158,9 @@ class VolumeNetworkHandler():
             if points[i].pos == value:
                 self.remove_tf_point(i)
                 break
+        else:
+            print("TF point value not found")
+            return
         self.add_tf_point(value, color)
 
     def get_tf_points(self):
@@ -161,6 +169,8 @@ class VolumeNetworkHandler():
         Raycaster = network.getProcessorByIdentifier('Raycaster')
         tf_property = Raycaster.isotfComposite.transferFunction
         return [[x.pos, x.color] for x in tf_property.getValues()]
+
+# ---- Other Properties ----
 
     def set_shading_mode(self, mode):
         network = inviwopy.app.network
@@ -287,6 +297,8 @@ class VolumeNetworkHandler():
         EntryExitPoints = _add_processor('org.inviwo.EntryExitPoints', 'EntryExitPoints', xpos+30, ypos+225)
 
         Raycaster = _add_processor('org.inviwo.VolumeRaycaster', "Raycaster", xpos, ypos+300)
+        Raycaster.raycaster.renderingType.selectedIndex = 1
+        Raycaster.raycaster.samplingRate.value = 4
 
         # Setup Slice rendering part
         VolumeSlice = _add_processor('org.inviwo.VolumeSliceGL', 'Volume Slice', xpos-25*7, ypos+300)   
