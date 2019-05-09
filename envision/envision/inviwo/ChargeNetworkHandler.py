@@ -46,13 +46,24 @@ import h5py
 from common import _add_h5source, _add_processor
 
 from VolumeNetworkHandler import VolumeNetworkHandler
+from envision.inviwo.UnitcellNetworkHandler import UnitcellNetworkHandler
 
-class ChargeNetworkHandler(VolumeNetworkHandler):
+class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
     """ Handler class for charge visualization network.
         Sets up and manages the charge visualization
     """
     def __init__(self, hdf5_path):
-        
+        VolumeNetworkHandler.__init__(self)
+
+        # Unitcell is not critical to visualization, if it fails, continnue anyway
+        self.unitcellAvailable = True
+        try: 
+            UnitcellNetworkHandler.__init__(self, hdf5_path)
+        except AssertionError as error:
+            print(error)
+            self.unitcellAvailable = False
+
+
         # Check if  hdf5-file is valid
         # TODO check if file exist at all.
         with h5py.File(hdf5_path, 'r') as file:
@@ -61,7 +72,6 @@ class ChargeNetworkHandler(VolumeNetworkHandler):
         if len(self.get_available_bands(hdf5_path)) == 0:
             raise AssertionError("No valid bands in that file")
         
-        super().__init__() # Will setup generic part of network
         self.setup_volume_source(hdf5_path)
         self.set_active_band('final')
     
