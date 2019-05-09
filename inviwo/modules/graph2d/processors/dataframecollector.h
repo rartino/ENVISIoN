@@ -1,6 +1,8 @@
 /*********************************************************************************
  *
- * Copyright (c) 2017 Robert Cranston
+ * Inviwo - Interactive Visualization Workshop
+ *
+ * Copyright (c) 2019 Abdullatif Ismail
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,75 +27,38 @@
  *
  *********************************************************************************/
 
-#ifndef IVW_PLOTTER_H
-#define IVW_PLOTTER_H
+#ifndef IVW_DATAFRAMECOLLECTOR_H
+#define IVW_DATAFRAMECOLLECTOR_H
 
 #include <modules/graph2d/graph2dmoduledefine.h>
-
 #include <inviwo/core/common/inviwo.h>
-#include <inviwo/core/ports/imageport.h>
+#include <inviwo/core/ports/datainport.h>
 #include <inviwo/core/processors/processor.h>
-#include <inviwo/core/properties/optionproperty.h>
-#include <inviwo/core/properties/boolproperty.h>
-#include <inviwo/core/properties/minmaxproperty.h>
-
+#include <modules/plotting/datastructures/dataframe.h>
 #include <modules/graph2d/datastructures/graph2ddata.h>
+
+using inviwo::plot::DataFrame;
+using inviwo::plot::DataFrameOutport;
 
 namespace inviwo {
 
-/** \docpage{org.inviwo.Plotter, Plotter}
- * ![](org.inviwo.Plotter.png?classIdentifier=org.inviwo.Plotter)
- * Explanation of how to use the processor.
- *
- * ### Inports
- *   * __<Inport1>__ <description>.
- *
- * ### Outports
- *   * __<Outport1>__ <description>.
- *
- * ### Properties
- *   * __<Prop1>__ <description>.
- *   * __<Prop2>__ <description>
- */
-
-
 /**
- * \class Plotter
- * \brief VERY_BRIEFLY_DESCRIBE_THE_PROCESSOR
- * DESCRIBE_THE_PROCESSOR_FROM_A_DEVELOPER_PERSPECTIVE
+ * \class DataFrameCollector
+ * Collects data frames into a single data frame.
  */
-class IVW_MODULE_GRAPH2D_API Plotter : public Processor {
+    class IVW_MODULE_GRAPH2D_API DataFrameCollector : public Processor {
 
-public:
-
-    Plotter();
-    virtual ~Plotter() = default;
-
+    public:
+    DataFrameCollector();
+    virtual ~DataFrameCollector() = default;
     virtual void process() override;
-
     virtual const ProcessorInfo getProcessorInfo() const override;
     static const ProcessorInfo processorInfo_;
-
-private:
-
-    DataInport<Function, 0, true> functionFlatMultiInport_;
-    DataInport<Point, 0, true> markXFlatMultiInport_;
-    DataInport<Point, 0, true> markYFlatMultiInport_;
-
-    BoolProperty sortOnNameProperty_;
-    BoolProperty legendShowProperty_;
-    BoolProperty legendSymbolsProperty_;
-    OptionPropertyString markShiftToZeroXProperty_;
-    OptionPropertyString markShiftToZeroYProperty_;
-    BoolProperty axisLimitAutoAdjustXProperty_;
-    FloatMinMaxProperty axisLimitXProperty_;
-    BoolProperty axisLimitAutoAdjustYProperty_;
-    FloatMinMaxProperty axisLimitYProperty_;
-
-    ImageOutport imageOutport_;
+    private:
+    DataInport<DataFrame, 0> dataframeInport_;
+    DataFrameOutport dataframeOutport_;
 };
 
 } // namespace
 
-#endif // IVW_PLOTTER_H
-
+#endif // IVW_DATAFRAMECOLLECTOR_H

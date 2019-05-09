@@ -42,9 +42,9 @@
 
 import wx, sys, os
 import inspect
-path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-sys.path.insert(0, os.path.expanduser(path_to_current_folder+'/../'))
-sys.path.insert(0, os.path.expanduser(path_to_current_folder+'/../parser/vasp'))
+path_to_current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_dir+'/../'))
+sys.path.insert(0, os.path.expanduser(path_to_current_dir+'/../parser/vasp'))
 from bandstructure import bandstructure
 from doscar import dos
 from md import md
@@ -52,6 +52,7 @@ from unitcell import unitcell
 from volume import charge, elf
 from fermi import fermi_surface
 from parchg import parchg
+from PKF import paircorrelation
 from main import *
 from generalCollapsible import GeneralCollapsible
 
@@ -63,15 +64,15 @@ class ParserPane(GeneralCollapsible):
         self.fileText = wx.StaticText(self.GetPane(),
                                     label="File to parse:")
         self.chooseParseDir = wx.Button(self.GetPane(), size=self.itemSize,
-                                    label = str('..or select folder'))
+                                    label = str('..or select dir'))
         self.enterPath = wx.TextCtrl(self.GetPane(), size=self.itemSize,
                                     value="Enter path..",
                                     style=wx.TE_PROCESS_ENTER)
-    #Path-selection to folder for saving
-        self.folderText = wx.StaticText(self.GetPane(),
-                                    label="Save in folder:")       
+    #Path-selection to dir for saving
+        self.dirText = wx.StaticText(self.GetPane(),
+                                    label="Save in dir:")       
         self.chooseSaveDir = wx.Button(self.GetPane(), size=self.itemSize,
-                                    label = str('..or select folder'))
+                                    label = str('..or select dir'))
         self.enterSavePath = wx.TextCtrl(self.GetPane(), size=self.itemSize,
                                     value="Enter path..",
                                     style=wx.TE_PROCESS_ENTER)
@@ -93,7 +94,7 @@ class ParserPane(GeneralCollapsible):
             'DoS' : 'DOS from VASP',
             'Bandstructure' : 'bandstructure from VASP', 
             'Fermi Surface' : 'fermi surface from VASP',
-            'PCF' : 'pair correlation function from VASP',
+            'PCF' : 'PCF from VASP',
             'Parchg' : 'Parchg from VASP'
         }
 
@@ -105,7 +106,7 @@ class ParserPane(GeneralCollapsible):
         'DoS': dos,
         'Bandstructure': bandstructure,
         'Fermi Surface': fermi_surface,
-        'PCF' : '',
+        'PCF' : paircorrelation,
         'Parchg' : parchg
     }
 
@@ -120,7 +121,7 @@ class ParserPane(GeneralCollapsible):
 
     #Text colour settings
         self.fileText.SetForegroundColour(self.text_colour)
-        self.folderText.SetForegroundColour(self.text_colour)
+        self.dirText.SetForegroundColour(self.text_colour)
         self.typeText.SetForegroundColour(self.text_colour)
 
     #Variables for paths, type of Visualization and parsing.
@@ -136,7 +137,7 @@ class ParserPane(GeneralCollapsible):
         self.add_item(self.fileText, sizer_flags=expand_flag)
         self.add_item(self.enterPath, sizer_flags=expand_flag)
         self.add_item(self.chooseParseDir,sizer_flags=expand_flag)
-        self.add_item(self.folderText, sizer_flags=expand_flag)
+        self.add_item(self.dirText, sizer_flags=expand_flag)
         self.add_item(self.enterSavePath, sizer_flags=expand_flag)
         self.add_item(self.chooseSaveDir,sizer_flags=expand_flag)
         self.add_item(self.typeText, sizer_flags=expand_flag)
@@ -146,7 +147,7 @@ class ParserPane(GeneralCollapsible):
         self.add_item(self.parse,sizer_flags=expand_flag)
         
     #Signal-handling for buttons and boxes:
-        self.chooseParseDir.Bind(wx.EVT_BUTTON,self.folder_pressed)
+        self.chooseParseDir.Bind(wx.EVT_BUTTON,self.dir_pressed)
         self.enterPath.Bind(wx.EVT_TEXT_ENTER,self.path_OnEnter)
         self.chooseSaveDir.Bind(wx.EVT_BUTTON,self.parse_selected)
         self.enterSavePath.Bind(wx.EVT_TEXT_ENTER,self.savePath_OnEnter)
@@ -155,7 +156,7 @@ class ParserPane(GeneralCollapsible):
         self.hdf5File.Bind(wx.EVT_TEXT, self.hdf5_name_enter)
         
 #When "File to parse"-select button is pressed
-    def folder_pressed(self,event):
+    def dir_pressed(self,event):
         self.path = self.choose_directory("Choose directory with files to parse")
         if not self.path == "":
             self.enterPath.SetValue(self.path)
@@ -164,7 +165,7 @@ class ParserPane(GeneralCollapsible):
     def path_OnEnter(self,event):
         self.path = self.directory_if_exists(self.enterPath.GetLineText(0))
 
-#When "Save in folder"-select button is pressed
+#When "Save in dir"-select button is pressed
     def parse_selected(self,event):
         self.savePath = self.choose_directory("Choose output directory")
         if not self.savePath == "":
@@ -227,4 +228,16 @@ class ParserPane(GeneralCollapsible):
         dirDialog.Destroy()
         dirFrame.Destroy()
         return path
+
+#Dialog for messages, fail or successes
+    def open_message(self,message,label):
+        messageFrame = wx.Frame(None, -1, 'win.py')
+        messageFrame.SetSize(0,0,60,50)
+        messageFrame.Centre()
+        pathDialog = wx.MessageDialog(messageFrame, message, 
+                                        label, wx.FD_OPEN)
+        #Show dialog
+        pathDialog.ShowModal()
+        pathDialog.Destroy()
+        messageFrame.Destroy()
 

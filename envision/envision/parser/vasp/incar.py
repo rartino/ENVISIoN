@@ -49,7 +49,7 @@ from log import *
 from util import *
 from h5writer import _write_incar
 
-def parse_incar(h5file, vasp_file):
+def _parse_incar(h5file, vasp_file):
     """
 	Parses set values from INCAR
 
@@ -80,6 +80,7 @@ def parse_incar(h5file, vasp_file):
             "NBANDS",
             "NBLK",
             "SYSTEM",
+            "START",
             "NWRITE",
             "ISTART",
             "ICHARG",
@@ -89,12 +90,18 @@ def parse_incar(h5file, vasp_file):
             "ENCUT",
             "PREC",
             "PREC",
+            "NSIM",
             "NELM",
-            "NELMINandNELMDL",
+            "NELMIN",
+            "NELMDL",
+            "NCORE",
             "EDIFF",
             "EDIFFG",
             "NSW",
-            "NBLOCKandKBLOCK",
+            "NELMIN",
+            "NELMDL",
+            "NBLOCK",
+            "KBLOCK",
             "IBRION",
             "ISIF",
             "IWAVPR",
@@ -105,12 +112,14 @@ def parse_incar(h5file, vasp_file):
             "TEBEG",
             "TEEND",
             "SMASS",
-            "NPACOandAPACO",
+            "NPACO",
+            "APACO",
             "POMASS",
             "ZVAL",
             "RWIGS",
             "NELECT",
             "NUPDOWN",
+            "MDALGO",
             "EMIN",
             "EMAX",
             "ISMEAR",
@@ -190,7 +199,7 @@ def incar(h5file, vasp_dir):
                 return False
     vasp_file = os.path.join(vasp_dir, 'INCAR')
     try:
-        incar_data = parse_incar(h5file, vasp_file)
+        incar_data = _parse_incar(h5file, vasp_file)
     except FileNotFoundError:
         print('INCAR file not in directory. Skipping.')
         return False
