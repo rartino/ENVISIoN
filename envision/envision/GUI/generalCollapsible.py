@@ -50,6 +50,7 @@ class GeneralCollapsible(wx.CollapsiblePane):
         self.itemSize = wx.Size(150,25)
 
         self.SetBackgroundColour(self.bg_colour)
+        self.GetPane().SetBackgroundColour(self.bg_colour)
 
         self.pane = self.GetPane()
 
@@ -57,7 +58,7 @@ class GeneralCollapsible(wx.CollapsiblePane):
 
         fillBox = wx.BoxSizer(wx.HORIZONTAL)
         fillBox.AddSpacer(30)
-        self.GetPane().SetBackgroundColour(self.bg_colour)
+        
         self.sizer = wx.BoxSizer(wx.VERTICAL)
 
         hbox.Add(fillBox)
@@ -129,8 +130,6 @@ class GeneralCollapsible(wx.CollapsiblePane):
         if self.IsCollapsed():
             self.collapse_children()
 
-        
-
         # For some reason this makes the sub panels expand correctly
         # Seems to be needed on linux, can maybe be simplified tho.
         
@@ -138,6 +137,7 @@ class GeneralCollapsible(wx.CollapsiblePane):
         self.Collapse(not self.IsCollapsed())
         if self.parent_collapsible != None:
             self.parent_collapsible.Layout()
+            print('hey')
             self.parent_collapsible.update_collapse()
 
         # Update the layout of parent widgets
