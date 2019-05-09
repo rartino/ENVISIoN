@@ -84,7 +84,7 @@ class ParserPane(GeneralCollapsible):
                                     choices= ('All','Bandstructure','DoS',
                                             'Charge','ELF',
                                             'Fermi Surface','MD',
-                                            'Parchg','PCF',
+                                            'Parchg(Does not work)','PCF',
                                             'Unitcell'))
         self.parserDict = {
             'Unitcell' : 'unitcell from VASP' ,
