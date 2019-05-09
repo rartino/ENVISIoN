@@ -117,8 +117,8 @@ void FunctionOperationUnary::process() {
             for (size_t i = 0; i < column->getSize(); i++) {
                 x->add(column->getAsDouble(i));
             }
-        } else if (column->getHeader() == "Y") {
-            std::shared_ptr<TemplateColumn<float> > y = dataFrame->addColumn<float>("Y", 0);
+        } else if (column->getHeader() != "index") {
+            std::shared_ptr<TemplateColumn<float> > y = dataFrame->addColumn<float>(column->getHeader(), 0);
             for (size_t i = 0; i < column->getSize(); i++) {
                 y->add(operation.apply(column->getAsDouble(i)));
             }

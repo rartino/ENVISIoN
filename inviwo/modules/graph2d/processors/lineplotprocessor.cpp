@@ -82,6 +82,8 @@ LinePlotProcessor::LinePlotProcessor()
     , meshOutport_("outport")
     , xSelectionProperty_("xSelectionProperty", "Select X data")
     , ySelectionProperty_("ySelectionProperty", "Select Y data")
+    , groupYSelection_("groupYSelection_", "Enter Y options")
+    , boolYSelection_("boolYSelection", "Select multiple Y data")
     , allYSelection_("allYSelection", "Select all Y")
     , colour_("colour", "Colour", vec4(1, 0, 0, 1), vec4(0), vec4(1), vec4(0.1f),
             InvalidationLevel::InvalidOutput, PropertySemantics::Color)
@@ -118,6 +120,8 @@ LinePlotProcessor::LinePlotProcessor()
 
     addProperty(xSelectionProperty_);
     addProperty(ySelectionProperty_);
+    addProperty(boolYSelection_);
+    addProperty(groupYSelection_);
     addProperty(allYSelection_);
     addProperty(colour_);
     addProperty(x_range_);
@@ -140,6 +144,9 @@ LinePlotProcessor::LinePlotProcessor()
     addProperty(label_number_);
 
     pointInport_.setOptional(true);
+    boolYSelection_.set(false);
+    groupYSelection_.setVisible(false);
+    groupYSelection_.set("1");
     allYSelection_.set(false);
     scale_.setMaxValue(1);
     scale_.setMinValue(0.01);
@@ -171,6 +178,14 @@ LinePlotProcessor::LinePlotProcessor()
     label_number_.setMinValue(0);
     label_number_.setIncrement(1);
     label_number_.set(5);
+
+    boolYSelection_.onChange([this]() {
+        groupYSelection_.setVisible(boolYSelection_.get());
+    });
+
+    allYSelection_.onChange([this]() {
+        ySelectionProperty_.setVisible(!allYSelection_.get());
+    });
 }
 
 void LinePlotProcessor::process() {
@@ -217,8 +232,96 @@ void LinePlotProcessor::process() {
     double yMax {};
     double yMin {};
     double range;
-    // If we only want to plot one X against one Y.
-    if (!allYSelection_.get()) {
+
+    if (!allYSelection_.get() && boolYSelection_.get()) {
+        std::istringstream iss(groupYSelection_.get());
+        std::stringstream ss;
+        std::string lastNr;
+        bool found{false};
+        while (std::getline(iss, lastNr, ',')) {
+            for (size_t i = 0; i < lastNr.length(); i++) {
+                if (lastNr[i] == ':' && !found) {
+                    found = true;
+                    std::string first;
+                    std::string last;
+                    if (!std::all_of(first.begin(), first.end(), ::isdigit) &&
+                        !std::all_of(last.begin(), last.end(), ::isdigit)) {
+                        break;
+                    }
+                    std::istringstream tmpIss(lastNr);
+                    std::getline(tmpIss, first, ':');
+                    std::getline(tmpIss, last, ':');
+                    std::istringstream firstIss(first);
+                    std::istringstream lastIss(last);
+                    int begin{};
+                    int end{};
+                    firstIss >> begin;
+                    lastIss >> end;
+                    for (int j = begin; j <= end; j++) {
+                        ss << j << ',';
+                    }
+                }
+            }
+            if (!found && std::all_of(lastNr.begin(), lastNr.end(), ::isdigit)) {
+                ss << lastNr << ',';
+            }
+            found = false;
+        }
+        for (size_t i = 0; i < data.size(); i++) {
+            if (xSelectionProperty_.getSelectedIdentifier() == data.at(i)->getHeader()) {
+                xData = data.at(i);
+            }
+        }
+        ss.seekp(-1, std::ios_base::end);
+        std::istringstream indexIss(ss.str());
+        int index{};
+        std::string indexStr;
+        while (std::getline(indexIss, indexStr, ',')) {
+            std::istringstream tmpIss(indexStr);
+            tmpIss >> index;
+            if (index < (int) data.size()) {
+                if (pointInport_.isConnected()) {
+                    std::shared_ptr <TemplateColumn<float>> yTmp =
+                            std::make_shared < TemplateColumn < float >> (data.at(index)->getHeader());
+                    for (size_t j = 0; j < data.at(index)->getSize(); j++) {
+                        yTmp->add(data.at(index)->getAsDouble(j) - pointInport_.getData()->value);
+                    }
+                    yData.push_back(yTmp);
+                } else {
+                    yData.push_back(data.at(index));
+                }
+            }
+        }
+        xSize = xData->getSize();
+        for (size_t i = 0; i < yData.size(); i++) {
+            if (yData.at(i)->getSize() != xSize) {
+                LogError("All columns needs to be the same size.");
+                return;
+            }
+        }
+        for (size_t i = 0; i < xSize; i++) {
+            if (xData->getAsDouble(i) > xMax) {
+                xMax = xData->getAsDouble(i);
+            }
+            if (xData->getAsDouble(i) < xMin) {
+                xMin = xData->getAsDouble(i);
+            }
+        }
+        for (size_t column = 0; column < yData.size(); column++) {
+            for (size_t i = 0; i < yData.at(column)->getSize(); i++) {
+                if (yData.at(column)->getAsDouble(i) > yMax) {
+                    yMax = yData.at(column)->getAsDouble(i);
+                }
+                if (yData.at(column)->getAsDouble(i) < yMin) {
+                    yMin = yData.at(column)->getAsDouble(i);
+                }
+            }
+        }
+        range = abs(yMin + yMax);
+        yMin -= 0.1 * range;
+        yMax += 0.1 * range;
+    } else if (!allYSelection_.get() && !boolYSelection_.get()) {
+        // If we only want to plot one X against one Y.
         for (size_t i = 0; i < data.size(); i++) {
             if (xSelectionProperty_.getSelectedIdentifier() == data.at(i)->getHeader()) {
                 x = data.at(i);
@@ -289,7 +392,7 @@ void LinePlotProcessor::process() {
             if (yData.at(i)->getSize() != xSize) {
                 LogError("All columns needs to be the same size.");
                 return;
-        }
+            }
         for (size_t i = 0; i < xSize; i++) {
             if (xData->getAsDouble(i) > xMax) {
                 xMax = xData->getAsDouble(i);
@@ -315,7 +418,9 @@ void LinePlotProcessor::process() {
     if (dataFrameInport_.isChanged() ||
         xSelectionProperty_.isModified() ||
         ySelectionProperty_.isModified() ||
-        allYSelection_.isModified()) {
+        allYSelection_.isModified() ||
+        boolYSelection_.isModified() ||
+        groupYSelection_.isModified()) {
         // Set boundries for viewing range.
         y_range_.setMaxValue(vec2(yMax, yMax));
         y_range_.setMinValue(vec2(yMin, yMin));
@@ -405,7 +510,7 @@ void LinePlotProcessor::process() {
     // at the next point. Subtract one from the end criteria,
     // since the last point is included when the segment is drawn
     // from the next-to-last point.
-    if (!allYSelection_.get()) {
+    if (!allYSelection_.get() && !boolYSelection_.get()) {
         for (size_t i = 0; i < xSize - 1; i++) {
             //Make sure the data is within viewing range
             if (x->getAsDouble(i + 1) < x_range_.get()[0] && x->getAsDouble(i) > x_range_.get()[1] &&

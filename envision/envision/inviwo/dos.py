@@ -84,30 +84,26 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
         ))
 
     with h5py.File(h5file,"r") as h5:
-
-        processor_list = network.processors
-
         # Inviwo will not set path selection properties until the network is fully formed. These lists
         # store the relevant processors for later configuration (see end of file).
         path_selector_list = []
         hdf5_to_function_list = []
-        pair_processors = []
-        plotter_processor_list = []
+        unary_processor_list = []
+        nary_processor_list = []
+        other_add_list = []
 
         h5source_processor = _add_h5source(h5file, xpos, ypos)
-        ypos += 100
+        ypos += 75
 
         dos_processor = _add_processor("org.inviwo.hdf5.PathSelection", "Select DOS", xpos, ypos)
         path_selector_list.append(dos_processor)
         h5source_outport = h5source_processor.getOutport('outport')
         dos_inport = dos_processor.getInport('inport')
         network.addConnection(h5source_outport, dos_inport)
-        ypos += 100
+        ypos += 75
 
         has_partial = "/DOS/Partial" in h5
         def totalpartial(name, xpos, ypos):
-            plotter_source_list = []
-
             totalpartial_processor = _add_processor("org.inviwo.hdf5.PathSelection", "Select {}".format(name), xpos, ypos)
             path_selector_list.append(totalpartial_processor)
             dos_outport = dos_processor.getOutport('outport')
@@ -115,10 +111,9 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
             totalpartial_outport = totalpartial_processor.getOutport('outport')
             network.addConnection(dos_outport, totalpartial_inport)
 
-            ypos += 100
+            ypos += 75
 
             if name == "Partial":
-                path = name
                 totalpartial_pick_processor = _add_processor("org.inviwo.HDF5PathSelectionInt", "{} {}".format(name, "Pick"), xpos, ypos)
 
                 totalpartial_pick_int = totalpartial_pick_processor.getPropertyByIdentifier('intProperty')
@@ -132,7 +127,7 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
                 totalpartial_outport = totalpartial_pick_outport
 
             if has_partial:
-                ypos += 100
+                ypos += 75
 
             if name == "Total":
                 path = name
@@ -143,35 +138,49 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
             y_name_prepend_parents = 2 if name == "Partial" else 1
 
             down_type_list = ['{} {}'.format(dos, atom) for dos in dos_list if dos.endswith("(dwn)")]
-            xpos_down, ypos_down = xpos, ypos
+            xpos_down = xpos
             for down_type in down_type_list:
+                ypos_down = ypos
                 down_type_processor = _add_processor("org.inviwo.HDF5ToFunction", down_type, xpos_down, ypos_down)
+                network.addConnection(totalpartial_outport, down_type_processor.getInport('hdf5HandleFlatMultiInport'))
+                down_type_processor.yNamePrependParentsProperty.value = y_name_prepend_parents
+
+                ypos_down += 75
+
+                down_add_processor = _add_processor("org.inviwo.FunctionOperationNary", "{} Down Add".format(name), xpos_down, ypos_down)
+                network.addConnection(down_type_processor.getOutport("functionVectorOutport"), down_add_processor.getInport("functionFlatMultiInport"))
+                down_add_processor.operationProperty.value = 'add'
+
+                ypos_down += 75
+
+                down_negate_processor = _add_processor("org.inviwo.FunctionOperationUnary", "{} Down Negate".format(name), xpos_down, ypos_down)
+                network.addConnection(down_add_processor.getOutport("dataframeOutport"), down_negate_processor.getInport("dataframeInport"))
+                down_negate_processor.operationProperty.value = 'negate'
+
                 hdf5_to_function_list.append(down_type_processor)
-
-                down_type_hdf5inport = down_type_processor.getInport('hdf5HandleFlatMultiInport')
-                network.addConnection(totalpartial_outport, down_type_hdf5inport)
-
-                down_type_y_name_property = down_type_processor.getPropertyByIdentifier('yNamePrependParentsProperty')
-                down_type_y_name_property.value = y_name_prepend_parents
-
-                xpos_down += 200
+                unary_processor_list.append(down_negate_processor)
+                xpos_down += 175
 
             up_type_list = ['{} {}'.format(dos, atom) for dos in dos_list if dos.endswith("(up)")]
-            xpos_up, ypos_up = xpos_down, ypos_down
+            xpos_up = xpos_down
             for up_type in up_type_list:
+                ypos_up = ypos
                 up_type_processor = _add_processor("org.inviwo.HDF5ToFunction", up_type, xpos_up, ypos_up)
+                network.addConnection(totalpartial_outport, up_type_processor.getInport('hdf5HandleFlatMultiInport'))
+                up_type_processor.yNamePrependParentsProperty.value = y_name_prepend_parents
+
+                ypos_up += 75
+
+                up_add_processor = _add_processor("org.inviwo.FunctionOperationNary", "{} Down Add".format(name), xpos_up, ypos_up)
+                network.addConnection(up_type_processor.getOutport("functionVectorOutport"), up_add_processor.getInport("functionFlatMultiInport"))
+                up_add_processor.operationProperty.value = 'add'
+
                 hdf5_to_function_list.append(up_type_processor)
-
-                up_type_hdf5inport = up_type_processor.getInport('hdf5HandleFlatMultiInport')
-                network.addConnection(totalpartial_outport, up_type_hdf5inport)
-
-                up_type_y_name_property = up_type_processor.getPropertyByIdentifier('yNamePrependParentsProperty')
-                up_type_y_name_property.value = y_name_prepend_parents
-
-                xpos_up += 200
+                nary_processor_list.append(up_add_processor)
+                xpos_up += 175
 
             other_type_list = ['{} {}'.format(dos, atom) for dos in dos_list if not dos.endswith("(dwn)") and not dos.endswith("(up)")]
-            xpos_other, ypos_other = xpos_up, ypos_up
+            xpos_other, ypos_other = xpos_up, ypos
             for other_type in other_type_list:
                 other_type_processor = _add_processor("org.inviwo.HDF5ToFunction", other_type, xpos_other, ypos_other)
                 hdf5_to_function_list.append(other_type_processor)
@@ -182,34 +191,12 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
                 other_type_y_name_property = other_type_processor.getPropertyByIdentifier('yNamePrependParentsProperty')
                 other_type_y_name_property.value = y_name_prepend_parents
 
-                xpos_other += 200
+                xpos_other += 175
 
-            ypos += 100
-            if down_type_list:
-                down_add_processor = _add_processor("org.inviwo.FunctionOperationNary", "{} Down Add".format(name), xpos, ypos)
-                down_add_operation_property = down_add_processor.getPropertyByIdentifier('operationProperty')
-                down_add_operation_property.value = 'add'
-
-                down_add_inport = down_add_processor.getInport('functionFlatMultiInport')
-                for down_type in down_type_list:
-                    down_type_processor = network.getProcessorByIdentifier(down_type)
-                    down_type_outport = down_type_processor.getOutport('functionVectorOutport')
-                    network.addConnection(down_type_outport, down_add_inport)
-
-            if up_type_list:
-                up_add_processor = _add_processor("org.inviwo.FunctionOperationNary", "{} Up Add".format(name), xpos_down, ypos)
-                up_add_operation_property = up_add_processor.getPropertyByIdentifier('operationProperty')
-                up_add_operation_property.value = 'add'
-
-                up_add_inport = up_add_processor.getInport('functionFlatMultiInport')
-                for up_type in up_type_list:
-                    up_type_processor = network.getProcessorByIdentifier(up_type)
-                    up_outport = up_type_processor.getOutport('functionVectorOutport')
-                    network.addConnection(up_outport, up_add_inport)
-                plotter_source_list.append(up_add_processor)
+            ypos_other += 75
 
             if other_type_list:
-                other_add_processor = _add_processor("org.inviwo.FunctionOperationNary", "{} Add".format(name), xpos_up, ypos)
+                other_add_processor = _add_processor("org.inviwo.FunctionOperationNary", "{} Add".format(name), xpos_up, ypos_other)
                 other_add_operation_property = other_add_processor.getPropertyByIdentifier('operationProperty')
                 other_add_operation_property.value = 'add'
 
@@ -218,32 +205,9 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
                     other_type_processor = network.getProcessorByIdentifier(other_type)
                     other_outport = other_type_processor.getOutport('functionVectorOutport')
                     network.addConnection(other_outport, other_add_inport)
-                plotter_source_list.append(other_add_processor)
+                other_add_list.append(other_add_processor)
 
-            if down_type_list or up_type_list or other_type_list:
-                ypos += 100
-
-            if down_type_list:
-                down_negate_processor = _add_processor("org.inviwo.FunctionOperationUnary", "{} Down Negate".format(name), xpos, ypos)
-                down_negate_operation_property = down_negate_processor.getPropertyByIdentifier('operationProperty')
-                down_negate_operation_property.value = 'negate'
-
-                down_negate_inport = down_negate_processor.getInport('dataframeInport')
-                down_add_outport = down_add_processor.getOutport('dataframeOutport')
-                network.addConnection(down_add_outport, down_negate_inport)
-                plotter_source_list.append(down_negate_processor)
-                ypos += 100
-
-            if down_type_list and up_type_list:
-                collector = _add_processor("org.inviwo.DataFrameCollector", "Collect", xpos, ypos)
-                negate_source_outport = plotter_source_list[0].getOutport('dataframeOutport')
-                up_source_outport = plotter_source_list[1].getOutport('dataframeOutport')
-                collector_inport = collector.getInport('dataframeMultiInport')
-                network.addConnection(negate_source_outport, collector_inport)
-                network.addConnection(up_source_outport, collector_inport)
-                pair_processors.append(collector)
-
-            return xpos_other, ypos
+            return xpos_other, ypos + 225
 
         xpos_total, ypos_total = totalpartial("Total", xpos, ypos)
         if has_partial:
@@ -266,62 +230,56 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
                 network.addConnection(h5source_outport, fermi_energy_inport)
                 ypos += 100"""
 
-        for plotter_source in pair_processors:
-            ypostemp = ypos
-            plotter_processor = _add_processor("org.inviwo.LinePlotProcessor", "DOS Plotter", xpos, ypostemp)
-            plotter_source_outport = plotter_source.getOutport('dataframeOutport')
-            plotter_processor_labels_outport = plotter_processor.getOutport('labels')
-            plotter_processor_mesh_outport = plotter_processor.getOutport('outport')
-            plotter_processor_inport = plotter_processor.getInport('dataFrameInport')
-            network.addConnection(plotter_source_outport, plotter_processor_inport)
-            plotter_processor_list.append(plotter_processor)
+        collector = _add_processor("org.inviwo.DataFrameCollector", "Collect", xpos, ypos)
+        for unary_processor in unary_processor_list:
+            network.addConnection(unary_processor.getOutport("dataframeOutport"), collector.getInport("dataframeMultiInport"))
+        for nary_processor in nary_processor_list:
+            network.addConnection(nary_processor.getOutport("dataframeOutport"), collector.getInport("dataframeMultiInport"))
+        for other_add_processor in other_add_list:
+            network.addConnection(other_add_processor.getOutport("dataframeOutport"), collector.getInport("dataframeMultiInport"))
 
-            ypostemp += 100
+        ypos += 75
 
-            mesh_renderer = _add_processor("org.inviwo.Mesh2DRenderProcessorGL", "Renderer", xpos, ypostemp)
-            mesh_renderer_inport = mesh_renderer.getInport('inputMesh')
-            mesh_renderer_inport_image = mesh_renderer.getInport('imageInport')
-            mesh_renderer_outport = mesh_renderer.getOutport('outputImage')
-            network.addConnection(plotter_processor_mesh_outport, mesh_renderer_inport)
-            network.addConnection(plotter_processor_labels_outport, mesh_renderer_inport_image)
+        plotter_processor = _add_processor("org.inviwo.LinePlotProcessor", "DOS Plotter", xpos, ypos)
+        network.addConnection(collector.getOutport("dataframeOutport"), plotter_processor.getInport('dataFrameInport'))
+        plotter_processor.allYSelection.value = True
 
-            ypostemp += 100
+        ypos += 75
 
-            background_processor = _add_processor("org.inviwo.Background", "Background", xpos, ypostemp)
-            background_processor_inport = background_processor.getInport('inport')
-            background_processor_outport = background_processor.getOutport('outport')
-            background_processor.getPropertyByIdentifier('bgColor1').value = inviwopy.glm.vec4(1, 1, 1, 1)
-            background_processor.getPropertyByIdentifier('bgColor2').value = inviwopy.glm.vec4(1, 1, 1, 1)
-            network.addConnection(mesh_renderer_outport, background_processor_inport)
+        mesh_renderer = _add_processor("org.inviwo.Mesh2DRenderProcessorGL", "Renderer", xpos, ypos)
+        network.addConnection(plotter_processor.getOutport('outport'), mesh_renderer.getInport('inputMesh'))
+        network.addConnection(plotter_processor.getOutport('labels'), mesh_renderer.getInport('imageInport'))
 
-            ypostemp += 100
+        ypos += 75
 
-            energy_text_processor = _add_processor("org.inviwo.TextOverlayGL", "Energy Text", xpos, ypostemp)
-            energy_text_processor.getPropertyByIdentifier('text').value = 'Energy [eV]'
-            energy_text_processor.getPropertyByIdentifier('position').value = inviwopy.glm.vec2(0.82, 0.03)
-            energy_text_processor.getPropertyByIdentifier('color').value = inviwopy.glm.vec4(0,0,0,1)
-            energy_text_processor_inport = energy_text_processor.getInport('inport')
-            energy_text_processor_outport = energy_text_processor.getOutport('outport')
-            network.addConnection(background_processor_outport, energy_text_processor_inport)
+        background_processor = _add_processor("org.inviwo.Background", "Background", xpos, ypos)
+        network.addConnection(mesh_renderer.getOutport('outputImage'), background_processor.getInport('inport'))
+        background_processor.bgColor1.value = inviwopy.glm.vec4(1, 1, 1, 1)
+        background_processor.bgColor2.value = inviwopy.glm.vec4(1, 1, 1, 1)
 
-            ypostemp += 100
+        ypos += 75
 
-            dos_text_processor = _add_processor("org.inviwo.TextOverlayGL", "DOS Text", xpos, ypostemp)
-            dos_text_processor.getPropertyByIdentifier('text').value = 'DOS [1/(eV * unit cell)]'
-            dos_text_processor.getPropertyByIdentifier('position').value = inviwopy.glm.vec2(0.31, 0.93)
-            dos_text_processor.getPropertyByIdentifier('color').value = inviwopy.glm.vec4(0,0,0,1)
-            dos_text_processor_inport = dos_text_processor.getInport('inport')
-            dos_text_processor_outport = dos_text_processor.getOutport('outport')
-            network.addConnection(energy_text_processor_outport, dos_text_processor_inport)
+        energy_text_processor = _add_processor("org.inviwo.TextOverlayGL", "Energy Text", xpos, ypos)
+        network.addConnection(background_processor.getOutport('outport'), energy_text_processor.getInport('inport'))
+        energy_text_processor.text.value = 'Energy [eV]'
+        energy_text_processor.font.fontSize.value = 20
+        energy_text_processor.position.value = inviwopy.glm.vec2(0.82, 0.03)
+        energy_text_processor.color.value = inviwopy.glm.vec4(0,0,0,1)
 
-            ypostemp += 100
+        ypos += 75
 
-            canvas_processor = _add_processor("org.inviwo.CanvasGL", "DOS Canvas", xpos, ypostemp)
-            canvas_inport = canvas_processor.getInport('inport')
-            canvas_processor.getPropertyByIdentifier('inputSize').getPropertyByIdentifier('dimensions').value= inviwopy.glm.ivec2(640, 480)
-            network.addConnection(dos_text_processor_outport, canvas_inport)
+        dos_text_processor = _add_processor("org.inviwo.TextOverlayGL", "DOS Text", xpos, ypos)
+        network.addConnection(energy_text_processor.getOutport('outport'), dos_text_processor.getInport('inport'))
+        dos_text_processor.text.value = 'DOS [1/(eV * unit cell)]'
+        dos_text_processor.font.fontSize.value = 20
+        dos_text_processor.position.value = inviwopy.glm.vec2(0.31, 0.93)
+        dos_text_processor.color.value = inviwopy.glm.vec4(0,0,0,1)
 
-            xpos += 200
+        ypos += 75
+
+        canvas_processor = _add_processor("org.inviwo.CanvasGL", "DOS Canvas", xpos, ypos)
+        network.addConnection(dos_text_processor.getOutport('outport'), canvas_processor.getInport('inport'))
+        canvas_processor.inputSize.dimensions.value= inviwopy.glm.ivec2(640, 480)
 
         # Check for a Unit Cell Mesh processor and connect it for
         # picking of specific atoms if it exists, i.e. connect the two
@@ -347,5 +305,3 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
             hdf5_to_function.getPropertyByIdentifier('yPathSelectionProperty').value = '/{}'.format(hdf5_to_function.identifier.split(' ')[0])
             hdf5_to_function.getPropertyByIdentifier('xPathFreeze').value = True
             hdf5_to_function.getPropertyByIdentifier('yPathFreeze').value = True
-        for plotter_processor in plotter_processor_list:
-            plotter_processor.allYSelection.value = True
