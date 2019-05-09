@@ -380,7 +380,7 @@ void FunctionOperationNary::process() {
             x->add(value);
         }
 
-        std::shared_ptr<TemplateColumn<float> > y = frame->addColumn<float>("Y", 0);
+        std::shared_ptr<TemplateColumn<float> > y = frame->addColumn<float>(yAxis.variableInfo.variableName, 0);
         for (float value : yAxis.valueVector) {
             y->add(value);
         }
