@@ -134,7 +134,6 @@ class VolumeControlCollapsible(GeneralCollapsible):
         
     def update_mask(self):
     # Sets a mask to the transferfunction
-    # Makes o
         if len(self.tfPointWidgets) <= 0:
             return
         if self.tf_transperancy_enabled:
@@ -228,7 +227,7 @@ class VolumeControlCollapsible(GeneralCollapsible):
         tfPointWidget.valueText.Bind(wx.EVT_TEXT_ENTER, lambda event : self.update_tf_point(tfPointWidget))
         tfPointWidget.alphaText.Bind(wx.EVT_KILL_FOCUS, lambda event : self.update_tf_point(tfPointWidget))
         tfPointWidget.alphaText.Bind(wx.EVT_TEXT_ENTER, lambda event : self.update_tf_point(tfPointWidget))
-        tfPointWidget.colorPicker.Bind(wx.EVT_COLOURPICKER_CHANGED, lambda event : self.update_tf_point(tfPointWidget))
+        tfPointWidget.colorPicker.Bind(wx.EVT_COLOURPICKER_CHANGED, lambda event : self.set_tf_point_color(tfPointWidget))
 
         self.tfPointWidgets.insert(insertion_idx, tfPointWidget)
         
@@ -271,6 +270,14 @@ class VolumeControlCollapsible(GeneralCollapsible):
         self.add_tf_point(new_tf_data[0], new_tf_data[1], new_tf_data[2], False)
         if update_layout:
             self.update_collapse()
+
+    def set_tf_point_color(self, tfPointWidget):
+        data = tfPointWidget.read_inputs()
+        value = data[0]
+        alpha = data[1]
+        color = data[2]
+        glmColor = inviwopy.glm.vec4(float(color.Red())/255, float(color.Green())/255, float(color.Blue())/255, alpha)
+        self.networkHandler.set_tf_point_color(value, glmColor)
 
     def re_read_tf_points(self):
         for widget in self.tfPointWidgets:

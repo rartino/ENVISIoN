@@ -102,15 +102,6 @@ class VolumeNetworkHandler():
         if VolumeSlice:
             VolumeSlice.tfGroup.transferFunction.setMask(maskMin,maskMax)
 
-    def add_tf_point(self, value, color):
-    # Add point to the raycaster transferfunction
-        network = inviwopy.app.network
-        Raycaster = network.getProcessorByIdentifier('Raycaster')
-        if Raycaster:
-            tf_property = Raycaster.isotfComposite.transferFunction
-            tf_property.add(value, color)
-            self.slice_copy_tf()
-
     def slice_copy_tf(self):
     # Function for copying the volume transferfunction to the slice transferfunction
     # Adds a white point just before the first one aswell
@@ -132,6 +123,15 @@ class VolumeNetworkHandler():
         print(dir(tf_property.mask))
         tf_property.clear()
         self.slice_copy_tf()
+  
+    def add_tf_point(self, value, color):
+    # Add point to the raycaster transferfunction
+        network = inviwopy.app.network
+        Raycaster = network.getProcessorByIdentifier('Raycaster')
+        if Raycaster:
+            tf_property = Raycaster.isotfComposite.transferFunction
+            tf_property.add(value, color)
+            self.slice_copy_tf()
 
     def remove_tf_point(self, index):
         network = inviwopy.app.network
@@ -143,6 +143,19 @@ class VolumeNetworkHandler():
         point_to_remove = tf_property.getValueAt(index)
         tf_property.remove(point_to_remove)
         self.slice_copy_tf()
+
+    def set_tf_point_color(self, value, color):
+    # Changes the color of a tf point at a certain value
+        network = inviwopy.app.network
+        Raycaster = network.getProcessorByIdentifier('Raycaster')
+
+        # Remove the point at the specified value
+        points = Raycaster.isotfComposite.transferFunction.getValues()
+        for i in range(len(points)):
+            if points[i].pos == value:
+                self.remove_tf_point(i)
+                break
+        self.add_tf_point(value, color)
 
     def get_tf_points(self):
     # Return a list of all the transferfunction points
@@ -215,6 +228,19 @@ class VolumeNetworkHandler():
         zHeight = normal.z * height
         VolumeSlice.planePosition.value = inviwopy.glm.vec3(xHeight, yHeight, zHeight)
 
+    def position_canvases(self, x, y):
+    # Updates the position of the canvases
+    # Upper left corner will be at coordinate (x, y)
+        network = inviwopy.app.network
+        sliceCanvas = network.getProcessorByIdentifier('SliceCanvas')
+        volumeCanvas = network.getProcessorByIdentifier('Canvas')
+        if not volumeCanvas:
+            return
+        volumeCanvas.position.value = inviwopy.glm.ivec2(x, y)
+        if not sliceCanvas:
+            return
+        sliceCanvas.position.value = inviwopy.glm.ivec2(x, y + volumeCanvas.inputSize.dimensions.value.y + 50)
+
 # ------------------------------------------
 # ------- Network building functions -------
 
@@ -234,6 +260,7 @@ class VolumeNetworkHandler():
 
         if enable_slice:
             SliceCanvas = _add_processor('org.inviwo.CanvasGL', 'SliceCanvas', 25*7, 525)
+            SliceCanvas.inputSize.dimensions.value = inviwopy.glm.ivec2(500, 500)       
             network.addConnection(network.getProcessorByIdentifier('SliceBackground').getOutport('outport'), SliceCanvas.getInport('inport'))
         else:
             network.removeProcessor(SliceCanvas)
@@ -263,8 +290,9 @@ class VolumeNetworkHandler():
         Raycaster = _add_processor('org.inviwo.VolumeRaycaster', "Raycaster", xpos, ypos+300)
 
         # Setup Slice rendering part
-        VolumeSlice = _add_processor('org.inviwo.VolumeSliceGL', 'Volume Slice', xpos-25*7, ypos+300)          
+        VolumeSlice = _add_processor('org.inviwo.VolumeSliceGL', 'Volume Slice', xpos-25*7, ypos+300)   
         SliceCanvas = _add_processor('org.inviwo.CanvasGL', 'SliceCanvas', xpos-25*7, ypos+525)
+        SliceCanvas.inputSize.dimensions.value = inviwopy.glm.ivec2(500, 500)       
         SliceBackground = _add_processor('org.inviwo.Background', 'SliceBackground', xpos-25*7, ypos+450)
         
         # network.addConnection(HDFvolume.getOutport('outport'), VolumeSlice.getInport('volume'))
@@ -273,6 +301,7 @@ class VolumeNetworkHandler():
 
         # Setup volume rendering part
         Canvas = _add_processor('org.inviwo.CanvasGL', 'Canvas', xpos, ypos+525)
+        Canvas.inputSize.dimensions.value = inviwopy.glm.ivec2(500, 500)
         VolumeBackground = _add_processor('org.inviwo.Background', 'VolumeBackground', xpos, ypos+450)
         
         network.addConnection(Raycaster.getOutport('outport'), VolumeBackground.getInport('inport'))

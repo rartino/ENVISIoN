@@ -47,20 +47,24 @@ from common import _add_h5source, _add_processor
 
 from VolumeNetworkHandler import VolumeNetworkHandler
 
-# TODO: Add check to make sure path is valid
-
 class ELFNetworkHandler(VolumeNetworkHandler):
     """ Handler class for ELF visualization network.
         Sets up and manages the charge visualization
     """
     def __init__(self, hdf5_path):
+        # Check if  hdf5-file is valid
+        # TODO check if file exist at all.
+        with h5py.File(hdf5_path, 'r') as file:
+            if file.get("ELF") == None:
+                raise AssertionError("No ELF data in that file")
+        if len(self.get_available_bands(hdf5_path)) == 0:
+            raise AssertionError("No valid bands in that file")
+
         super().__init__() # Will setup generic part of network
 
         self.setup_volume_source(hdf5_path)
-
         self.set_active_band('final')
     
-
     def get_available_bands(self, path):
     # Return the keys to the available datasets in hdf5-file
         with h5py.File(path, 'r') as file:
