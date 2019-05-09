@@ -49,11 +49,10 @@ import math
 from common import _add_h5source, _add_processor
 
 
-# TODO: Right now the different modes does not seem to work correctly
-#       total and magnetic yeilds identical results
-#       up and down always yeilds a volume with value 0 for every voxel.
-#       This is probably a fault with the parser as hdf5-files does not have
-#       all the paths.
+# TODO: Files parsed for parchg does not seem to work. Inviwo seems to not recognize the datasets as valid volumes.
+#       May have something to do with the different size of the volume data in hdf5 file. 
+#       Parchg is 24x24x24 while charge, which works, is 48x48x48.
+#       Analyze and compare files with "HDFView" took to see diferences between datasets.
 
 # TODO: merger_list in setup_band_processors function looks a bit funky to me.
 #       How the nestled for loops build the list is not great, some recursion instead?
@@ -98,13 +97,6 @@ class ParchgNetworkHandler:
     # Removes all the band selection and merging processors
         network = inviwopy.app.network
 
-        print("Clearing band processors")
-        print(len(self.merger_processors))
-        print(len(self.HDFvolume_processors))
-        # Function to delete processors in list with possible sublists
-        # delete_func = lambda x : delete_func(x) if x is list else (network.removeProcessor(x), print(x))
-        # print_func = lambda x : print(x)
-        print(self.merger_processors)
         for i in self.merger_processors:
             if type(i) is list:
                 for j in i:
@@ -293,6 +285,7 @@ class ParchgNetworkHandler:
         """
         xstart_pos = 0
         ystart_pos = 0
+        
 
         network = inviwopy.app.network
 
@@ -367,7 +360,6 @@ class ParchgNetworkHandler:
             canvas_dimensions_property = Canvas.getPropertyByIdentifier('inputSize').getPropertyByIdentifier('dimensions')
             canvas_dimensions_property.value = inviwopy.glm.ivec2(400,400)
 
-        
         # Shared connections and properties between electron density and electron localisation function data
         network.addConnection(MeshRenderer.getOutport('image'), Raycaster.getInport('bg'))
         network.addConnection(EntryExitPoints.getOutport('entry'), Raycaster.getInport('entry'))
@@ -381,7 +373,6 @@ class ParchgNetworkHandler:
         self.BoundingBox = BoundingBox
         self.CubeProxyGeometry = CubeProxyGeometry
         self.Raycaster = Raycaster
-        
         # Initialize hdf5 band pickers
         self.setup_band_processors(band_list, mode_list, xstart_pos + 200, ystart_pos - 500)
 
