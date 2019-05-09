@@ -119,9 +119,7 @@ class VolumeNetworkHandler():
     def clear_tf(self):
         network = inviwopy.app.network
         Raycaster = network.getProcessorByIdentifier('Raycaster')
-        tf_property = Raycaster.isotfComposite.transferFunction
-        print(dir(tf_property.mask))
-        tf_property.clear()
+        Raycaster.isotfComposite.transferFunction.clear()
         self.slice_copy_tf()
   
     def add_tf_point(self, value, color):
@@ -272,6 +270,7 @@ class VolumeNetworkHandler():
 
     def setup_volume_network(self):
     # Setup the generic part of volume rendering network.
+        print("Building volume network")
         xpos = 0
         ypos = 0
 

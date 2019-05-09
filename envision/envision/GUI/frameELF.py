@@ -42,8 +42,10 @@ from volumeControlCollapsible import VolumeControlCollapsible
 from backgroundCollapsible import BackgroundCollapsible
 from sliceControlCollapsible import SliceControlCollapsible
 import envision
+import inviwopy
 
 from envision.inviwo.ELFNetworkHandler import ELFNetworkHandler
+# from envision.inviwo.UnitcellNetworkHandler import UnitcellNetworkHandler
 
 class ELFFrame(GeneralCollapsible):
     def __init__(self, parent):
@@ -56,11 +58,15 @@ class ELFFrame(GeneralCollapsible):
 
         self.bandChoice = wx.Choice(self.GetPane())
 
-
         bandChoiceHBox = wx.BoxSizer(wx.HORIZONTAL)
         bandChoiceHBox.Add(bandChoiceLabel)
         bandChoiceHBox.Add(self.bandChoice)
         self.add_item(bandChoiceHBox)
+
+        # Setup unicell controls
+        self.spheresCheckbox = wx.CheckBox(self.GetPane(), label="Enable atom spheres")
+        self.spheresCheckbox.SetValue(True)
+        self.add_item(self.spheresCheckbox)
 
         # Setup volume rendering controls
         self.volumeCollapsible = VolumeControlCollapsible(self.GetPane(), "Volume Rendering")
@@ -83,12 +89,19 @@ class ELFFrame(GeneralCollapsible):
         # Override default binding
         # Note that function should be called "on_collapse" to work
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
-        self.sliceBox.Bind(wx.EVT_CHECKBOX,self.on_check)
+        self.spheresCheckbox.Bind(wx.EVT_CHECKBOX, self.on_sphere_check)
+        self.sliceBox.Bind(wx.EVT_CHECKBOX,self.on_slice_check)
         self.bandChoice.Bind(wx.EVT_CHOICE, self.on_band_selection)
 
-    def on_check(self,event):
+    def on_slice_check(self,event):
         self.networkHandler.toggle_slice_canvas(event.IsChecked())
         self.networkHandler.toggle_slice_plane(event.IsChecked())
+        self.reset_canvas_positions()
+
+    def on_sphere_check(self, event):
+    # Event when sphere checkbox is clicked
+        if self.networkHandler.unitcellAvailable:
+            self.networkHandler.hide_atoms(not event.IsChecked())
 
     def on_collapse(self, event = None):
         self.update_collapse()
@@ -101,6 +114,7 @@ class ELFFrame(GeneralCollapsible):
                 self.networkHandler = ELFNetworkHandler(self.parent_collapsible.path)
             except AssertionError as error:
                 print(error)
+                inviwopy.app.network.clear()
                 self.Collapse(True)
                 self.update_collapse()
                 return
@@ -118,6 +132,7 @@ class ELFFrame(GeneralCollapsible):
             # Set canvases to appear next to window
             self.reset_canvas_positions()
 
+            # Load band choices
             self.bandChoice.Clear()
             for key in self.networkHandler.get_available_bands(self.parent_collapsible.path):
                 self.bandChoice.Append(key)
@@ -137,5 +152,3 @@ class ELFFrame(GeneralCollapsible):
         print(window.GetPosition().x + window.GetSize().width)
         print(window.GetPosition().y)
         self.networkHandler.position_canvases(window.GetPosition().x + window.GetSize().width, window.GetPosition().y)
-            
-    
