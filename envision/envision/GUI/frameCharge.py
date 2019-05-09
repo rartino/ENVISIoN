@@ -37,7 +37,6 @@
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import wx, sys, os, h5py
-import parameter_utils
 from generalCollapsible import GeneralCollapsible
 from volumeControlCollapsible import VolumeControlCollapsible
 from backgroundCollapsible import BackgroundCollapsible
@@ -68,7 +67,7 @@ class ChargeFrame(GeneralCollapsible):
         self.add_sub_collapsible(self.sliceCollapsible)
 
         # self.hide_sub_collapsible(3)
-        
+
         # Override default binding
         # Note that function should be called "on_collapse" to work
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
@@ -76,6 +75,7 @@ class ChargeFrame(GeneralCollapsible):
 
     def on_check(self,event):
         self.networkHandler.toggle_slice_canvas(event.IsChecked())
+        self.networkHandler.toggle_slice_plane(event.IsChecked())
         # if self.slice:
         #     self.slice = False
         #     self.backgroundCollapsibe.type = 'Background'
@@ -95,27 +95,12 @@ class ChargeFrame(GeneralCollapsible):
         # Needs to be called to update the layout properly
         if self.IsCollapsed():
             # Disable charge vis
-            parameter_utils.clear_processor_network()
+            del self.networkHandler
         else:
-            #Start Charge vis
-            self.start_vis()
+            # Initialize network handler which starts visualization
+            self.networkHandler = ChargeNetworkHandler(self.parent_collapsible.path)
+            self.volumeCollapsible.networkHandler = self.networkHandler
+            self.sliceCollapsible.networkHandler = self.networkHandler
+            self.backgroundCollapsibe.networkHandler = self.networkHandler
             
-
-    def start_vis(self):
-        if self.isPathEmpty():
-            return    
-
-        self.networkHandler = ChargeNetworkHandler(self.parent_collapsible.path)
-        # elif '/{}'.format('CHG') in h5py.File(self.parent_collapsible.path, 'r'):
-        #     parameter_utils.start_charge_vis(self.parent_collapsible.path,self.slice)
-        #     if self.slice:
-        #         self.set_canvas_pos('VolumeCanvas')
-        #         self.set_canvas_pos('SliceCanvas')
-        #     else:
-        #         self.set_canvas_pos()
-        # else:
-        #     self.open_message('The file of choice does not contain Charge-data',
-        #                         'Visualization failed!')
-        #     self.Collapse(True)
-        #     self.update_collapse()
     
