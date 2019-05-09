@@ -130,6 +130,8 @@ private:
 
     OptionPropertyString xSelectionProperty_;
     OptionPropertyString ySelectionProperty_;
+    StringProperty groupYSelection_;
+    BoolProperty boolYSelection_;
     BoolProperty allYSelection_;
     FloatVec4Property colour_;
     FloatVec2Property x_range_;

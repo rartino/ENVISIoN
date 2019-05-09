@@ -144,7 +144,7 @@ void FunctionToDataFrame::process() {
     yAxis.valueVector.reserve(xAxis.valueVector.size());
     for (size_t column = 0; column < functionSharedPtrVector.size(); column++) {
         std::stringstream ss;
-        ss << "Y" << column;
+        ss << functionSharedPtrVector.at(column)->yAxis.variableInfo.variableName;
         std::shared_ptr<TemplateColumn<float> > y = frame->addColumn<float>(ss.str(), 0);
         for (float value : functionSharedPtrVector.at(column)->yAxis.valueVector) {
             y->add(value);
