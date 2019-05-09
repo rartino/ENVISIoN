@@ -1,4 +1,40 @@
-
+#
+#  ENVISIoN
+#
+#  Copyright (c) 2019 Jesper Ericsson
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#
+#  1. Redistributions of source code must retain the above copyright notice, this
+#  list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright notice,
+#  this list of conditions and the following disclaimer in the documentation
+#  and/or other materials provided with the distribution.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+#  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+#  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+#  ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+#  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+##############################################################################################
+#
+#  Alterations to this file by Jesper Ericsson
+#
+#  To the extent possible under law, the person who associated CC0
+#  with the alterations to this file has waived all copyright and related
+#  or neighboring rights to the alterations made to this file.
+#
+#  You should have received a copy of the CC0 legalcode along with
+#  this work.  If not, see
+#  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import sys,os,inspect
 path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -9,27 +45,154 @@ import numpy as np
 import h5py
 from common import _add_h5source, _add_processor
 
+# TODO: Would probably be better to save important processors as member variables
+#       instead of extracting them from the network all the time
+#       Low prio: would not really improve anything but code readability
+
+# NOTE: May not be super safe. If someone manually changes the network identifier strings may
+#       be invalid, this can cause errors if processors cannot be found. 
+
 class VolumeNetworkHandler():
     """ Base class for setting up and handling a network for generic volume rendering for ENVISIoN.
     Need to be supplied with outports of volume data from somewhere.
-    Not used directly, is inherited in other classes for handling specific visualizations
-
+    Do not use directly, inherited in other classes for handling specific visualizations.
 
     """
     def __init__(self):
-
         self.volumeInports = []
         self.setup_volume_network()
-        pass
-
+    
+    def __del__(self):
+    # Clears network upon destruction
+        network = inviwopy.app.network
+        network.network.clear()
 
 # ------------------------------------------
 # ------- Property control functions -------
 
+    def set_mask(self, maskMin, maskMax):
+    # Set the mask of the transfer function
+    # Only volume densities between maskMin and maskMax are visible after this
+        network = inviwopy.app.network
+        Raycaster = network.getProcessorByIdentifier('Raycaster')
+        VolumeSlice = network.getProcessorByIdentifier('Volume Slice')
+        if Raycaster:
+            Raycaster.isotfComposite.transferFunction.setMask(maskMin, maskMax)
+        if VolumeSlice:
+            VolumeSlice.tfGroup.transferFunction.setMask(maskMin,maskMax)
 
+    def add_tf_point(self, value, color):
+    # Add point to the raycaster transferfunction
+        network = inviwopy.app.network
+        Raycaster = network.getProcessorByIdentifier('Raycaster')
+        if Raycaster:
+            tf_property = Raycaster.isotfComposite.transferFunction
+            tf_property.add(value, color)
+            self.slice_copy_tf()
 
+    def slice_copy_tf(self):
+    # Function for copying the volume transferfunction to the slice transferfunction
+    # Adds a white point just before the first one aswell
+        network = inviwopy.app.network
+        VolumeSlice = network.getProcessorByIdentifier('Volume Slice')
+        Raycaster = network.getProcessorByIdentifier('Raycaster')
+        if VolumeSlice and Raycaster:
+            VolumeSlice.tfGroup.transferFunction.value = Raycaster.isotfComposite.transferFunction.value
+            #VolumeSlice.tfGroup.transferFunction.add(0.0, inviwopy.glm.vec4(0.0, 0.0, 0.0, 1.0))
+            #VolumeSlice.tfGroup.transferFunction.add(1.0, inviwopy.glm.vec4(1.0, 1.0, 1.0, 1.0))
+            tf_points = self.get_tf_points()
+            if len(tf_points) > 0:
+                VolumeSlice.tfGroup.transferFunction.add(0.99*tf_points[0][0], inviwopy.glm.vec4(1.0, 1.0, 1.0, 1.0))
 
+    def clear_tf(self):
+        network = inviwopy.app.network
+        Raycaster = network.getProcessorByIdentifier('Raycaster')
+        tf_property = Raycaster.isotfComposite.transferFunction
+        print(dir(tf_property.mask))
+        tf_property.clear()
+        self.slice_copy_tf()
 
+    def remove_tf_point(self, index):
+        network = inviwopy.app.network
+        Raycaster = network.getProcessorByIdentifier('Raycaster')
+        tf_property = Raycaster.isotfComposite.transferFunction
+        if len(self.get_tf_points()) <= index:
+            print("No points to remove")
+            return
+        point_to_remove = tf_property.getValueAt(index)
+        tf_property.remove(point_to_remove)
+        self.slice_copy_tf()
+
+    def get_tf_points(self):
+    # Return a list of all the transferfunction points
+        network = inviwopy.app.network
+        Raycaster = network.getProcessorByIdentifier('Raycaster')
+        tf_property = Raycaster.isotfComposite.transferFunction
+        return [[x.pos, x.color] for x in tf_property.getValues()]
+
+    def set_shading_mode(self, mode):
+        network = inviwopy.app.network
+        Raycaster = network.getProcessorByIdentifier('Raycaster')
+        Raycaster.lighting.shadingMode.value = mode
+
+    def set_volume_background(self, color_1 = None, color_2 = None, styleIndex = None, blendModeIndex = None):
+    # Set the background of the volume canvas
+        network = inviwopy.app.network
+        Background = network.getProcessorByIdentifier("VolumeBackground")
+        if styleIndex != None:
+            Background.backgroundStyle.selectedIndex = styleIndex
+        if color_1 != None:
+            Background.bgColor1.value = color_1
+        if color_2 != None:
+            Background.bgColor2.value = color_2
+        if blendModeIndex != None:
+            Background.blendMode.selectedIndex = blendModeIndex
+
+    def set_slice_background(self, color_1 = None, color_2 = None, styleIndex = None, blendModeIndex = None):
+    # Set the background of the volume canvas
+        network = inviwopy.app.network
+        Background = network.getProcessorByIdentifier("SliceBackground")
+        if styleIndex != None:
+            Background.backgroundStyle.selectedIndex = styleIndex
+        if color_1 != None:
+            Background.bgColor1.value = color_1
+        if color_2 != None:
+            Background.bgColor2.value = color_2
+        if blendModeIndex != None:
+            Background.blendMode.selectedIndex = blendModeIndex
+
+    def toggle_slice_plane(self, enable):
+    # Set if the slice plane should be visible in the volume
+    # TODO: remove plane.enable.value, move to some initialization code
+        network = inviwopy.app.network
+        Raycaster = network.getProcessorByIdentifier('Raycaster')
+        pos_indicator = Raycaster.positionindicator
+        pos_indicator.plane1.enable.value = True
+        pos_indicator.plane2.enable.value = False
+        pos_indicator.plane3.enable.value = False
+        pos_indicator.enable.value = enable
+
+    def set_plane_normal(self, x=0, y=1, z=0):
+    # Set the normal of the slice plane
+    # x, y, and z can vary between 0 and 1
+    # TODO: move sliceAxis.value to some initialization code
+        network = inviwopy.app.network
+        VolumeSlice = network.getProcessorByIdentifier('Volume Slice')
+        VolumeSlice.sliceAxis.value = 3
+        VolumeSlice.planeNormal.value = inviwopy.glm.vec3(x, y, z)
+
+    def set_plane_height(self, height):
+    # Set the height of the volume slice plane
+    # Height can vary between 0 and 1.
+        network = inviwopy.app.network
+        VolumeSlice = network.getProcessorByIdentifier('Volume Slice')
+
+        # Create position vector based on plane normal 
+        normal = VolumeSlice.planeNormal.value
+        xHeight = normal.x * height
+        yHeight = normal.y * height
+        zHeight = normal.z * height
+        VolumeSlice.planePosition.value = inviwopy.glm.vec3(xHeight, yHeight, zHeight)
 
 # ------------------------------------------
 # ------- Network building functions -------
