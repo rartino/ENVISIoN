@@ -98,6 +98,10 @@ class ChargeFrame(GeneralCollapsible):
 
     def start_vis(self):
         if self.isPathEmpty():
+            self.open_message('No file selected',
+                                'Visualization failed!')
+            self.Collapse(True)
+            self.update_collapse()
             return    
         elif '/{}'.format('CHG') in h5py.File(self.parent_collapsible.path, 'r'):
             parameter_utils.start_charge_vis(self.parent_collapsible.path,self.slice)
