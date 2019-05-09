@@ -50,8 +50,6 @@ import envision.inviwo
 app = inviwopy.app
 network = app.network
 
-from envision.inviwo.ParchgHandler import ParchgNetworkHandler
-
 # TODO: make better visualization intialization code
 
 def clear_processor_network():
