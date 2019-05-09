@@ -49,8 +49,8 @@ from VolumeNetworkHandler import VolumeNetworkHandler
 
 # TODO: Add check to make sure path is valid
 
-class ChargeNetworkHandler(VolumeNetworkHandler):
-    """ Handler class for charge visualization network.
+class ELFNetworkHandler(VolumeNetworkHandler):
+    """ Handler class for ELF visualization network.
         Sets up and manages the charge visualization
     """
     def __init__(self, hdf5_path):
@@ -60,11 +60,12 @@ class ChargeNetworkHandler(VolumeNetworkHandler):
 
         self.set_active_band('final')
     
+
     def get_available_bands(self, path):
     # Return the keys to the available datasets in hdf5-file
         with h5py.File(path, 'r') as file:
             parchg_band_keys = []
-            for key in file.get("CHG").keys():
+            for key in file.get("ELF").keys():
                 parchg_band_keys.append(key)
             return parchg_band_keys
 
@@ -75,8 +76,8 @@ class ChargeNetworkHandler(VolumeNetworkHandler):
     # Sets the dataset which HDF5 to volume processor will read
         network = inviwopy.app.network
         toVolume = network.getProcessorByIdentifier('HDF5 To Volume')
-        toVolume.volumeSelection.selectedValue = '/CHG/' + key
-
+        toVolume.volumeSelection.selectedValue = '/ELF/' + key
+        
 # ------------------------------------------
 # ------- Network building functions -------
 
@@ -103,7 +104,7 @@ class ChargeNetworkHandler(VolumeNetworkHandler):
 
         # Set correct path to volume data
         hdfvolume_volumeSelection_property = HDFvolume.getPropertyByIdentifier('volumeSelection')
-        hdfvolume_volumeSelection_property.value = '/CHG/final' 
+        hdfvolume_volumeSelection_property.value = '/ELF/final' 
 
         HDFvolume_basis_property = HDFvolume.getPropertyByIdentifier('basisGroup').getPropertyByIdentifier('basis')
         HDFvolume_basis_property.minValue = inviwopy.glm.mat4(-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,

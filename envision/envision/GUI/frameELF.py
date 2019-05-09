@@ -1,7 +1,7 @@
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2019 Anton Hjert
+#  Copyright (c) 2019 Jesper Ericsson
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -43,9 +43,9 @@ from backgroundCollapsible import BackgroundCollapsible
 from sliceControlCollapsible import SliceControlCollapsible
 import envision
 
-from envision.inviwo.ChargeNetworkHandler import ChargeNetworkHandler
+from envision.inviwo.ELFNetworkHandler import ELFNetworkHandler
 
-class ChargeFrame(GeneralCollapsible):
+class ELFFrame(GeneralCollapsible):
     def __init__(self, parent):
         super().__init__(parent, label = "Charge")
 
@@ -55,7 +55,6 @@ class ChargeFrame(GeneralCollapsible):
             "Choose what band to visualize")
 
         self.bandChoice = wx.Choice(self.GetPane())
-
 
         bandChoiceHBox = wx.BoxSizer(wx.HORIZONTAL)
         bandChoiceHBox.Add(bandChoiceLabel)
@@ -96,10 +95,9 @@ class ChargeFrame(GeneralCollapsible):
         
         if not self.IsCollapsed():
             # Initialize network handler which starts visualization
-            self.networkHandler = ChargeNetworkHandler(self.parent_collapsible.path)
+            self.networkHandler = ELFNetworkHandler(self.parent_collapsible.path)
             self.volumeCollapsible.networkHandler = self.networkHandler
             self.sliceCollapsible.networkHandler = self.networkHandler
-            self.sliceCollapsible.sliceBackgroundCollapsibe.networkHandler = self.networkHandler
             self.backgroundCollapsibe.networkHandler = self.networkHandler
 
             self.volumeCollapsible.add_tf_point(0.5, 0.1, wx.Colour(20, 200, 20, 20))
