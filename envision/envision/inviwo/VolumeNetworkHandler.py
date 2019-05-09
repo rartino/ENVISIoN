@@ -42,6 +42,7 @@ sys.path.insert(0, os.path.expanduser(path_to_current_folder))
 
 import inviwopy
 import numpy as np
+from matplotlib import pyplot as plt 
 import h5py
 from common import _add_h5source, _add_processor
 
@@ -61,11 +62,37 @@ class VolumeNetworkHandler():
     def __init__(self):
         self.volumeInports = []
         self.setup_volume_network()
-    
-    def __del__(self):
-    # Clears network upon destruction
+
+        # Set initial conditions
+        self.clear_tf()
+        self.toggle_slice_canvas(False)
+        self.set_plane_normal()
+        self.set_slice_background(inviwopy.glm.vec4(0,0,0,1),
+                            inviwopy.glm.vec4(1,1,1,1),3,0)
+        self.slice_copy_tf()
+
+    def show_volume_dist(self, path_to_hdf5):
+    # Shows a histogram plot over volume data
         network = inviwopy.app.network
-        network.network.clear()
+        volume = network.getProcessorByIdentifier('HDF5 To Volume')
+        with h5py.File(path_to_hdf5,"r") as h5:
+            data = h5[volume.volumeSelection.value].value
+            result = []
+            [ result.extend(el) for el in data[0] ]
+            #newResult = []
+            #[ newResult.append((element + abs(min(result)))/(max(result) + abs(min(result)))) \
+            #    for element in result ]
+            print(result)
+            dataList= np.array(result)
+            plt.hist(dataList,bins=200, density = True)
+            plt.title("TF and ISO data") 
+            plt.show()
+
+    def clear_processor_network(self):
+        network = inviwopy.app.network
+        network.clear()
+
+
 
 # ------------------------------------------
 # ------- Property control functions -------

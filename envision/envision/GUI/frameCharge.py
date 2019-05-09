@@ -93,14 +93,19 @@ class ChargeFrame(GeneralCollapsible):
     def on_collapse(self, event = None):
         self.update_collapse()
         # Needs to be called to update the layout properly
-        if self.IsCollapsed():
-            # Disable charge vis
-            del self.networkHandler
-        else:
+        
+        if not self.IsCollapsed():
             # Initialize network handler which starts visualization
             self.networkHandler = ChargeNetworkHandler(self.parent_collapsible.path)
             self.volumeCollapsible.networkHandler = self.networkHandler
             self.sliceCollapsible.networkHandler = self.networkHandler
             self.backgroundCollapsibe.networkHandler = self.networkHandler
+
+            self.volumeCollapsible.add_tf_point(0.5, 0.1, wx.Colour(20, 200, 20, 20))
+            self.volumeCollapsible.re_read_tf_points()
+        elif self.networkHandler:
+            # Disable charge visualization
+            self.networkHandler.clear_processor_network()
+            del self.networkHandler
             
     

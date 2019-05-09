@@ -57,12 +57,6 @@ class ChargeNetworkHandler(VolumeNetworkHandler):
         super().__init__() # Will setup generic part of network
 
         self.setup_volume_source(hdf5_path)
-        # self.clear_tf()
-        self.toggle_slice_canvas(False)
-        self.set_plane_normal()
-        self.set_slice_background(inviwopy.glm.vec4(0,0,0,1),
-                            inviwopy.glm.vec4(1,1,1,1),3,0)
-        self.slice_copy_tf()
         
 
     def setup_volume_source(self, hdf5_path):
