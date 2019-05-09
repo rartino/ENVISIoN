@@ -57,7 +57,7 @@ class GeneralCollapsible(wx.CollapsiblePane):
 
         fillBox = wx.BoxSizer(wx.HORIZONTAL)
         fillBox.AddSpacer(30)
-
+        self.GetPane().SetBackgroundColour(self.bg_colour)
         self.sizer = wx.BoxSizer(wx.VERTICAL)
 
         hbox.Add(fillBox)
