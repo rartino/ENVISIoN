@@ -26,8 +26,8 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by Anders Rehult, Marian Brännvall, Anton Hjert
-#  and Andreas Kempe
+#  Alterations to this file by Anders Rehult, Marian Brännvall, Anton Hjert,
+#  Andreas Kempe and Abdullatif Ismail
 #
 #  To the extent possible under law, the person who associated CC0 with
 #  the alterations to this file has waived all copyright and related
@@ -38,14 +38,18 @@
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import inviwopy
-import inspect,os,sys
+import inspect, os, sys
 path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 sys.path.insert(0, os.path.expanduser(path_to_current_folder))
-import numpy as np
 import h5py
 from common import _add_h5source, _add_processor
 
-def bandstructure(h5file, xpos=0, ypos=0):
+
+app = inviwopy.app
+network = app.network
+
+
+def bandstructure(h5file, xpos = 0, ypos = 0):
     """Creates an Inviwo network for band structure visualization
 
     This function will use a suitable HDF5 source processor if one is
@@ -63,68 +67,75 @@ def bandstructure(h5file, xpos=0, ypos=0):
     ypos : int
          (Default value = 0)
          Y coordinate in Inviwo network editor
-
-     """
+    """
 
     with h5py.File(h5file,"r") as h5:
-
-        processor_list = [processor for processor, _ in inviwo.listProcessors()]
-
-        path_selector_list = []
-        hdf5_to_list = []
-
-        h5source_processor = _add_h5source(h5file, xpos, ypos)
-        ypos += 100
-
-        bandstructure_processor = _add_processor("org.inviwo.hdf5.PathSelection", "Select Bandstructure", xpos, ypos)
-        path_selector_list.append(bandstructure_processor)
-        inviwo.addConnection(h5source_processor, "outport", bandstructure_processor, "inport")
-        ypos += 100
-
-        bands_processor = _add_processor("org.inviwo.hdf5.PathSelection", "Select Bands", xpos, ypos)
-        path_selector_list.append(bands_processor)
-        inviwo.addConnection(bandstructure_processor, "outport", bands_processor, "inport")
-        ypos += 100
-
-        all_processor = _add_processor("org.inviwo.HDF5PathSelectionAllChildren", "Select All", xpos, ypos)
-        inviwo.addConnection(bands_processor, "outport", all_processor, "hdf5HandleInport")
-        ypos += 100
-
-        band_processor = _add_processor("org.inviwo.HDF5ToFunction", "To Function", xpos, ypos)
-        hdf5_to_list.append(band_processor)
-        inviwo.addConnection(all_processor, "hdf5HandleVectorOutport", band_processor, "hdf5HandleFlatMultiInport")
-        ypos += 100
-
+        # A bool that tells if the band structure should be normalized around the fermi energy.
         has_fermi_energy = "/FermiEnergy" in h5
-        if has_fermi_energy:
-            if "Fermi Energy" in processor_list:
-                fermi_energy_processor = "Fermi Energy"
-            else:
-                fermi_energy_processor = _add_processor("org.inviwo.HDF5ToPoint", "Fermi Energy", xpos, ypos)
-                inviwo.addConnection(h5source_processor, "outport", fermi_energy_processor, "hdf5HandleFlatMultiInport")
-                ypos += 100
 
-        plotter_processor = _add_processor("org.inviwo.Plotter", "Band Structure Plotter", xpos, ypos)
-        inviwo.addConnection(band_processor, "functionVectorOutport", plotter_processor, "functionFlatMultiInport")
-        if has_fermi_energy:
-            inviwo.addConnection(fermi_energy_processor, "pointVectorOutport", plotter_processor, "markYFlatMultiInport")
-        ypos += 100
+        # Start building the Inviwo network.
+        h5source_processor = _add_h5source(h5file, xpos, ypos)
+        ypos += 75
 
-        canvas_processor = _add_processor("org.inviwo.CanvasGL", "Band Structure Canvas", xpos, ypos)
-        inviwo.addConnection(plotter_processor, "imageOutport", canvas_processor, "inport")
-
-        for path_selector in path_selector_list:
-            inviwo.setPropertyValue(".".join([path_selector, "selection"]), "/{}".format(path_selector.split()[1]))
-
-        for hdf5_to in hdf5_to_list:
-            inviwo.setPropertyValue(".".join([hdf5_to, "implicitXProperty"]), True)
-            inviwo.setPropertyValue(".".join([hdf5_to, "yPathSelectionProperty"]), "/{}".format("Energy"))
-            inviwo.setPropertyValue(".".join([hdf5_to, "yPathFreeze"]), True)
+        path_selection_processor = _add_processor("org.inviwo.hdf5.PathSelection", "Select Bandstructure", xpos, ypos)
+        network.addConnection(h5source_processor.getOutport("outport"),
+                              path_selection_processor.getInport("inport"))
 
         if has_fermi_energy:
-            inviwo.setPropertyValue(".".join([fermi_energy_processor, "pathSelectionProperty"]), "/{}".format("FermiEnergy"))
-            inviwo.setPropertyValue(".".join([fermi_energy_processor, "pathFreeze"]), True)
+            fermi_point_processor = _add_processor("org.inviwo.HDF5ToPoint", "Fermi energy", xpos + 175, ypos)
+            network.addConnection(h5source_processor.getOutport("outport"),
+                                  fermi_point_processor.getInport("hdf5HandleFlatMultiInport"))
 
-        inviwo.setPropertyValue(".".join([plotter_processor, "markShiftToZeroYProperty"]), "Fermi Energy")
+        ypos += 75
 
-        inviwo.setPropertyValue(".".join([canvas_processor, "inputSize", "dimensions"]), (640, 480))
+        all_children_processor = _add_processor("org.inviwo.HDF5PathSelectionAllChildren", "Select all bands", xpos, ypos)
+        network.addConnection(path_selection_processor.getOutport("outport"),
+                              all_children_processor.getInport("hdf5HandleInport"))
+        ypos += 75
+
+        HDF5_to_function_processor = _add_processor("org.inviwo.HDF5ToFunction", "Convert to function", xpos, ypos)
+        network.addConnection(all_children_processor.getOutport("hdf5HandleVectorOutport"),
+                              HDF5_to_function_processor.getInport("hdf5HandleFlatMultiInport"))
+        ypos += 75
+
+        function_to_dataframe_processor = _add_processor("org.inviwo.FunctionToDataFrame", "Convert to Data Frame", xpos, ypos)
+        network.addConnection(HDF5_to_function_processor.getOutport("functionVectorOutport"),
+                              function_to_dataframe_processor.getInport("functionFlatMultiInport"))
+        ypos += 75
+        xpos += 175
+
+        line_plot_processor = _add_processor("org.inviwo.LinePlotProcessor", "Line plot", xpos, ypos)
+        network.addConnection(function_to_dataframe_processor.getOutport("dataframeOutport"),
+                              line_plot_processor.getInport("dataFrameInport"))
+
+        if has_fermi_energy:
+            network.addConnection(fermi_point_processor.getOutport("pointVectorOutport"),
+                                  line_plot_processor.getInport("pointInport"))
+
+        ypos += 75
+
+        mesh_renderer_processor = _add_processor("org.inviwo.Mesh2DRenderProcessorGL", "Mesh renderer", xpos, ypos)
+        network.addConnection(line_plot_processor.getOutport("outport"),
+                              mesh_renderer_processor.getInport("inputMesh"))
+        network.addConnection(line_plot_processor.getOutport("labels"),
+                              mesh_renderer_processor.getInport("imageInport"))
+        ypos += 75
+
+        background_processor = _add_processor("org.inviwo.Background", "Background", xpos, ypos)
+        network.addConnection(mesh_renderer_processor.getOutport("outputImage"),
+                              background_processor.getInport("inport"))
+        ypos += 75
+
+        canvas_processor = _add_processor("org.inviwo.CanvasGL", "Canvas", xpos, ypos)
+        network.addConnection(background_processor.getOutport('outport'),
+                              canvas_processor.getInport("inport"))
+
+        # Start modifying properties.
+        path_selection_processor.selection.value = '/Bandstructure/Bands'
+        HDF5_to_function_processor.yPathSelectionProperty.value = '/Energy'
+        line_plot_processor.allYSelection.value = True
+        background_processor.bgColor1.value = inviwopy.glm.vec4(1)
+        background_processor.bgColor2.value = inviwopy.glm.vec4(1)
+        canvas_processor.inputSize.dimensions.value = inviwopy.glm.ivec2(900, 700)
+        if has_fermi_energy:
+            fermi_point_processor.pathSelectionProperty.value = '/FermiEnergy'

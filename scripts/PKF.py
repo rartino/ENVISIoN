@@ -1,7 +1,8 @@
+
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2019 Anton Hjert
+#  Copyright (c) 2019 Lloyd Kizito
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -26,7 +27,7 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by
+#  Alterations to this file by Linda Le
 #
 #  To the extent possible under law, the person who associated CC0
 #  with the alterations to this file has waived all copyright and related
@@ -35,47 +36,22 @@
 #  You should have received a copy of the CC0 legalcode along with
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
-import wx ,sys ,os , h5py
-from parameter_utils import *
-from generalCollapsible import GeneralCollapsible
 
-class UnitcellFrame(GeneralCollapsible):
-    def __init__(self, parent):
-        super().__init__(parent, "Unitcell")
-    
-        button1 = wx.Button(self.GetPane(), label="X")
-        button2 = wx.Button(self.GetPane(), label="Y")
-        slider = wx.Slider(self.GetPane())
+import os, sys
 
-        self.add_item(button1)
-        self.add_item(button2)
-        self.add_item(slider)
+# Configuration
+PATH_TO_ENVISION=os.path.expanduser("/home/labb/ENVISIoN-appDev/envision")
+PATH_TO_VASP_CALC=os.path.expanduser("/home/labb/VASP_files/LiC_pair_corr_fun")
+PATH_TO_HDF5=os.path.expanduser("/home/labb/HDF5/PKF_new.hdf5")
 
-        self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
+sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION))
 
-    
-    def on_collapse(self, event = None):
-        self.update_collapse()
-        # Needs to be called to update the layout properly
-        if self.IsCollapsed():
-            # Disable Unitcell vis
-            clear_processor_network()
-            print("Not Unitcell")
-        else:
-            self.start_vis()
+import envision
+import envision.inviwo
 
-    def start_vis(self):
-        if self.isPathEmpty():
-            return
-        elif "/UnitCell" in  h5py.File(self.parent_collapsible.path, 'r'):
-            #Start Unitcell vis
-            envision.inviwo.unitcell(self.parent_collapsible.path, 
-                                    xpos = 0, ypos = 0)
-            self.set_canvas_pos('Unitcell')
-            print("Unitcell")
-        else:
-            self.open_message('The file of choice does not contain Unitcell-data',
-                                'Visualization failed!')
-            self.Collapse(True)
-            self.update_collapse()
+envision.parser.vasp.paircorrelation(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+
+envision.inviwo.paircorrelation(PATH_TO_HDF5, xpos = 0, ypos = 0)
+
+
 

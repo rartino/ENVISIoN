@@ -38,14 +38,15 @@
 import os,sys
 import h5py
 import inspect
-path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-sys.path.insert(0, os.path.expanduser(path_to_current_folder+'/parser/vasp'))
+path_to_current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_dir+'/parser/vasp'))
 from bandstructure import bandstructure
 from doscar import dos
 from md import md
 from unitcell import unitcell
 from volume import charge, elf
 from fermi import fermi_surface
+from PKF import paircorrelation
 
 def parse_all(h5_path, dir):
     """parse_all
@@ -72,7 +73,8 @@ def parse_all(h5_path, dir):
         'ELF from VASP': elf,
         'DOS from VASP': dos,
         'bandstructure from VASP': bandstructure
-        ,'fermi surface from VASP': fermi_surface
+        ,'fermi surface from VASP': fermi_surface,
+        'PCF from VASP': paircorrelation
     }
     parsed_list = []
     for key, function in func_dict.items():

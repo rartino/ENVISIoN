@@ -135,6 +135,7 @@ class BackgroundCollapsible(GeneralCollapsible):
         # Set event bindings
 
         # Update on theese
+
         bgColourWidget.value1Text.Bind(wx.EVT_KILL_FOCUS, lambda event : self.new_text_colour(bgColourWidget))
         bgColourWidget.value1Text.Bind(wx.EVT_TEXT_ENTER, lambda event : self.new_text_colour(bgColourWidget))
         bgColourWidget.value2Text.Bind(wx.EVT_KILL_FOCUS, lambda event : self.new_text_colour(bgColourWidget))
@@ -144,6 +145,7 @@ class BackgroundCollapsible(GeneralCollapsible):
         bgColourWidget.value4Text.Bind(wx.EVT_KILL_FOCUS, lambda event : self.new_text_colour(bgColourWidget))
         bgColourWidget.value4Text.Bind(wx.EVT_TEXT_ENTER, lambda event : self.new_text_colour(bgColourWidget))
         bgColourWidget.colorPicker.Bind(wx.EVT_COLOURPICKER_CHANGED, lambda event : self.new_colourpicker_colour(bgColourWidget))
+
 
         self.update_collapse()
         return bgColourWidget
@@ -164,6 +166,7 @@ class BackgroundCollapsible(GeneralCollapsible):
             self.networkHandler.set_slice_background(bgc1,bgc2,
                                 self.backgroundDropDown.GetCurrentSelection(),
                                 self.blendDropDown.GetCurrentSelection())
+
 
     def new_text_colour(self,bgWidget):
         colour = bgWidget.read_inputs()
