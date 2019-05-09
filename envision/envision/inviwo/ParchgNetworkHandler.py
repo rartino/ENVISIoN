@@ -26,7 +26,7 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by
+#  Alterations to this file by Jesper Ericsson
 #  and Andreas Kempe
 #
 #  To the extent possible under law, the person who associated CC0 with
@@ -48,18 +48,19 @@ import h5py
 import math
 from common import _add_h5source, _add_processor
 
+from VolumeNetworkHandler import VolumeNetworkHandler
 
 # TODO: Files parsed for parchg does not seem to work. Inviwo seems to not recognize the datasets as valid volumes.
 #       May have something to do with the different size of the volume data in hdf5 file. 
 #       Parchg is 24x24x24 while charge, which works, is 48x48x48.
-#       Analyze and compare files with "HDFView" took to see diferences between datasets.
+#       Analyze and compare files with "HDFView" tool to see diferences between datasets.
 
 # TODO: merger_list in setup_band_processors function looks a bit funky to me.
 #       How the nestled for loops build the list is not great, some recursion instead?
 #       Current setup will probably not handle if more than 16 bands are used at the same time
 #       Low prio fix as that is a lot of bands and you dont often need that many i think.
 
-class ParchgNetworkHandler:
+class ParchgNetworkHandler(VolumeNetworkHandler):
     """ Class for setting up and handling the inviwo network for partial charge visualization
         
     """
@@ -78,20 +79,26 @@ class ParchgNetworkHandler:
             3 for 'down'
             Example: If band_list is [31, 212] and mode_list is [1,3], band 31 will be visualized as 'magnetic' and 212 as 'down'
         """
+        super().__init__() # Will setup generic part of network
+        self.setup_hdf5_source(hdf5_path)
+        self.setup_band_processors(band_list, mode_list)
+
 
         self.hdf5_path = hdf5_path
         self.HDFvolume_processors = []
         self.merger_processors = []
         self.current_bands = band_list
         self.current_modes = mode_list
-        self.build_network(hdf5_path, False, band_list, mode_list)
 
     def select_bands(self, band_list, mode_list):
     # Re-selects bands. Clears old bands and adds the new ones.
         self.clear_band_processors()
-        self.setup_band_processors(band_list, mode_list, 0, 0)
+        self.setup_band_processors(band_list, mode_list)
         self.current_bands = band_list
         self.current_modes = mode_list
+
+# ------------------------------------------
+# ------- Network building functions -------
 
     def clear_band_processors(self):
     # Removes all the band selection and merging processors
@@ -133,7 +140,14 @@ class ParchgNetworkHandler:
             l = self.merger_calc(l,level)
         return l
 
-    def setup_band_processors(self, band_list, mode_list, xpos, ypos):
+    
+
+    def setup_hdf5_source(self, hdf5_path):
+        #TODO complete this
+        self.HDFsource = _add_h5source(hdf5_path, -100, 0)
+        self.HDFsource.filename.value = hdf5_path
+
+    def setup_band_processors(self, band_list, mode_list):
         """ Sets up the processors to handle the different band selections and modes, along with merging the resulting volumes.
             Is called in build_network function when initializing class
             Can be called after building network to change selection without rebuilding whole network
@@ -144,6 +158,10 @@ class ParchgNetworkHandler:
             List that specifies what mode the individual bands should be visualized in.
         """
         network = inviwopy.app.network
+        #TODO extract hdf5source processor from network
+        xpos = 200
+        ypos = -400
+
         
         n_bands = len(band_list)
         if n_bands == 0:
@@ -232,16 +250,16 @@ class ParchgNetworkHandler:
         for i in range(0, n_bands):
             if mode_list[i] == 0 or mode_list[i] == 1:
                 hdfvolume_volumeSelection_property = HDFvolume_list[i].getPropertyByIdentifier('volumeSelection')       
-                hdfvolume_volumeSelection_property.value = '/PARCHG/Bands/' + str(band_list[i]) + '/' + mode_dict[mode_list[i]]           
+                hdfvolume_volumeSelection_property.selectedValue = '/PARCHG/Bands/' + str(band_list[i]) + '/' + mode_dict[mode_list[i]]           
                 HDFvolume_basis_property = HDFvolume_list[i].getPropertyByIdentifier('basisGroup').getPropertyByIdentifier('basis')
 
             else:
                 hdfvolume_volumeSelection_property = HDFvolume_list[i][0].getPropertyByIdentifier('volumeSelection')
-                hdfvolume_volumeSelection_property.value = '/PARCHG/Bands/' + str(band_list[i]) + '/' + mode_dict[0]
+                hdfvolume_volumeSelection_property.selectedValue = '/PARCHG/Bands/' + str(band_list[i]) + '/' + mode_dict[0]
                 HDFvolume_basis_property = HDFvolume_list[i][0].getPropertyByIdentifier('basisGroup').getPropertyByIdentifier('basis')
 
                 hdfvolume_volumeSelection_property = HDFvolume_list[i][1].getPropertyByIdentifier('volumeSelection')
-                hdfvolume_volumeSelection_property.value = '/PARCHG/Bands/' + str(band_list[i]) + '/' + mode_dict[1]
+                hdfvolume_volumeSelection_property.selectedValue = '/PARCHG/Bands/' + str(band_list[i]) + '/' + mode_dict[1]
                 HDFvolume_basis_property = HDFvolume_list[i][1].getPropertyByIdentifier('basisGroup').getPropertyByIdentifier('basis')
 
             HDFvolume_basis_property.minValue = minValue
@@ -263,128 +281,9 @@ class ParchgNetworkHandler:
             volumeOutport = merger_list[-1][0].getOutport('outputVolume')
 
         # Connect volume outport to rendering netowork    
-        network.addConnection(volumeOutport, self.BoundingBox.getInport('volume'))
-        network.addConnection(volumeOutport, self.CubeProxyGeometry.getInport('volume'))
-        network.addConnection(volumeOutport, self.Raycaster.getInport('volume'))
+        # network.addConnection(volumeOutport, self.BoundingBox.getInport('volume'))
+        # network.addConnection(volumeOutport, self.CubeProxyGeometry.getInport('volume'))
+        # network.addConnection(volumeOutport, self.Raycaster.getInport('volume'))
 
+        self.connect_volume(volumeOutport)
 
-    def build_network(self, h5file, sli, band_list, mode_list):
-        """ Initializes the partial charge network
-        Parameters:
-        hdf5_path : str
-            Path to HDF5 file
-        band_list : list of int
-            List containing the band numbers for the bands to be visualised 
-        mode_list : list of int
-            Specifies how to visualize a specific band. In the order you enumerated your bands in band_list, choose mode where
-            0 for 'total'
-            1 for 'magnetic'
-            2 for 'up'
-            3 for 'down'
-            Example: If band_list is [31, 212] and mode_list is [1,3], band 31 will be visualized as 'magnetic' and 212 as 'down'
-        """
-        xstart_pos = 0
-        ystart_pos = 0
-        
-
-        network = inviwopy.app.network
-
-        # Setup the HDF5 source
-        self.HDFsource = _add_h5source(h5file, xstart_pos, ystart_pos)
-        filenameProperty = self.HDFsource.getPropertyByIdentifier('filename')
-        filenameProperty.value = h5file
-        
-        
-        ystart_pos += 300
-
-        # Initialize volume rendering and bounding box processors
-        BoundingBox = _add_processor('org.inviwo.VolumeBoundingBox', 'Volume Bounding Box', xstart_pos+200, ystart_pos+375)    
-        MeshRenderer = _add_processor('org.inviwo.GeometryRenderGL', 'Mesh Renderer', xstart_pos+200, ystart_pos+450)
-        CubeProxyGeometry = _add_processor('org.inviwo.CubeProxyGeometry', 'Cube Proxy Geometry', xstart_pos+30, ystart_pos+375)
-        EntryExitPoints = _add_processor('org.inviwo.EntryExitPoints', 'EntryExitPoints', xstart_pos+30, ystart_pos+450)
-    
-
-        Raycaster = _add_processor('org.inviwo.VolumeRaycaster', "Raycaster", xstart_pos, ystart_pos+525)
-        
-        # Clear the transfer functions
-        raycaster_transferfunction_property = Raycaster.isotfComposite.transferFunction
-        raycaster_transferfunction_property.clear()
-    
-        # if sli:
-    
-        #     VolumeSlice = _add_processor('org.inviwo.VolumeSliceGL', 'Volume Slice', xstart_pos-170, ystart_pos+300)          
-        #     ImageLayout = _add_processor('org.inviwo.ImageLayoutGL', 'Image Layout', xstart_pos, ystart_pos+375)     
-        #     Background = _add_processor('org.inviwo.Background', 'Background', xstart_pos, ystart_pos+450)
-        #     Canvas = _add_processor('org.inviwo.CanvasGL', 'Canvas', xstart_pos, ystart_pos+525)
-
-        #     if merger_list:
-        #         network.addConnection(merger_list[-1][0].getOutport('outputVolume'), VolumeSlice.getInport('volume'))
-        #     else:
-        #         network.addConnection(HDFvolume_list[0].getOutport('outport'), VolumeSlice.getInport('volume'))
-            
-        #     network.addConnection(VolumeSlice.getOutport('outport'), ImageLayout.getInport('multiinport'))
-        #     network.addConnection(Raycaster.getOutport('outport'), ImageLayout.getInport('multiinport'))
-        #     network.addConnection(ImageLayout.getOutport('outport'), Background.getInport('inport'))
-            
-        #     ImageLayout.getPropertyByIdentifier('layout').value = 2
-            
-        #     network.addLink(VolumeSlice.getPropertyByIdentifier('planePosition'), Raycaster.getPropertyByIdentifier('positionindicator').plane1.position)
-        #     network.addLink(VolumeSlice.getPropertyByIdentifier('planeNormal'), Raycaster.getPropertyByIdentifier('positionindicator').plane1.normal)
-        #     Raycaster_positionindicator_property= Raycaster.getPropertyByIdentifier('positionindicator')
-        #     Raycaster_positionindicator_property.enable = True
-            
-        #     canvas_dimensions_property = Canvas.getPropertyByIdentifier('inputSize').getPropertyByIdentifier('dimensions')
-        #     canvas_dimensions_property.value = inviwopy.glm.ivec2(700,300)
-        #     volumeSlice_transferfunction_property = VolumeSlice.getPropertyByIdentifier('tfGroup').getPropertyByIdentifier('transferFunction')
-        #     volumeSlice_transferfunction_property.add(inviwopy.glm.vec2(0.0,1.0),inviwopy.glm.vec4(0.0,0.0,1.0))
-        #     volumeSlice_transferfunction_property.add(inviwopy.glm.vec2(0.25,1.0),inviwopy.glm.vec4(0.0,1.0,1.0))
-        #     volumeSlice_transferfunction_property.add(inviwopy.glm.vec2(0.5,1.0),inviwopy.glm.vec4(0.0,1.0,0.0))
-        #     volumeSlice_transferfunction_property.add(inviwopy.glm.vec2(0.75,1.0),inviwopy.glm.vec4(1.0,1.0,0.0))
-        #     volumeSlice_transferfunction_property.add(inviwopy.glm.vec2(1.0,1.0),inviwopy.glm.vec4(1.0,0.0,0.0))
-            
-        #     Raycaster_plane1_property = Raycaster.getPropertyByIdentifier('positionindicator').plane1
-        #     Raycaster_plane2_property = Raycaster.getPropertyByIdentifier('positionindicator').plane2
-        #     Raycaster_plane3_property = Raycaster.getPropertyByIdentifier('positionindicator').plane3
-        #     Raycaster_plane1_property.enable = True
-        #     Raycaster_plane2_property.enable = False
-        #     Raycaster_plane3_property.enable = False
-            
-        #     Raycaster_plane1_color_property = Raycaster_plane1_property.color
-        #     Raycaster_plane1_color_property.value = inviwopy.glm.vec4(1.0,1.0,1.0,0.5)
-
-        if not sli:
-
-            Background = _add_processor('org.inviwo.Background', 'Background', xstart_pos, ystart_pos+600 + 75)
-            Canvas = _add_processor('org.inviwo.CanvasGL', 'Canvas', xstart_pos, ystart_pos+675 + 75)
-            network.addConnection(Raycaster.getOutport('outport'), Background.getInport('inport'))
-            canvas_dimensions_property = Canvas.getPropertyByIdentifier('inputSize').getPropertyByIdentifier('dimensions')
-            canvas_dimensions_property.value = inviwopy.glm.ivec2(400,400)
-
-        # Shared connections and properties between electron density and electron localisation function data
-        network.addConnection(MeshRenderer.getOutport('image'), Raycaster.getInport('bg'))
-        network.addConnection(EntryExitPoints.getOutport('entry'), Raycaster.getInport('entry'))
-        network.addConnection(EntryExitPoints.getOutport('exit'), Raycaster.getInport('exit'))
-        network.addConnection(BoundingBox.getOutport('mesh'), MeshRenderer.getInport('geometry'))
-        network.addConnection(CubeProxyGeometry.getOutport('proxyGeometry'), EntryExitPoints.getInport('geometry'))
-        network.addConnection(Background.getOutport('outport'), Canvas.getInport('inport'))
-        network.addLink(MeshRenderer.getPropertyByIdentifier('camera'), EntryExitPoints.getPropertyByIdentifier('camera'))
-
-
-        self.BoundingBox = BoundingBox
-        self.CubeProxyGeometry = CubeProxyGeometry
-        self.Raycaster = Raycaster
-        # Initialize hdf5 band pickers
-        self.setup_band_processors(band_list, mode_list, xstart_pos + 200, ystart_pos - 500)
-
-
-    
-            
-        entryExitPoints_lookFrom_property = EntryExitPoints.getPropertyByIdentifier('camera').getPropertyByIdentifier('lookFrom')
-        entryExitPoints_lookFrom_property.value = inviwopy.glm.vec3(0,0,8)
-
-        # Connect unit cell and volume visualisation.
-        UnitCellRenderer = network.getProcessorByIdentifier('Unit Cell Renderer')
-        if UnitCellRenderer:
-            network.addConnection(UnitCellRenderer.getOutport('image'), MeshRenderer.getInport('imageInport'))
-            network.addLink(UnitCellRenderer.getPropertyByIdentifier('camera'), MeshRenderer.getPropertyByIdentifier('camera'))
-            network.addLink(MeshRenderer.getPropertyByIdentifier('camera'), UnitCellRenderer.getPropertyByIdentifier('camera'))

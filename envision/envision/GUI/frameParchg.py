@@ -36,8 +36,9 @@
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 import wx
-import parameter_utils
 from generalCollapsible import GeneralCollapsible
+
+from envision.inviwo.ParchgNetworkHandler import ParchgNetworkHandler
 
 class ParchgFrame(GeneralCollapsible):
     def __init__(self, parent):
@@ -56,37 +57,18 @@ class ParchgFrame(GeneralCollapsible):
         self.selectorWidgets.append(bandSelector)
         
         bandSelector.bandChooser.Bind(wx.EVT_CHOICE, lambda event : self.band_selection_changed(bandSelector))
-        bandSelector.modeChooser.Bind(wx.EVT_CHOICE, lambda event : self.mode_selection_changed(bandSelector))
-
-        button = wx.Button(self.GetPane(), label = "Press me", size = wx.Size(100, 23))
-        button2 = wx.Button(self.GetPane(), label = "Press me", size = wx.Size(100, 23))
-
 
         # Add stuff to sizer
         self.selectorVBox = wx.BoxSizer(wx.VERTICAL)
         self.selectorVBox.Add(bandSelector)
 
         self.add_item(self.selectorVBox)
-        self.add_item(button)
-        self.add_item(button2)
 
         # Bind events
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
-        button.Bind(wx.EVT_BUTTON, self.on_press)
-        button2.Bind(wx.EVT_BUTTON, self.on_press2)
-
-    def on_press(self, event):
-        self.networkHandler.clear_band_processors()
-    
-    def on_press2(self, event):
-        self.networkHandler.select_bands([0, 0], [0, 1])
 
     def band_selection_changed(self, selectorWidget):
-
-        # If its the bottom one dont remove it and add new ones if set to a value.
-        print(selectorWidget)
-
-        # TODO only add new one if changed from 'None'
+    # Handle input to band selection widgets
         selectedString = selectorWidget.bandChooser.GetString(selectorWidget.bandChooser.GetSelection())
 
         if len(self.selectorWidgets) > 1 and selectedString == 'None':
@@ -117,6 +99,7 @@ class ParchgFrame(GeneralCollapsible):
         self.update_collapse()
 
     def reload_band_processors(self):
+    # Reload the inviwo band processors with the specified selections
         bandList = []
         modeList = []
         for widget in self.selectorWidgets:
@@ -128,26 +111,15 @@ class ParchgFrame(GeneralCollapsible):
         self.networkHandler.select_bands(bandList, modeList)
             
 
-    def mode_selection_changed(self, event):
-        pass
-
-
 
     def on_collapse(self, event = None):
         self.update_collapse()
 
-        if self.IsCollapsed():
-            del self.networkHandler
-            parameter_utils.clear_processor_network()
+        if not self.IsCollapsed():
+            self.networkHandler = ParchgNetworkHandler(self.parent_collapsible.path, [], [])
         else:
-            # bandKeys = parameter_utils.parchg_get_bands(self.parent_collapsible.path)
-            # for key in bandKeys:
-            #     self.bandChoices.append(key)
-            # for b in self.selectorWidgets:
-            #     b.bandChooser.Clear()
-            #     b.bandChooser.AppendItems(self.bandChoices)
-            #     b.bandChooser.SetSelection(0)
-            self.networkHandler = parameter_utils.start_parchg_vis(self.parent_collapsible.path)
+            self.networkHandler.clear_processor_network()
+            del self.networkHandler
 
 
 class BandSelectorWidget(wx.BoxSizer):

@@ -88,12 +88,6 @@ class VolumeNetworkHandler():
             plt.title("TF and ISO data") 
             plt.show()
 
-    def clear_processor_network(self):
-        network = inviwopy.app.network
-        network.clear()
-
-
-
 # ------------------------------------------
 # ------- Property control functions -------
 
@@ -223,6 +217,10 @@ class VolumeNetworkHandler():
 
 # ------------------------------------------
 # ------- Network building functions -------
+
+    def clear_processor_network(self):
+        network = inviwopy.app.network
+        network.clear()
 
     def toggle_slice_canvas(self, enable_slice):
     # Will add or remove the slice canvas

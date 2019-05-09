@@ -48,6 +48,7 @@ from framePKF import PKFFrame
 from frameDoS import DosFrame
 from frameParchg import ParchgFrame
 from frameUnitcell import UnitcellFrame
+from frameELF import ELFFrame
 
 from generalCollapsible import GeneralCollapsible
 import inspect
@@ -79,6 +80,7 @@ class VisualizationFrame(GeneralCollapsible):
 
     # Initializa all the collapsible visualization menues
         chargeFrame = ChargeFrame(self.GetPane())
+        elfFrame = ELFFrame(self.GetPane())
         pcFrame = PKFFrame(self.GetPane())
         dosFrame = DosFrame(self.GetPane())
         parchgFrame = ParchgFrame(self.GetPane())
@@ -86,6 +88,7 @@ class VisualizationFrame(GeneralCollapsible):
 
     # Add them to the sizer
         self.add_sub_collapsible(chargeFrame)
+        self.add_sub_collapsible(elfFrame)
         self.add_sub_collapsible(pcFrame)
         self.add_sub_collapsible(dosFrame)
         self.add_sub_collapsible(parchgFrame)
