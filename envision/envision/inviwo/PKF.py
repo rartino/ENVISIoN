@@ -109,8 +109,8 @@ def paircorrelation(h5file, xpos=0, ypos=0):
         operation_processor.operationProperty.value = 'add'
         background_processor.bgColor1.value = inviwopy.glm.vec4(1)
         background_processor.bgColor2.value = inviwopy.glm.vec4(1)
-        RadialDistrubution_Text_processor.text.value = 'RadialDistribution'
-        RadialDistrubution_Text_processor.position.value = inviwopy.glm.vec(0.82, 0.03)
-        RadialDistrubution_Text_processor.color.value = inviwopy.glm.vec(0,0,0,1)
+        RadialDistribution_text_processor.text.value = 'RadialDistribution'
+        RadialDistribution_Text_processor.position.value = inviwopy.glm.vec4(1)
+        RadialDistribution_Text_processor.color.value = inviwopy.glm.vec4(0,0,0,1)
         canvas_processor.inputSize.dimensions.value = inviwopy.glm.vec2(640,480)
 

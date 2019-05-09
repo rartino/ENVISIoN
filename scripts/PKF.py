@@ -40,9 +40,9 @@
 import os, sys
 
 # Configuration
-PATH_TO_ENVISION=os.path.expanduser("~/ENVISIoN-gui-dev/envision")
-PATH_TO_VASP_CALC=os.path.expanduser("/home/labb/VASP_files/LiC_pair_corr_fun")
-PATH_TO_HDF5=os.path.expanduser("~/ENVISIoN-gui-dev/HDF5/tesxxxxx.hdf5")
+PATH_TO_ENVISION=os.path.expanduser("~/CLionProjects/ENVISIoN/envision")
+PATH_TO_VASP_CALC=os.path.expanduser("/Users/Lloyd/CLionProjects/ENVISIoN/data/VASP-files2019/LiC")
+PATH_TO_HDF5=os.path.expanduser("/Users/Lloyd/CLionProjects/ENVISIoN/HDF5/LicPKF.hdf5")
 
 
 sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION))
