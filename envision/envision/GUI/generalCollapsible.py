@@ -117,7 +117,6 @@ class GeneralCollapsible(wx.CollapsiblePane):
         pathDialog.Destroy()
         messageFrame.Destroy()
 
-
     def update_collapse(self, event = None):
         # Function to handle things that need to be done after
         # toggling collapse.
@@ -131,8 +130,7 @@ class GeneralCollapsible(wx.CollapsiblePane):
             self.collapse_children()
 
         # For some reason this makes the sub panels expand correctly
-        # Seems to be needed on linux, can maybe be simplified tho.
-        
+        # Seems to be needed on linux, can maybe be simplified tho.        
         self.Collapse(not self.IsCollapsed())
         self.Collapse(not self.IsCollapsed())
         if self.parent_collapsible != None:
