@@ -71,6 +71,7 @@ def _parse_incar(h5file, vasp_file):
     
     # Define validation data.
     valid_keys = [
+            "MAXMIX",
             "NGX",
             "NGY",
             "NGZ",

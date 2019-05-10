@@ -238,7 +238,7 @@ def _write_pcdat_multicol(h5file, pcdat_data, APACO_val, NPACO_val):
 
 
     with h5py.File(h5file, 'a') as h5:
-        dset_name = "PairCorrelationFunc/Iterations"
+        dset_name = "PairCorrelationFunc/Distance"
         normal_arr = arr.array('f', [])
 
         #creating x-values, equally spaced (space APACO_val/NPACO_val)
@@ -265,7 +265,7 @@ def _write_pcdat_multicol(h5file, pcdat_data, APACO_val, NPACO_val):
                     del original_list[0]
 
                 tmp_name = str(dset_groupname) + "/{}"
-                dset_name2 = tmp_name.format("t_" + str(t_value))
+                dset_name2 = tmp_name.format("PCF for " + "t_" + str(t_value))
                 h5.create_dataset(dset_name2, data=np.array(fill_list), dtype=np.float32)
                 h5[dset_name2].attrs["element"] = element_symbol
 
@@ -286,7 +286,7 @@ def _write_pcdat_multicol(h5file, pcdat_data, APACO_val, NPACO_val):
 def _write_pcdat_onecol(h5file, pcdat_data, APACO_val, NPACO_val):
 
     with h5py.File(h5file, 'a') as h5:
-        dset_name = "PairCorrelationFunc/Iterations"
+        dset_name = "PairCorrelationFunc/Distance"
         normal_arr = arr.array('f', [])
 
         #creating x-values, equally spaced (space APACO_val/NPACO_val)
@@ -309,7 +309,7 @@ def _write_pcdat_onecol(h5file, pcdat_data, APACO_val, NPACO_val):
                 fill_list.append(original_list[0])
                 del original_list[0]
 
-            dset_name2 = "PairCorrelationFunc/{}".format("t_" + str(t_value))
+            dset_name2 = "PairCorrelationFunc/{}".format("PCF for " + "t_" + str(t_value))
             h5.create_dataset(dset_name2, data=np.array(fill_list), dtype=np.float32)
 
 
