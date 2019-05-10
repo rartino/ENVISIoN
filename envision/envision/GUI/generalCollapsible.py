@@ -50,6 +50,7 @@ class GeneralCollapsible(wx.CollapsiblePane):
         self.itemSize = wx.Size(150,25)
 
         self.SetBackgroundColour(self.bg_colour)
+        self.GetPane().SetBackgroundColour(self.bg_colour)
 
         self.pane = self.GetPane()
 
@@ -57,7 +58,7 @@ class GeneralCollapsible(wx.CollapsiblePane):
 
         fillBox = wx.BoxSizer(wx.HORIZONTAL)
         fillBox.AddSpacer(30)
-
+        
         self.sizer = wx.BoxSizer(wx.VERTICAL)
 
         hbox.Add(fillBox)
@@ -116,7 +117,6 @@ class GeneralCollapsible(wx.CollapsiblePane):
         pathDialog.Destroy()
         messageFrame.Destroy()
 
-
     def update_collapse(self, event = None):
         # Function to handle things that need to be done after
         # toggling collapse.
@@ -129,15 +129,13 @@ class GeneralCollapsible(wx.CollapsiblePane):
         if self.IsCollapsed():
             self.collapse_children()
 
-        
-
         # For some reason this makes the sub panels expand correctly
-        # Seems to be needed on linux, can maybe be simplified tho.
-        
+        # Seems to be needed on linux, can maybe be simplified tho.        
         self.Collapse(not self.IsCollapsed())
         self.Collapse(not self.IsCollapsed())
         if self.parent_collapsible != None:
             self.parent_collapsible.Layout()
+            print('hey')
             self.parent_collapsible.update_collapse()
 
         # Update the layout of parent widgets
@@ -168,4 +166,13 @@ class GeneralCollapsible(wx.CollapsiblePane):
         else:
             set_canvas_position(canvasPosition)
 
+    def isPathEmpty(self):
+        if not os.path.exists(self.parent_collapsible.path):
+            self.open_message('No path given!',
+                                'Visualization failed!')
+            self.Collapse(True)
+            self.update_collapse()
+            return True
+        else:
+            return False
         

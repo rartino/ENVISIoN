@@ -24,19 +24,31 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-
+##############################################################################################
+#
+#  Alterations to this file by Anton Hjert
+#
+#  To the extent possible under law, the person who associated CC0
+#  with the alterations to this file has waived all copyright and related
+#  or neighboring rights to the alterations made to this file.
+#
+#  You should have received a copy of the CC0 legalcode along with
+#  this work.  If not, see
+#  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import os
 import sys
 import h5py
 import numpy as np
 import inspect
-path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-sys.path.insert(0, os.path.expanduser(path_to_current_folder + '/..'))
+
+path_to_current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_dir))
+sys.path.insert(0, os.path.expanduser(path_to_current_dir+'/../'))
 from incar import _parse_incar
 from unitcell import _find_elements
-from h5writer import _write_pcdat_onecol
-from h5writer import _write_pcdat_multicol
+from h5writer import _write_pcdat_multicol, _write_pcdat_onecol
+
 
 def _parse_pcdat(h5file, vasp_file, vasp_dir):
     #   The function parse PCDAT-file and is called upon by paircorrelation(h5file, vasp_dir)
@@ -155,7 +167,7 @@ def paircorrelation(h5file, vasp_dir):
             if "/PairCorrelationFunc" in h5:
                 print("Already parsed. Skipping.")
                 return False
-
+    
     # See if APACO and NPACO is set, otherwise default value is used.
     incar_file = os.path.join(vasp_dir, "INCAR")
     incar_data = _parse_incar(h5file, incar_file)
@@ -185,5 +197,6 @@ def paircorrelation(h5file, vasp_dir):
         return True
 
     except FileNotFoundError:
-        raise Exception("PCDAT-file not found.")
+        print("PCDAT-file not found.")
+        return False
 

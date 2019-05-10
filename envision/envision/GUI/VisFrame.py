@@ -26,7 +26,7 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by 
+#  Alterations to this file by Jesper Ericsson
 #
 #  To the extent possible under law, the person who associated CC0
 #  with the alterations to this file has waived all copyright and related
@@ -47,12 +47,13 @@ from frameCharge import ChargeFrame
 from framePKF import PKFFrame
 from frameDoS import DosFrame
 from frameParchg import ParchgFrame
-from frameUnitcell import UnitcellFrame
+from frameELF import ELFFrame
+from frameBandstructure import BandstructureFrame
 
 from generalCollapsible import GeneralCollapsible
 import inspect
-path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-sys.path.insert(0, os.path.expanduser(path_to_current_folder+'/../..'))
+path_to_current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_dir+'/../..'))
 import envision
 import envision.inviwo
 import parameter_utils
@@ -66,7 +67,7 @@ class VisualizationFrame(GeneralCollapsible):
         self.fileText = wx.StaticText(self.GetPane(), label="File to Visualize:")
         
         self.fileText.SetForegroundColour(self.text_colour)                                    
-        self.path = "Enter path.."
+        self.path = 'Enter path..'
         self.chooseFile = wx.Button(self.GetPane(), size=self.itemSize,
                                     label = str('..or select file'))
         self.enterPath = wx.TextCtrl(self.GetPane(), size=self.itemSize,
@@ -79,17 +80,19 @@ class VisualizationFrame(GeneralCollapsible):
 
     # Initializa all the collapsible visualization menues
         chargeFrame = ChargeFrame(self.GetPane())
+        elfFrame = ELFFrame(self.GetPane())
         pcFrame = PKFFrame(self.GetPane())
         dosFrame = DosFrame(self.GetPane())
         parchgFrame = ParchgFrame(self.GetPane())
-        unitcellFrame = UnitcellFrame(self.GetPane())
+        bandstructureFrame = BandstructureFrame(self.GetPane())
 
     # Add them to the sizer
+        self.add_sub_collapsible(bandstructureFrame)
         self.add_sub_collapsible(chargeFrame)
-        self.add_sub_collapsible(pcFrame)
+        self.add_sub_collapsible(elfFrame)
         self.add_sub_collapsible(dosFrame)
         self.add_sub_collapsible(parchgFrame)
-        self.add_sub_collapsible(unitcellFrame)
+        self.add_sub_collapsible(pcFrame)
 
     # Set some callbacks
         self.chooseFile.Bind(wx.EVT_BUTTON, self.file_pressed)
