@@ -44,12 +44,12 @@ from sliceControlCollapsible import SliceControlCollapsible
 import envision
 import inviwopy
 
-from envision.inviwo.ChargeNetworkHandler import ChargeNetworkHandler
-from envision.inviwo.UnitcellNetworkHandler import UnitcellNetworkHandler
+from envision.inviwo.ELFNetworkHandler import ELFNetworkHandler
+# from envision.inviwo.UnitcellNetworkHandler import UnitcellNetworkHandler
 
-class ChargeFrame(GeneralCollapsible):
+class ELFFrame(GeneralCollapsible):
     def __init__(self, parent):
-        super().__init__(parent, label = "Charge")
+        super().__init__(parent, label = "ELF")
 
         # Setup band selector choice box
         bandChoiceLabel = wx.StaticText(self.GetPane(), label="Select band: ")
@@ -57,6 +57,7 @@ class ChargeFrame(GeneralCollapsible):
             "Choose what band to visualize")
 
         self.bandChoice = wx.Choice(self.GetPane())
+
         bandChoiceHBox = wx.BoxSizer(wx.HORIZONTAL)
         bandChoiceHBox.Add(bandChoiceLabel)
         bandChoiceHBox.Add(self.bandChoice)
@@ -110,7 +111,7 @@ class ChargeFrame(GeneralCollapsible):
             # Initialize network handler which starts visualization
             # Exception caught if hdf5 file is not valid
             try:
-                self.networkHandler = ChargeNetworkHandler(self.parent_collapsible.path)
+                self.networkHandler = ELFNetworkHandler(self.parent_collapsible.path)
             except AssertionError as error:
                 print(error)
                 inviwopy.app.network.clear()
