@@ -31,8 +31,8 @@ import os, sys
 
 # Configuration
 PATH_TO_ENVISION=os.path.expanduser("/home/ofaismail/inviwo/ENVISIoN/envision")
-PATH_TO_VASP_CALC=os.path.expanduser("/home/ofaismail/VASP-filer/fermi-surface-no-sym")
-PATH_TO_HDF5=os.path.expanduser("/home/ofaismail/HDF5/testingBand.hdf5")
+PATH_TO_VASP_CALC=os.path.expanduser("/home/ofaismail/VASP-filer/TiPO4_bandstructure")
+PATH_TO_HDF5=os.path.expanduser("/home/ofaismail/HDF5/BandsWithFermiDone8.hdf5")
 
 sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION))
 
@@ -40,6 +40,7 @@ import envision
 import envision.inviwo
 
 envision.parser.vasp.bandstructure(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+envision.parser.vasp.fermi_energy(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
 #To visualise charge as an isosurface change the iso-argument
 #from None to a value between 0 and 1.

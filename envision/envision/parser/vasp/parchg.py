@@ -160,3 +160,31 @@ def parchg(h5file, vasp_dir, poscar_equiv='POSCAR'):
 
                         print('PARCHG was parsed successfully.')
                         return True
+        # unitcell(h5file, vasp_dir)
+
+        # regex = re.compile('PARCHG.(.+?).ALLK')
+        # if os.path.isfile(h5file):
+        #         with h5py.File(h5file, 'r') as h5:
+        #                 if "/PARCHG" in h5:
+        #                         print("PARCHG already parsed. Skipping")
+        #                         h5.close()
+        #                         return False
+                        
+        #         file_list = sorted(os.listdir(vasp_dir))
+        #         band_list = [string for string in file_list if re.match(regex, string)]
+                
+        #         for name in band_list:
+        #                 try:
+        #                         with open(os.path.join(vasp_dir,name), "r") as f:
+        #                                 data_dim_tot, data_dim_mag, parcharges_tot, parcharges_mag = _parse_parcharges(f)
+        #                                 band_nr = re.search('PARCHG.(.+?).ALLK', name).group(1)
+        #                                 while band_nr[0] == '0':
+        #                                         band_nr = band_nr[1:]
+        #                                 _write_parcharges(h5file, parcharges_tot, data_dim_tot, parcharges_mag, data_dim_mag, band_nr)
+                        
+        #                 except FileNotFoundError:
+        #                         print("PARCHG file not found.")
+        #                         return False
+
+        #         print('PARCHG was parsed successfully.')
+        #         return True

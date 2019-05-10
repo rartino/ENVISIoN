@@ -35,8 +35,14 @@
 #  You should have received a copy of the CC0 legalcode along with
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
-import wx,sys,os
+import wx,sys,os,inspect
+import h5py
 from generalCollapsible import GeneralCollapsible
+import parameter_utils
+
+path_to_current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_dir+"/../inviwo"))
+#from PKFVisualisering import paircorrelation
 
 class PKFFrame(GeneralCollapsible):
     def __init__(self, parent):
@@ -59,12 +65,24 @@ class PKFFrame(GeneralCollapsible):
         # Needs to be called to update the layout properly
         if self.IsCollapsed():
             # Disable vis
-            clear_processor_network()
+            parameter_utils.clear_processor_network()
             print("Not paircorr")
         else:
             #Start vis
+            self.start_vis()
+            print("Paircorr")
+
+    def start_vis(self):
+        if self.isPathEmpty():
+            return
+        elif "/PCF" in  h5py.File(self.parent_collapsible.path, 'r'):
+            #Start vis
+            #paircorrelation(self.parent_collapsible.path, xpos=0, ypos=0)
             self.set_canvas_pos()
             print("Paircorr")
-        
-        
+        else:
+            self.open_message('The file of choice does not contain PCF-data',
+                                'Visualization failed!')
+            self.Collapse(True)
+            self.update_collapse()     
         

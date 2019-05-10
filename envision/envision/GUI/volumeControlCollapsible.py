@@ -104,45 +104,44 @@ class VolumeControlCollapsible(GeneralCollapsible):
         self.tfpointsVBox.Add(self.tf_point_adder)
         self.add_item(self.tfpointsVBox)
 
-        # self.add_tf_point(0.1, 0.1, wx.Colour(200, 0, 0))
-        # self.add_tf_point(0.2, 0.1, wx.Colour(0, 200, 0))
-        # self.add_tf_point(0.3, 0.1, wx.Colour(0, 0, 200))
-        # self.add_tf_point(0.4, 0.1, wx.Colour(200, 200, 200) 
+        #Histogram button
+        histoButton = wx.Button(volumePane, label = "Show volume distribution", size = wx.Size(50, 23))
+        histoButton.Bind(wx.EVT_BUTTON, self.histogram_button_pressed)
 
         # Load and save controls
-
         saveButton = wx.Button(volumePane, label = "Save transfer func", size = wx.Size(100, 23))
         loadButton = wx.Button(volumePane, label = "Load transfer func", size = wx.Size(100, 23))
         
         saveButton.Bind(wx.EVT_BUTTON, lambda event : self.save_transfer_function())
         loadButton.Bind(wx.EVT_BUTTON, lambda event : self.load_transfer_function())
 
+        self.add_item(histoButton)
         self.add_item(saveButton)
         self.add_item(loadButton)
         
     def shading_drop_down_changed(self, event):
     # Change the shading mode
-        parameter_utils.charge_set_shading_mode(self.shadingDropDown.GetCurrentSelection())
-
+        self.networkHandler.set_shading_mode(self.shadingDropDown.GetCurrentSelection())
 
     def transperacy_checkbox_changed(self, event):
     # Update the transperancy mode
         self.tf_transperancy_enabled = event.IsChecked()
         self.update_mask()
+
+    def histogram_button_pressed(self, event):
+    # Start up the histogram
+        self.networkHandler.show_volume_dist(self.parent_collapsible.parent_collapsible.path)
         
     def update_mask(self):
     # Sets a mask to the transferfunction
-    # Makes o
         if len(self.tfPointWidgets) <= 0:
             return
         if self.tf_transperancy_enabled:
             print("Add mask")
-            parameter_utils.charge_set_mask(self.tfPointWidgets[0].value, 1)
+            self.networkHandler.set_mask(self.tfPointWidgets[0].value, 1)
         else:
             print("Reset mask")
-            parameter_utils.charge_set_mask(0, 1)
-
-        
+            self.networkHandler.set_mask(0, 1)
 
     def load_transfer_function(self, path=None):
     # Save the transfer function to specified path
@@ -189,7 +188,7 @@ class VolumeControlCollapsible(GeneralCollapsible):
         except:
             wx.LogError("Cannot open file '%s'." % path)
 
-    def add_tf_point(self, value, alpha, colour):
+    def add_tf_point(self, value, alpha, colour, update_layout=True):
     # Adds a new tf point to volume rendering
     # Adds a ui element to show and edit the new point
 
@@ -228,23 +227,25 @@ class VolumeControlCollapsible(GeneralCollapsible):
         tfPointWidget.valueText.Bind(wx.EVT_TEXT_ENTER, lambda event : self.update_tf_point(tfPointWidget))
         tfPointWidget.alphaText.Bind(wx.EVT_KILL_FOCUS, lambda event : self.update_tf_point(tfPointWidget))
         tfPointWidget.alphaText.Bind(wx.EVT_TEXT_ENTER, lambda event : self.update_tf_point(tfPointWidget))
-        tfPointWidget.colorPicker.Bind(wx.EVT_COLOURPICKER_CHANGED, lambda event : self.update_tf_point(tfPointWidget))
+        tfPointWidget.colorPicker.Bind(wx.EVT_COLOURPICKER_CHANGED, lambda event : self.set_tf_point_color(tfPointWidget))
 
         self.tfPointWidgets.insert(insertion_idx, tfPointWidget)
-        self.update_collapse()
+        
+        if update_layout:
+            self.update_collapse()
         
         # Update the transperancy mask
         self.update_mask()
 
         # Add point to inviwo
         glmColor = inviwopy.glm.vec4(float(colour.Red())/255, float(colour.Green())/255, float(colour.Blue())/255, alpha)
-        parameter_utils.charge_add_tf_point(value, glmColor)
+        self.networkHandler.add_tf_point(value, glmColor)
 
     def clear_tf_points(self):
         while len(self.tfPointWidgets) > 0:
             self.remove_tf_point(self.tfPointWidgets[0])
 
-    def remove_tf_point(self, tfPointWidget):
+    def remove_tf_point(self, tfPointWidget, update_layout=True):
     # Remove a tfPoint from inviwo processor and UI
         index = self.tfPointWidgets.index(tfPointWidget)
 
@@ -252,20 +253,36 @@ class VolumeControlCollapsible(GeneralCollapsible):
         tfPointWidget.Clear(delete_windows = True)
         self.tfPointWidgets.remove(tfPointWidget)
         self.tfpointsVBox.Remove(tfPointWidget)
-        self.update_collapse()
+        
+        if update_layout:
+            self.update_collapse()
 
         # Update the transperancy mask
         self.update_mask()
 
         # Remove point in inviwo
-        parameter_utils.charge_remove_tf_point(index)
+        self.networkHandler.remove_tf_point(index)
 
-    def update_tf_point(self, tfPointWidget):
+    def update_tf_point(self, tfPointWidget, update_layout=True):
         # Update the tf point if its text or color is changed
         new_tf_data = tfPointWidget.read_inputs()
-        self.remove_tf_point(tfPointWidget)
-        self.add_tf_point(new_tf_data[0], new_tf_data[1], new_tf_data[2])
+        self.remove_tf_point(tfPointWidget, False)
+        self.add_tf_point(new_tf_data[0], new_tf_data[1], new_tf_data[2], False)
+        if update_layout:
+            self.update_collapse()
 
+    def set_tf_point_color(self, tfPointWidget):
+        data = tfPointWidget.read_inputs()
+        value = data[0]
+        alpha = data[1]
+        color = data[2]
+        glmColor = inviwopy.glm.vec4(float(color.Red())/255, float(color.Green())/255, float(color.Blue())/255, alpha)
+        self.networkHandler.set_tf_point_color(value, glmColor)
+
+    def re_read_tf_points(self):
+        for widget in self.tfPointWidgets:
+            self.update_tf_point(widget, False)
+        self.update_collapse()
 
 class TFPointWidget(wx.BoxSizer):
     # Class managing the UI for a single TF point in the collapsible
