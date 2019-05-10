@@ -38,7 +38,6 @@
 
 import wx
 from generalCollapsible import GeneralCollapsible
-from parameter_utils import charge_set_background
 import inviwopy
 # TODO: make Transferfunction saveable
 # TODO: add option for transperacy before first tf point
