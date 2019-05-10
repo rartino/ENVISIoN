@@ -38,7 +38,6 @@
 
 import wx
 from generalCollapsible import GeneralCollapsible
-import parameter_utils
 from backgroundCollapsible import BackgroundCollapsible
 # TODO: Integrate with inviwo
 # TODO: height slider does not work with custom normal
@@ -108,12 +107,11 @@ class SliceControlCollapsible(GeneralCollapsible):
         if x == y == z == 0:
             raise ValueError("Normal must be separated from 0")
 
-        parameter_utils.charge_set_plane_normal(x, y, z)
-        print(str(x) + ":" + str(y) + ":" + str(z))
+        self.networkHandler.set_plane_normal(x, y, z)
 
     def slider_changed(self, event):
         height = float(self.heightSlider.GetValue()) / 100
-        parameter_utils.charge_set_plane_height(height)
+        self.networkHandler.set_plane_height(height)
 
 
 
