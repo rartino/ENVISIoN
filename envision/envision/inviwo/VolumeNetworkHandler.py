@@ -79,11 +79,11 @@ class VolumeNetworkHandler():
             data = h5[volume.volumeSelection.value].value
             result = []
             [ result.extend(el) for el in data[0] ]
-            #newResult = []
-            #[ newResult.append((element + abs(min(result)))/(max(result) + abs(min(result)))) \
-            #    for element in result ]
+            newResult = []
+            [ newResult.append((element + abs(min(result)))/(max(result) + abs(min(result)))) \
+               for element in result ]
             print(result)
-            dataList= np.array(result)
+            dataList= np.array(newResult)
             plt.hist(dataList,bins=200, density = True)
             plt.title("TF and ISO data") 
             plt.show()
