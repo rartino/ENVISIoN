@@ -107,15 +107,21 @@ def paircorrelation(h5file, xpos=0, ypos=0):
             HDF5_to_func_processor.yPathSelectionProperty.value = "/PCF for t_0"
 
         plotter_processor.ySelectionProperty.value = "X"
-        plotter_processor.ySelectionProperty.value = "Y"
+        plotter_processor.ySelectionProperty.value = "PCF for t_0 Added"
 
         #Default settings of Canvas size
         canvas_processor.inputSize.dimensions.value = inviwopy.glm.ivec2(666, 367)
 
-        # Default setting of background and Legends
+        # Default setting of background and title
         background_processor.bgColor1.value = inviwopy.glm.vec4(1)
         background_processor.backgroundStyle = "Uniform color"
         text_overlay_processor.text.value = 'Pair Correlation Function'
-        text_overlay_processor.color.value = inviwopy.glm.vec2(0.42, 0.86)
+        text_overlay_processor.color.value = inviwopy.glm.vec4(0, 0, 0, 1)
+        text_overlay_processor.position.value = inviwopy.glm.vec2(0.34, 0.86)
+        text_overlay_processor.font.fontSize.value = 22
+        text_overlay_processor.font.fontFace.value = "OpenSans Bold"
+
+        
+
 
 
