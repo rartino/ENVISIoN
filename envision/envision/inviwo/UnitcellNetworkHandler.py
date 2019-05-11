@@ -58,16 +58,22 @@ class UnitcellNetworkHandler():
             if file.get("UnitCell") == None:
                 raise AssertionError("No unitcell data in that file")
 
+        self.nAtomTypes = 0
         self.setup_unitcell_network(hdf5_path)
         self.toggle_unitcell_canvas(False)
+
 
 # ------------------------------------------
 # ------- Property control functions -------
 
-    def set_atom_radius(self, radius):
+    def set_atom_radius(self, radius, index=None):
         network = inviwopy.app.network
-        cellRenderer = network.getProcessorByIdentifier('Unit Cell Renderer')
-        cellRenderer.sphereProperties.defaultRadius.value = radius
+        structureMesh = network.getProcessorByIdentifier('Unit Cell Mesh')
+        if index != None:
+            structureMesh.getPropertyByIdentifier("radius" + str(index)).value = radius
+        else:
+            for i in range(self.nAtomTypes):
+                self.set_atom_radius(radius, i)
 
     def hide_atoms(self, hide):
         if hide:
@@ -113,12 +119,10 @@ class UnitcellNetworkHandler():
         network.addConnection(meshRenderer.getPort('image'), canvas.getInport('inport'))
 
         strucMesh = _add_processor('envision.StructureMesh', 'Unit Cell Mesh', xpos, ypos+200)
-        fullMesh = strucMesh.getPropertyByIdentifier('fullMesh')
-        fullMesh.value = True
+        # Activate fullMesh, this allows individual resizing of atoms and centers the unitcell around same origin as volume
+        strucMesh.fullMesh.value = True
 
-        meshPort = strucMesh.getOutport('mesh')
-        geometryPort = meshRenderer.getInport('geometry')
-        network.addConnection(meshPort, geometryPort)
+        network.addConnection(strucMesh.getOutport('mesh'), meshRenderer.getInport('geometry'))
 
         with h5py.File(h5file,"r") as h5:
             basis_matrix = np.array(h5["/basis"], dtype='d')
@@ -161,6 +165,8 @@ class UnitcellNetworkHandler():
                 strucMesh_atom_property.value = atoms
                 strucMesh_atom_property.minValue = atoms
                 strucMesh_atom_property.maxValue = atoms
+
+                self.nAtomTypes += 1
         
         # Connect unit cell and volume visualisation.
         volumeRend = network.getProcessorByIdentifier('Mesh Renderer')
