@@ -59,6 +59,7 @@ class UnitcellNetworkHandler():
                 raise AssertionError("No unitcell data in that file")
 
         self.nAtomTypes = 0
+        self.atomNames = []
         self.setup_unitcell_network(hdf5_path)
         self.toggle_unitcell_canvas(False)
 
@@ -80,7 +81,10 @@ class UnitcellNetworkHandler():
             self.set_atom_radius(0)
         else:
             self.set_atom_radius(0.1)
-        
+    
+    def get_atom_name(self, index):
+        return self.atomNames[index]
+
 
     def toggle_unitcell_canvas(self, enable_unitcell):
     # Add or remove the unitcell canvas
@@ -144,6 +148,7 @@ class UnitcellNetworkHandler():
             for i,key in enumerate(list(h5[base_group + "/Atoms"].keys())):
                 element = h5[base_group + "/Atoms/"+key].attrs['element']
                 name = element_names.get(element, 'Unknown')
+                self.atomNames.append(name)
                 color = element_colors.get(element, (0.5, 0.5, 0.5, 1.0))
                 radius = atomic_radii.get(element, 0.5)
                 coordReader = _add_processor('envision.CoordinateReader', '{0} {1}'.format(i,name), xpos+int((i-species/2)*200), ypos+100)
