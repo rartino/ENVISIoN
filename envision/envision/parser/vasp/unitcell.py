@@ -169,12 +169,6 @@ def _parse_coordinates(fileobj, count, transform=False, matrix=None):
                 coords = np.dot(matrix, coords)
             coords_list.append(coords)
             match = coordinates_re.search(next(fileobj))
-
-            # Coordinates have different origin point than volume
-            # Offset coordinates to match position of volume rendering with atom rendering
-            coords[0] -= 0.5
-            coords[1] -= 0.5
-            coords[2] -= 0.5
     except StopIteration:
         pass # if EOF is reached here
     
