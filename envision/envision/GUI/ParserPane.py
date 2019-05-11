@@ -52,7 +52,7 @@ from unitcell import unitcell
 from volume import charge, elf
 from fermi import fermi_surface
 from parchg import parchg
-from PKF import paircorrelation
+from PCF import paircorrelation
 from main import *
 from generalCollapsible import GeneralCollapsible
 
