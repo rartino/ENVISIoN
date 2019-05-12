@@ -53,7 +53,7 @@ from volume import charge, elf
 from fermi import fermi_surface
 from parchg import parchg
 from PCF import paircorrelation
-from fermi import fermi_energy
+from fermiEnergy import fermi_energy
 from main import *
 from generalCollapsible import GeneralCollapsible
 
