@@ -52,6 +52,7 @@ from unitcell import unitcell
 from volume import charge, elf
 from fermi import fermi_surface
 from parchg import parchg
+from fermi import fermi_energy
 from PKF import paircorrelation
 from main import *
 from generalCollapsible import GeneralCollapsible
@@ -82,9 +83,9 @@ class ParserPane(GeneralCollapsible):
         self.selectVis = wx.ComboBox(self.GetPane(), size=self.itemSize,
                                     value = "Select type",
                                     choices= ('All','Bandstructure','DoS',
-                                            'Charge','ELF',
+                                            'Charge','ELF','Fermi energy',
                                             'Fermi Surface','MD',
-                                            'Parchg(Does not work)','PCF',
+                                            'Parchg','PCF',
                                             'Unitcell'))
         self.parserDict = {
             'Unitcell' : 'unitcell from VASP' ,
@@ -95,7 +96,8 @@ class ParserPane(GeneralCollapsible):
             'Bandstructure' : 'bandstructure from VASP', 
             'Fermi Surface' : 'fermi surface from VASP',
             'PCF' : 'PCF from VASP',
-            'Parchg' : 'Parchg from VASP'
+            'Parchg' : 'Parchg from VASP',
+            'Fermi energy': 'Fermi energy from VASP'
         }
 
         self.parseFuncDict = {
@@ -107,7 +109,8 @@ class ParserPane(GeneralCollapsible):
         'Bandstructure': bandstructure,
         'Fermi Surface': fermi_surface,
         'PCF' : paircorrelation,
-        'Parchg' : parchg
+        'Parchg' : parchg,
+        'Fermi energy': fermi_energy
     }
 
     #Parse-button
