@@ -123,6 +123,85 @@ def set_dos_canvas_position(position = None):
     else:
         pass
 
+def enable_label(xLabel = None, yLabel = None, processor = ""):
+    plotter = network.getProcessorByIdentifier(processor)
+    if plotter:
+        if xLabel != None:
+            plotter.show_x_labels.value = xLabel
+        if yLabel != None:
+            plotter.show_y_labels.value = yLabel
+
+def isEnabled_label(processor = ""):
+    plotter = network.getProcessorByIdentifier(processor)
+    if plotter:
+        return [plotter.show_x_labels.value,plotter.show_y_labels.value]
+
+def enable_grid(gridBool = None, processor=""):
+    plotter = network.getProcessorByIdentifier(processor)
+    if plotter:
+        if gridBool != None:
+            plotter.enable_grid.value = gridBool
+
+def set_grid(value=None,processor=''):
+    plotter = network.getProcessorByIdentifier(processor)
+    if plotter:
+        if value != None:
+            plotter.grid_width.value = value
+
+def set_label(value=None,processor=''):
+    plotter = network.getProcessorByIdentifier(processor)
+    if plotter:
+        if value != None:
+            plotter.label_number.value = value
+        
+
+def isEnable_grid(processor=""):
+    plotter = network.getProcessorByIdentifier(processor)
+    if plotter:
+        return plotter.enable_grid.value
+
+def enable_multiple_y(multipleBool=None,processor=''):
+    plotter = network.getProcessorByIdentifier(processor)
+    if plotter:
+        if multipleBool != None:
+            plotter.boolYSelection.value = multipleBool
+
+def isEnabled_multiple_y(processor=''):
+    plotter = network.getProcessorByIdentifier(processor)
+    if plotter:
+        return plotter.boolYSelection.value
+
+def enable_all_y(multipleBool=None,processor=''):
+    plotter = network.getProcessorByIdentifier(processor)
+    if plotter:
+        if multipleBool != None:
+            plotter.allYSelection.value = multipleBool
+
+def isEnabled_all_y(processor=''):
+    plotter = network.getProcessorByIdentifier(processor)
+    if plotter:
+        return plotter.allYSelection.value
+
+def get_yline_range(processor=''):
+    plotter = network.getProcessorByIdentifier(processor)
+    if plotter:
+        return plotter.groupYSelection_.value
+    
+def set_yline_range(option=1,processor=''):
+    plotter = network.getProcessorByIdentifier(processor)
+    if plotter:
+        plotter.groupYSelection_.value = option
+
+def get_partial_value(processor=''):
+    plotter = network.getProcessorByIdentifier(processor)
+    if plotter:
+        return plotter.intProperty.value
+    
+def set_partial_value(option=1,processor=''):
+    plotter = network.getProcessorByIdentifier(processor)
+    if plotter:
+        plotter.intProperty.value = option
+
 
     
 
