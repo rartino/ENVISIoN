@@ -35,56 +35,102 @@
 #  You should have received a copy of the CC0 legalcode along with
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
-import wx, sys, os, h5py
-from parameter_utils import *
+import wx
 from generalCollapsible import GeneralCollapsible
+
+from envision.inviwo.ParchgNetworkHandler import ParchgNetworkHandler
 
 class ParchgFrame(GeneralCollapsible):
     def __init__(self, parent):
         super().__init__(parent, "Partial Charge")
-         
-        button1 = wx.Button(self.GetPane(), label="X")
-        button2 = wx.Button(self.GetPane(), label="Y")
-        slider = wx.Slider(self.GetPane())
+        
+        # Setup band chooser choise box
 
-        self.add_item(button1)
-        self.add_item(button2)
-        self.add_item(slider)
+        # List containing the band selector widgets
+        self.selectorWidgets = []
 
+        # List of possible band choices, fills up based on selected hdf5 file
+        self.bandChoices = ['None', '1']
+        
+        # Initialize the first band selector widget
+        bandSelector = BandSelectorWidget(self.GetPane(), self.bandChoices)
+        self.selectorWidgets.append(bandSelector)
+        
+        bandSelector.bandChooser.Bind(wx.EVT_CHOICE, lambda event : self.band_selection_changed(bandSelector))
+
+        # Add stuff to sizer
+        self.selectorVBox = wx.BoxSizer(wx.VERTICAL)
+        self.selectorVBox.Add(bandSelector)
+
+        self.add_item(self.selectorVBox)
+
+        # Bind events
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
 
+    def band_selection_changed(self, selectorWidget):
+    # Handle input to band selection widgets
+        selectedString = selectorWidget.bandChooser.GetString(selectorWidget.bandChooser.GetSelection())
+
+        if len(self.selectorWidgets) > 1 and selectedString == 'None':
+        # If none selected and its not the last widget, remove widget
+            selectorWidget.Clear(delete_windows = True)
+            self.selectorWidgets.remove(selectorWidget)
+            self.selectorVBox.Remove(selectorWidget)
+        
+        elif selectedString != 'None' and selectorWidget.activeBand == None:
+        # Selection was changed from None to some number.
+            selectorWidget.activeBand = selectorWidget.bandChooser.GetSelection()
+            # Add new selection widged with None as selection
+            newBandSelector = BandSelectorWidget(self.GetPane(), self.bandChoices)
+            newBandSelector.bandChooser.Bind(wx.EVT_CHOICE, lambda event : self.band_selection_changed(newBandSelector))
+            self.selectorVBox.Add(newBandSelector)
+            self.selectorWidgets.append(newBandSelector)
+
+        elif selectedString != 'None':
+        # Selection was changed from one number to another.
+            pass
+
+        self.reload_band_processors()
+        self.update_collapse()
     
+
+        self.update_collapse()
+
+    def reload_band_processors(self):
+    # Reload the inviwo band processors with the specified selections
+        bandList = []
+        modeList = []
+        for widget in self.selectorWidgets:
+            try:
+                bandList.append(int(widget.bandChooser.GetString(widget.bandChooser.GetSelection())))
+                modeList.append(widget.modeChooser.GetSelection())
+            except ValueError:
+                continue
+        self.networkHandler.select_bands(bandList, modeList)
+            
     def on_collapse(self, event = None):
         self.update_collapse()
-        # Needs to be called to update the layout properly
-        if self.IsCollapsed():
-            # Disable Parchg vis
-            clear_processor_network()
-            print("Not Parchg")
-        else:
-            self.start_vis()
 
-    def start_vis(self):
-        if self.isPathEmpty():
-            return
-        elif "/PARCHG" in  h5py.File(self.parent_collapsible.path, 'r') and\
-                "/UnitCell" in  h5py.File(self.parent_collapsible.path, 'r'):
-            #Start Parchg vis
-            envision.inviwo.unitcell(self.parent_collapsible.path, 
-                                xpos = 0, ypos = 0, smallAtoms = True)
-            self.set_canvas_pos('Unitcell')
-            envision.inviwo.parchg(self.parent_collapsible.path, 
-                            sli = False, parchg_list = [1,2,3,4], 
-                            parchg_mode = 'total', mode_list = [0,1,2,3], 
-                            xstart_pos = 600, ystart_pos = 0)
-            self.set_canvas_pos()
-        #Remove the extra unitcell window
-            unitcellCanvas = network.getProcessorByIdentifier('Unit Cell Canvas')
-            network.removeProcessor(unitcellCanvas)
-            print("Parchg")
+        if not self.IsCollapsed():
+            self.networkHandler = ParchgNetworkHandler(self.parent_collapsible.path, [], [])
         else:
-            self.open_message('The file of choice does not contain Partial charge-data',
-                                'Visualization failed!')
-            self.Collapse(True)
-            self.update_collapse()
+            self.networkHandler.clear_processor_network()
+            del self.networkHandler
 
+class BandSelectorWidget(wx.BoxSizer):
+    # Class managing the UI for a single TF point in the collapsible
+    def __init__(self, parent, band_choices):
+        super().__init__(wx.HORIZONTAL)
+        self.bandChooser = wx.Choice(parent, choices=band_choices)
+        self.modeChooser = wx.Choice(parent, choices = ['Total', "Magnetic", "Up", "Down"])
+
+        self.bandChooser.SetSelection(0)
+        self.modeChooser.SetSelection(0)
+
+        self.activeBand = None
+        
+        self.Add(self.bandChooser)
+        self.Add(self.modeChooser)
+    
+
+        

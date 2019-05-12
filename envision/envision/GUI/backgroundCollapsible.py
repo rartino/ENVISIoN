@@ -38,7 +38,6 @@
 
 import wx
 from generalCollapsible import GeneralCollapsible
-from parameter_utils import charge_set_background
 import inviwopy
 # TODO: make Transferfunction saveable
 # TODO: add option for transperacy before first tf point
@@ -157,9 +156,15 @@ class BackgroundCollapsible(GeneralCollapsible):
         bgc1 = inviwopy.glm.vec4(new_bg_colour1[0],new_bg_colour1[1],new_bg_colour1[2],new_bg_colour1[3])
         new_bg_colour2 = self.bgColourPicker2.read_inputs()
         bgc2 = inviwopy.glm.vec4(new_bg_colour2[0],new_bg_colour2[1],new_bg_colour2[2],new_bg_colour2[3])
-        charge_set_background(bgc1,bgc2,
-                            self.backgroundDropDown.GetCurrentSelection(),
-                            self.blendDropDown.GetCurrentSelection(),self.type)
+
+        if self.type == "Background":
+            self.networkHandler.set_volume_background(bgc1,bgc2,
+                                self.backgroundDropDown.GetCurrentSelection(),
+                                self.blendDropDown.GetCurrentSelection())
+        elif self.type == "SliceBackground":
+            self.networkHandler.set_slice_background(bgc1,bgc2,
+                                self.backgroundDropDown.GetCurrentSelection(),
+                                self.blendDropDown.GetCurrentSelection())
 
 
     def new_text_colour(self,bgWidget):
