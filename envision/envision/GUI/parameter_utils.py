@@ -148,6 +148,11 @@ def set_grid(value=None,processor=''):
         if value != None:
             plotter.grid_width.value = value
 
+def get_label(processor=''):
+    plotter = network.getProcessorByIdentifier(processor)
+    if plotter:
+        return plotter.label_number.value
+
 def set_label(value=None,processor=''):
     plotter = network.getProcessorByIdentifier(processor)
     if plotter:

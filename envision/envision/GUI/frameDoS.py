@@ -83,25 +83,36 @@ class DosFrame(GeneralCollapsible):
         self.selectXLabel = wx.CheckBox(self.GetPane(),label='X label ')
         self.selectYLabel = wx.CheckBox(self.GetPane(),label='Y label ')
         self.gridText = wx.StaticText(self.GetPane(),label="Grid width: ")
-        self.labelText = wx.StaticText(self.GetPane(),label="Label count: ")
         self.gridSlider = wx.Slider(self.GetPane())
-        self.labelSlider = wx.Slider(self.GetPane())
+        self.labelBox = wx.BoxSizer(wx.HORIZONTAL)
+        self.labelText = wx.StaticText(self.GetPane(),label="Label count: ")
+        self.labelSelect = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
+                                     name='Label selection')
+        self.labelBox.Add(self.labelText)
+        self.labelBox.Add(self.labelSelect)
 
         #Y selection setup
         self.enableYSelection = wx.CheckBox(self.GetPane(),label='Enable Y selection')
+        self.selectYBox = wx.BoxSizer(wx.HORIZONTAL)
         self.yLinesText = wx.StaticText(self.GetPane(),label="Y Seletion Range: ")
         self.ySelection = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
                                      name='Y selection')
+        self.selectYBox.Add(self.yLinesText)
+        self.selectYBox.Add(self.ySelection)
         self.enableYSelectionAll = wx.CheckBox(self.GetPane(),label='Enable all Y')
-
+        self.selectPartialBox = wx.BoxSizer(wx.HORIZONTAL)
         self.partialText = wx.StaticText(self.GetPane(),label="Partial choice:")
         self.partialChoice = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
                                      name='Partial choice')
+        self.selectPartialBox.Add(self.partialText)
+        self.selectPartialBox.Add(self.partialChoice)
         
         #Setup for list for choosing Y
+        self.listYBox = wx.BoxSizer(wx.HORIZONTAL)
         self.listYText = wx.StaticText(self.GetPane(),label="List of Y:")
         self.listY = wx.Choice(self.GetPane(),choices=[])
-
+        self.listYBox.Add(self.listYText)
+        self.listYBox.Add(self.listY)
         
 
         #Add items in collapsible
@@ -115,16 +126,12 @@ class DosFrame(GeneralCollapsible):
         self.add_item(self.gridSlider)
         self.add_item(self.selectXLabel)
         self.add_item(self.selectYLabel)
-        self.add_item(self.labelText)
-        self.add_item(self.labelSlider)
-        self.add_item(self.listYText)
-        self.add_item(self.listY)
-        self.add_item(self.enableYSelection)
-        self.add_item(self.yLinesText)
-        self.add_item(self.ySelection)
+        self.add_item(self.labelBox)
+        self.add_item(self.listYBox)
+        self.add_item(self.selectPartialBox)
         self.add_item(self.enableYSelectionAll)
-        self.add_item(self.partialText)
-        self.add_item(self.partialChoice)
+        self.add_item(self.enableYSelection)
+        self.add_item(self.selectYBox)
 
 
         #Bind signals
@@ -139,7 +146,7 @@ class DosFrame(GeneralCollapsible):
         self.gridSlider.Bind(wx.EVT_SLIDER, self.on_slide_grid)
         self.selectXLabel.Bind(wx.EVT_CHECKBOX, self.on_check_x_label)
         self.selectYLabel.Bind(wx.EVT_CHECKBOX, self.on_check_y_label)
-        self.labelSlider.Bind(wx.EVT_SLIDER, self.on_slide_label)
+        self.labelSelect.Bind(wx.EVT_TEXT_ENTER, self.on_label_change)
         self.enableYSelection.Bind(wx.EVT_CHECKBOX, self.on_check_enableYselection)
         self.ySelection.Bind(wx.EVT_TEXT_ENTER, self.on_ySelection_change)
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
@@ -184,6 +191,7 @@ class DosFrame(GeneralCollapsible):
         ySelect = parameter_utils.get_yline_range('DOS Plotter')
         allYSelect = parameter_utils.isEnabled_all_y('DOS Plotter')
         partial = parameter_utils.get_partial_value('Partial Pick')
+        labelCount = parameter_utils.get_label('DOS Plotter')
         self.xRangeMax.SetValue(str(x_range[0]))
         self.xRangeMin.SetValue(str(x_range[1])) 
         self.yRangeMax.SetValue(str(y_range[0]))
@@ -193,6 +201,7 @@ class DosFrame(GeneralCollapsible):
         self.lineSlider.SetMin(parameter_utils.get_x_range('DOS Plotter')[1])
         self.selectGrid.SetValue(grid)
         self.ySelection.SetValue(ySelect)
+        self.labelSelect.SetValue(str(labelCount))
         self.partialChoice.SetValue(str(partial))        
         if labels[0]:
             self.selectXLabel.SetValue(True)
@@ -210,6 +219,7 @@ class DosFrame(GeneralCollapsible):
             self.enableYSelectionAll.SetValue(True)
         else:
             self.enableYSelectionAll.SetValue(False)
+        self.sizer.Hide(self.selectYBox)
 
         #Init list of Y
         self.set_Y_list(partial)
@@ -261,8 +271,10 @@ class DosFrame(GeneralCollapsible):
     def on_slide_grid(self,event):
         parameter_utils.set_grid(self.gridSlider.GetValue(), 'DOS Plotter')
     
-    def on_slide_label(self,event):
-        parameter_utils.set_label(round(self.labelSlider.GetValue()), 'DOS Plotter')
+    def on_label_change(self,event):
+        enteredNum = int(self.labelSelect.GetLineText(0))
+        if (enteredNum >= 0):
+            parameter_utils.set_label(enteredNum, 'DOS Plotter')
 
     def on_change_partial(self,event):
         parameter_utils.set_partial_value(round(float(self.partialChoice.GetLineText(0))), 'Partial Pick')
@@ -271,8 +283,11 @@ class DosFrame(GeneralCollapsible):
     def on_check_enableYselection(self,event):
         if self.enableYSelection.IsChecked():
             parameter_utils.enable_multiple_y(multipleBool=True, processor='DOS Plotter')
+            self.sizer.Show(self.selectYBox)
         else:
             parameter_utils.enable_multiple_y(multipleBool=False, processor='DOS Plotter')
+            self.sizer.Hide(self.selectYBox)
+        self.update_collapse()
 
     def on_check_enableYselectionAll(self,event):
         if self.enableYSelectionAll.IsChecked():
@@ -281,13 +296,36 @@ class DosFrame(GeneralCollapsible):
             parameter_utils.enable_all_y(multipleBool=False, processor='DOS Plotter')
 
     def on_ySelection_change(self,event):
-        parameter_utils.set_yline_range(self.ySelection.GetLineText(0),'DOS Plotter')
+        num = None
+        if ':' in self.ySelection.GetLineText(0):
+            if ',' in self.ySelection.GetLineText(0):
+                choice = self.ySelection.GetLineText(0).split(':')
+                choice = choice.split(',')
+            else:
+                choice = self.ySelection.GetLineText(0).split(':')
+        elif ',' in self.ySelection.GetLineText(0):
+            choice = self.ySelection.GetLineText(0).split(',')
+        else:
+            num = self.ySelection.GetLineText(0)
+        if num == None:
+            for number in choice:
+                if (int(number) < len(self.listY.GetItems())) and (int(number) >= 0):
+                    parameter_utils.set_yline_range(number,'DOS Plotter')
+        else:
+            if (int(num) < len(self.listY.GetItems())) and (int(num) >= 0):
+                    parameter_utils.set_yline_range(num,'DOS Plotter')
 
     def set_Y_list(self,partial=0):
         with h5py.File(self.parent_collapsible.path, 'r') as file:
             self.listY.Clear()
+            counter = 0
             for key in file.get("DOS").get("Partial").get(str(partial)).keys():
-                self.listY.Append(key)
+                self.listY.Append(str(counter)+': '+key)
+                counter += 1
+            for key in file.get("DOS").get("Total").keys():
+                if (key != 'Energy') and ('Integrated' not in key):
+                    self.listY.Append(str(counter)+': '+'Total '+key)
+                    counter += 1
 
 '''
 Select multiple y data: DOSplotter.BoolYSelection
