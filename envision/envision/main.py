@@ -1,7 +1,7 @@
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2017 Denise Härnström
+#  Copyright (c) 2017-2019 Denise Härnström, Anton Hjert and Linda Le 
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by Anton Hjert
+#  Alterations to this file by Anton Hjert and Linda Le
 #
 #  To the extent possible under law, the person who associated CC0 with
 #  the alterations to this file has waived all copyright and related
@@ -46,7 +46,7 @@ from md import md
 from unitcell import unitcell
 from volume import charge, elf
 from fermi import fermi_surface
-from PKF import paircorrelation
+from PCF import paircorrelation
 from fermiEnergy import fermi_energy
 
 def parse_all(h5_path, dir):
@@ -74,7 +74,7 @@ def parse_all(h5_path, dir):
         'ELF from VASP': elf,
         'DOS from VASP': dos,
         'bandstructure from VASP': bandstructure
-        ,'fermi surface from VASP': fermi_surface,
+        ,
         'PCF from VASP': paircorrelation,
         'fermi energy': fermi_energy
     }
