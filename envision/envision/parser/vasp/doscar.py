@@ -129,18 +129,18 @@ def parse_doscar(h5file,vasp_file):
                     if np.array(incar.get('LORBIT')) == '10' or np.array(incar.get('LORBIT')) == '5':
 
                         if np.array(incar.get('ISPIN')) == '2':
-                            total = [ "Energy", "DOS(up)", "DOS(dwn)", "Integrated DOS(up)", "Integrated DOS(dwn)" ]
+                            total = [ "Energy", "DOS(up)", "DOS(dwn)", "Integrated-DOS(up)", "Integrated-DOS(dwn)" ]
                             partial = [ "Energy", "s-DOS(up)", "s-DOS(dwn)", "p-DOS(up)",
                                         "p-DOS(dwn)", "d-DOS(up)", "d-DOS(dwn)", "f-DOS(up)", "f-DOS(dwn)" ]
                         else:
                             #Default: ISPIN == 1
-                            total = [ "Energy", "DOS", "Integrated DOS" ]
+                            total = [ "Energy", "DOS", "Integrated-DOS" ]
                             partial = [ "Energy", "s-DOS", "p-DOS", "d-DOS", "f-DOS" ]
 
                     if np.array(incar.get('LORBIT')) == '11' or np.array(incar.get('LORBIT')) == '1' or np.array(incar.get('LORBIT')) == '2':
                         # Covers all possible electron configurations, but only the ones found will be written.
                         if np.array(incar.get('ISPIN')) == '2':
-                            total = [ "Energy", "DOS(up)", "DOS(dwn)", "Integrated DOS(up)", "Integrated DOS(dwn)" ]
+                            total = [ "Energy", "DOS(up)", "DOS(dwn)", "Integrated-DOS(up)", "Integrated-DOS(dwn)" ]
                             partial = [ "Energy", "s-DOS(up)", "s-DOS(dwn)", "p-DOS(y)(up)", "p-DOS(y)(dwn)",
                                         "p-DOS(z)(up)", "p-DOS(z)(dwn)", "p-DOS(x)(up)", "p-DOS(x)(dwn)",
                                         "d-DOS(xy)(up)", "d-DOS(xy)(dwn)", "d-DOS(yz)(up)", "d-DOS(yz)(dwn)",
@@ -151,16 +151,16 @@ def parse_doscar(h5file,vasp_file):
                                         "f-DOS(2)(up)", "f-DOS(2)(dwn)", "f-DOS(3)(up)", "f-DOS(3)(dwn)" ]
                         else:
                             # Default: ISPIN == 1
-                            total = [ "Energy", "DOS", "Integrated DOS" ]
+                            total = [ "Energy", "DOS", "Integrated-DOS" ]
                             # Note that p-DOS is in order y, z, x to match DOSCAR file.
                             partial = [ "Energy", "s-DOS", "p-DOS(y)", "p-DOS(z)", "p-DOS(x)", "d-DOS(xy)",
                                        "d-DOS(yz)", "d-DOS(z2)", "d-DOS(xz)", "d-DOS(x2y2)", "f-DOS(-3)",
                                        "f-DOS(-2)", "f-DOS(-1)", "f-DOS(0)", "f-DOS(1)", "f-DOS(2)", "f-DOS(3)" ]
                     else :
                         if np.array(incar.get('ISPIN')) == '2':
-                            total = [ "Energy", "DOS(up)", "DOS(dwn)", "Integrated DOS(up)", "Integrated DOS(dwn)" ]
+                            total = [ "Energy", "DOS(up)", "DOS(dwn)", "Integrated-DOS(up)", "Integrated-DOS(dwn)" ]
                         else:
-                            total = [ "Energy", "DOS", "Integrated DOS" ]
+                            total = [ "Energy", "DOS", "Integrated-DOS" ]
                                         
         total_data, line_length = dos_line(f, header["ndos"])
         if not total:
