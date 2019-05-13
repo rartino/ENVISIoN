@@ -52,7 +52,7 @@ from unitcell import unitcell
 from volume import charge, elf
 from fermi import fermi_surface
 from parchg import parchg
-from fermi import fermi_energy
+from fermiEnergy import fermi_energy
 from PKF import paircorrelation
 from main import *
 from generalCollapsible import GeneralCollapsible
@@ -71,10 +71,18 @@ class ParserPane(GeneralCollapsible):
                                     style=wx.TE_PROCESS_ENTER)
     #Path-selection to dir for saving
         self.dirText = wx.StaticText(self.GetPane(),
-                                    label="Save in dir:")       
+                                    label="Save new file in dir:")       
         self.chooseSaveDir = wx.Button(self.GetPane(), size=self.itemSize,
                                     label = str('..or select dir'))
         self.enterSavePath = wx.TextCtrl(self.GetPane(), size=self.itemSize,
+                                    value="Enter path..",
+                                    style=wx.TE_PROCESS_ENTER)
+    #Path-selection to existing file for saving
+        self.existFileText = wx.StaticText(self.GetPane(),
+                                    label="Or save in existing .hdf5 file:")       
+        self.chooseSaveFile = wx.Button(self.GetPane(), size=self.itemSize,
+                                    label = str('..or select file'))
+        self.enterSaveFile = wx.TextCtrl(self.GetPane(), size=self.itemSize,
                                     value="Enter path..",
                                     style=wx.TE_PROCESS_ENTER)
     #Visualization-type selection:
@@ -115,7 +123,7 @@ class ParserPane(GeneralCollapsible):
 
     #Parse-button
         self.hdf5Text = wx.StaticText(self.GetPane(),
-                                    label="Enter new or existing filename:")
+                                    label="Enter new filename:")
         self.hdf5File = wx.TextCtrl(self.GetPane(), size=self.itemSize,
                                     value="(without .hdf5)",
                                     style=wx.TE_PROCESS_ENTER)
@@ -126,6 +134,7 @@ class ParserPane(GeneralCollapsible):
         self.fileText.SetForegroundColour(self.text_colour)
         self.dirText.SetForegroundColour(self.text_colour)
         self.typeText.SetForegroundColour(self.text_colour)
+        self.existFileText.SetForegroundColour(self.text_colour)
 
     #Variables for paths, type of Visualization and parsing.
         self.path = ""
@@ -134,6 +143,7 @@ class ParserPane(GeneralCollapsible):
         self.newFileHdf5 = "NewFile"
         self.hdf5Path = ''
         self.parseOut = None
+        self.isFileSelected = False
         
     #Item-addition in pane
         expand_flag = wx.SizerFlags().Expand().Border(wx.ALL, 1)
@@ -143,6 +153,9 @@ class ParserPane(GeneralCollapsible):
         self.add_item(self.dirText, sizer_flags=expand_flag)
         self.add_item(self.enterSavePath, sizer_flags=expand_flag)
         self.add_item(self.chooseSaveDir,sizer_flags=expand_flag)
+        self.add_item(self.existFileText,sizer_flags=expand_flag)
+        self.add_item(self.enterSaveFile,sizer_flags=expand_flag)
+        self.add_item(self.chooseSaveFile,sizer_flags=expand_flag)
         self.add_item(self.typeText, sizer_flags=expand_flag)
         self.add_item(self.selectVis,sizer_flags=expand_flag)
         self.add_item(self.hdf5Text,sizer_flags=expand_flag)
@@ -154,6 +167,8 @@ class ParserPane(GeneralCollapsible):
         self.enterPath.Bind(wx.EVT_TEXT_ENTER,self.path_OnEnter)
         self.chooseSaveDir.Bind(wx.EVT_BUTTON,self.parse_selected)
         self.enterSavePath.Bind(wx.EVT_TEXT_ENTER,self.savePath_OnEnter)
+        self.enterSaveFile.Bind(wx.EVT_TEXT_ENTER,self.saveFile_OnEnter)
+        self.chooseSaveFile.Bind(wx.EVT_BUTTON,self.file_select)
         self.selectVis.Bind(wx.EVT_COMBOBOX,self.vis_selected)
         self.parse.Bind(wx.EVT_BUTTON,self.parse_pressed)
         self.hdf5File.Bind(wx.EVT_TEXT, self.hdf5_name_enter)
@@ -161,22 +176,53 @@ class ParserPane(GeneralCollapsible):
 #When "File to parse"-select button is pressed
     def dir_pressed(self,event):
         self.path = self.choose_directory("Choose directory with files to parse")
+        if '\\' in self.path:
+            self.path = self.path.replace('\\','/')
         if not self.path == "":
             self.enterPath.SetValue(self.path)
 
 #When path entered in text and Enter-key is pressed
     def path_OnEnter(self,event):
         self.path = self.directory_if_exists(self.enterPath.GetLineText(0))
+        if '\\' in self.path:
+            self.path = self.path.replace('\\','/')
 
 #When "Save in dir"-select button is pressed
     def parse_selected(self,event):
         self.savePath = self.choose_directory("Choose output directory")
+        if '\\' in self.savePath:
+            self.savePath = self.savePath.replace('\\','/')
         if not self.savePath == "":
             self.enterSavePath.SetValue(self.savePath)
+        self.isFileSelected = False
     
+    def file_select(self,event):
+        self.savePath = self.choose_file()
+        if '\\' in self.savePath:
+            self.savePath = self.savePath.replace('\\','/')
+        if not self.savePath == "":
+            self.enterSaveFile.SetValue(self.savePath)
+            self.isFileSelected = True
+        else:
+            self.isFileSelected = False
+
+
 #When save-path entered in text and Enter-key is pressed
     def savePath_OnEnter(self,event):
         self.savePath = self.directory_if_exists(self.enterSavePath.GetLineText(0))
+        if '\\' in self.savePath:
+            self.savePath = self.savePath.replace('\\','/')
+        self.isFileSelected = False
+
+    def saveFile_OnEnter(self,event):
+        self.savePath = self.directory_if_exists(self.enterSavePath.GetLineText(0))
+        if '\\' in self.savePath:
+            self.savePath = self.savePath.replace('\\','/')
+        if os.path.exists(self.savePath):
+            self.isFileSelected = True
+        else:
+            self.isFileSelected = False
+        
 
 #When visualization-type is changed
     def vis_selected(self,event):
@@ -190,12 +236,23 @@ class ParserPane(GeneralCollapsible):
     def parse_pressed(self,event):
     #Parse with suitable function
         if self.visType == 'All':
-            self.parseOut = parse_all(self.savePath+'/'+self.newFileHdf5+'.hdf5', self.path)
+            if self.isFileSelected:
+                self.parseOut = parse_all(self.savePath, self.path)
+            else:
+                self.parseOut = parse_all(self.savePath+'/'+self.newFileHdf5+'.hdf5', self.path)
+        elif self.isFileSelected: 
+            if self.parseFuncDict[self.visType](self.savePath, self.path):
+                self.open_message("Parsing "+self.path+
+                                " successfully done for "+
+                                self.visType+" visualization!",
+                                "Succsessfully parsed!")
+            return
         elif self.parseFuncDict[self.visType](self.savePath+'/'+self.newFileHdf5+'.hdf5', self.path):
             self.open_message("Parsing "+self.path+
                                 " successfully done for "+
                                 self.visType+" visualization!",
                                 "Succsessfully parsed!")
+            
             return            
     #Check output and put out appropriate message
         #Parse failed:     
@@ -230,6 +287,18 @@ class ParserPane(GeneralCollapsible):
         path = dirDialog.GetPath()
         dirDialog.Destroy()
         dirFrame.Destroy()
+        return path
+
+    def choose_file(self):
+        fileFrame = wx.Frame(None, -1, 'win.py')
+        fileFrame.SetSize(0,0,200,50)
+        fileDialog = wx.FileDialog(fileFrame, "Open", "", "", 
+                                      "HDF5 files (*.hdf5)|*.hdf5", 
+                                       wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
+        fileDialog.ShowModal()
+        path = fileDialog.GetPath()
+        fileDialog.Destroy()
+        fileFrame.Destroy()
         return path
 
 #Dialog for messages, fail or successes
