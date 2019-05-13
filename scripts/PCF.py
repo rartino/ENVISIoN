@@ -2,7 +2,7 @@
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2019 Lloyd Kizito
+#  Copyright (c) 2019 Lloyd Kizito, Linda Le 
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -40,9 +40,10 @@
 import os, sys
 
 # Configuration
-PATH_TO_ENVISION=os.path.expanduser("/home/labb/ENVISIoN-appDev/envision")
-PATH_TO_VASP_CALC=os.path.expanduser("/home/labb/VASP_files/LiC_pair_corr_fun")
-PATH_TO_HDF5=os.path.expanduser("/home/labb/HDF5/PKF_new.hdf5")
+PATH_TO_ENVISION=os.path.expanduser("~/ENVISIoN/envision")
+PATH_TO_VASP_CALC=os.path.expanduser("~/ENVISIoN/data/VASP-files2019/LiC")
+PATH_TO_HDF5=os.path.expanduser("~/ENVISIoN/HDF5/PCF_LiC300KRealx1.hdf5")
+
 
 sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION))
 

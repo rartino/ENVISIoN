@@ -36,17 +36,7 @@
 #  You should have received a copy of the CC0 legalcode along with
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
-##############################################################################################
-#
-#  Alterations to this file by Abdullatif Ismail
-#
-#  To the extent possible under law, the person who associated CC0 with
-#  the alterations to this file has waived all copyright and related
-#  or neighboring rights to the alterations made to this file.
-#
-#  You should have received a copy of the CC0 legalcode along with
-#  this work.  If not, see
-#  <http://creativecommons.org/publicdomain/zero/1.0/>.
+
 
 
 import numpy as np
@@ -195,8 +185,12 @@ def _write_volume(h5file, i, array, data_dim, hdfgroup):
         if array:
             h5.create_dataset('{}/{}'.format(hdfgroup, i), data = np.reshape(array, (data_dim[2],data_dim[1],data_dim[0])), dtype=np.float32)
         else:
-            h5['{}/final'.format(hdfgroup)] = h5['{}/{}'.format(hdfgroup, i-1)]
-    return
+            try:
+                h5['{}/final'.format(hdfgroup)] = h5['{}/{}'.format(hdfgroup, i-1)]
+            except KeyError:
+                print('Not able to write volume')
+                return False
+    return True
 
 
 def _write_incar(h5file, incar_data):
@@ -234,7 +228,7 @@ def _write_pcdat_multicol(h5file, pcdat_data, APACO_val, NPACO_val):
 
 
     with h5py.File(h5file, 'a') as h5:
-        dset_name = "PairCorrelationFunc/Iterations"
+        dset_name = "PairCorrelationFunc/Distance"
         normal_arr = arr.array('f', [])
 
         #creating x-values, equally spaced (space APACO_val/NPACO_val)
@@ -242,7 +236,7 @@ def _write_pcdat_multicol(h5file, pcdat_data, APACO_val, NPACO_val):
             x = (APACO_val / NPACO_val) * i
             normal_arr.append(x)
         value = np.asarray(normal_arr)
-        h5.create_dataset(dset_name, data=value, dtype=np.float64)
+        h5.create_dataset(dset_name, data=value, dtype=np.float32)
 
         # create dataset for paircorrelation function for every time frames for every element.
         #len(pcdat_data) gives the amount of elements
@@ -261,8 +255,8 @@ def _write_pcdat_multicol(h5file, pcdat_data, APACO_val, NPACO_val):
                     del original_list[0]
 
                 tmp_name = str(dset_groupname) + "/{}"
-                dset_name2 = tmp_name.format("t_" + str(t_value))
-                h5.create_dataset(dset_name2, data=np.array(fill_list), dtype=np.float64)
+                dset_name2 = tmp_name.format("PCF for " + "t_" + str(t_value))
+                h5.create_dataset(dset_name2, data=np.array(fill_list), dtype=np.float32)
                 h5[dset_name2].attrs["element"] = element_symbol
 
 
@@ -282,7 +276,7 @@ def _write_pcdat_multicol(h5file, pcdat_data, APACO_val, NPACO_val):
 def _write_pcdat_onecol(h5file, pcdat_data, APACO_val, NPACO_val):
 
     with h5py.File(h5file, 'a') as h5:
-        dset_name = "PairCorrelationFunc/Iterations"
+        dset_name = "PairCorrelationFunc/Distance"
         normal_arr = arr.array('f', [])
 
         #creating x-values, equally spaced (space APACO_val/NPACO_val)
@@ -290,7 +284,7 @@ def _write_pcdat_onecol(h5file, pcdat_data, APACO_val, NPACO_val):
             x = (APACO_val / NPACO_val) * i
             normal_arr.append(x)
         value = np.asarray(normal_arr)
-        h5.create_dataset(dset_name, data=value, dtype=np.float64)
+        h5.create_dataset(dset_name, data=value, dtype=np.float32)
 
         # create dataset for paircorrelation function for every time frames for every element.
         #len(pcdat_data) gives the amount of elements
@@ -305,8 +299,8 @@ def _write_pcdat_onecol(h5file, pcdat_data, APACO_val, NPACO_val):
                 fill_list.append(original_list[0])
                 del original_list[0]
 
-            dset_name2 = "PairCorrelationFunc/{}".format("t_" + str(t_value))
-            h5.create_dataset(dset_name2, data=np.array(fill_list), dtype=np.float64)
+            dset_name2 = "PairCorrelationFunc/{}".format("PCF for " + "t_" + str(t_value))
+            h5.create_dataset(dset_name2, data=np.array(fill_list), dtype=np.float32)
 
 
             if len(original_list) == 0:

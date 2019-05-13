@@ -68,12 +68,12 @@ def set_all_data(processor='',setAll=True):
     if dataProcessor:
         dataProcessor.allYSelection.value = setAll
 
-def get_x_range(type='Line plot'):
-    dataProcessor = network.getProcessorByIdentifier(type)
+def get_x_range(processor='Line plot'):
+    dataProcessor = network.getProcessorByIdentifier(processor)
     return dataProcessor.x_range.value
 
-def get_y_range(type='Line plot'):
-    dataProcessor = network.getProcessorByIdentifier(type)
+def get_y_range(processor='Line plot'):
+    dataProcessor = network.getProcessorByIdentifier(processor)
     return dataProcessor.y_range.value
 
 def set_x_range(value, type, processor='Line plot'):
@@ -91,39 +91,26 @@ def set_y_range(value, type, processor='Line plot'):
     else:
         dataProcessor.y_range.value = inviwopy.glm.vec2(value, dataProcessor.y_range.value[1])
 
-def enable_help_line(setLine=False, type='Line plot'):
-    dataProcessor = network.getProcessorByIdentifier(type)
+def enable_help_line(setLine=False, processor='Line plot'):
+    dataProcessor = network.getProcessorByIdentifier(processor)
     dataProcessor.enable_line.value = setLine
 
-def set_help_line(value, type='Line plot'):
-    dataProcessor = network.getProcessorByIdentifier(type)
+def set_help_line(value, processor='Line plot'):
+    dataProcessor = network.getProcessorByIdentifier(processor)
     dataProcessor.line_x_coordinate.value = value
 
-def set_canvas_position(position = None, type='Canvas'):
+def get_help_line(processor='Line plot'):
+    dataProcessor = network.getProcessorByIdentifier(processor)
+    if dataProcessor:
+        return dataProcessor.line_x_coordinate.value
+
+def set_canvas_position(position = None, processor='Canvas'):
     #Change the canvas-position
-    Canvas = network.getProcessorByIdentifier(type)
+    Canvas = network.getProcessorByIdentifier(processor)
     if position != None:
         Canvas.position.value = position
 
-def set_unitcell_canvas_position(position = None):
-    #Change the canvas-position
-    Canvas = network.getProcessorByIdentifier('Unit Cell Canvas')
-    if position != None:
-        Canvas.position.value = position
-
-def set_dos_canvas_position(position = None):
-    #Change the canvas-position
-    Canvas = network.getProcessorByIdentifier('DOS Canvas')
-    if position != None:
-        Canvas.position.value = position
-        position = position + 20
-        Canvas = network.getProcessorByIdentifier('DOS Canvas2')
-        if position != None:
-            Canvas.position.value = position
-    else:
-        pass
-
-def enable_label(xLabel = None, yLabel = None, processor = ""):
+def enable_label(xLabel = None, yLabel = None, processor = "Line plot"):
     plotter = network.getProcessorByIdentifier(processor)
     if plotter:
         if xLabel != None:
@@ -131,78 +118,83 @@ def enable_label(xLabel = None, yLabel = None, processor = ""):
         if yLabel != None:
             plotter.show_y_labels.value = yLabel
 
-def isEnabled_label(processor = ""):
+def isEnabled_label(processor = "Line plot"):
     plotter = network.getProcessorByIdentifier(processor)
     if plotter:
         return [plotter.show_x_labels.value,plotter.show_y_labels.value]
 
-def enable_grid(gridBool = None, processor=""):
+def enable_grid(gridBool = None, processor="Line plot"):
     plotter = network.getProcessorByIdentifier(processor)
     if plotter:
         if gridBool != None:
             plotter.enable_grid.value = gridBool
 
-def set_grid(value=None,processor=''):
+def set_grid(value=None,processor='Line plot'):
     plotter = network.getProcessorByIdentifier(processor)
     if plotter:
         if value != None:
             plotter.grid_width.value = value
 
-def get_label(processor=''):
+def get_grid(processor='Line plot'):
+    plotter = network.getProcessorByIdentifier(processor)
+    if plotter:
+        return plotter.grid_width.value
+
+def get_label(processor='Line plot'):
     plotter = network.getProcessorByIdentifier(processor)
     if plotter:
         return plotter.label_number.value
 
-def set_label(value=None,processor=''):
+def set_label(value=None,processor='Line plot'):
     plotter = network.getProcessorByIdentifier(processor)
     if plotter:
         if value != None:
             plotter.label_number.value = value
         
 
-def isEnable_grid(processor=""):
+def isEnable_grid(processor="Line plot"):
     plotter = network.getProcessorByIdentifier(processor)
     if plotter:
         return plotter.enable_grid.value
 
-def enable_multiple_y(multipleBool=None,processor=''):
+def enable_multiple_y(multipleBool=None,processor='Line plot'):
     plotter = network.getProcessorByIdentifier(processor)
     if plotter:
         if multipleBool != None:
             plotter.boolYSelection.value = multipleBool
 
-def isEnabled_multiple_y(processor=''):
+def isEnabled_multiple_y(processor='Line plot'):
     plotter = network.getProcessorByIdentifier(processor)
     if plotter:
         return plotter.boolYSelection.value
 
-def enable_all_y(multipleBool=None,processor=''):
+def enable_all_y(multipleBool=None,processor='Line plot'):
     plotter = network.getProcessorByIdentifier(processor)
     if plotter:
         if multipleBool != None:
             plotter.allYSelection.value = multipleBool
 
-def isEnabled_all_y(processor=''):
+def isEnabled_all_y(processor='Line plot'):
     plotter = network.getProcessorByIdentifier(processor)
     if plotter:
         return plotter.allYSelection.value
 
-def get_yline_range(processor=''):
+def get_yline_range(processor='Line plot'):
     plotter = network.getProcessorByIdentifier(processor)
     if plotter:
         return plotter.groupYSelection_.value
     
-def set_yline_range(option=1,processor=''):
+def set_yline_range(option=1,processor='Line plot'):
     plotter = network.getProcessorByIdentifier(processor)
     if plotter:
         plotter.groupYSelection_.value = option
 
-def get_partial_value(processor=''):
+def get_partial_value(processor='Line plot'):
     plotter = network.getProcessorByIdentifier(processor)
     if plotter:
         return plotter.intProperty.value
     
-def set_partial_value(option=1,processor=''):
+def set_partial_value(option=1,processor='Line plot'):
     plotter = network.getProcessorByIdentifier(processor)
     if plotter:
         plotter.intProperty.value = option

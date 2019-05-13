@@ -114,7 +114,7 @@ class UnitcellNetworkHandler():
 
         strucMesh = _add_processor('envision.StructureMesh', 'Unit Cell Mesh', xpos, ypos+200)
         fullMesh = strucMesh.getPropertyByIdentifier('fullMesh')
-        fullMesh.value = False
+        fullMesh.value = True
 
         meshPort = strucMesh.getOutport('mesh')
         geometryPort = meshRenderer.getInport('geometry')

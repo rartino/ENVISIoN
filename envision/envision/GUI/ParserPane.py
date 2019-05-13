@@ -52,8 +52,8 @@ from unitcell import unitcell
 from volume import charge, elf
 from fermi import fermi_surface
 from parchg import parchg
+from PCF import paircorrelation
 from fermiEnergy import fermi_energy
-from PKF import paircorrelation
 from main import *
 from generalCollapsible import GeneralCollapsible
 
@@ -92,8 +92,7 @@ class ParserPane(GeneralCollapsible):
                                     value = "Select type",
                                     choices= ('All','Bandstructure','DoS',
                                             'Charge','ELF','Fermi energy',
-                                            'Fermi Surface','MD',
-                                            'Parchg','PCF',
+                                            'MD','Parchg','PCF',
                                             'Unitcell'))
         self.parserDict = {
             'Unitcell' : 'unitcell from VASP' ,
@@ -101,8 +100,7 @@ class ParserPane(GeneralCollapsible):
             'Charge' : 'charge from VASP',
             'ELF' : 'ELF from VASP',
             'DoS' : 'DOS from VASP',
-            'Bandstructure' : 'bandstructure from VASP', 
-            'Fermi Surface' : 'fermi surface from VASP',
+            'Bandstructure' : 'bandstructure from VASP',
             'PCF' : 'PCF from VASP',
             'Parchg' : 'Parchg from VASP',
             'Fermi energy': 'Fermi energy from VASP'
@@ -115,7 +113,6 @@ class ParserPane(GeneralCollapsible):
         'ELF': elf,
         'DoS': dos,
         'Bandstructure': bandstructure,
-        'Fermi Surface': fermi_surface,
         'PCF' : paircorrelation,
         'Parchg' : parchg,
         'Fermi energy': fermi_energy

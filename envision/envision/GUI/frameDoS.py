@@ -76,14 +76,16 @@ class DosFrame(GeneralCollapsible):
 
         #Help line setup
         self.selectLine = wx.CheckBox(self.GetPane(),label='Help line ')
-        self.lineSlider = wx.Slider(self.GetPane())
+        self.helpLine = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
+                                     name='Help line value')
 
         #Grid lines and labels setup
         self.selectGrid = wx.CheckBox(self.GetPane(),label='Grid ')
         self.selectXLabel = wx.CheckBox(self.GetPane(),label='X label ')
         self.selectYLabel = wx.CheckBox(self.GetPane(),label='Y label ')
         self.gridText = wx.StaticText(self.GetPane(),label="Grid width: ")
-        self.gridSlider = wx.Slider(self.GetPane())
+        self.gridWidth = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
+                                     name='Grid width')
         self.labelBox = wx.BoxSizer(wx.HORIZONTAL)
         self.labelText = wx.StaticText(self.GetPane(),label="Label count: ")
         self.labelSelect = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
@@ -108,11 +110,8 @@ class DosFrame(GeneralCollapsible):
         self.selectPartialBox.Add(self.partialChoice)
         
         #Setup for list for choosing Y
-        self.listYBox = wx.BoxSizer(wx.HORIZONTAL)
         self.listYText = wx.StaticText(self.GetPane(),label="List of Y:")
         self.listY = wx.Choice(self.GetPane(),choices=[])
-        self.listYBox.Add(self.listYText)
-        self.listYBox.Add(self.listY)
         
 
         #Add items in collapsible
@@ -120,14 +119,15 @@ class DosFrame(GeneralCollapsible):
         self.add_item(self.yRangeBox)
         self.add_item(self.scaleBox)
         self.add_item(self.selectLine)
-        self.add_item(self.lineSlider)
+        self.add_item(self.helpLine)
         self.add_item(self.selectGrid)
         self.add_item(self.gridText)
-        self.add_item(self.gridSlider)
+        self.add_item(self.gridWidth)
         self.add_item(self.selectXLabel)
         self.add_item(self.selectYLabel)
         self.add_item(self.labelBox)
-        self.add_item(self.listYBox)
+        self.add_item(self.listYText)
+        self.add_item(self.listY)
         self.add_item(self.selectPartialBox)
         self.add_item(self.enableYSelectionAll)
         self.add_item(self.enableYSelection)
@@ -141,9 +141,9 @@ class DosFrame(GeneralCollapsible):
         self.yRangeMax.Bind(wx.EVT_TEXT_ENTER, self.on_ymax_change)
         self.yRangeMin.Bind(wx.EVT_TEXT_ENTER, self.on_ymin_change)
         self.selectLine.Bind(wx.EVT_CHECKBOX, self.on_check_line)
-        self.lineSlider.Bind(wx.EVT_SLIDER, self.on_slide_line)
+        self.helpLine.Bind(wx.EVT_TEXT_ENTER, self.on_line_change)
         self.selectGrid.Bind(wx.EVT_CHECKBOX, self.on_check_grid)
-        self.gridSlider.Bind(wx.EVT_SLIDER, self.on_slide_grid)
+        self.gridWidth.Bind(wx.EVT_TEXT_ENTER, self.on_grid_change)
         self.selectXLabel.Bind(wx.EVT_CHECKBOX, self.on_check_x_label)
         self.selectYLabel.Bind(wx.EVT_CHECKBOX, self.on_check_y_label)
         self.labelSelect.Bind(wx.EVT_TEXT_ENTER, self.on_label_change)
@@ -197,9 +197,9 @@ class DosFrame(GeneralCollapsible):
         self.yRangeMax.SetValue(str(y_range[0]))
         self.yRangeMin.SetValue(str(y_range[1]))
         self.scale.SetValue(str(parameter_utils.get_scale('DOS Plotter')))
-        self.lineSlider.SetMax(parameter_utils.get_x_range('DOS Plotter')[0])
-        self.lineSlider.SetMin(parameter_utils.get_x_range('DOS Plotter')[1])
         self.selectGrid.SetValue(grid)
+        self.helpLine.SetValue(parameter_utils.get_help_line('DOS Plotter'))
+        self.gridWidth.SetValue(parameter_utils.get_grid('DOS Plotter'))
         self.ySelection.SetValue(ySelect)
         self.labelSelect.SetValue(str(labelCount))
         self.partialChoice.SetValue(str(partial))        
@@ -265,11 +265,11 @@ class DosFrame(GeneralCollapsible):
         else:
             parameter_utils.enable_grid(gridBool=False, processor='DOS Plotter')
 
-    def on_slide_line(self,event):
-        parameter_utils.set_help_line(self.lineSlider.GetValue(), 'DOS Plotter')
+    def on_line_change(self,event):
+        parameter_utils.set_help_line(float(self.lineSlider.GetLineText(0)), 'DOS Plotter')
     
-    def on_slide_grid(self,event):
-        parameter_utils.set_grid(self.gridSlider.GetValue(), 'DOS Plotter')
+    def on_grid_change(self,event):
+        parameter_utils.set_grid(self.gridSlider.GetLineText(0), 'DOS Plotter')
     
     def on_label_change(self,event):
         enteredNum = int(self.labelSelect.GetLineText(0))
@@ -319,12 +319,60 @@ class DosFrame(GeneralCollapsible):
         with h5py.File(self.parent_collapsible.path, 'r') as file:
             self.listY.Clear()
             counter = 0
-            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
-                self.listY.Append(str(counter)+': '+key)
-                counter += 1
             for key in file.get("DOS").get("Total").keys():
-                if (key != 'Energy') and ('Integrated' not in key):
-                    self.listY.Append(str(counter)+': '+'Total '+key)
+                if key != 'Energy':
+                    if '(dwn)' in key:
+                        self.listY.Append(str(counter)+': '+'Total '+key)
+                        counter += 1
+            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
+                if '(dwn)' in key:
+                    if ('x2' in key) or ('y2' in key) or ('z2' in key):
+                        self.listY.Append(str(counter)+': '+'Total '+key)
+                        counter += 1
+            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
+                if ('(dwn)' in key) and (('(x)' in key) or ('(y)' in key)):
+                    self.listY.Append(str(counter)+': '+key)
+                    counter += 1
+            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
+                if ('(dwn)' in key) and ('(xy)' not in key):
+                    self.listY.Append(str(counter)+': '+key)
+                    counter += 1
+            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
+                if ('(dwn)' in key) and ('(z)' in key):
+                    self.listY.Append(str(counter)+': '+key)
+                    counter += 1
+            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
+                if ('(dwn)' in key) and (('(xz)' in key) or ('(yz)' in key)):
+                    self.listY.Append(str(counter)+': '+key)
+                    counter += 1
+            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
+                if ('(dwn)' in key) and (('x' not in key) or ('y' not in key)):
+                    self.listY.Append(str(counter)+': '+key)
+                    counter += 1
+            for key in file.get("DOS").get("Total").keys():
+                if key != 'Energy':
+                    if '(up)' in key:
+                        self.listY.Append(str(counter)+': '+'Total '+key)
+                        counter += 1
+            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
+                if ('(up)' in key) and (('(x)' in key) or ('(y)' in key)):
+                    self.listY.Append(str(counter)+': '+key)
+                    counter += 1
+            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
+                if ('(up)' in key) and ('(xy)' not in key):
+                    self.listY.Append(str(counter)+': '+key)
+                    counter += 1
+            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
+                if ('(up)' in key) and ('(z)' in key):
+                    self.listY.Append(str(counter)+': '+key)
+                    counter += 1
+            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
+                if ('(up)' in key) and (('(xz)' in key) or ('(yz)' in key)):
+                    self.listY.Append(str(counter)+': '+key)
+                    counter += 1
+            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
+                if ('(up)' in key) and (('x' not in key) or ('y' not in key)):
+                    self.listY.Append(str(counter)+': '+key)
                     counter += 1
 
 '''
