@@ -132,6 +132,7 @@ class ELFFrame(GeneralCollapsible):
             self.backgroundCollapsibe.networkHandler = self.networkHandler
             self.unitcellCollapsible.networkHandler = self.networkHandler
 
+            self.unitcellCollapsible.hasAtoms = False
             if self.networkHandler.unitcellAvailable:
                 for i in range(self.networkHandler.nAtomTypes):
                     self.unitcellCollapsible.add_atom_control(self.networkHandler.get_atom_name(i), i)
