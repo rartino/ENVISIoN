@@ -79,7 +79,7 @@ def dos(h5file, atom = 0, xpos=0, ypos=0):
 
     def get_dos_list(iter):
         return list(sorted(
-            filter(lambda item: item != "Energy" and not item.startswith("Integrated"), iter),
+            filter(lambda item: item != "Energy", iter),
             key=lambda item: "".join(reversed(item))
         ))
 

@@ -157,9 +157,9 @@ class GeneralCollapsible(wx.CollapsiblePane):
             break
         canvasPosition = inviwopy.glm.ivec2(windowPosition.x+windowSize.width,windowPosition.y)
         if type == 'Unitcell':
-            set_unitcell_canvas_position(canvasPosition)
+            set_canvas_position(canvasPosition, 'Unit Cell Canvas')
         elif type == 'DoS':
-            set_dos_canvas_position(canvasPosition)
+            set_canvas_position(canvasPosition, 'DOS Canvas')
         elif type =='SliceCanvas':
             canvasPosition = inviwopy.glm.ivec2(windowPosition.x+windowSize.width,windowPosition.y+296)
             set_canvas_position(canvasPosition, type)

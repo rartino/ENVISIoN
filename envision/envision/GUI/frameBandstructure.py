@@ -78,12 +78,24 @@ class BandstructureFrame(GeneralCollapsible):
         self.selectLine = wx.CheckBox(self.GetPane(),label='Help line: ')
         self.lineSlider = wx.Slider(self.GetPane())
 
+        #Grid lines and labels setup
+        self.selectGrid = wx.CheckBox(self.GetPane(),label='Grid ')
+        self.selectXLabel = wx.CheckBox(self.GetPane(),label='X label ')
+        self.selectYLabel = wx.CheckBox(self.GetPane(),label='Y label ')
+        self.gridSlider = wx.Slider(self.GetPane())
+        self.labelSlider = wx.Slider(self.GetPane())
+
         #Add items
         self.add_item(self.xRangeBox)
         self.add_item(self.yRangeBox)
         self.add_item(self.scaleBox)
         self.add_item(self.selectLine)
         self.add_item(self.lineSlider)
+        self.add_item(self.selectGrid)
+        self.add_item(self.gridSlider)
+        self.add_item(self.selectXLabel)
+        self.add_item(self.selectYLabel)
+        self.add_item(self.labelSlider)
         
 
         self.scale.Bind(wx.EVT_TEXT_ENTER, self.on_scale_change)
@@ -93,6 +105,11 @@ class BandstructureFrame(GeneralCollapsible):
         self.yRangeMin.Bind(wx.EVT_TEXT_ENTER, self.on_ymin_change)
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)    
         self.selectLine.Bind(wx.EVT_CHECKBOX, self.on_check_line)
+        self.selectGrid.Bind(wx.EVT_CHECKBOX, self.on_check_grid)
+        self.gridSlider.Bind(wx.EVT_SLIDER, self.on_slide_grid)
+        self.selectXLabel.Bind(wx.EVT_CHECKBOX, self.on_check_x_label)
+        self.selectYLabel.Bind(wx.EVT_CHECKBOX, self.on_check_y_label)
+        self.labelSlider.Bind(wx.EVT_SLIDER, self.on_slide_label)
         self.lineSlider.Bind(wx.EVT_SLIDER, self.on_slide_line)
         #self.selectX.Bind(wx.EVT_CHOICE, self.on_changed_x)
     
@@ -140,6 +157,24 @@ class BandstructureFrame(GeneralCollapsible):
     def on_ymin_change(self,event):
         parameter_utils.set_y_range(float(self.yRangeMin.GetLineText(0)),'min')
 
+    def on_check_x_label(self,event):
+        if self.selectXLabel.IsChecked():
+            parameter_utils.enable_label(xLabel=True, processor='Line plot')
+        else:
+            parameter_utils.enable_label(xLabel=False, processor='Line plot')
+    
+    def on_check_y_label(self,event):
+        if self.selectYLabel.IsChecked():
+            parameter_utils.enable_label(yLabel=True, processor='Line plot')
+        else:
+            parameter_utils.enable_label(yLabel=False, processor='Line plot')
+
+    def on_check_grid(self,event):
+        if self.selectGrid.IsChecked():
+            parameter_utils.enable_grid(gridBool=True, processor='Line plot')
+        else:
+            parameter_utils.enable_grid(gridBool=False, processor='Line plot')
+
     def on_check_line(self,event):
         if self.selectLine.IsChecked():
             parameter_utils.enable_help_line(True)
@@ -148,6 +183,12 @@ class BandstructureFrame(GeneralCollapsible):
     
     def on_slide_line(self,event):
         parameter_utils.set_help_line(self.lineSlider.GetValue())
+    
+    def on_slide_grid(self,event):
+        parameter_utils.set_grid(self.gridSlider.GetValue(), 'Line plot')
+    
+    def on_slide_label(self,event):
+        parameter_utils.set_label(round(self.labelSlider.GetValue()), 'Line plot')
 
     def init_ranges(self):
         x_range = parameter_utils.get_x_range()

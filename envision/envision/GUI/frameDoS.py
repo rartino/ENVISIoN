@@ -52,13 +52,6 @@ class DosFrame(GeneralCollapsible):
         self.scaleBox.Add(self.scaleText)
         self.scaleBox.Add(self.scale)
 
-        self.scaleBox2 = wx.BoxSizer(wx.HORIZONTAL)
-        self.scaleText2 = wx.StaticText(self.GetPane(),label="Scale: ")
-        self.scale2 = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
-                                     name='Scale2')
-        self.scaleBox2.Add(self.scaleText2)
-        self.scaleBox2.Add(self.scale2)
-
         #Sizer for X range
         self.xRangeBox = wx.BoxSizer(wx.HORIZONTAL)
         self.xRangeText = wx.StaticText(self.GetPane(),label="X Range: ")
@@ -69,16 +62,6 @@ class DosFrame(GeneralCollapsible):
         self.xRangeBox.Add(self.xRangeText)
         self.xRangeBox.Add(self.xRangeMin)
         self.xRangeBox.Add(self.xRangeMax)
-        
-        self.xRangeBox2 = wx.BoxSizer(wx.HORIZONTAL)
-        self.xRangeText2 = wx.StaticText(self.GetPane(),label="X Range: ")
-        self.xRangeMax2 = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
-                                     name='Max')
-        self.xRangeMin2 = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
-                                     name='Min')
-        self.xRangeBox2.Add(self.xRangeText2)
-        self.xRangeBox2.Add(self.xRangeMin2)
-        self.xRangeBox2.Add(self.xRangeMax2)
 
         #Sizer for Y range
         self.yRangeBox = wx.BoxSizer(wx.HORIZONTAL)
@@ -90,23 +73,47 @@ class DosFrame(GeneralCollapsible):
         self.yRangeBox.Add(self.yRangeText)
         self.yRangeBox.Add(self.yRangeMin)
         self.yRangeBox.Add(self.yRangeMax)
-        
-        self.yRangeBox2 = wx.BoxSizer(wx.HORIZONTAL)
-        self.yRangeText2 = wx.StaticText(self.GetPane(),label="Y Range: ")
-        self.yRangeMax2 = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
-                                     name='Max')
-        self.yRangeMin2 = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
-                                     name='Min')
-        self.yRangeBox2.Add(self.yRangeText2)
-        self.yRangeBox2.Add(self.yRangeMin2)
-        self.yRangeBox2.Add(self.yRangeMax2)
 
         #Help line setup
-        self.selectLine = wx.CheckBox(self.GetPane(),label='Help line: ')
+        self.selectLine = wx.CheckBox(self.GetPane(),label='Help line ')
         self.lineSlider = wx.Slider(self.GetPane())
 
-        self.selectLine2 = wx.CheckBox(self.GetPane(),label='Help line: ')
-        self.lineSlider2 = wx.Slider(self.GetPane())
+        #Grid lines and labels setup
+        self.selectGrid = wx.CheckBox(self.GetPane(),label='Grid ')
+        self.selectXLabel = wx.CheckBox(self.GetPane(),label='X label ')
+        self.selectYLabel = wx.CheckBox(self.GetPane(),label='Y label ')
+        self.gridText = wx.StaticText(self.GetPane(),label="Grid width: ")
+        self.gridSlider = wx.Slider(self.GetPane())
+        self.labelBox = wx.BoxSizer(wx.HORIZONTAL)
+        self.labelText = wx.StaticText(self.GetPane(),label="Label count: ")
+        self.labelSelect = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
+                                     name='Label selection')
+        self.labelBox.Add(self.labelText)
+        self.labelBox.Add(self.labelSelect)
+
+        #Y selection setup
+        self.enableYSelection = wx.CheckBox(self.GetPane(),label='Enable Y selection')
+        self.selectYBox = wx.BoxSizer(wx.HORIZONTAL)
+        self.yLinesText = wx.StaticText(self.GetPane(),label="Y Seletion Range: ")
+        self.ySelection = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
+                                     name='Y selection')
+        self.selectYBox.Add(self.yLinesText)
+        self.selectYBox.Add(self.ySelection)
+        self.enableYSelectionAll = wx.CheckBox(self.GetPane(),label='Enable all Y')
+        self.selectPartialBox = wx.BoxSizer(wx.HORIZONTAL)
+        self.partialText = wx.StaticText(self.GetPane(),label="Partial choice:")
+        self.partialChoice = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
+                                     name='Partial choice')
+        self.selectPartialBox.Add(self.partialText)
+        self.selectPartialBox.Add(self.partialChoice)
+        
+        #Setup for list for choosing Y
+        self.listYBox = wx.BoxSizer(wx.HORIZONTAL)
+        self.listYText = wx.StaticText(self.GetPane(),label="List of Y:")
+        self.listY = wx.Choice(self.GetPane(),choices=[])
+        self.listYBox.Add(self.listYText)
+        self.listYBox.Add(self.listY)
+        
 
         #Add items in collapsible
         self.add_item(self.xRangeBox)
@@ -114,11 +121,18 @@ class DosFrame(GeneralCollapsible):
         self.add_item(self.scaleBox)
         self.add_item(self.selectLine)
         self.add_item(self.lineSlider)
-        self.add_item(self.xRangeBox2)
-        self.add_item(self.yRangeBox2)
-        self.add_item(self.scaleBox2)
-        self.add_item(self.selectLine2)
-        self.add_item(self.lineSlider2)
+        self.add_item(self.selectGrid)
+        self.add_item(self.gridText)
+        self.add_item(self.gridSlider)
+        self.add_item(self.selectXLabel)
+        self.add_item(self.selectYLabel)
+        self.add_item(self.labelBox)
+        self.add_item(self.listYBox)
+        self.add_item(self.selectPartialBox)
+        self.add_item(self.enableYSelectionAll)
+        self.add_item(self.enableYSelection)
+        self.add_item(self.selectYBox)
+
 
         #Bind signals
         self.scale.Bind(wx.EVT_TEXT_ENTER, self.on_scale_change)
@@ -128,14 +142,16 @@ class DosFrame(GeneralCollapsible):
         self.yRangeMin.Bind(wx.EVT_TEXT_ENTER, self.on_ymin_change)
         self.selectLine.Bind(wx.EVT_CHECKBOX, self.on_check_line)
         self.lineSlider.Bind(wx.EVT_SLIDER, self.on_slide_line)
-        self.scale2.Bind(wx.EVT_TEXT_ENTER, self.on_scale_change2)
-        self.xRangeMax2.Bind(wx.EVT_TEXT_ENTER, self.on_xmax_change2)
-        self.xRangeMin2.Bind(wx.EVT_TEXT_ENTER, self.on_xmin_change2)
-        self.yRangeMax2.Bind(wx.EVT_TEXT_ENTER, self.on_ymax_change2)
-        self.yRangeMin2.Bind(wx.EVT_TEXT_ENTER, self.on_ymin_change2)
-        self.selectLine2.Bind(wx.EVT_CHECKBOX, self.on_check_line2)
-        self.lineSlider2.Bind(wx.EVT_SLIDER, self.on_slide_line2)
+        self.selectGrid.Bind(wx.EVT_CHECKBOX, self.on_check_grid)
+        self.gridSlider.Bind(wx.EVT_SLIDER, self.on_slide_grid)
+        self.selectXLabel.Bind(wx.EVT_CHECKBOX, self.on_check_x_label)
+        self.selectYLabel.Bind(wx.EVT_CHECKBOX, self.on_check_y_label)
+        self.labelSelect.Bind(wx.EVT_TEXT_ENTER, self.on_label_change)
+        self.enableYSelection.Bind(wx.EVT_CHECKBOX, self.on_check_enableYselection)
+        self.ySelection.Bind(wx.EVT_TEXT_ENTER, self.on_ySelection_change)
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
+        self.enableYSelectionAll.Bind(wx.EVT_CHECKBOX, self.on_check_enableYselectionAll)
+        self.partialChoice.Bind(wx.EVT_TEXT_ENTER, self.on_change_partial)
 
     
     def on_collapse(self, event = None):
@@ -169,72 +185,153 @@ class DosFrame(GeneralCollapsible):
     def init_DoS(self):
         x_range = parameter_utils.get_x_range('DOS Plotter')
         y_range = parameter_utils.get_y_range('DOS Plotter')
-        x2_range = parameter_utils.get_x_range('DOS Plotter2')
-        y2_range = parameter_utils.get_y_range('DOS Plotter2')
+        labels = parameter_utils.isEnabled_label('DOS Plotter')
+        grid = parameter_utils.isEnable_grid('DOS Plotter')
+        multipleYBool = parameter_utils.isEnabled_multiple_y('DOS Plotter')
+        ySelect = parameter_utils.get_yline_range('DOS Plotter')
+        allYSelect = parameter_utils.isEnabled_all_y('DOS Plotter')
+        partial = parameter_utils.get_partial_value('Partial Pick')
+        labelCount = parameter_utils.get_label('DOS Plotter')
         self.xRangeMax.SetValue(str(x_range[0]))
         self.xRangeMin.SetValue(str(x_range[1])) 
         self.yRangeMax.SetValue(str(y_range[0]))
         self.yRangeMin.SetValue(str(y_range[1]))
-        self.xRangeMax2.SetValue(str(x2_range[0]))
-        self.xRangeMin2.SetValue(str(x2_range[1])) 
-        self.yRangeMax2.SetValue(str(y2_range[0]))
-        self.yRangeMin2.SetValue(str(y2_range[1]))
         self.scale.SetValue(str(parameter_utils.get_scale('DOS Plotter')))
         self.lineSlider.SetMax(parameter_utils.get_x_range('DOS Plotter')[0])
         self.lineSlider.SetMin(parameter_utils.get_x_range('DOS Plotter')[1])
-        self.scale2.SetValue(str(parameter_utils.get_scale('DOS Plotter2')))
-        self.lineSlider2.SetMax(parameter_utils.get_x_range('DOS Plotter2')[0])
-        self.lineSlider2.SetMin(parameter_utils.get_x_range('DOS Plotter2')[1])
+        self.selectGrid.SetValue(grid)
+        self.ySelection.SetValue(ySelect)
+        self.labelSelect.SetValue(str(labelCount))
+        self.partialChoice.SetValue(str(partial))        
+        if labels[0]:
+            self.selectXLabel.SetValue(True)
+        else:
+            self.selectXLabel.SetValue(False)
+        if labels[1]:
+            self.selectYLabel.SetValue(True)
+        else:
+            self.selectYLabel.SetValue(False)
+        if multipleYBool:
+            self.enableYSelection.SetValue(True)
+        else:
+            self.enableYSelection.SetValue(False)
+        if allYSelect:
+            self.enableYSelectionAll.SetValue(True)
+        else:
+            self.enableYSelectionAll.SetValue(False)
+        self.sizer.Hide(self.selectYBox)
+
+        #Init list of Y
+        self.set_Y_list(partial)
     
     #Control for scale, range and help line
     def on_scale_change(self,event):
         if (float(self.scale.GetLineText(0)) <= 1) and (float(self.scale.GetLineText(0)) > 0):
             parameter_utils.change_scale(float(self.scale.GetLineText(0)), 'DOS Plotter')
 
-    def on_scale_change2(self,event):
-        if (float(self.scale2.GetLineText(0)) <= 1) and (float(self.scale2.GetLineText(0)) > 0):
-            parameter_utils.change_scale(float(self.scale2.GetLineText(0)), 'DOS Plotter2')
-
     def on_xmax_change(self,event):
         parameter_utils.set_x_range(float(self.xRangeMax.GetLineText(0)),'max', 'DOS Plotter')
 
-    def on_xmax_change2(self,event):
-        parameter_utils.set_x_range(float(self.xRangeMax2.GetLineText(0)),'max', 'DOS Plotter2')
-    
     def on_xmin_change(self,event):
         parameter_utils.set_x_range(float(self.xRangeMin.GetLineText(0)),'min', 'DOS Plotter')
-
-    def on_xmin_change2(self,event):
-        parameter_utils.set_x_range(float(self.xRangeMin2.GetLineText(0)),'min', 'DOS Plotter2')
 
     def on_ymax_change(self,event):
         parameter_utils.set_y_range(float(self.yRangeMax.GetLineText(0)),'max', 'DOS Plotter')
 
-    def on_ymax_change2(self,event):
-        parameter_utils.set_y_range(float(self.yRangeMax2.GetLineText(0)),'max', 'DOS Plotter2')
-
     def on_ymin_change(self,event):
         parameter_utils.set_y_range(float(self.yRangeMin.GetLineText(0)),'min', 'DOS Plotter')
-
-    def on_ymin_change2(self,event):
-        parameter_utils.set_y_range(float(self.yRangeMin2.GetLineText(0)),'min', 'DOS Plotter2')
 
     def on_check_line(self,event):
         if self.selectLine.IsChecked():
             parameter_utils.enable_help_line(True, 'DOS Plotter')
         else:
             parameter_utils.enable_help_line(False, 'DOS Plotter')
-    
-    def on_check_line2(self,event):
-        if self.selectLine2.IsChecked():
-            parameter_utils.enable_help_line(True, 'DOS Plotter2')
+
+    def on_check_x_label(self,event):
+        if self.selectXLabel.IsChecked():
+            parameter_utils.enable_label(xLabel=True, processor='DOS Plotter')
         else:
-            parameter_utils.enable_help_line(False, 'DOS Plotter2')
+            parameter_utils.enable_label(xLabel=False, processor='DOS Plotter')
+    
+    def on_check_y_label(self,event):
+        if self.selectYLabel.IsChecked():
+            parameter_utils.enable_label(yLabel=True, processor='DOS Plotter')
+        else:
+            parameter_utils.enable_label(yLabel=False, processor='DOS Plotter')
+
+    def on_check_grid(self,event):
+        if self.selectGrid.IsChecked():
+            parameter_utils.enable_grid(gridBool=True, processor='DOS Plotter')
+        else:
+            parameter_utils.enable_grid(gridBool=False, processor='DOS Plotter')
 
     def on_slide_line(self,event):
         parameter_utils.set_help_line(self.lineSlider.GetValue(), 'DOS Plotter')
+    
+    def on_slide_grid(self,event):
+        parameter_utils.set_grid(self.gridSlider.GetValue(), 'DOS Plotter')
+    
+    def on_label_change(self,event):
+        enteredNum = int(self.labelSelect.GetLineText(0))
+        if (enteredNum >= 0):
+            parameter_utils.set_label(enteredNum, 'DOS Plotter')
 
-    def on_slide_line2(self,event):
-        parameter_utils.set_help_line(self.lineSlider2.GetValue(), 'DOS Plotter2')        
+    def on_change_partial(self,event):
+        parameter_utils.set_partial_value(round(float(self.partialChoice.GetLineText(0))), 'Partial Pick')
+        self.set_Y_list(parameter_utils.get_partial_value('Partial Pick'))
 
+    def on_check_enableYselection(self,event):
+        if self.enableYSelection.IsChecked():
+            parameter_utils.enable_multiple_y(multipleBool=True, processor='DOS Plotter')
+            self.sizer.Show(self.selectYBox)
+        else:
+            parameter_utils.enable_multiple_y(multipleBool=False, processor='DOS Plotter')
+            self.sizer.Hide(self.selectYBox)
+        self.update_collapse()
+
+    def on_check_enableYselectionAll(self,event):
+        if self.enableYSelectionAll.IsChecked():
+            parameter_utils.enable_all_y(multipleBool=True, processor='DOS Plotter')
+        else:
+            parameter_utils.enable_all_y(multipleBool=False, processor='DOS Plotter')
+
+    def on_ySelection_change(self,event):
+        num = None
+        if ':' in self.ySelection.GetLineText(0):
+            if ',' in self.ySelection.GetLineText(0):
+                choice = self.ySelection.GetLineText(0).split(':')
+                choice = choice.split(',')
+            else:
+                choice = self.ySelection.GetLineText(0).split(':')
+        elif ',' in self.ySelection.GetLineText(0):
+            choice = self.ySelection.GetLineText(0).split(',')
+        else:
+            num = self.ySelection.GetLineText(0)
+        if num == None:
+            for number in choice:
+                if (int(number) < len(self.listY.GetItems())) and (int(number) >= 0):
+                    parameter_utils.set_yline_range(number,'DOS Plotter')
+        else:
+            if (int(num) < len(self.listY.GetItems())) and (int(num) >= 0):
+                    parameter_utils.set_yline_range(num,'DOS Plotter')
+
+    def set_Y_list(self,partial=0):
+        with h5py.File(self.parent_collapsible.path, 'r') as file:
+            self.listY.Clear()
+            counter = 0
+            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
+                self.listY.Append(str(counter)+': '+key)
+                counter += 1
+            for key in file.get("DOS").get("Total").keys():
+                if (key != 'Energy') and ('Integrated' not in key):
+                    self.listY.Append(str(counter)+': '+'Total '+key)
+                    counter += 1
+
+'''
+Select multiple y data: DOSplotter.BoolYSelection
+Y-data är namnen från hdf5-filen
+GRID: DOSPlotter.enable_grid, DOSPlotter.grid_width
+label number: DOSPlotter.label_number
+
+'''
     
