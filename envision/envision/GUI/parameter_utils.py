@@ -68,6 +68,22 @@ def set_all_data(processor='',setAll=True):
     if dataProcessor:
         dataProcessor.allYSelection.value = setAll
 
+def set_pcf_line(index=1):
+    hdftofunc = network.getProcessorByIdentifier('To Function')
+    pcfPlotter = network.getProcessorByIdentifier('pair correlation plotter')
+    if hdftofunc:
+        if pcfPlotter:
+            hdftofunc.yPathSelectionProperty.selectedIndex = index
+            pcfPlotter.ySelectionProperty.selectedIndex = 1
+
+def get_pcf_line():
+    hdftofunc = network.getProcessorByIdentifier('To Function')
+    pcfPlotter = network.getProcessorByIdentifier('pair correlation plotter')
+    if hdftofunc:
+        if pcfPlotter:
+            return hdftofunc.yPathSelectionProperty.selectedIndex
+    
+
 def get_x_range(processor='Line plot'):
     dataProcessor = network.getProcessorByIdentifier(processor)
     return dataProcessor.x_range.value
