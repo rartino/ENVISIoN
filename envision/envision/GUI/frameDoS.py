@@ -198,8 +198,8 @@ class DosFrame(GeneralCollapsible):
         self.yRangeMin.SetValue(str(y_range[1]))
         self.scale.SetValue(str(parameter_utils.get_scale('DOS Plotter')))
         self.selectGrid.SetValue(grid)
-        self.helpLine.SetValue(parameter_utils.get_help_line('DOS Plotter'))
-        self.gridWidth.SetValue(parameter_utils.get_grid('DOS Plotter'))
+        self.helpLine.SetValue(str(parameter_utils.get_help_line('DOS Plotter')))
+        self.gridWidth.SetValue(str(parameter_utils.get_grid('DOS Plotter')))
         self.ySelection.SetValue(ySelect)
         self.labelSelect.SetValue(str(labelCount))
         self.partialChoice.SetValue(str(partial))        
@@ -220,7 +220,6 @@ class DosFrame(GeneralCollapsible):
         else:
             self.enableYSelectionAll.SetValue(False)
         self.sizer.Hide(self.selectYBox)
-
         #Init list of Y
         self.set_Y_list(partial)
     
@@ -269,7 +268,7 @@ class DosFrame(GeneralCollapsible):
         parameter_utils.set_help_line(float(self.lineSlider.GetLineText(0)), 'DOS Plotter')
     
     def on_grid_change(self,event):
-        parameter_utils.set_grid(self.gridSlider.GetLineText(0), 'DOS Plotter')
+        parameter_utils.set_grid(float(self.gridSlider.GetLineText(0)), 'DOS Plotter')
     
     def on_label_change(self,event):
         enteredNum = int(self.labelSelect.GetLineText(0))
@@ -299,18 +298,25 @@ class DosFrame(GeneralCollapsible):
         num = None
         if ':' in self.ySelection.GetLineText(0):
             if ',' in self.ySelection.GetLineText(0):
-                choice = self.ySelection.GetLineText(0).split(':')
-                choice = choice.split(',')
+                choiceList = self.ySelection.GetLineText(0).split(':')
+                choice = []
+                for part in choiceList:
+                    choice.extend(part.split(','))
             else:
                 choice = self.ySelection.GetLineText(0).split(':')
         elif ',' in self.ySelection.GetLineText(0):
             choice = self.ySelection.GetLineText(0).split(',')
         else:
             num = self.ySelection.GetLineText(0)
+        append = False
         if num == None:
             for number in choice:
                 if (int(number) < len(self.listY.GetItems())) and (int(number) >= 0):
-                    parameter_utils.set_yline_range(number,'DOS Plotter')
+                    append = True
+                else:
+                    append = False
+            if append:
+                parameter_utils.set_yline_range(self.ySelection.GetLineText(0),'DOS Plotter')
         else:
             if (int(num) < len(self.listY.GetItems())) and (int(num) >= 0):
                     parameter_utils.set_yline_range(num,'DOS Plotter')
@@ -334,7 +340,7 @@ class DosFrame(GeneralCollapsible):
                     self.listY.Append(str(counter)+': '+key)
                     counter += 1
             for key in file.get("DOS").get("Partial").get(str(partial)).keys():
-                if ('(dwn)' in key) and ('(xy)' not in key):
+                if ('(dwn)' in key) and ('(xy)' in key):
                     self.listY.Append(str(counter)+': '+key)
                     counter += 1
             for key in file.get("DOS").get("Partial").get(str(partial)).keys():
@@ -345,13 +351,14 @@ class DosFrame(GeneralCollapsible):
                 if ('(dwn)' in key) and (('(xz)' in key) or ('(yz)' in key)):
                     self.listY.Append(str(counter)+': '+key)
                     counter += 1
-            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
-                if ('(dwn)' in key) and (('x' not in key) or ('y' not in key)):
-                    self.listY.Append(str(counter)+': '+key)
-                    counter += 1
             for key in file.get("DOS").get("Total").keys():
                 if key != 'Energy':
                     if '(up)' in key:
+                        self.listY.Append(str(counter)+': '+'Total '+key)
+                        counter += 1
+            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
+                if '(up)' in key:
+                    if ('x2' in key) or ('y2' in key) or ('z2' in key):
                         self.listY.Append(str(counter)+': '+'Total '+key)
                         counter += 1
             for key in file.get("DOS").get("Partial").get(str(partial)).keys():
@@ -359,7 +366,7 @@ class DosFrame(GeneralCollapsible):
                     self.listY.Append(str(counter)+': '+key)
                     counter += 1
             for key in file.get("DOS").get("Partial").get(str(partial)).keys():
-                if ('(up)' in key) and ('(xy)' not in key):
+                if ('(up)' in key) and ('(xy)' in key):
                     self.listY.Append(str(counter)+': '+key)
                     counter += 1
             for key in file.get("DOS").get("Partial").get(str(partial)).keys():
@@ -370,16 +377,5 @@ class DosFrame(GeneralCollapsible):
                 if ('(up)' in key) and (('(xz)' in key) or ('(yz)' in key)):
                     self.listY.Append(str(counter)+': '+key)
                     counter += 1
-            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
-                if ('(up)' in key) and (('x' not in key) or ('y' not in key)):
-                    self.listY.Append(str(counter)+': '+key)
-                    counter += 1
 
-'''
-Select multiple y data: DOSplotter.BoolYSelection
-Y-data är namnen från hdf5-filen
-GRID: DOSPlotter.enable_grid, DOSPlotter.grid_width
-label number: DOSPlotter.label_number
-
-'''
     
