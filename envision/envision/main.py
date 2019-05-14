@@ -47,6 +47,7 @@ from unitcell import unitcell
 from volume import charge, elf
 from fermi import fermi_surface
 from PCF import paircorrelation
+from fermiEnergy import fermi_energy
 
 def parse_all(h5_path, dir):
     """parse_all
@@ -74,7 +75,8 @@ def parse_all(h5_path, dir):
         'DOS from VASP': dos,
         'bandstructure from VASP': bandstructure
         ,'fermi surface from VASP': fermi_surface,
-        'PCF from VASP': paircorrelation
+        'PCF from VASP': paircorrelation,
+        'fermi energy': fermi_energy
     }
     parsed_list = []
     for key, function in func_dict.items():
