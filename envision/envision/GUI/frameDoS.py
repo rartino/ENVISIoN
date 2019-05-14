@@ -152,6 +152,7 @@ class DosFrame(GeneralCollapsible):
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
         self.enableYSelectionAll.Bind(wx.EVT_CHECKBOX, self.on_check_enableYselectionAll)
         self.partialChoice.Bind(wx.EVT_TEXT_ENTER, self.on_change_partial)
+        self.listY.Bind(wx.EVT_CHOICE, self.on_list_select)
 
     
     def on_collapse(self, event = None):
@@ -169,7 +170,7 @@ class DosFrame(GeneralCollapsible):
         elif '/FermiEnergy' in  h5py.File(self.parent_collapsible.path, 'r')\
             and 'DOS' in  h5py.File(self.parent_collapsible.path, 'r'):
             #Start DoS vis
-            self.open_message("When hitting ok, wait until both windows are fully loaded",
+            self.open_message("When hitting ok, wait until the window is fully loaded!",
                             "Be patient!")
             envision.inviwo.dos(self.parent_collapsible.path, 
                                 atom = 0, xpos = 0, ypos = 0)
@@ -192,6 +193,7 @@ class DosFrame(GeneralCollapsible):
         allYSelect = parameter_utils.isEnabled_all_y('DOS Plotter')
         partial = parameter_utils.get_partial_value('Partial Pick')
         labelCount = parameter_utils.get_label('DOS Plotter')
+        listIndex = parameter_utils.get_choosen_line('DOS Plotter')
         self.xRangeMax.SetValue(str(x_range[0]))
         self.xRangeMin.SetValue(str(x_range[1])) 
         self.yRangeMax.SetValue(str(y_range[0]))
@@ -221,7 +223,8 @@ class DosFrame(GeneralCollapsible):
             self.enableYSelectionAll.SetValue(False)
         self.sizer.Hide(self.selectYBox)
         #Init list of Y
-        self.set_Y_list(partial)
+        self.set_Y_list()
+        self.listY.SetSelection(listIndex)
     
     #Control for scale, range and help line
     def on_scale_change(self,event):
@@ -277,7 +280,7 @@ class DosFrame(GeneralCollapsible):
 
     def on_change_partial(self,event):
         parameter_utils.set_partial_value(round(float(self.partialChoice.GetLineText(0))), 'Partial Pick')
-        self.set_Y_list(parameter_utils.get_partial_value('Partial Pick'))
+        self.set_Y_list()
 
     def on_check_enableYselection(self,event):
         if self.enableYSelection.IsChecked():
@@ -321,61 +324,12 @@ class DosFrame(GeneralCollapsible):
             if (int(num) < len(self.listY.GetItems())) and (int(num) >= 0):
                     parameter_utils.set_yline_range(num,'DOS Plotter')
 
-    def set_Y_list(self,partial=0):
-        with h5py.File(self.parent_collapsible.path, 'r') as file:
-            self.listY.Clear()
-            counter = 0
-            for key in file.get("DOS").get("Total").keys():
-                if key != 'Energy':
-                    if '(dwn)' in key:
-                        self.listY.Append(str(counter)+': '+'Total '+key)
-                        counter += 1
-            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
-                if '(dwn)' in key:
-                    if ('x2' in key) or ('y2' in key) or ('z2' in key):
-                        self.listY.Append(str(counter)+': '+'Total '+key)
-                        counter += 1
-            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
-                if ('(dwn)' in key) and (('(x)' in key) or ('(y)' in key)):
-                    self.listY.Append(str(counter)+': '+key)
-                    counter += 1
-            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
-                if ('(dwn)' in key) and ('(xy)' in key):
-                    self.listY.Append(str(counter)+': '+key)
-                    counter += 1
-            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
-                if ('(dwn)' in key) and ('(z)' in key):
-                    self.listY.Append(str(counter)+': '+key)
-                    counter += 1
-            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
-                if ('(dwn)' in key) and (('(xz)' in key) or ('(yz)' in key)):
-                    self.listY.Append(str(counter)+': '+key)
-                    counter += 1
-            for key in file.get("DOS").get("Total").keys():
-                if key != 'Energy':
-                    if '(up)' in key:
-                        self.listY.Append(str(counter)+': '+'Total '+key)
-                        counter += 1
-            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
-                if '(up)' in key:
-                    if ('x2' in key) or ('y2' in key) or ('z2' in key):
-                        self.listY.Append(str(counter)+': '+'Total '+key)
-                        counter += 1
-            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
-                if ('(up)' in key) and (('(x)' in key) or ('(y)' in key)):
-                    self.listY.Append(str(counter)+': '+key)
-                    counter += 1
-            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
-                if ('(up)' in key) and ('(xy)' in key):
-                    self.listY.Append(str(counter)+': '+key)
-                    counter += 1
-            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
-                if ('(up)' in key) and ('(z)' in key):
-                    self.listY.Append(str(counter)+': '+key)
-                    counter += 1
-            for key in file.get("DOS").get("Partial").get(str(partial)).keys():
-                if ('(up)' in key) and (('(xz)' in key) or ('(yz)' in key)):
-                    self.listY.Append(str(counter)+': '+key)
-                    counter += 1
+    def on_list_select(self,event):
+        index = self.listY.GetCurrentSelection()
+        if (index >= 0) and (index < len(self.listY.GetItems())):
+            parameter_utils.choose_line(index,'DOS Plotter')
 
+    def set_Y_list(self):
+        self.listY.Clear()
+        self.listY.Set(parameter_utils.get_option_list('DOS Plotter'))
     

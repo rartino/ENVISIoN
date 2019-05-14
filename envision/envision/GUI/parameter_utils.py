@@ -63,25 +63,25 @@ def get_scale(processor='Line plot'):
     if dataProcessor:
         return dataProcessor.scale.value
 
+def get_option_list(processor='Line plot'):
+    Plotter = network.getProcessorByIdentifier(processor)
+    if Plotter:
+        return Plotter.ySelectionProperty.identifiers
+
 def set_all_data(processor='',setAll=True):
     dataProcessor = network.getProcessorByIdentifier(processor)
     if dataProcessor:
         dataProcessor.allYSelection.value = setAll
 
-def set_pcf_line(index=1):
-    hdftofunc = network.getProcessorByIdentifier('To Function')
-    pcfPlotter = network.getProcessorByIdentifier('pair correlation plotter')
-    if hdftofunc:
-        if pcfPlotter:
-            hdftofunc.yPathSelectionProperty.selectedIndex = index
-            pcfPlotter.ySelectionProperty.selectedIndex = 1
+def choose_line(index=1,processor='Line plot'):
+    Plotter = network.getProcessorByIdentifier(processor)
+    if Plotter:
+        Plotter.ySelectionProperty.selectedIndex = index
 
-def get_pcf_line():
-    hdftofunc = network.getProcessorByIdentifier('To Function')
-    pcfPlotter = network.getProcessorByIdentifier('pair correlation plotter')
-    if hdftofunc:
-        if pcfPlotter:
-            return hdftofunc.yPathSelectionProperty.selectedIndex
+def get_choosen_line(processor='Line plot'):
+    Plotter = network.getProcessorByIdentifier(processor)
+    if Plotter:
+        return Plotter.ySelectionProperty.selectedIndex
     
 
 def get_x_range(processor='Line plot'):

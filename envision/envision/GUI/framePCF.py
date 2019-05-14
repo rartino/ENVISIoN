@@ -98,14 +98,14 @@ class PCFFrame(GeneralCollapsible):
         self.labelBox.Add(self.labelSelect)
 
         #Y selection setup
-        #self.selectYBox = wx.BoxSizer(wx.HORIZONTAL)
-        #self.yLinesText = wx.StaticText(self.GetPane(),label="Y Seletion Range: ")
-        #self.enableYSelection = wx.CheckBox(self.GetPane(),label='Enable Y selection')
-        #self.ySelection = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
-        #                             name='Y selection')
-        #self.selectYBox.Add(self.yLinesText)
-        #self.selectYBox.Add(self.ySelection)
-        #self.enableYSelectionAll = wx.CheckBox(self.GetPane(),label='Enable all Y')
+        self.selectYBox = wx.BoxSizer(wx.HORIZONTAL)
+        self.yLinesText = wx.StaticText(self.GetPane(),label="Y Seletion Range: ")
+        self.enableYSelection = wx.CheckBox(self.GetPane(),label='Enable Y selection')
+        self.ySelection = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
+                                     name='Y selection')
+        self.selectYBox.Add(self.yLinesText)
+        self.selectYBox.Add(self.ySelection)
+        self.enableYSelectionAll = wx.CheckBox(self.GetPane(),label='Enable all Y')
         
         #Setup for list for choosing Y
         self.listYText = wx.StaticText(self.GetPane(),label="List of Y:")
@@ -125,11 +125,11 @@ class PCFFrame(GeneralCollapsible):
         self.add_item(self.selectXLabel)
         self.add_item(self.selectYLabel)
         self.add_item(self.labelBox)
-        #self.add_item(self.enableYSelectionAll)
-        #self.add_item(self.enableYSelection)
+        self.add_item(self.enableYSelectionAll)
+        self.add_item(self.enableYSelection)
         self.add_item(self.listYText)
         self.add_item(self.listY)
-        #self.add_item(self.selectYBox)
+        self.add_item(self.selectYBox)
 
         #Bind signals
         self.scale.Bind(wx.EVT_TEXT_ENTER, self.on_scale_change)
@@ -144,9 +144,10 @@ class PCFFrame(GeneralCollapsible):
         self.selectXLabel.Bind(wx.EVT_CHECKBOX, self.on_check_x_label)
         self.selectYLabel.Bind(wx.EVT_CHECKBOX, self.on_check_y_label)
         self.labelSelect.Bind(wx.EVT_TEXT_ENTER, self.on_label_change)
-        #self.enableYSelection.Bind(wx.EVT_CHECKBOX, self.on_check_enableYselection)
-        self.listY.Bind(wx.EVT_CHOICE, self.on_ySelection_change)
-        #self.enableYSelectionAll.Bind(wx.EVT_CHECKBOX, self.on_check_enableYselectionAll)
+        self.enableYSelection.Bind(wx.EVT_CHECKBOX, self.on_check_enableYselection)
+        self.listY.Bind(wx.EVT_CHOICE, self.on_list_select)
+        self.enableYSelectionAll.Bind(wx.EVT_CHECKBOX, self.on_check_enableYselectionAll)
+        self.ySelection.Bind(wx.EVT_TEXT_ENTER, self.on_ySelection_change)
 
         # Override default binding
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
@@ -183,18 +184,17 @@ class PCFFrame(GeneralCollapsible):
         labels = parameter_utils.isEnabled_label("pair correlation plotter")
         grid = parameter_utils.isEnable_grid("pair correlation plotter")
         labelCount = parameter_utils.get_label("pair correlation plotter")
-        #multipleYBool = parameter_utils.isEnabled_multiple_y('pair correlation plotter')
-        #ySelect = parameter_utils.get_yline_range('pair correlation plotter')
-        #allYSelect = parameter_utils.isEnabled_all_y('pair correlation plotter')
-        pcfIndex = parameter_utils.get_pcf_line()
+        multipleYBool = parameter_utils.isEnabled_multiple_y('pair correlation plotter')
+        ySelect = parameter_utils.get_yline_range('pair correlation plotter')
+        allYSelect = parameter_utils.isEnabled_all_y('pair correlation plotter')
+        pcfIndex = parameter_utils.get_choosen_line('pair correlation plotter')
         self.xRangeMax.SetValue(str(x_range[0]))
         self.xRangeMin.SetValue(str(x_range[1])) 
         self.yRangeMax.SetValue(str(y_range[0]))
         self.yRangeMin.SetValue(str(y_range[1]))
         self.scale.SetValue(str(parameter_utils.get_scale("pair correlation plotter")))
         self.selectGrid.SetValue(grid)
-        self.listY.SetSelection(pcfIndex)
-        #self.ySelection.SetValue(ySelect)
+        self.ySelection.SetValue(ySelect)
         self.helpLine.SetValue(str(parameter_utils.get_help_line("pair correlation plotter")))
         self.gridWidth.SetValue(str(parameter_utils.get_grid("pair correlation plotter")))
         self.labelSelect.SetValue(str(labelCount))       
@@ -205,8 +205,7 @@ class PCFFrame(GeneralCollapsible):
         if labels[1]:
             self.selectYLabel.SetValue(True)
         else:
-            self.selectYLabel.SetValue(False)
-        '''
+            self.selectYLabel.SetValue(False) 
         if multipleYBool:
             self.enableYSelection.SetValue(True)
         else:
@@ -216,9 +215,9 @@ class PCFFrame(GeneralCollapsible):
         else:
             self.enableYSelectionAll.SetValue(False)
         self.sizer.Hide(self.selectYBox)
-        '''
         #Init list of Y
         self.set_Y_list()
+        self.listY.SetSelection(pcfIndex)
     
     #Control for scale, range and help line
     def on_scale_change(self,event):
@@ -271,7 +270,7 @@ class PCFFrame(GeneralCollapsible):
         enteredNum = int(self.labelSelect.GetLineText(0))
         if (enteredNum >= 0):
             parameter_utils.set_label(enteredNum, "pair correlation plotter")
-    '''
+    
     def on_check_enableYselection(self,event):
         if self.enableYSelection.IsChecked():
             parameter_utils.enable_multiple_y(multipleBool=True, processor='pair correlation plotter')
@@ -286,39 +285,41 @@ class PCFFrame(GeneralCollapsible):
             parameter_utils.enable_all_y(multipleBool=True, processor='pair correlation plotter')
         else:
             parameter_utils.enable_all_y(multipleBool=False, processor='pair correlation plotter')
-    '''
+    
     def on_ySelection_change(self,event):
-        index = self.listY.GetCurrentSelection()
-        if (index >= 0) and (index < len(self.listY.GetItems())):
-            parameter_utils.set_pcf_line(index)
-        #Möjliggör flera linjeval för PCF i framtiden
-        '''num = None
+        num = None
         if ':' in self.ySelection.GetLineText(0):
             if ',' in self.ySelection.GetLineText(0):
-                choice = self.ySelection.GetLineText(0).split(':')
-                choice = choice.split(',')
+                choiceList = self.ySelection.GetLineText(0).split(':')
+                choice = []
+                for part in choiceList:
+                    choice.extend(part.split(','))
             else:
                 choice = self.ySelection.GetLineText(0).split(':')
         elif ',' in self.ySelection.GetLineText(0):
             choice = self.ySelection.GetLineText(0).split(',')
         else:
             num = self.ySelection.GetLineText(0)
+        append = False
         if num == None:
             for number in choice:
                 if (int(number) < len(self.listY.GetItems())) and (int(number) >= 0):
-                    parameter_utils.set_yline_range(number,'pair correlation plotter')
+                    append = True
+                else:
+                    append = False
+            if append:
+                parameter_utils.set_yline_range(self.ySelection.GetLineText(0),'pair correlation plotter')
         else:
             if (int(num) < len(self.listY.GetItems())) and (int(num) >= 0):
                     parameter_utils.set_yline_range(num,'pair correlation plotter')
-        '''
+        
+
+    def on_list_select(self,event):
+        index = self.listY.GetCurrentSelection()
+        if (index >= 0) and (index < len(self.listY.GetItems())):
+            parameter_utils.choose_line(index,'pair correlation plotter')
+        
     def set_Y_list(self):
-        with h5py.File(self.parent_collapsible.path, 'r') as file:
-            for element in file.get("PairCorrelationFunc").get('Elements').keys():
-                self.listY.Clear()
-                counter = 0
-                for index in range(0,(len(file.get("PairCorrelationFunc").get('Elements').get(element).keys())-1)):
-                    for key in file.get("PairCorrelationFunc").get('Elements').get(element).keys():
-                        if 'PCF for t_'+str(index) == key:
-                            self.listY.Append(str(counter)+': '+key)
-                            counter += 1
+        self.listY.Clear()
+        self.listY.Set(parameter_utils.get_option_list('pair correlation plotter'))
 

@@ -295,17 +295,8 @@ class BandstructureFrame(GeneralCollapsible):
             if (int(num) < len(self.listY.GetItems())) and (int(num) >= 0):
                 parameter_utils.set_yline_range(num, 'Line plot')
 
-
     def set_Y_list(self):
         self.listY.Clear()
-        counter = 0
-        numberlist =[]
-        with h5py.File(self.parent_collapsible.path, 'r') as file:
-            for band in file.get("Bandstructure").get('Bands').keys():
-                numberlist.append(int(band))
-        numberlist.sort()
-        for number in numberlist:
-            self.listY.Append(str(counter)+': '+'Band '+str(number))
-            counter += 1
+        self.listY.Set(parameter_utils.get_option_list())
 
     
