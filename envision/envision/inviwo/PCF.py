@@ -47,11 +47,12 @@ network = app.network
 
 def paircorrelation(h5file, xpos=0, ypos=0):
     # Creates inviwo network for the pair correlation function, PCF for short.
-    network.clear()
-
     with h5py.File(h5file, "r") as h5:
-        #PCF can be parsed to two structures. See what kind of HDF5-structure is present.
+        #Create HDF5_to_func_list
+        HDF5_to_func_list = []
+        element_in_system_list = []
 
+        #PCF can be parsed to two structures. See what kind of HDF5-structure is present.
         h5source_processor = _add_h5source(h5file, xpos, ypos)
         ypos += 75
 
@@ -60,16 +61,50 @@ def paircorrelation(h5file, xpos=0, ypos=0):
         network.addConnection(h5source_processor.getOutport("outport"), paircorrelation_processor.getInport("inport"))
 
         ypos += 75
+        operation_processor = _add_processor("org.inviwo.FunctionToDataFrame", "Function To Dataframe", xpos, ypos)
 
-        HDF5_to_func_processor = _add_processor("org.inviwo.HDF5ToFunction", "To Function", xpos, ypos)
-        network.addConnection(paircorrelation_processor.getOutport("outport"), HDF5_to_func_processor.getInport("hdf5HandleFlatMultiInport"))
+        xpos_tmp = ypos
 
-        ypos += 75
+        # is_h5_onecol is True when _write_pcdat_onecol has been used for PCF parsning.
+        is_h5_onecol = False
+        #How many timeframes in structure when _write_pcdat_onecol is used?
+        if "Elements" in h5["PairCorrelationFunc"]:
+            is_h5_onecol = True
+            #Go through all timeframes for all Elements.
+            for element_count in range(len(h5["PairCorrelationFunc/Elements"])):
+                elements_in_system = list(h5["PairCorrelationFunc/Elements"].keys())[element_count]
+                element_in_system_list.append(elements_in_system)
 
-        operation_processor = _add_processor("org.inviwo.FunctionOperationNary", "Function to plotter", xpos, ypos)
+                path_str = "PairCorrelationFunc/Elements/" + elements_in_system
+                for t_values in range(len(h5[path_str])):
+                    xpos_tmp += 165
+                    HDF5_to_func_processor = _add_processor("org.inviwo.HDF5ToFunction", "HDF5 To Function", xpos_tmp, ypos)
+                    network.addConnection(paircorrelation_processor.getOutport("outport"), HDF5_to_func_processor.getInport("hdf5HandleFlatMultiInport"))
+                    network.addConnection(HDF5_to_func_processor.getOutport("functionVectorOutport"), operation_processor.getInport("functionFlatMultiInport"))
+                    HDF5_to_func_list.append(HDF5_to_func_processor)
+
+
+
+        else:
+            for t_values in range(len(h5["PairCorrelationFunc"]) - 1):
+                xpos_tmp += 165
+                HDF5_to_func_processor = _add_processor("org.inviwo.HDF5ToFunction", "HDF5 To Function", xpos_tmp, ypos)
+                network.addConnection(paircorrelation_processor.getOutport("outport"), HDF5_to_func_processor.getInport("hdf5HandleFlatMultiInport"))
+                network.addConnection(HDF5_to_func_processor.getOutport("functionVectorOutport"),
+                                      operation_processor.getInport("functionFlatMultiInport"))
+                HDF5_to_func_list.append(HDF5_to_func_processor)
+
+
+        #for t_values in range():
+        #ypos += 75
+        #HDF5_to_func_processor = _add_processor("org.inviwo.HDF5ToFunction", "To Function", xpos, ypos)
+        #network.addConnection(paircorrelation_processor.getOutport("outport"), HDF5_to_func_processor.getInport("hdf5HandleFlatMultiInport"))
+
+
+
         network.addConnection(HDF5_to_func_processor.getOutport("functionVectorOutport"), operation_processor.getInport("functionFlatMultiInport"))
-        ypos += 75
 
+        ypos += 75
         plotter_processor = _add_processor("org.inviwo.LinePlotProcessor", "pair correlation plotter", xpos, ypos)
         network.addConnection(operation_processor.getOutport("dataframeOutport"), plotter_processor.getInport("dataFrameInport"))
         ypos += 75
@@ -95,19 +130,36 @@ def paircorrelation(h5file, xpos=0, ypos=0):
         # Set processor properties
 
         paircorrelation_processor.selection.value = "/PairCorrelationFunc"
-        HDF5_to_func_processor.implicitXProperty.value = False
-        HDF5_to_func_processor.xPathSelectionProperty.value = "/Distance"
 
         # if Elements are in h5, parsing is using _write_pcdat_multicol else _write_pcdat_onecol is used.
-        if "Elements" in h5["PairCorrelationFunc"]:
+        for processor_count in range(len(HDF5_to_func_list)):
+            h5_from_list = HDF5_to_func_list[processor_count]
+
+            if is_h5_onecol:
+                h5_from_list.implicitXProperty.value = False
+                h5_from_list.xPathSelectionProperty.value = "/Distance"
+                for chosen_element in element_in_system_list:
+                    h5_from_list.yPathSelectionProperty.value = "/Elements/" + chosen_element + "/PCF for t_" + str(processor_count)
+            else:
+                h5_from_list.implicitXProperty.value = False
+                h5_from_list.xPathSelectionProperty.value = "/Distance"
+                h5_from_list.yPathSelectionProperty.value = "/PCF for t_" + str(processor_count)
+
+
+
+
+        #Default settings, first value chosen. Different graphs can later be chosen by GUI through Line Plot Processor
+        if is_h5_onecol:
             first_element = list(h5["PairCorrelationFunc/Elements"].keys())[0]
             HDF5_to_func_processor.yPathSelectionProperty.value = "/Elements/" + first_element + "/PCF for t_0"
 
         else:
             HDF5_to_func_processor.yPathSelectionProperty.value = "/PCF for t_0"
 
+
+
         plotter_processor.ySelectionProperty.value = "X"
-        plotter_processor.ySelectionProperty.value = "PCF for t_0 Added"
+        plotter_processor.ySelectionProperty.value = "PCF for t_0"
 
         #Default settings of Canvas size
         canvas_processor.inputSize.dimensions.value = inviwopy.glm.ivec2(666, 367)
@@ -121,7 +173,7 @@ def paircorrelation(h5file, xpos=0, ypos=0):
         text_overlay_processor.font.fontSize.value = 22
         text_overlay_processor.font.fontFace.value = "OpenSans Bold"
 
-        
+
 
 
 
