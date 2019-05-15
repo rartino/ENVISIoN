@@ -78,6 +78,7 @@ class BandstructureFrame(GeneralCollapsible):
         self.selectLine = wx.CheckBox(self.GetPane(),label='Help line: ')
         self.helpLine = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
                                      name='Help line value')
+        self.lineSlider = wx.Slider(self.GetPane())
 
         #Grid lines and labels setup
         self.selectGrid = wx.CheckBox(self.GetPane(),label='Grid ')
@@ -108,6 +109,7 @@ class BandstructureFrame(GeneralCollapsible):
         self.add_item(self.scaleBox)
         self.add_item(self.selectLine)
         self.add_item(self.helpLine)
+        self.add_item(self.lineSlider)
         self.add_item(self.selectGrid)
         self.add_item(self.gridWidth)
         self.add_item(self.selectXLabel)
@@ -133,6 +135,7 @@ class BandstructureFrame(GeneralCollapsible):
         self.selectYLabel.Bind(wx.EVT_CHECKBOX, self.on_check_y_label)
         self.selectLabel.Bind(wx.EVT_TEXT_ENTER, self.on_label_change)
         self.helpLine.Bind(wx.EVT_TEXT_ENTER, self.on_line_change)
+        self.lineSlider.Bind(wx.EVT_SLIDER,self.on_line_slide)
         self.enableYSelection.Bind(wx.EVT_CHECKBOX, self.on_check_enableYselection)
         self.ySelection.Bind(wx.EVT_TEXT_ENTER, self.on_ySelection_change)
         self.enableYSelectionAll.Bind(wx.EVT_CHECKBOX, self.on_check_enableYselectionAll)
@@ -177,10 +180,13 @@ class BandstructureFrame(GeneralCollapsible):
         self.xRangeMin.SetValue(str(x_range[1])) 
         self.yRangeMax.SetValue(str(y_range[0]))
         self.yRangeMin.SetValue(str(y_range[1]))
-        self.scale.SetValue(str(parameter_utils.get_scale()))
+        self.scale.SetValue(str(round(parameter_utils.get_scale(), 3)))
         self.selectGrid.SetValue(grid)
-        self.helpLine.SetValue(str(parameter_utils.get_help_line()))
-        self.gridWidth.SetValue(str(parameter_utils.get_grid()))
+        self.helpLine.SetValue(str(round(parameter_utils.get_help_line(), 3)))
+        self.lineSlider.SetMax(x_range[0]*1000)
+        self.lineSlider.SetMin(x_range[1]*1000)
+        self.lineSlider.SetValue(round(parameter_utils.get_help_line()*1000, 3))
+        self.gridWidth.SetValue(str(round(parameter_utils.get_grid(), 3)))
         self.ySelection.SetValue(ySelect)
         self.selectLabel.SetValue(str(labelCount))     
         if labels[0]:
@@ -245,6 +251,11 @@ class BandstructureFrame(GeneralCollapsible):
     
     def on_line_change(self,event):
         parameter_utils.set_help_line(float(self.helpLine.GetLineText(0)))
+        self.lineSlider.SetValue(round(float(self.helpLine.GetLineText(0))*1000, 3))
+
+    def on_line_slide(self,event):
+        parameter_utils.set_help_line(self.lineSlider.GetValue()/1000)
+        self.helpLine.SetValue(str(round(self.lineSlider.GetValue()/1000, 3)))
     
     def on_grid_change(self,event):
         parameter_utils.set_grid(float(self.gridWidth.GetLineText(0)), 'Line plot')
@@ -298,5 +309,6 @@ class BandstructureFrame(GeneralCollapsible):
     def set_Y_list(self):
         self.listY.Clear()
         self.listY.Set(parameter_utils.get_option_list())
+
 
     

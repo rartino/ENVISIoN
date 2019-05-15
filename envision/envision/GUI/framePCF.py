@@ -82,12 +82,12 @@ class PCFFrame(GeneralCollapsible):
         self.selectLine = wx.CheckBox(self.GetPane(),label='Help line ')
         self.helpLine = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
                                      name='Help line value')
+        self.lineSlider = wx.Slider(self.GetPane())
 
         #Grid lines and labels setup
         self.selectGrid = wx.CheckBox(self.GetPane(),label='Grid ')
         self.selectXLabel = wx.CheckBox(self.GetPane(),label='X label ')
         self.selectYLabel = wx.CheckBox(self.GetPane(),label='Y label ')
-        self.gridText = wx.StaticText(self.GetPane(),label="Grid width: ")
         self.gridWidth = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
                                      name='Grid width')
         self.labelBox = wx.BoxSizer(wx.HORIZONTAL)
@@ -119,8 +119,8 @@ class PCFFrame(GeneralCollapsible):
         self.add_item(self.scaleBox)
         self.add_item(self.selectLine)
         self.add_item(self.helpLine)
+        self.add_item(self.lineSlider)
         self.add_item(self.selectGrid)
-        self.add_item(self.gridText)
         self.add_item(self.gridWidth)
         self.add_item(self.selectXLabel)
         self.add_item(self.selectYLabel)
@@ -139,6 +139,7 @@ class PCFFrame(GeneralCollapsible):
         self.yRangeMin.Bind(wx.EVT_TEXT_ENTER, self.on_ymin_change)
         self.selectLine.Bind(wx.EVT_CHECKBOX, self.on_check_line)
         self.helpLine.Bind(wx.EVT_TEXT_ENTER, self.on_line_change)
+        self.lineSlider.Bind(wx.EVT_SLIDER,self.on_line_slide)
         self.selectGrid.Bind(wx.EVT_CHECKBOX, self.on_check_grid)
         self.gridWidth.Bind(wx.EVT_TEXT_ENTER, self.on_grid_change)
         self.selectXLabel.Bind(wx.EVT_CHECKBOX, self.on_check_x_label)
@@ -192,11 +193,14 @@ class PCFFrame(GeneralCollapsible):
         self.xRangeMin.SetValue(str(x_range[1])) 
         self.yRangeMax.SetValue(str(y_range[0]))
         self.yRangeMin.SetValue(str(y_range[1]))
-        self.scale.SetValue(str(parameter_utils.get_scale("pair correlation plotter")))
+        self.scale.SetValue(str(round(parameter_utils.get_scale("pair correlation plotter"), 3)))
         self.selectGrid.SetValue(grid)
         self.ySelection.SetValue(ySelect)
-        self.helpLine.SetValue(str(parameter_utils.get_help_line("pair correlation plotter")))
-        self.gridWidth.SetValue(str(parameter_utils.get_grid("pair correlation plotter")))
+        self.helpLine.SetValue(str(round(parameter_utils.get_help_line("pair correlation plotter"), 3)))
+        self.lineSlider.SetMax(x_range[0]*1000)
+        self.lineSlider.SetMin(x_range[1]*1000)
+        self.lineSlider.SetValue(round(parameter_utils.get_help_line('pair correlation plotter')*1000, 3))
+        self.gridWidth.SetValue(str(round(parameter_utils.get_grid("pair correlation plotter"), 3)))
         self.labelSelect.SetValue(str(labelCount))       
         if labels[0]:
             self.selectXLabel.SetValue(True)
@@ -262,6 +266,11 @@ class PCFFrame(GeneralCollapsible):
 
     def on_line_change(self,event):
         parameter_utils.set_help_line(float(self.helpLine.GetLineText(0)), "pair correlation plotter")
+        self.lineSlider.SetValue(round(float(self.helpLine.GetLineText(0))*1000, 3))
+
+    def on_line_slide(self,event):
+        parameter_utils.set_help_line(self.lineSlider.GetValue()/1000, 'pair correlation plotter')
+        self.helpLine.SetValue(str(round(self.lineSlider.GetValue()/1000, 3)))
     
     def on_grid_change(self,event):
         parameter_utils.set_grid(float(self.gridWidth.GetLineText(0)), "pair correlation plotter")

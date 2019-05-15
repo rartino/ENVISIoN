@@ -63,7 +63,7 @@ class ParserPane(GeneralCollapsible):
 
     #Path-selection to file for parsing
         self.fileText = wx.StaticText(self.GetPane(),
-                                    label="File to parse:")
+                                    label="Directory with files to parse:")
         self.chooseParseDir = wx.Button(self.GetPane(), size=self.itemSize,
                                     label = str('..or select dir'))
         self.enterPath = wx.TextCtrl(self.GetPane(), size=self.itemSize,
@@ -71,7 +71,7 @@ class ParserPane(GeneralCollapsible):
                                     style=wx.TE_PROCESS_ENTER)
     #Path-selection to dir for saving
         self.dirText = wx.StaticText(self.GetPane(),
-                                    label="Save new file in dir:")       
+                                    label="Save new file in directory:")       
         self.chooseSaveDir = wx.Button(self.GetPane(), size=self.itemSize,
                                     label = str('..or select dir'))
         self.enterSavePath = wx.TextCtrl(self.GetPane(), size=self.itemSize,
@@ -90,9 +90,9 @@ class ParserPane(GeneralCollapsible):
                                     label="Type of Visualization:")
         self.selectVis = wx.ComboBox(self.GetPane(), size=self.itemSize,
                                     value = "Select type",
-                                    choices= ('All','Bandstructure','DoS',
-                                            'Charge','ELF','Fermi energy',
-                                            'MD','Parchg','PCF',
+                                    choices= ('All', 'Bandstructure', 'Charge',
+                                            'DoS', 'ELF', 'Fermi energy',
+                                            'MD', 'Parchg', 'PCF',
                                             'Unitcell'))
         self.parserDict = {
             'Unitcell' : 'unitcell from VASP' ,
