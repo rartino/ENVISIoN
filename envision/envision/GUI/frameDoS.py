@@ -78,6 +78,7 @@ class DosFrame(GeneralCollapsible):
         self.selectLine = wx.CheckBox(self.GetPane(),label='Help line ')
         self.helpLine = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
                                      name='Help line value')
+        self.lineSlider = wx.Slider(self.GetPane())
 
         #Grid lines and labels setup
         self.selectGrid = wx.CheckBox(self.GetPane(),label='Grid ')
@@ -120,6 +121,7 @@ class DosFrame(GeneralCollapsible):
         self.add_item(self.scaleBox)
         self.add_item(self.selectLine)
         self.add_item(self.helpLine)
+        self.add_item(self.lineSlider)
         self.add_item(self.selectGrid)
         self.add_item(self.gridText)
         self.add_item(self.gridWidth)
@@ -142,6 +144,7 @@ class DosFrame(GeneralCollapsible):
         self.yRangeMin.Bind(wx.EVT_TEXT_ENTER, self.on_ymin_change)
         self.selectLine.Bind(wx.EVT_CHECKBOX, self.on_check_line)
         self.helpLine.Bind(wx.EVT_TEXT_ENTER, self.on_line_change)
+        self.lineSlider.Bind(wx.EVT_SLIDER,self.on_line_slide)
         self.selectGrid.Bind(wx.EVT_CHECKBOX, self.on_check_grid)
         self.gridWidth.Bind(wx.EVT_TEXT_ENTER, self.on_grid_change)
         self.selectXLabel.Bind(wx.EVT_CHECKBOX, self.on_check_x_label)
@@ -198,10 +201,13 @@ class DosFrame(GeneralCollapsible):
         self.xRangeMin.SetValue(str(x_range[1])) 
         self.yRangeMax.SetValue(str(y_range[0]))
         self.yRangeMin.SetValue(str(y_range[1]))
-        self.scale.SetValue(str(parameter_utils.get_scale('DOS Plotter')))
+        self.scale.SetValue(str(round(parameter_utils.get_scale('DOS Plotter'), 3)))
         self.selectGrid.SetValue(grid)
-        self.helpLine.SetValue(str(parameter_utils.get_help_line('DOS Plotter')))
-        self.gridWidth.SetValue(str(parameter_utils.get_grid('DOS Plotter')))
+        self.helpLine.SetValue(str(round(parameter_utils.get_help_line('DOS Plotter'), 3)))
+        self.lineSlider.SetMax(x_range[0]*1000)
+        self.lineSlider.SetMin(x_range[1]*1000)
+        self.lineSlider.SetValue(round(parameter_utils.get_help_line('DOS Plotter')*1000, 3))
+        self.gridWidth.SetValue(str(round(parameter_utils.get_grid('DOS Plotter'), 3)))
         self.ySelection.SetValue(ySelect)
         self.labelSelect.SetValue(str(labelCount))
         self.partialChoice.SetValue(str(partial))        
@@ -268,8 +274,13 @@ class DosFrame(GeneralCollapsible):
             parameter_utils.enable_grid(gridBool=False, processor='DOS Plotter')
 
     def on_line_change(self,event):
-        parameter_utils.set_help_line(float(self.lineSlider.GetLineText(0)), 'DOS Plotter')
-    
+        parameter_utils.set_help_line(float(self.helpLine.GetLineText(0)), 'DOS Plotter')
+        self.lineSlider.SetValue(round(float(self.helpLine.GetLineText(0))*1000, 3))
+
+    def on_line_slide(self,event):
+        parameter_utils.set_help_line(self.lineSlider.GetValue()/1000, 'DOS Plotter')
+        self.helpLine.SetValue(str(round(self.lineSlider.GetValue()/1000, 3)))
+
     def on_grid_change(self,event):
         parameter_utils.set_grid(float(self.gridSlider.GetLineText(0)), 'DOS Plotter')
     
