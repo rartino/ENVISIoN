@@ -109,7 +109,8 @@ def _parse_pcdat(h5file, vasp_file, vasp_dir):
                     pcdat_data['general paircorr'].append(PKF_value)
 
             if count_eof <= 11:
-                raise Exception("PCDAT-file is empty.")
+                print("PCDAT-file is empty.")
+                return []
 
             return pcdat_data
 
@@ -137,7 +138,8 @@ def _parse_pcdat(h5file, vasp_file, vasp_dir):
                         pcdat_data[dict_key].append(PKF_value)
 
             if count_eof <= 11:
-                raise Exception("PCDAT-file is empty.")
+                print("PCDAT-file is empty.")
+                return {}
 
             return pcdat_data
 
@@ -188,7 +190,9 @@ def paircorrelation(h5file, vasp_dir):
 
     try:
         pcdat_data = _parse_pcdat(h5file, vasp_file, vasp_dir)
-        if list(pcdat_data)[0] == "general paircorr":
+        if not pcdat_data:
+            return False
+        elif list(pcdat_data)[0] == "general paircorr":
             _write_pcdat_onecol(h5file, pcdat_data, APACO_val, NPACO_val)
 
         else:
