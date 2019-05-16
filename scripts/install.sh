@@ -11,35 +11,24 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
                      build-essential \
                      libpng-dev \
                      libhdf5-dev \
+                     qt5-default \
                      qtbase5-dev \
                      qttools5-dev \
                      gcc \
                      cmake \
                      python3-dev \
-                     python3-numpy \
-                     python3-h5py \
-                     python3-regex \
+                     python3-pip \
+                     python-wxgtk4.0 \
                      libglu1-mesa-dev \
                      libxrandr-dev \
                      libxinerama-dev \
                      libxcursor-dev
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-    # Install and update homebrew.
-    #/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)
-    # Install packages needed for Inviwo and ENVISIoN.
-    brew install libpng \
-                 python@3 \
-                 gcc \
-                 hdf5 \
-                 git \
-                 cmake \
-                 qt
-    # Install Python packages
-    pip3 install numpy \
-                 h5py \
-                 regex
-elif [[ "$OSTYPE" == "win32" ]]; then
-    echo "Not implemented for windows yet!"
+
+    pip3 install numpy
+    pip3 install h5py
+    pip3 install regex
+    pip3 install matplotlib
+
 else
     echo "This installation script doesn't support your operating system"
     echo "Exiting..."
@@ -48,32 +37,23 @@ fi
 
 # Get Inviwo repository and enter directory.
 git clone https://github.com/inviwo/inviwo.git "$2"
-if [[ "$OSTYPE" == "win32" ]]; then
-    echo "Not implemented for windows yet!"
-else
-    cd "$2"
-fi
+cd "$2"
 
 # Checkout correct version.
-git checkout v.0.9.9.1
+git checkout d20199dfd37c80559ce687243d296f6ce3e41c71
 
 # Apply 2019 patch.
-<<<<<<< HEAD
-git apply < "$1/inviwo/patches/2019/patch2019.patch"
-=======
+git apply < "$1/inviwo/patches/2019/envisionTransferFuncFix2019.patch"
 git apply < "$1/inviwo/patches/2019/paneProperty2019.patch"
->>>>>>> 2c6df37b7212d0705c6b357f3028e4609fe249ec
+git apply < "$1/inviwo/patches/2019/tfRemoveFix2019.patch"
 
 # Init and update submodules.
 git submodule init
 
 # Create and enter a build directory.
-if [[ "$OSTYPE" == "win32" ]]; then
-    echo "Not implemented for windows yet!"
-else
-    mkdir build
-    cd build
-fi
+cd ..
+mkdir build
+cd build
 
 # Enable relevant ENVISIoN-modules.
 cmake .. -DIVW_EXTERNAL_PROJECTS="$1/inviwo/app" \
