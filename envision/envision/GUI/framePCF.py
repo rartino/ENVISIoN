@@ -35,15 +35,19 @@
 #  You should have received a copy of the CC0 legalcode along with
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
-import wx ,sys ,os , h5py
-import parameter_utils
+import wx,sys,os,inspect
+import h5py
 from generalCollapsible import GeneralCollapsible
+import parameter_utils
+
+path_to_current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_dir+"/../inviwo"))
 import envision
 
-class DosFrame(GeneralCollapsible):
+class PCFFrame(GeneralCollapsible):
     def __init__(self, parent):
-        super().__init__(parent, "Density of States")
-
+        super().__init__(parent, "PCF")
+        
         #Sizer for scale
         self.scaleBox = wx.BoxSizer(wx.HORIZONTAL)
         self.scaleText = wx.StaticText(self.GetPane(),label="Scale: ")
@@ -84,7 +88,6 @@ class DosFrame(GeneralCollapsible):
         self.selectGrid = wx.CheckBox(self.GetPane(),label='Grid ')
         self.selectXLabel = wx.CheckBox(self.GetPane(),label='X label ')
         self.selectYLabel = wx.CheckBox(self.GetPane(),label='Y label ')
-        self.gridText = wx.StaticText(self.GetPane(),label="Grid width: ")
         self.gridWidth = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
                                      name='Grid width')
         self.labelBox = wx.BoxSizer(wx.HORIZONTAL)
@@ -95,27 +98,22 @@ class DosFrame(GeneralCollapsible):
         self.labelBox.Add(self.labelSelect)
 
         #Y selection setup
-        self.enableYSelection = wx.CheckBox(self.GetPane(),label='Enable Y selection')
         self.selectYBox = wx.BoxSizer(wx.HORIZONTAL)
         self.yLinesText = wx.StaticText(self.GetPane(),label="Y Seletion Range: ")
+        self.enableYSelection = wx.CheckBox(self.GetPane(),label='Enable Y selection')
         self.ySelection = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
                                      name='Y selection')
         self.selectYBox.Add(self.yLinesText)
         self.selectYBox.Add(self.ySelection)
         self.enableYSelectionAll = wx.CheckBox(self.GetPane(),label='Enable all Y')
-        self.selectPartialBox = wx.BoxSizer(wx.HORIZONTAL)
-        self.partialText = wx.StaticText(self.GetPane(),label="Partial choice:")
-        self.partialChoice = wx.TextCtrl(self.GetPane(), style=wx.TE_PROCESS_ENTER,
-                                     name='Partial choice')
-        self.selectPartialBox.Add(self.partialText)
-        self.selectPartialBox.Add(self.partialChoice)
         
         #Setup for list for choosing Y
         self.listYText = wx.StaticText(self.GetPane(),label="List of Y:")
         self.listY = wx.Choice(self.GetPane(),choices=[])
         
 
-        #Add items in collapsible
+
+         #Add items in collapsible
         self.add_item(self.xRangeBox)
         self.add_item(self.yRangeBox)
         self.add_item(self.scaleBox)
@@ -123,18 +121,15 @@ class DosFrame(GeneralCollapsible):
         self.add_item(self.helpLine)
         self.add_item(self.lineSlider)
         self.add_item(self.selectGrid)
-        self.add_item(self.gridText)
         self.add_item(self.gridWidth)
         self.add_item(self.selectXLabel)
         self.add_item(self.selectYLabel)
         self.add_item(self.labelBox)
-        self.add_item(self.listYText)
-        self.add_item(self.listY)
-        self.add_item(self.selectPartialBox)
         self.add_item(self.enableYSelectionAll)
         self.add_item(self.enableYSelection)
+        self.add_item(self.listYText)
+        self.add_item(self.listY)
         self.add_item(self.selectYBox)
-
 
         #Bind signals
         self.scale.Bind(wx.EVT_TEXT_ENTER, self.on_scale_change)
@@ -151,66 +146,62 @@ class DosFrame(GeneralCollapsible):
         self.selectYLabel.Bind(wx.EVT_CHECKBOX, self.on_check_y_label)
         self.labelSelect.Bind(wx.EVT_TEXT_ENTER, self.on_label_change)
         self.enableYSelection.Bind(wx.EVT_CHECKBOX, self.on_check_enableYselection)
-        self.ySelection.Bind(wx.EVT_TEXT_ENTER, self.on_ySelection_change)
-        self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
-        self.enableYSelectionAll.Bind(wx.EVT_CHECKBOX, self.on_check_enableYselectionAll)
-        self.partialChoice.Bind(wx.EVT_TEXT_ENTER, self.on_change_partial)
         self.listY.Bind(wx.EVT_CHOICE, self.on_list_select)
+        self.enableYSelectionAll.Bind(wx.EVT_CHECKBOX, self.on_check_enableYselectionAll)
+        self.ySelection.Bind(wx.EVT_TEXT_ENTER, self.on_ySelection_change)
 
-    
+        # Override default binding
+        self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
+
     def on_collapse(self, event = None):
         self.update_collapse()
         # Needs to be called to update the layout properly
         if self.IsCollapsed():
-            # Disable DoS vis
+            # Disable vis
             parameter_utils.clear_processor_network()
+            print("Not paircorr")
         else:
+            #Start vis
             self.start_vis()
+            print("Paircorr")
 
     def start_vis(self):
         if self.isPathEmpty():
-            return    
-        elif '/FermiEnergy' in  h5py.File(self.parent_collapsible.path, 'r')\
-            and 'DOS' in  h5py.File(self.parent_collapsible.path, 'r'):
-            #Start DoS vis
-            self.open_message("When hitting ok, wait until the window is fully loaded!",
-                            "Be patient!")
-            envision.inviwo.dos(self.parent_collapsible.path, 
-                                atom = 0, xpos = 0, ypos = 0)
-            
-            self.init_DoS()
-            self.set_canvas_pos('DoS')
+            return
+        elif "/PairCorrelationFunc" in  h5py.File(self.parent_collapsible.path, 'r'):
+            #Start vis
+            envision.inviwo.paircorrelation(self.parent_collapsible.path, xpos=0, ypos=0)
+            self.set_canvas_pos('PCF')
+            self.init_PCF()
         else:
-            self.open_message('The file of choice does not contain DoS-data',
+            self.open_message('The file of choice does not contain PCF-data',
                                 'Visualization failed!')
             self.Collapse(True)
-            self.update_collapse()
-
-    def init_DoS(self):
-        x_range = parameter_utils.get_x_range('DOS Plotter')
-        y_range = parameter_utils.get_y_range('DOS Plotter')
-        labels = parameter_utils.isEnabled_label('DOS Plotter')
-        grid = parameter_utils.isEnable_grid('DOS Plotter')
-        multipleYBool = parameter_utils.isEnabled_multiple_y('DOS Plotter')
-        ySelect = parameter_utils.get_yline_range('DOS Plotter')
-        allYSelect = parameter_utils.isEnabled_all_y('DOS Plotter')
-        partial = parameter_utils.get_partial_value('Partial Pick')
-        labelCount = parameter_utils.get_label('DOS Plotter')
-        listIndex = parameter_utils.get_choosen_line('DOS Plotter')
+            self.update_collapse()     
+        
+    def init_PCF(self):
+        x_range = parameter_utils.get_x_range("pair correlation plotter")
+        y_range = parameter_utils.get_y_range("pair correlation plotter")
+        labels = parameter_utils.isEnabled_label("pair correlation plotter")
+        grid = parameter_utils.isEnable_grid("pair correlation plotter")
+        labelCount = parameter_utils.get_label("pair correlation plotter")
+        multipleYBool = parameter_utils.isEnabled_multiple_y('pair correlation plotter')
+        ySelect = parameter_utils.get_yline_range('pair correlation plotter')
+        allYSelect = parameter_utils.isEnabled_all_y('pair correlation plotter')
+        pcfIndex = parameter_utils.get_choosen_line('pair correlation plotter')
         self.xRangeMax.SetValue(str(x_range[0]))
         self.xRangeMin.SetValue(str(x_range[1])) 
         self.yRangeMax.SetValue(str(y_range[0]))
         self.yRangeMin.SetValue(str(y_range[1]))
-        self.scale.SetValue(str(round(parameter_utils.get_scale('DOS Plotter'), 3)))
+        self.scale.SetValue(str(round(parameter_utils.get_scale("pair correlation plotter"), 3)))
         self.selectGrid.SetValue(grid)
-        self.helpLine.SetValue(str(round(parameter_utils.get_help_line('DOS Plotter'), 3)))
+        self.ySelection.SetValue(ySelect)
+        self.helpLine.SetValue(str(round(parameter_utils.get_help_line("pair correlation plotter"), 3)))
         self.lineSlider.SetMax(x_range[0]*1000)
         self.lineSlider.SetMin(x_range[1]*1000)
-        self.lineSlider.SetValue(round(parameter_utils.get_help_line('DOS Plotter')*1000, 3))
-        self.gridWidth.SetValue(str(round(parameter_utils.get_grid('DOS Plotter'), 3)))
-        self.ySelection.SetValue(ySelect)
-        self.labelSelect.SetValue(str(labelCount))
-        self.partialChoice.SetValue(str(partial))        
+        self.lineSlider.SetValue(round(parameter_utils.get_help_line('pair correlation plotter')*1000, 3))
+        self.gridWidth.SetValue(str(round(parameter_utils.get_grid("pair correlation plotter"), 3)))
+        self.labelSelect.SetValue(str(labelCount))       
         if labels[0]:
             self.selectXLabel.SetValue(True)
         else:
@@ -218,7 +209,7 @@ class DosFrame(GeneralCollapsible):
         if labels[1]:
             self.selectYLabel.SetValue(True)
         else:
-            self.selectYLabel.SetValue(False)
+            self.selectYLabel.SetValue(False) 
         if multipleYBool:
             self.enableYSelection.SetValue(True)
         else:
@@ -230,84 +221,80 @@ class DosFrame(GeneralCollapsible):
         self.sizer.Hide(self.selectYBox)
         #Init list of Y
         self.set_Y_list()
-        self.listY.SetSelection(listIndex)
+        self.listY.SetSelection(pcfIndex)
     
     #Control for scale, range and help line
     def on_scale_change(self,event):
         if (float(self.scale.GetLineText(0)) <= 1) and (float(self.scale.GetLineText(0)) > 0):
-            parameter_utils.change_scale(float(self.scale.GetLineText(0)), 'DOS Plotter')
+            parameter_utils.change_scale(float(self.scale.GetLineText(0)), "pair correlation plotter")
 
     def on_xmax_change(self,event):
-        parameter_utils.set_x_range(float(self.xRangeMax.GetLineText(0)),'max', 'DOS Plotter')
+        parameter_utils.set_x_range(float(self.xRangeMax.GetLineText(0)),'max', "pair correlation plotter")
 
     def on_xmin_change(self,event):
-        parameter_utils.set_x_range(float(self.xRangeMin.GetLineText(0)),'min', 'DOS Plotter')
+        parameter_utils.set_x_range(float(self.xRangeMin.GetLineText(0)),'min', "pair correlation plotter")
 
     def on_ymax_change(self,event):
-        parameter_utils.set_y_range(float(self.yRangeMax.GetLineText(0)),'max', 'DOS Plotter')
+        parameter_utils.set_y_range(float(self.yRangeMax.GetLineText(0)),'max', "pair correlation plotter")
 
     def on_ymin_change(self,event):
-        parameter_utils.set_y_range(float(self.yRangeMin.GetLineText(0)),'min', 'DOS Plotter')
+        parameter_utils.set_y_range(float(self.yRangeMin.GetLineText(0)),'min', "pair correlation plotter")
 
     def on_check_line(self,event):
         if self.selectLine.IsChecked():
-            parameter_utils.enable_help_line(True, 'DOS Plotter')
+            parameter_utils.enable_help_line(True, "pair correlation plotter")
         else:
-            parameter_utils.enable_help_line(False, 'DOS Plotter')
+            parameter_utils.enable_help_line(False, "pair correlation plotter")
 
     def on_check_x_label(self,event):
         if self.selectXLabel.IsChecked():
-            parameter_utils.enable_label(xLabel=True, processor='DOS Plotter')
+            parameter_utils.enable_label(xLabel=True, processor="pair correlation plotter")
         else:
-            parameter_utils.enable_label(xLabel=False, processor='DOS Plotter')
+            parameter_utils.enable_label(xLabel=False, processor="pair correlation plotter")
     
     def on_check_y_label(self,event):
         if self.selectYLabel.IsChecked():
-            parameter_utils.enable_label(yLabel=True, processor='DOS Plotter')
+            parameter_utils.enable_label(yLabel=True, processor="pair correlation plotter")
         else:
-            parameter_utils.enable_label(yLabel=False, processor='DOS Plotter')
+            parameter_utils.enable_label(yLabel=False, processor="pair correlation plotter")
 
     def on_check_grid(self,event):
         if self.selectGrid.IsChecked():
-            parameter_utils.enable_grid(gridBool=True, processor='DOS Plotter')
+            parameter_utils.enable_grid(gridBool=True, processor="pair correlation plotter")
         else:
-            parameter_utils.enable_grid(gridBool=False, processor='DOS Plotter')
+            parameter_utils.enable_grid(gridBool=False, processor="pair correlation plotter")
 
     def on_line_change(self,event):
-        parameter_utils.set_help_line(float(self.helpLine.GetLineText(0)), 'DOS Plotter')
+        parameter_utils.set_help_line(float(self.helpLine.GetLineText(0)), "pair correlation plotter")
         self.lineSlider.SetValue(round(float(self.helpLine.GetLineText(0))*1000, 3))
 
     def on_line_slide(self,event):
-        parameter_utils.set_help_line(self.lineSlider.GetValue()/1000, 'DOS Plotter')
+        parameter_utils.set_help_line(self.lineSlider.GetValue()/1000, 'pair correlation plotter')
         self.helpLine.SetValue(str(round(self.lineSlider.GetValue()/1000, 3)))
-
+    
     def on_grid_change(self,event):
-        parameter_utils.set_grid(float(self.gridSlider.GetLineText(0)), 'DOS Plotter')
+        parameter_utils.set_grid(float(self.gridWidth.GetLineText(0)), "pair correlation plotter")
     
     def on_label_change(self,event):
         enteredNum = int(self.labelSelect.GetLineText(0))
         if (enteredNum >= 0):
-            parameter_utils.set_label(enteredNum, 'DOS Plotter')
-
-    def on_change_partial(self,event):
-        parameter_utils.set_partial_value(round(float(self.partialChoice.GetLineText(0))), 'Partial Pick')
-        self.set_Y_list()
-
+            parameter_utils.set_label(enteredNum, "pair correlation plotter")
+    
     def on_check_enableYselection(self,event):
         if self.enableYSelection.IsChecked():
-            parameter_utils.enable_multiple_y(multipleBool=True, processor='DOS Plotter')
+            parameter_utils.enable_multiple_y(multipleBool=True, processor='pair correlation plotter')
             self.sizer.Show(self.selectYBox)
         else:
-            parameter_utils.enable_multiple_y(multipleBool=False, processor='DOS Plotter')
+            parameter_utils.enable_multiple_y(multipleBool=False, processor='pair correlation plotter')
             self.sizer.Hide(self.selectYBox)
         self.update_collapse()
 
     def on_check_enableYselectionAll(self,event):
         if self.enableYSelectionAll.IsChecked():
-            parameter_utils.enable_all_y(multipleBool=True, processor='DOS Plotter')
+            parameter_utils.enable_all_y(multipleBool=True, processor='pair correlation plotter')
         else:
-            parameter_utils.enable_all_y(multipleBool=False, processor='DOS Plotter')
-
+            parameter_utils.enable_all_y(multipleBool=False, processor='pair correlation plotter')
+    
     def on_ySelection_change(self,event):
         num = None
         if ':' in self.ySelection.GetLineText(0):
@@ -330,17 +317,18 @@ class DosFrame(GeneralCollapsible):
                 else:
                     append = False
             if append:
-                parameter_utils.set_yline_range(self.ySelection.GetLineText(0),'DOS Plotter')
+                parameter_utils.set_yline_range(self.ySelection.GetLineText(0),'pair correlation plotter')
         else:
             if (int(num) < len(self.listY.GetItems())) and (int(num) >= 0):
-                    parameter_utils.set_yline_range(num,'DOS Plotter')
+                    parameter_utils.set_yline_range(num,'pair correlation plotter')
+        
 
     def on_list_select(self,event):
         index = self.listY.GetCurrentSelection()
         if (index >= 0) and (index < len(self.listY.GetItems())):
-            parameter_utils.choose_line(index,'DOS Plotter')
-
+            parameter_utils.choose_line(index,'pair correlation plotter')
+        
     def set_Y_list(self):
         self.listY.Clear()
-        self.listY.Set(parameter_utils.get_option_list('DOS Plotter'))
-    
+        self.listY.Set(parameter_utils.get_option_list('pair correlation plotter'))
+

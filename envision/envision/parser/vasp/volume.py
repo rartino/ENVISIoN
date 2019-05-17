@@ -125,7 +125,8 @@ def volume(h5file, hdfgroup, vasp_dir, vasp_file):
 		with open(os.path.join(vasp_dir, vasp_file), "r") as f:
 			for i in itertools.count():
 				array, data_dim = parse_volume(f, hdfgroup)
-				_write_volume(h5file, i, array, data_dim, hdfgroup)
+				if not _write_volume(h5file, i, array, data_dim, hdfgroup):
+					return False
 				if not array:
 					break
 	except FileNotFoundError:
