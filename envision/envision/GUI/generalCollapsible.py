@@ -163,6 +163,8 @@ class GeneralCollapsible(wx.CollapsiblePane):
         elif type =='SliceCanvas':
             canvasPosition = inviwopy.glm.ivec2(windowPosition.x+windowSize.width,windowPosition.y+296)
             set_canvas_position(canvasPosition, type)
+        elif type == 'PCF':
+            set_canvas_position(canvasPosition, 'paircorrelation Canvas')
         else:
             set_canvas_position(canvasPosition)
 

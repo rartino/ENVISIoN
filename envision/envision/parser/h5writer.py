@@ -185,8 +185,12 @@ def _write_volume(h5file, i, array, data_dim, hdfgroup):
         if array:
             h5.create_dataset('{}/{}'.format(hdfgroup, i), data = np.reshape(array, (data_dim[2],data_dim[1],data_dim[0])), dtype=np.float32)
         else:
-            h5['{}/final'.format(hdfgroup)] = h5['{}/{}'.format(hdfgroup, i-1)]
-    return
+            try:
+                h5['{}/final'.format(hdfgroup)] = h5['{}/{}'.format(hdfgroup, i-1)]
+            except KeyError:
+                print('Not able to write volume')
+                return False
+    return True
 
 
 def _write_incar(h5file, incar_data):

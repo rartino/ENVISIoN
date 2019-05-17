@@ -44,7 +44,7 @@
 import wx, sys, os
 
 from frameCharge import ChargeFrame
-from framePKF import PKFFrame
+from framePCF import PCFFrame
 from frameDoS import DosFrame
 from frameParchg import ParchgFrame
 from frameELF import ELFFrame
@@ -81,7 +81,7 @@ class VisualizationFrame(GeneralCollapsible):
     # Initializa all the collapsible visualization menues
         chargeFrame = ChargeFrame(self.GetPane())
         elfFrame = ELFFrame(self.GetPane())
-        pcFrame = PKFFrame(self.GetPane())
+        pcfFrame = PCFFrame(self.GetPane())
         dosFrame = DosFrame(self.GetPane())
         parchgFrame = ParchgFrame(self.GetPane())
         bandstructureFrame = BandstructureFrame(self.GetPane())
@@ -92,7 +92,7 @@ class VisualizationFrame(GeneralCollapsible):
         self.add_sub_collapsible(elfFrame)
         self.add_sub_collapsible(dosFrame)
         self.add_sub_collapsible(parchgFrame)
-        self.add_sub_collapsible(pcFrame)
+        self.add_sub_collapsible(pcfFrame)
 
     # Set some callbacks
         self.chooseFile.Bind(wx.EVT_BUTTON, self.file_pressed)
@@ -102,6 +102,7 @@ class VisualizationFrame(GeneralCollapsible):
 
     def on_change(self, event):
         if self.IsCollapsed():
+            parameter_utils.clear_processor_network()
             print("Collapsed Visualization")
         else:
             print("Extended Visualization")
