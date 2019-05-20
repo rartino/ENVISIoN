@@ -101,6 +101,14 @@ class ParchgNetworkHandler(VolumeNetworkHandler):
         self.current_bands = band_list
         self.current_modes = mode_list
 
+    def get_available_bands(self, path):
+    # Return the keys to the available parchg bands in hdf5-file
+        with h5py.File(path, 'r') as file:
+            band_keys = []
+            for key in file.get("PARCHG/Bands").keys():
+                band_keys.append(key)
+            return band_keys
+
 # ------------------------------------------
 # ------- Network building functions -------
 
@@ -161,7 +169,7 @@ class ParchgNetworkHandler(VolumeNetworkHandler):
         mode_list : list of int
             List that specifies what mode the individual bands should be visualized in.
         """
-        network = inviwopy.app.Network
+        network = inviwopy.app.network
         
         xpos = 200
         ypos = -400
@@ -254,7 +262,7 @@ class ParchgNetworkHandler(VolumeNetworkHandler):
         for i in range(0, n_bands):
             if mode_list[i] == 0 or mode_list[i] == 1:
                 hdfvolume_volumeSelection_property = HDFvolume_list[i].getPropertyByIdentifier('volumeSelection')       
-                hdfvolume_volumeSelection_property.selectedValue = '/PARCHG/Bands/' + str(band_list[i]) + '/' + mode_dict[mode_list[i]]           
+                hdfvolume_volumeSelection_property.selectedValue = '/PARCHG/Bands/' + str(band_list[i]) + '/' + mode_dict[mode_list[i]] 
                 HDFvolume_basis_property = HDFvolume_list[i].getPropertyByIdentifier('basisGroup').getPropertyByIdentifier('basis')
 
             else:
@@ -283,11 +291,6 @@ class ParchgNetworkHandler(VolumeNetworkHandler):
                             network.addConnection(merger_list[i][j].getOutport('outputVolume'), merger_list[i+1][math.floor(j/4)].getInport('volume'+str((j%4)+1)))
             
             volumeOutport = merger_list[-1][0].getOutport('outputVolume')
-
-        # Connect volume outport to rendering netowork    
-        # network.addConnection(volumeOutport, self.BoundingBox.getInport('volume'))
-        # network.addConnection(volumeOutport, self.CubeProxyGeometry.getInport('volume'))
-        # network.addConnection(volumeOutport, self.Raycaster.getInport('volume'))
 
         self.connect_volume(volumeOutport)
 
