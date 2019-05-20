@@ -41,15 +41,15 @@ from generalCollapsible import GeneralCollapsible
 from volumeControlCollapsible import VolumeControlCollapsible
 from backgroundCollapsible import BackgroundCollapsible
 from sliceControlCollapsible import SliceControlCollapsible
+from UnitcellCollapsible import UnitcellCollapsible
 import envision
 import inviwopy
 
 from envision.inviwo.ChargeNetworkHandler import ChargeNetworkHandler
-from envision.inviwo.UnitcellNetworkHandler import UnitcellNetworkHandler
 
 class ChargeFrame(GeneralCollapsible):
     def __init__(self, parent):
-        super().__init__(parent, label = "Charge")
+        super().__init__(parent, label = "Charge density")
 
         # Setup band selector choice box
         bandChoiceLabel = wx.StaticText(self.GetPane(), label="Select band: ")
@@ -57,6 +57,7 @@ class ChargeFrame(GeneralCollapsible):
             "Choose what band to visualize")
 
         self.bandChoice = wx.Choice(self.GetPane())
+
         bandChoiceHBox = wx.BoxSizer(wx.HORIZONTAL)
         bandChoiceHBox.Add(bandChoiceLabel)
         bandChoiceHBox.Add(self.bandChoice)
@@ -74,6 +75,10 @@ class ChargeFrame(GeneralCollapsible):
         # Setup volume rendering controls
         self.volumeCollapsible = VolumeControlCollapsible(self.GetPane(), "Volume Rendering")
         self.add_sub_collapsible(self.volumeCollapsible)
+
+        # Unitcell collapsible
+        self.unitcellCollapsible = UnitcellCollapsible(self.GetPane())
+        self.add_sub_collapsible(self.unitcellCollapsible)
 
         # Setup background controls
         self.backgroundCollapsibe = BackgroundCollapsible(self.GetPane(), "Background")
@@ -124,6 +129,12 @@ class ChargeFrame(GeneralCollapsible):
             self.sliceCollapsible.networkHandler = self.networkHandler
             self.sliceCollapsible.sliceBackgroundCollapsibe.networkHandler = self.networkHandler
             self.backgroundCollapsibe.networkHandler = self.networkHandler
+            self.unitcellCollapsible.networkHandler = self.networkHandler
+
+            self.unitcellCollapsible.hasAtoms = False
+            if self.networkHandler.unitcellAvailable:
+                for i in range(self.networkHandler.nAtomTypes):
+                    self.unitcellCollapsible.add_atom_control(self.networkHandler.get_atom_name(i), i)
 
             # Add a default tf-point, just so volume is not empty on startup
             self.volumeCollapsible.add_tf_point(0.5, 0.1, wx.Colour(20, 200, 20, 20))

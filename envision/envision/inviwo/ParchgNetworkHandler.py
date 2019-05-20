@@ -58,7 +58,13 @@ from VolumeNetworkHandler import VolumeNetworkHandler
 # TODO: merger_list in setup_band_processors function looks a bit funky to me.
 #       How the nestled for loops build the list is not great, some recursion instead?
 #       Current setup will probably not handle if more than 16 bands are used at the same time
-#       Low prio fix as that is a lot of bands and you dont often need that many i think.
+#       Low prio fix as that is a lot of bands and you dont often need that many i think. 
+
+# TODO: Add UnitcellNetworkHandler as parent. Check ChargeNetworkHandler too see how.
+
+# TODO: Add more property controls? Probably no more needed? 
+
+# TODO: Add some way to get available bands.
 
 class ParchgNetworkHandler(VolumeNetworkHandler):
     """ Class for setting up and handling the inviwo network for partial charge visualization
@@ -94,6 +100,14 @@ class ParchgNetworkHandler(VolumeNetworkHandler):
         self.setup_band_processors(band_list, mode_list)
         self.current_bands = band_list
         self.current_modes = mode_list
+
+    def get_available_bands(self, path):
+    # Return the keys to the available parchg bands in hdf5-file
+        with h5py.File(path, 'r') as file:
+            band_keys = []
+            for key in file.get("PARCHG/Bands").keys():
+                band_keys.append(key)
+            return band_keys
 
 # ------------------------------------------
 # ------- Network building functions -------
@@ -156,7 +170,7 @@ class ParchgNetworkHandler(VolumeNetworkHandler):
             List that specifies what mode the individual bands should be visualized in.
         """
         network = inviwopy.app.network
-        #TODO extract hdf5source processor from network
+        
         xpos = 200
         ypos = -400
 
@@ -248,7 +262,7 @@ class ParchgNetworkHandler(VolumeNetworkHandler):
         for i in range(0, n_bands):
             if mode_list[i] == 0 or mode_list[i] == 1:
                 hdfvolume_volumeSelection_property = HDFvolume_list[i].getPropertyByIdentifier('volumeSelection')       
-                hdfvolume_volumeSelection_property.selectedValue = '/PARCHG/Bands/' + str(band_list[i]) + '/' + mode_dict[mode_list[i]]           
+                hdfvolume_volumeSelection_property.selectedValue = '/PARCHG/Bands/' + str(band_list[i]) + '/' + mode_dict[mode_list[i]] 
                 HDFvolume_basis_property = HDFvolume_list[i].getPropertyByIdentifier('basisGroup').getPropertyByIdentifier('basis')
 
             else:
@@ -277,11 +291,6 @@ class ParchgNetworkHandler(VolumeNetworkHandler):
                             network.addConnection(merger_list[i][j].getOutport('outputVolume'), merger_list[i+1][math.floor(j/4)].getInport('volume'+str((j%4)+1)))
             
             volumeOutport = merger_list[-1][0].getOutport('outputVolume')
-
-        # Connect volume outport to rendering netowork    
-        # network.addConnection(volumeOutport, self.BoundingBox.getInport('volume'))
-        # network.addConnection(volumeOutport, self.CubeProxyGeometry.getInport('volume'))
-        # network.addConnection(volumeOutport, self.Raycaster.getInport('volume'))
 
         self.connect_volume(volumeOutport)
 
