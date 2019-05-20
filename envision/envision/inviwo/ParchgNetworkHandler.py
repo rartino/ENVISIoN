@@ -58,7 +58,13 @@ from VolumeNetworkHandler import VolumeNetworkHandler
 # TODO: merger_list in setup_band_processors function looks a bit funky to me.
 #       How the nestled for loops build the list is not great, some recursion instead?
 #       Current setup will probably not handle if more than 16 bands are used at the same time
-#       Low prio fix as that is a lot of bands and you dont often need that many i think.
+#       Low prio fix as that is a lot of bands and you dont often need that many i think. 
+
+# TODO: Add UnitcellNetworkHandler as parent. Check ChargeNetworkHandler too see how.
+
+# TODO: Add more property controls? Probably no more needed? 
+
+# TODO: Add some way to get available bands.
 
 class ParchgNetworkHandler(VolumeNetworkHandler):
     """ Class for setting up and handling the inviwo network for partial charge visualization
@@ -155,8 +161,8 @@ class ParchgNetworkHandler(VolumeNetworkHandler):
         mode_list : list of int
             List that specifies what mode the individual bands should be visualized in.
         """
-        network = inviwopy.app.network
-        #TODO extract hdf5source processor from network
+        network = inviwopy.app.Network
+        
         xpos = 200
         ypos = -400
 

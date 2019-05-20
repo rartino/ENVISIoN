@@ -205,14 +205,9 @@ class VolumeNetworkHandler():
 
     def toggle_slice_plane(self, enable):
     # Set if the slice plane should be visible in the volume
-    # TODO: remove plane.enable.value, move to some initialization code
         network = inviwopy.app.network
         Raycaster = network.getProcessorByIdentifier('Raycaster')
-        pos_indicator = Raycaster.positionindicator
-        pos_indicator.plane1.enable.value = True
-        pos_indicator.plane2.enable.value = False
-        pos_indicator.plane3.enable.value = False
-        pos_indicator.enable.value = enable
+        Raycaster.positionindicator.enable.value = enable
 
     def set_plane_normal(self, x=0, y=1, z=0):
     # Set the normal of the slice plane
@@ -325,10 +320,6 @@ class VolumeNetworkHandler():
         network.addConnection(MeshRenderer.getOutport('image'), Raycaster.getInport('bg'))
         network.addConnection(EntryExitPoints.getOutport('entry'), Raycaster.getInport('entry'))
         network.addConnection(EntryExitPoints.getOutport('exit'), Raycaster.getInport('exit'))
-        # network.addConnection(HDFsource.getOutport('outport'), HDFvolume.getInport('inport'))
-        # network.addConnection(HDFvolume.getOutport('outport'), BoundingBox.getInport('volume'))
-        # network.addConnection(HDFvolume.getOutport('outport'), CubeProxyGeometry.getInport('volume'))
-        # network.addConnection(HDFvolume.getOutport('outport'), Raycaster.getInport('volume'))
         network.addConnection(BoundingBox.getOutport('mesh'), MeshRenderer.getInport('geometry'))
         network.addConnection(CubeProxyGeometry.getOutport('proxyGeometry'), EntryExitPoints.getInport('geometry'))
         network.addConnection(VolumeBackground.getOutport('outport'), Canvas.getInport('inport'))
@@ -341,6 +332,13 @@ class VolumeNetworkHandler():
 
         entryExitPoints_lookFrom_property = EntryExitPoints.getPropertyByIdentifier('camera').getPropertyByIdentifier('lookFrom')
         entryExitPoints_lookFrom_property.value = inviwopy.glm.vec3(0,0,8)
+
+        # Setup slice plane
+        pos_indicator = Raycaster.positionindicator
+        pos_indicator.plane1.enable.value = True
+        pos_indicator.plane2.enable.value = False
+        pos_indicator.plane3.enable.value = False
+        pos_indicator.enable.value = False # Disabled by default
 
         # Connect unit cell and volume visualisation.
         UnitCellRenderer = network.getProcessorByIdentifier('Unit Cell Renderer')

@@ -65,23 +65,28 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
 
 
         # Check if  hdf5-file is valid
-        # TODO check if file exist at all.
         with h5py.File(hdf5_path, 'r') as file:
             if file.get("CHG") == None:
                 raise AssertionError("No charge data in that file")
         if len(self.get_available_bands(hdf5_path)) == 0:
             raise AssertionError("No valid bands in that file")
         
-        self.setup_volume_source(hdf5_path)
+        # Setup default charge settings
+        self.setup_charge_network(hdf5_path)
         self.set_active_band('final')
+
+        # Setup default unitcell settings
+        if self.unitcellAvailable:
+            self.toggle_full_mesh(False)
+            self.toggle_unitcell_canvas(False)
     
     def get_available_bands(self, path):
     # Return the keys to the available datasets in hdf5-file
         with h5py.File(path, 'r') as file:
-            parchg_band_keys = []
+            band_keys = []
             for key in file.get("CHG").keys():
-                parchg_band_keys.append(key)
-            return parchg_band_keys
+                band_keys.append(key)
+            return band_keys
 
 # ------------------------------------------
 # ------- Property control functions -------
@@ -95,7 +100,7 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
 # ------------------------------------------
 # ------- Network building functions -------
 
-    def setup_volume_source(self, hdf5_path):
+    def setup_charge_network(self, hdf5_path):
     # Setup the part of the inviwo network which handles hdf5 to volume conversion*
         network = inviwopy.app.network
         
@@ -116,10 +121,6 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
             basis_4x4[:3,:3]=basis_array
             scaling_factor = h5['/scaling_factor'].value
 
-        # Set correct path to volume data
-        hdfvolume_volumeSelection_property = HDFvolume.getPropertyByIdentifier('volumeSelection')
-        hdfvolume_volumeSelection_property.value = '/CHG/final' 
-
         HDFvolume_basis_property = HDFvolume.getPropertyByIdentifier('basisGroup').getPropertyByIdentifier('basis')
         HDFvolume_basis_property.minValue = inviwopy.glm.mat4(-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
                                                             -1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000)
@@ -135,6 +136,11 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         network.addConnection(HDFsource.getOutport('outport'), HDFvolume.getInport('inport'))
         
         self.connect_volume(HDFvolume.getOutport('outport'))
-        self.connect_volume(HDFvolume.getOutport('outport'))
-        self.connect_volume(HDFvolume.getOutport('outport'))
-        self.connect_volume(HDFvolume.getOutport('outport'))
+
+        # Connect unitcell and volume visualisation.
+        volumeBoxRenderer = network.getProcessorByIdentifier('Mesh Renderer')
+        unitcellRenderer = network.getProcessorByIdentifier('Unit Cell Renderer')
+        if volumeBoxRenderer and unitcellRenderer:
+            network.addConnection(unitcellRenderer.getOutport('image'), volumeBoxRenderer.getInport('imageInport'))
+            network.addLink(unitcellRenderer.getPropertyByIdentifier('camera'), volumeBoxRenderer.getPropertyByIdentifier('camera'))
+            network.addLink(volumeBoxRenderer.getPropertyByIdentifier('camera'), unitcellRenderer.getPropertyByIdentifier('camera'))
