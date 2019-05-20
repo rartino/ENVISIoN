@@ -61,7 +61,6 @@ class UnitcellNetworkHandler():
         self.nAtomTypes = 0
         self.atomNames = []
         self.setup_unitcell_network(hdf5_path)
-        self.toggle_unitcell_canvas(False)
 
 
 # ------------------------------------------
@@ -70,11 +69,16 @@ class UnitcellNetworkHandler():
     def set_atom_radius(self, radius, index=None):
         network = inviwopy.app.network
         structureMesh = network.getProcessorByIdentifier('Unit Cell Mesh')
-        if index != None:
-            structureMesh.getPropertyByIdentifier("radius" + str(index)).value = radius
+        if structureMesh.fullMesh.value:
+            if index != None:
+                structureMesh.getPropertyByIdentifier("radius" + str(index)).value = radius
+            else:
+                for i in range(self.nAtomTypes):
+                    self.set_atom_radius(radius, i)
         else:
-            for i in range(self.nAtomTypes):
-                self.set_atom_radius(radius, i)
+            sphereRenderer = network.getProcessorByIdentifier('Unit Cell Renderer')
+            sphereRenderer.sphereProperties.defaultRadius.value = radius
+
 
     def hide_atoms(self, hide):
         if hide:
@@ -103,6 +107,11 @@ class UnitcellNetworkHandler():
         else:
             network.removeProcessor(unitcellCanvas)
 
+    def toggle_full_mesh(self, enable):
+        network = inviwopy.app.network
+        structMesh = network.getProcessorByIdentifier('Unit Cell Mesh')
+        structMesh.fullMesh.value = enable
+
 # ------------------------------------------
 # ------- Network building functions -------
 
@@ -124,7 +133,7 @@ class UnitcellNetworkHandler():
 
         strucMesh = _add_processor('envision.StructureMesh', 'Unit Cell Mesh', xpos, ypos+200)
         # Activate fullMesh, this allows individual resizing of atoms and centers the unitcell around same origin as volume
-        strucMesh.fullMesh.value = True
+        strucMesh.fullMesh.value = False
 
         network.addConnection(strucMesh.getOutport('mesh'), meshRenderer.getInport('geometry'))
 
@@ -172,10 +181,4 @@ class UnitcellNetworkHandler():
                 strucMesh_atom_property.maxValue = atoms
 
                 self.nAtomTypes += 1
-        
-        # Connect unit cell and volume visualisation.
-        volumeRend = network.getProcessorByIdentifier('Mesh Renderer')
-        if volumeRend:
-            network.addConnection(meshRenderer.getOutport('image'), volumeRend.getInport('imageInport'))
-            network.addLink(meshRenderer.getPropertyByIdentifier('camera'), volumeRend.getPropertyByIdentifier('camera'))
-            network.addLink(volumeRend.getPropertyByIdentifier('camera'), meshRenderer.getPropertyByIdentifier('camera'))
+       

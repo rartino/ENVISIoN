@@ -46,7 +46,6 @@ import envision
 import inviwopy
 
 from envision.inviwo.ELFNetworkHandler import ELFNetworkHandler
-# from envision.inviwo.UnitcellNetworkHandler import UnitcellNetworkHandler
 
 class ELFFrame(GeneralCollapsible):
     def __init__(self, parent):
