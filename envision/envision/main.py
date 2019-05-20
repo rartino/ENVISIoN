@@ -73,8 +73,8 @@ def parse_all(h5_path, dir):
         'charge from VASP': charge,
         'ELF from VASP': elf,
         'DOS from VASP': dos,
-        'bandstructure from VASP': bandstructure
-        ,
+        'bandstructure from VASP': bandstructure,
+        #'fermi surface from VASP': fermi_surface,
         'PCF from VASP': paircorrelation,
         'fermi energy': fermi_energy
     }

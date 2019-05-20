@@ -192,6 +192,7 @@ class ParserPane(GeneralCollapsible):
         if not self.savePath == "":
             self.enterSavePath.SetValue(self.savePath)
         self.isFileSelected = False
+        self.enterSaveFile.Clear()
     
     def file_select(self,event):
         self.savePath = self.choose_file()
@@ -200,6 +201,7 @@ class ParserPane(GeneralCollapsible):
         if not self.savePath == "":
             self.enterSaveFile.SetValue(self.savePath)
             self.isFileSelected = True
+            self.enterSavePath.Clear()
         else:
             self.isFileSelected = False
 
@@ -210,13 +212,15 @@ class ParserPane(GeneralCollapsible):
         if '\\' in self.savePath:
             self.savePath = self.savePath.replace('\\','/')
         self.isFileSelected = False
+        self.enterSaveFile.Clear()
 
     def saveFile_OnEnter(self,event):
-        self.savePath = self.directory_if_exists(self.enterSavePath.GetLineText(0))
+        self.savePath = self.directory_if_exists(self.enterSaveFile.GetLineText(0))
         if '\\' in self.savePath:
             self.savePath = self.savePath.replace('\\','/')
         if os.path.exists(self.savePath):
             self.isFileSelected = True
+            self.enterSavePath.Clear()
         else:
             self.isFileSelected = False
         

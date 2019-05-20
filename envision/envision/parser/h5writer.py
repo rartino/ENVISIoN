@@ -27,7 +27,8 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by Anders Rehult, Viktor Bernholtz, Abdullatif Ismail and Linda Le
+#  Alterations to this file by Anders Rehult, Viktor Bernholtz, Abdullatif Ismail, 
+#                               Anton Hjert and Linda Le
 #
 #  To the extent possible under law, the person who associated CC0 with
 #  the alterations to this file has waived all copyright and related
