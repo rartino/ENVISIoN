@@ -208,6 +208,9 @@ def _write_parcharges(h5file, array_tot, data_dim_tot, array_mag, data_dim_mag, 
 
 def _write_pcdat_multicol(h5file, pcdat_data, APACO_val, NPACO_val):
     #   The function is called to write data from PCDAT to HDF5-file. A dataset is created for each element in the system.
+    #   The function is either called in the case of a system with one element.
+    #   Or for a system of multiple elements and an average PCF is calculated for each element.
+    #   PCF is abbreviation for Paircorrelation function.
 
     #    Parameters
     #    __________
@@ -215,18 +218,16 @@ def _write_pcdat_multicol(h5file, pcdat_data, APACO_val, NPACO_val):
     #        String containing path to HDF5-file.
 
     #    pcdat_data:
-    #        Is a dictionary with the structure {'element_type':[PKF_values]}. PKF_values are the average number of atoms, of specific element_type. If the system has elements 'Si', 'Au'       and 'K', the dictionary will look like {'Si':float[x], 'Au':float[x], 'K':float[x]} where the float[x] is a list with the PKF values.
+    #        Is a dictionary with the structure {'element_type':[PCF_values]}. If the system has elements 'Si', 'Au' and 'K', the dictionary will be {'Si':float[x], 'Au':float[x], 'K':float[x]} where the float[x] is a list with the PKF values.
     #
     #    APACO_val:
-    #        The value of APACO in INCAR if set, default value 16 (Å), otherwise. It sets the maximum distance in the evaluation of the pair-correlation function
+    #        The value of APACO in INCAR if set, otherwise set with default value 16 (Å). It sets the maximum distance in the evaluation of the Paircorrelationfunction
     #
     #    NPACO_val:
-    #        The value of NPACO in INCAR if set, default value 256 slots otherwise. It sets the number of slots in the pair-correlation function written to PCDAT.
-
+    #        The value of NPACO in INCAR if set, otherwise set with default value 256 slots. It sets the number of slots in the Paircorrelationfunction written to PCDAT.
     #    Return
     #    ______
-    #    Bool: True if parsed, False otherwise.
-
+    #    None
 
     with h5py.File(h5file, 'a') as h5:
         dset_name = "PairCorrelationFunc/Distance"
@@ -275,6 +276,25 @@ def _write_pcdat_multicol(h5file, pcdat_data, APACO_val, NPACO_val):
     return None
 
 def _write_pcdat_onecol(h5file, pcdat_data, APACO_val, NPACO_val):
+    #   The function is called to write data from PCDAT to HDF5-file.
+    #   This function is called when a system contains multiple elements, for example NaCl (two elements), and one average PCF is calculated for the whole system.
+    #   PCF is abbreviation for Paircorrelation function.
+    #    Parameters
+    #    __________
+    #    h5file: str
+    #        String containing path to HDF5-file.
+
+    #    pcdat_data:
+    #        Is a dictionary with the structure {'general paircorr':[PCF_values]}.
+    #
+    #    APACO_val:
+    #        The value of APACO in INCAR if set, otherwise set with default value 16 (Å). It sets the maximum distance in the evaluation of the PCF.
+    #
+    #    NPACO_val:
+    #        The value of NPACO in INCAR if set, otherwise set with default value 256 slots. It sets the number of slots in the PCF written to PCDAT.
+    #    Return
+    #    ______
+    #    None
 
     with h5py.File(h5file, 'a') as h5:
         dset_name = "PairCorrelationFunc/Distance"
