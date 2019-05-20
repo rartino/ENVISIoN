@@ -173,6 +173,9 @@ class DosFrame(GeneralCollapsible):
         elif '/FermiEnergy' in  h5py.File(self.parent_collapsible.path, 'r')\
             and 'DOS' in  h5py.File(self.parent_collapsible.path, 'r'):
             #Start DoS vis
+            if "/UnitCell" in  h5py.File(self.parent_collapsible.path, 'r'):
+                envision.inviwo.unitcell(self.parent_collapsible.path, 
+                                    xpos = 0, ypos = 0)
             self.open_message("When hitting ok, wait until the window is fully loaded!",
                             "Be patient!")
             envision.inviwo.dos(self.parent_collapsible.path, 
