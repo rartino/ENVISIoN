@@ -60,10 +60,11 @@ def paircorrelation(h5file, xpos=0, ypos=0):
 
         network.addConnection(h5source_processor.getOutport("outport"), paircorrelation_processor.getInport("inport"))
 
-        ypos += 75
+        ypos += 150
         operation_processor = _add_processor("org.inviwo.FunctionToDataFrame", "Function To Dataframe", xpos, ypos)
 
-        xpos_tmp = ypos
+        ypos_tmp = ypos-75
+        xpos_tmp = xpos
 
         # is_h5_onecol is True when _write_pcdat_onecol has been used for PCF parsning.
         is_h5_onecol = False
@@ -78,7 +79,7 @@ def paircorrelation(h5file, xpos=0, ypos=0):
                 path_str = "PairCorrelationFunc/Elements/" + elements_in_system
                 for t_values in range(len(h5[path_str])):
                     xpos_tmp += 165
-                    HDF5_to_func_processor = _add_processor("org.inviwo.HDF5ToFunction", "HDF5 To Function", xpos_tmp, ypos)
+                    HDF5_to_func_processor = _add_processor("org.inviwo.HDF5ToFunction", "HDF5 To Function", xpos_tmp, ypos_tmp)
                     network.addConnection(paircorrelation_processor.getOutport("outport"), HDF5_to_func_processor.getInport("hdf5HandleFlatMultiInport"))
                     network.addConnection(HDF5_to_func_processor.getOutport("functionVectorOutport"), operation_processor.getInport("functionFlatMultiInport"))
                     HDF5_to_func_list.append(HDF5_to_func_processor)
@@ -88,7 +89,7 @@ def paircorrelation(h5file, xpos=0, ypos=0):
         else:
             for t_values in range(len(h5["PairCorrelationFunc"]) - 1):
                 xpos_tmp += 165
-                HDF5_to_func_processor = _add_processor("org.inviwo.HDF5ToFunction", "HDF5 To Function", xpos_tmp, ypos)
+                HDF5_to_func_processor = _add_processor("org.inviwo.HDF5ToFunction", "HDF5 To Function", xpos_tmp, ypos_tmp)
                 network.addConnection(paircorrelation_processor.getOutport("outport"), HDF5_to_func_processor.getInport("hdf5HandleFlatMultiInport"))
                 network.addConnection(HDF5_to_func_processor.getOutport("functionVectorOutport"),
                                       operation_processor.getInport("functionFlatMultiInport"))
@@ -128,8 +129,8 @@ def paircorrelation(h5file, xpos=0, ypos=0):
         ypos += 75
 
         # Set processor properties
-
         paircorrelation_processor.selection.value = "/PairCorrelationFunc"
+        plotter_processor.font.anchor.value = inviwopy.glm.vec2(-1, -0.9234)
 
         # if Elements are in h5, parsing is using _write_pcdat_multicol else _write_pcdat_onecol is used.
         for processor_count in range(len(HDF5_to_func_list)):
