@@ -49,6 +49,7 @@ import math
 from common import _add_h5source, _add_processor
 
 from VolumeNetworkHandler import VolumeNetworkHandler
+from envision.inviwo.UnitcellNetworkHandler import UnitcellNetworkHandler
 
 # TODO: Files parsed for parchg does not seem to work. Inviwo seems to not recognize the datasets as valid volumes.
 #       May have something to do with the different size of the volume data in hdf5 file. 
@@ -66,7 +67,7 @@ from VolumeNetworkHandler import VolumeNetworkHandler
 
 # TODO: Add some way to get available bands.
 
-class ParchgNetworkHandler(VolumeNetworkHandler):
+class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
     """ Class for setting up and handling the inviwo network for partial charge visualization
     """
     def __init__(self, hdf5_path, band_list, mode_list):
@@ -84,8 +85,26 @@ class ParchgNetworkHandler(VolumeNetworkHandler):
             3 for 'down'
             Example: If band_list is [31, 212] and mode_list is [1,3], band 31 will be visualized as 'magnetic' and 212 as 'down'
         """
-        super().__init__() # Will setup generic part of network
-        self.setup_hdf5_source(hdf5_path)
+        VolumeNetworkHandler.__init__(self)
+
+        # Unitcell is not critical to visualization, if it fails, continnue anyway
+        self.unitcellAvailable = True
+        try: 
+            UnitcellNetworkHandler.__init__(self, hdf5_path)
+        except AssertionError as error:
+            print(error)
+            self.unitcellAvailable = False
+
+        # Check if  hdf5-file is valid
+        with h5py.File(hdf5_path, 'r') as file:
+            if file.get("PARCHG/Bands") == None:
+                raise AssertionError("No valid partial charge data in that file")
+        if len(self.get_available_bands(hdf5_path)) == 0:
+            raise AssertionError("No valid partial charge data in that file")
+
+
+
+        self.setup_parchg_network(hdf5_path)
         self.setup_band_processors(band_list, mode_list)
 
         self.hdf5_path = hdf5_path
@@ -93,6 +112,11 @@ class ParchgNetworkHandler(VolumeNetworkHandler):
         self.merger_processors = []
         self.current_bands = band_list
         self.current_modes = mode_list
+
+        # Setup default unitcell settings
+        if self.unitcellAvailable:
+            self.toggle_full_mesh(False)
+            self.toggle_unitcell_canvas(False)
 
     def select_bands(self, band_list, mode_list):
     # Re-selects bands. Clears old bands and adds the new ones.
@@ -154,10 +178,18 @@ class ParchgNetworkHandler(VolumeNetworkHandler):
 
     
 
-    def setup_hdf5_source(self, hdf5_path):
-        #TODO complete this
+    def setup_parchg_network(self, hdf5_path):
+        network = inviwopy.app.network
         self.HDFsource = _add_h5source(hdf5_path, -100, 0)
         self.HDFsource.filename.value = hdf5_path
+
+        # Connect unitcell and volume visualisation.
+        volumeBoxRenderer = network.getProcessorByIdentifier('Mesh Renderer')
+        unitcellRenderer = network.getProcessorByIdentifier('Unit Cell Renderer')
+        if volumeBoxRenderer and unitcellRenderer:
+            network.addConnection(unitcellRenderer.getOutport('image'), volumeBoxRenderer.getInport('imageInport'))
+            network.addLink(unitcellRenderer.getPropertyByIdentifier('camera'), volumeBoxRenderer.getPropertyByIdentifier('camera'))
+            network.addLink(volumeBoxRenderer.getPropertyByIdentifier('camera'), unitcellRenderer.getPropertyByIdentifier('camera'))
 
     def setup_band_processors(self, band_list, mode_list):
         """ Sets up the processors to handle the different band selections and modes, along with merging the resulting volumes.
