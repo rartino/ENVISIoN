@@ -102,7 +102,7 @@ class ParchgFrame(GeneralCollapsible):
         modeList = []
         for widget in self.selectorWidgets:
             try:
-                bandList.append(int(widget.bandChooser.GetString(widget.bandChooser.GetSelection())))
+                bandList.append(widget.bandChooser.GetString(widget.bandChooser.GetSelection()))
                 modeList.append(widget.modeChooser.GetSelection())
             except ValueError:
                 continue
@@ -113,6 +113,10 @@ class ParchgFrame(GeneralCollapsible):
 
         if not self.IsCollapsed():
             self.networkHandler = ParchgNetworkHandler(self.parent_collapsible.path, [], [])
+            self.bandChoices = ['None'] + self.networkHandler.get_available_bands(self.parent_collapsible.path)
+            for w in self.selectorWidgets:
+                w.bandChooser.Clear()
+                w.bandChooser.AppendItems(self.bandChoices)
         else:
             self.networkHandler.clear_processor_network()
             del self.networkHandler

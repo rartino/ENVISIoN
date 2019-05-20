@@ -61,6 +61,9 @@ class VolumeControlCollapsible(GeneralCollapsible):
         self.shadingDropDown.Bind(wx.EVT_CHOICE, self.shading_drop_down_changed)
 
         # Setup transfer function controls
+        line =  wx.StaticLine(volumePane, style=wx.LI_HORIZONTAL)
+        self.add_item(line)
+
 
         tfLabel = wx.StaticText(volumePane, label="Transfer Function: ")
         tfLabel.SetToolTip(
@@ -87,6 +90,14 @@ class VolumeControlCollapsible(GeneralCollapsible):
 
         # Vertical box to hold all tf point elements 
         self.tfpointsVBox = wx.BoxSizer(wx.VERTICAL)
+
+
+        valueLabel = wx.StaticText(volumePane, label="Value", size=wx.Size(45, 15))
+        alphaLabel = wx.StaticText(volumePane, label="Alpha", size=wx.Size(45, 15))
+        tfLabelHBox = wx.BoxSizer(wx.HORIZONTAL)
+        tfLabelHBox.Add(valueLabel)
+        tfLabelHBox.Add(alphaLabel)
+        self.add_item(tfLabelHBox)
         
 
         # List holds all added tfpoint sizers for later access
@@ -222,7 +233,7 @@ class VolumeControlCollapsible(GeneralCollapsible):
         # Set event bindings
         tfPointWidget.button.Bind(wx.EVT_BUTTON, lambda event : self.remove_tf_point(tfPointWidget))
 
-        # Update on theese
+        # Update transferfunction on theese events
         tfPointWidget.valueText.Bind(wx.EVT_KILL_FOCUS, lambda event : self.update_tf_point(tfPointWidget))
         tfPointWidget.valueText.Bind(wx.EVT_TEXT_ENTER, lambda event : self.update_tf_point(tfPointWidget))
         tfPointWidget.alphaText.Bind(wx.EVT_KILL_FOCUS, lambda event : self.update_tf_point(tfPointWidget))

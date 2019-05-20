@@ -58,23 +58,37 @@ class UnitcellNetworkHandler():
             if file.get("UnitCell") == None:
                 raise AssertionError("No unitcell data in that file")
 
+        self.nAtomTypes = 0
+        self.atomNames = []
         self.setup_unitcell_network(hdf5_path)
-        self.toggle_unitcell_canvas(False)
+
 
 # ------------------------------------------
 # ------- Property control functions -------
 
-    def set_atom_radius(self, radius):
+    def set_atom_radius(self, radius, index=None):
         network = inviwopy.app.network
-        cellRenderer = network.getProcessorByIdentifier('Unit Cell Renderer')
-        cellRenderer.sphereProperties.defaultRadius.value = radius
+        structureMesh = network.getProcessorByIdentifier('Unit Cell Mesh')
+        if structureMesh.fullMesh.value:
+            if index != None:
+                structureMesh.getPropertyByIdentifier("radius" + str(index)).value = radius
+            else:
+                for i in range(self.nAtomTypes):
+                    self.set_atom_radius(radius, i)
+        else:
+            sphereRenderer = network.getProcessorByIdentifier('Unit Cell Renderer')
+            sphereRenderer.sphereProperties.defaultRadius.value = radius
+
 
     def hide_atoms(self, hide):
         if hide:
             self.set_atom_radius(0)
         else:
             self.set_atom_radius(0.1)
-        
+    
+    def get_atom_name(self, index):
+        return self.atomNames[index]
+
 
     def toggle_unitcell_canvas(self, enable_unitcell):
     # Add or remove the unitcell canvas
@@ -92,6 +106,11 @@ class UnitcellNetworkHandler():
             network.addConnection(network.getProcessorByIdentifier('SliceBackground').getOutport('outport'), SliceCanvas.getInport('inport'))
         else:
             network.removeProcessor(unitcellCanvas)
+
+    def toggle_full_mesh(self, enable):
+        network = inviwopy.app.network
+        structMesh = network.getProcessorByIdentifier('Unit Cell Mesh')
+        structMesh.fullMesh.value = enable
 
 # ------------------------------------------
 # ------- Network building functions -------
@@ -113,12 +132,10 @@ class UnitcellNetworkHandler():
         network.addConnection(meshRenderer.getPort('image'), canvas.getInport('inport'))
 
         strucMesh = _add_processor('envision.StructureMesh', 'Unit Cell Mesh', xpos, ypos+200)
-        fullMesh = strucMesh.getPropertyByIdentifier('fullMesh')
-        fullMesh.value = True
+        # Activate fullMesh, this allows individual resizing of atoms and centers the unitcell around same origin as volume
+        strucMesh.fullMesh.value = False
 
-        meshPort = strucMesh.getOutport('mesh')
-        geometryPort = meshRenderer.getInport('geometry')
-        network.addConnection(meshPort, geometryPort)
+        network.addConnection(strucMesh.getOutport('mesh'), meshRenderer.getInport('geometry'))
 
         with h5py.File(h5file,"r") as h5:
             basis_matrix = np.array(h5["/basis"], dtype='d')
@@ -140,6 +157,7 @@ class UnitcellNetworkHandler():
             for i,key in enumerate(list(h5[base_group + "/Atoms"].keys())):
                 element = h5[base_group + "/Atoms/"+key].attrs['element']
                 name = element_names.get(element, 'Unknown')
+                self.atomNames.append(name)
                 color = element_colors.get(element, (0.5, 0.5, 0.5, 1.0))
                 radius = atomic_radii.get(element, 0.5)
                 coordReader = _add_processor('envision.CoordinateReader', '{0} {1}'.format(i,name), xpos+int((i-species/2)*200), ypos+100)
@@ -161,10 +179,6 @@ class UnitcellNetworkHandler():
                 strucMesh_atom_property.value = atoms
                 strucMesh_atom_property.minValue = atoms
                 strucMesh_atom_property.maxValue = atoms
-        
-        # Connect unit cell and volume visualisation.
-        volumeRend = network.getProcessorByIdentifier('Mesh Renderer')
-        if volumeRend:
-            network.addConnection(meshRenderer.getOutport('image'), volumeRend.getInport('imageInport'))
-            network.addLink(meshRenderer.getPropertyByIdentifier('camera'), volumeRend.getPropertyByIdentifier('camera'))
-            network.addLink(volumeRend.getPropertyByIdentifier('camera'), meshRenderer.getPropertyByIdentifier('camera'))
+
+                self.nAtomTypes += 1
+       

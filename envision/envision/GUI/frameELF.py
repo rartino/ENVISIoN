@@ -41,11 +41,11 @@ from generalCollapsible import GeneralCollapsible
 from volumeControlCollapsible import VolumeControlCollapsible
 from backgroundCollapsible import BackgroundCollapsible
 from sliceControlCollapsible import SliceControlCollapsible
+from UnitcellCollapsible import UnitcellCollapsible
 import envision
 import inviwopy
 
 from envision.inviwo.ELFNetworkHandler import ELFNetworkHandler
-# from envision.inviwo.UnitcellNetworkHandler import UnitcellNetworkHandler
 
 class ELFFrame(GeneralCollapsible):
     def __init__(self, parent):
@@ -75,6 +75,10 @@ class ELFFrame(GeneralCollapsible):
         # Setup volume rendering controls
         self.volumeCollapsible = VolumeControlCollapsible(self.GetPane(), "Volume Rendering")
         self.add_sub_collapsible(self.volumeCollapsible)
+
+        # Unitcell collapsible
+        self.unitcellCollapsible = UnitcellCollapsible(self.GetPane())
+        self.add_sub_collapsible(self.unitcellCollapsible)
 
         # Setup background controls
         self.backgroundCollapsibe = BackgroundCollapsible(self.GetPane(), "Background")
@@ -125,6 +129,12 @@ class ELFFrame(GeneralCollapsible):
             self.sliceCollapsible.networkHandler = self.networkHandler
             self.sliceCollapsible.sliceBackgroundCollapsibe.networkHandler = self.networkHandler
             self.backgroundCollapsibe.networkHandler = self.networkHandler
+            self.unitcellCollapsible.networkHandler = self.networkHandler
+
+            self.unitcellCollapsible.hasAtoms = False
+            if self.networkHandler.unitcellAvailable:
+                for i in range(self.networkHandler.nAtomTypes):
+                    self.unitcellCollapsible.add_atom_control(self.networkHandler.get_atom_name(i), i)
 
             # Add a default tf-point, just so volume is not empty on startup
             self.volumeCollapsible.add_tf_point(0.5, 0.1, wx.Colour(20, 200, 20, 20))
