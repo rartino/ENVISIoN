@@ -82,7 +82,6 @@ class VolumeNetworkHandler():
             newResult = []
             [ newResult.append((element + abs(min(result)))/(max(result) + abs(min(result)))) \
                for element in result ]
-            print(result)
             dataList= np.array(newResult)
             plt.hist(dataList,bins=200, density = True)
             plt.title("TF and ISO data") 
@@ -129,9 +128,6 @@ class VolumeNetworkHandler():
     # Add point to the raycaster transferfunction
         network = inviwopy.app.network
         Raycaster = network.getProcessorByIdentifier('Raycaster')
-        for p in Raycaster.isotfComposite.properties:
-            print(p)
-            print(dir(p))
         if Raycaster:
             Raycaster.isotfComposite.transferFunction.add(value, color)
             self.slice_copy_tf()
@@ -275,7 +271,6 @@ class VolumeNetworkHandler():
 
     def setup_volume_network(self):
     # Setup the generic part of volume rendering network.
-        print("Building volume network")
         xpos = 0
         ypos = 0
 
@@ -339,6 +334,7 @@ class VolumeNetworkHandler():
         pos_indicator.plane2.enable.value = False
         pos_indicator.plane3.enable.value = False
         pos_indicator.enable.value = False # Disabled by default
+        pos_indicator.plane1.color.value = inviwopy.glm.vec4(1, 1, 1, 0.5)
 
         # Connect unit cell and volume visualisation.
         UnitCellRenderer = network.getProcessorByIdentifier('Unit Cell Renderer')

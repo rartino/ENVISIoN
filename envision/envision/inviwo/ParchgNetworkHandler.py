@@ -70,7 +70,7 @@ from envision.inviwo.UnitcellNetworkHandler import UnitcellNetworkHandler
 class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
     """ Class for setting up and handling the inviwo network for partial charge visualization
     """
-    def __init__(self, hdf5_path, band_list, mode_list):
+    def __init__(self, hdf5_path, band_list=[], mode_list=[]):
         """ Initializes the partial charge network 
         Parameters:
         hdf5_path : str
@@ -203,8 +203,8 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         """
         network = inviwopy.app.network
         
-        xpos = 200
-        ypos = -400
+        xpos = 200-8*25
+        ypos = -400+6*25
 
         
         n_bands = len(band_list)
@@ -227,7 +227,7 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
                 HDFvolume_list.append(volumeTotal)
             else:
                 volumeInPlus = _add_processor('org.inviwo.hdf5.ToVolume', 'Band ' + str(band_list[i]) + ' total', xpos + 180*i, ypos+75)
-                volumeInMinus = _add_processor('org.inviwo.hdf5.ToVolume', 'Band ' + str(band_list[i]) + ' magnetic', xpos + 180*i, ypos+150)
+                volumeInMinus = _add_processor('org.inviwo.hdf5.ToVolume', 'Band ' + str(band_list[i]) + ' magnetic', xpos + 180*i+25, ypos+150)
                 volumeCombine = _add_processor('org.inviwo.VolumeCombiner', 'Band ' + str(band_list[i]) + ' ' + mode_dict[mode_list[i]], xpos + 180*i, ypos+225)
 
                 if mode_list[i] == 2:
