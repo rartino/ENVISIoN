@@ -25,43 +25,66 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 ##############################################################################################
+#
+#  Alterations to this file by Jesper Ericsson
+#
+#  To the extent possible under law, the person who associated CC0
+#  with the alterations to this file has waived all copyright and related
+#  or neighboring rights to the alterations made to this file.
+#
+#  You should have received a copy of the CC0 legalcode along with
+#  this work.  If not, see
+#  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
-
-import os, sys
-
-# Configuration
-PATH_TO_ENVISION=os.path.expanduser("~/PROJLAB/ENVISIoN/envision")
-PATH_TO_VASP_CALC=os.path.expanduser("~/PROJLAB/ENVISIoN/data/diamond")
-PATH_TO_HDF5=os.path.expanduser("~/Desktop/demo.hdf5")
-
-sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION))
-
+import os, sys, inspect, inviwopy
+path_to_current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_dir + "/../envision"))
 import envision
-import envision.inviwo
+from envision.inviwo.ParchgNetworkHandler import ParchgNetworkHandler
 
-#Inarguments to inviwo.parchg:
-#--------------------------------
-#Path to your HDF5 file
-#sli : True for slice function, False for no slice function
-#parchg_list : list of the bands you want to visualize, by number, e.g. [34,55,190] for band 34, 55 and 190
-#parchg_mode : Determines how the datasets are visualized. Options are:
-#    - 'total' : spin_up + spin_down
-#    - 'magnetic' : spin_up - spin_down
-#    - 'up' : spin_up (0.5*(total+magnetic))
-#    - 'down' : spin_down (0.5*(total-magnetic))
-#    - 'mixed' : allows a specific mode for individual bands. If this is picked, you are required to fill out the mode_list.
-#mode_list : Specifies how to visualize a specific band. In the order you enumerated your bands in parchg_list, choose mode where
+# Set the path to existing VASP directory and to the desired save location for HDF5-file.
+PATH_TO_VASP_CALC=os.path.expanduser("C:/Kandidatprojekt/VASP/partial_charges")
+PATH_TO_HDF5=os.path.expanduser("C:/Kandidatprojekt/HDF5/parchg_demo.hdf5")
+
+# Parse for charge density visualisation.
+envision.parser.vasp.parchg(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+envision.parser.vasp.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+
+# Clear any old network
+inviwopy.app.network.clear()
+
+# Initialize inviwo network
+networkHandler = ParchgNetworkHandler(PATH_TO_HDF5)
+
+# Set band selections and modes
+# band_list : list of the bands you want to visualize, by number, e.g. [34,55,190] to select band 34, 55 and 190
+# mode_list : Specifies how to visualize a specific band. In the order you enumerated your bands in parchg_list, choose mode where
 #    0 for 'total'
 #    1 for 'magnetic'
 #    2 for 'up'
 #    3 for 'down'
-#    Example: If parchg_list is [31, 212] and mode_list is [1,3], band 31 will be visualized as 'magnetic' and 212 as 'down'
-#xstart_pos : where you want the Inviwo circuit to start on the x-axis
-#ystart_pos : where you want the Inviwo circuit to start on the y-axis
+# Example: If band_list is [31, 212] and mode_list is [1,3], band 31 will be visualized as 'magnetic' and 212 as 'down'
+band_list = [0, 2, 5, 7]
+mode_list = [0, 1, 2, 3]
+networkHandler.select_bands(band_list, mode_list)
 
+# Set some default properties, everything can either be 
+# chaged via networkHandler class or directly in
+# the network editor
 
-envision.parser.vasp.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
-envision.parser.vasp.parchg(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+# Add some default transfer function points
+networkHandler.add_tf_point(0.45, inviwopy.glm.vec4(1, 1, 1, 0))
+networkHandler.add_tf_point(0.5, inviwopy.glm.vec4(0.1, 1, 0.1, 0.1))
 
-envision.inviwo.unitcell(PATH_TO_HDF5, xpos = 0, ypos = 0, smallAtoms = True)
-envision.inviwo.parchg(PATH_TO_HDF5, sli = False, parchg_list = [1,2,3,4], parchg_mode = 'total', mode_list = [0,1,2,3], xstart_pos = 600, ystart_pos = 0)
+# Configure slice visualisation
+networkHandler.toggle_slice_canvas(False)
+networkHandler.toggle_slice_plane(False)
+networkHandler.set_plane_normal(0, 1, 0)
+networkHandler.set_plane_height(0.5)
+
+# Configure unitcell visualisation
+if networkHandler.unitcellAvailable:
+    networkHandler.hide_atoms(False)
+    networkHandler.toggle_unitcell_canvas(True)
+    networkHandler.set_atom_radius(0.2)
+

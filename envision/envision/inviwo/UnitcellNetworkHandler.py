@@ -93,17 +93,16 @@ class UnitcellNetworkHandler():
     def toggle_unitcell_canvas(self, enable_unitcell):
     # Add or remove the unitcell canvas
         network = inviwopy.app.network
-
         unitcellCanvas = network.getProcessorByIdentifier('Unit Cell Canvas')
-
+        unitcellRenderer = network.getProcessorByIdentifier('Unit Cell Renderer')
         # If already in correct mode dont do anything
         if (unitcellCanvas and enable_unitcell) or (not unitcellCanvas and not enable_unitcell):
             return
 
         if enable_unitcell:
-            SliceCanvas = _add_processor('org.inviwo.CanvasGL', 'Unit Cell Canvas', -600, 400)
-            SliceCanvas.inputSize.dimensions.value = inviwopy.glm.ivec2(200, 200)       
-            network.addConnection(network.getProcessorByIdentifier('SliceBackground').getOutport('outport'), SliceCanvas.getInport('inport'))
+            unitcellCanvas = _add_processor('org.inviwo.CanvasGL', 'Unit Cell Canvas', -600, 400)
+            unitcellCanvas.inputSize.dimensions.value = inviwopy.glm.ivec2(500, 500)
+            network.addConnection(unitcellRenderer.getOutport('image'), unitcellCanvas.getInport('inport'))
         else:
             network.removeProcessor(unitcellCanvas)
 
@@ -120,7 +119,6 @@ class UnitcellNetworkHandler():
         network.clear()
 
     def setup_unitcell_network(self, h5file):
-        print("Building unitcell network")
         network = inviwopy.app.network
         xpos = -600
         ypos = 0
