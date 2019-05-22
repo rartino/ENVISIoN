@@ -63,10 +63,14 @@ class ELFFrame(GeneralCollapsible):
         bandChoiceHBox.Add(self.bandChoice)
         self.add_item(bandChoiceHBox)
 
-        # Setup unicell controls
+        # Setup unicell checkbox
         self.spheresCheckbox = wx.CheckBox(self.GetPane(), label="Enable atom spheres")
         self.spheresCheckbox.SetValue(True)
         self.add_item(self.spheresCheckbox)
+
+        self.unitcellCheckbox = wx.CheckBox(self.GetPane(), label="Enable separate unitcell canvas")
+        self.unitcellCheckbox.SetValue(False)
+        self.add_item(self.unitcellCheckbox)
 
         #Setup slice-checkbox
         self.sliceBox = wx.CheckBox(self.GetPane(), label="Enable volume slice")
@@ -94,6 +98,7 @@ class ELFFrame(GeneralCollapsible):
         # Note that function should be called "on_collapse" to work
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
         self.spheresCheckbox.Bind(wx.EVT_CHECKBOX, self.on_sphere_check)
+        self.unitcellCheckbox.Bind(wx.EVT_CHECKBOX,self.on_unitcell_check)
         self.sliceBox.Bind(wx.EVT_CHECKBOX,self.on_slice_check)
         self.bandChoice.Bind(wx.EVT_CHOICE, self.on_band_selection)
 
@@ -107,9 +112,17 @@ class ELFFrame(GeneralCollapsible):
         if self.networkHandler.unitcellAvailable:
             self.networkHandler.hide_atoms(not event.IsChecked())
 
+    def on_unitcell_check(self, event):
+    # Event when unitcell checkbox is clicked
+        if self.networkHandler.unitcellAvailable:
+            self.networkHandler.toggle_unitcell_canvas(event.IsChecked()) 
+            self.reset_canvas_positions()
+
     def on_collapse(self, event = None):
         self.update_collapse()
         # Needs to be called to update the layout properly
+        if self.isPathEmpty():
+            return
         
         if not self.IsCollapsed():
             # Initialize network handler which starts visualization
@@ -152,10 +165,13 @@ class ELFFrame(GeneralCollapsible):
             # Check if unitcell is available
             self.spheresCheckbox.SetValue(self.networkHandler.unitcellAvailable)
             self.spheresCheckbox.Enable(self.networkHandler.unitcellAvailable)
+            self.unitcellCheckbox.Enable(self.networkHandler.unitcellAvailable)
             if not self.networkHandler.unitcellAvailable:
                 self.spheresCheckbox.SetToolTip("No unitcell parsed into HDF5 file.")
+                self.unitcellCheckbox.SetToolTip("No unitcell parsed into HDF5 file.")
             else:
                 self.spheresCheckbox.SetToolTip("")
+                self.unitcellCheckbox.SetToolTip("")
 
         elif self.networkHandler:
             # Disable charge visualization
@@ -168,6 +184,4 @@ class ELFFrame(GeneralCollapsible):
 
     def reset_canvas_positions(self):
         window = self.GetTopLevelParent()
-        print(window.GetPosition().x + window.GetSize().width)
-        print(window.GetPosition().y)
         self.networkHandler.position_canvases(window.GetPosition().x + window.GetSize().width, window.GetPosition().y)

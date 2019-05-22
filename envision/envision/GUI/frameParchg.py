@@ -163,6 +163,10 @@ class ParchgFrame(GeneralCollapsible):
             
     def on_collapse(self, event = None):
         self.update_collapse()
+
+        if self.isPathEmpty():
+            return
+
         if not self.IsCollapsed():
             # Initialize network handler which starts visualization
             # Exception caught if hdf5 file is not valid

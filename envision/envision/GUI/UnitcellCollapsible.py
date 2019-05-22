@@ -43,7 +43,7 @@ import math
 
 class UnitcellCollapsible(GeneralCollapsible):
 # Collapsible panel for handling unitcell part of visualization
-    def __init__(self, parent):
+    def __init__(self, parent, label = "Atom rendering"):
         super().__init__(parent, label = "Atom rendering")
         self.noDataText = wx.StaticText(self.GetPane(),
                                     label="No unitcell data in hdf5 file.\n"+
@@ -68,6 +68,8 @@ class UnitcellCollapsible(GeneralCollapsible):
         unitcellWidget = UnitcellControlWidget(self.GetPane(), atomName, atomIndex, self.networkHandler)
         self.unitcellWidgets.append(unitcellWidget)
         self.add_item(unitcellWidget)
+        
+        self.update_collapse()
 
 class UnitcellControlWidget(wx.BoxSizer):
     # Widget for controling unitcell properties of a single atom type.
