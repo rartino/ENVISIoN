@@ -97,6 +97,21 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         toVolume = network.getProcessorByIdentifier('HDF5 To Volume')
         toVolume.volumeSelection.selectedValue = '/CHG/' + key
 
+    def position_canvases(self, x, y):
+    # Updates the position of the canvases
+    # Upper left corner will be at coordinate (x, y)
+        network = inviwopy.app.network
+        sliceCanvas = network.getProcessorByIdentifier('SliceCanvas')
+        volumeCanvas = network.getProcessorByIdentifier('Canvas')
+        unitcellCanvas = network.getProcessorByIdentifier('Unit Cell Canvas')
+        if not volumeCanvas:
+            return
+        volumeCanvas.position.value = inviwopy.glm.ivec2(x, y)
+        if sliceCanvas:
+            sliceCanvas.position.value = inviwopy.glm.ivec2(x, y + volumeCanvas.inputSize.dimensions.value.y + 50)
+        if unitcellCanvas:
+            unitcellCanvas.position.value = inviwopy.glm.ivec2(x + volumeCanvas.inputSize.dimensions.value.x, y)
+
 # ------------------------------------------
 # ------- Network building functions -------
 

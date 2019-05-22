@@ -49,6 +49,7 @@ from frameDoS import DosFrame
 from frameParchg import ParchgFrame
 from frameELF import ELFFrame
 from frameBandstructure import BandstructureFrame
+from frameUnitcell import UnitcellFrame
 
 from generalCollapsible import GeneralCollapsible
 import inspect
@@ -85,6 +86,7 @@ class VisualizationFrame(GeneralCollapsible):
         dosFrame = DosFrame(self.GetPane())
         parchgFrame = ParchgFrame(self.GetPane())
         bandstructureFrame = BandstructureFrame(self.GetPane())
+        unitcellFrame = UnitcellFrame(self.GetPane())
 
     # Add them to the sizer
         self.add_sub_collapsible(bandstructureFrame)
@@ -93,6 +95,7 @@ class VisualizationFrame(GeneralCollapsible):
         self.add_sub_collapsible(dosFrame)
         self.add_sub_collapsible(parchgFrame)
         self.add_sub_collapsible(pcfFrame)
+        self.add_sub_collapsible(unitcellFrame)
 
     # Set some callbacks
         self.chooseFile.Bind(wx.EVT_BUTTON, self.file_pressed)

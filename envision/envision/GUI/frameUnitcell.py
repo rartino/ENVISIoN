@@ -26,7 +26,7 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by
+#  Alterations to this file by Jesper Ericsson
 #
 #  To the extent possible under law, the person who associated CC0
 #  with the alterations to this file has waived all copyright and related
@@ -35,47 +35,51 @@
 #  You should have received a copy of the CC0 legalcode along with
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
-import wx ,sys ,os , h5py
-from parameter_utils import *
+import wx, sys, os, h5py
 from generalCollapsible import GeneralCollapsible
+from UnitcellCollapsible import UnitcellCollapsible
+import envision
+import inviwopy
 
-class UnitcellFrame(GeneralCollapsible):
+from envision.inviwo.UnitcellNetworkHandler import UnitcellNetworkHandler
+
+class UnitcellFrame(UnitcellCollapsible):
     def __init__(self, parent):
-        super().__init__(parent, "Unitcell")
-    
-        button1 = wx.Button(self.GetPane(), label="X")
-        button2 = wx.Button(self.GetPane(), label="Y")
-        slider = wx.Slider(self.GetPane())
-
-        self.add_item(button1)
-        self.add_item(button2)
-        self.add_item(slider)
+        UnitcellCollapsible.__init__(self, parent, label="Unitcell")
 
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_collapse)
 
     
-    def on_collapse(self, event = None):
+    def on_collapse(self, event=None):
         self.update_collapse()
         # Needs to be called to update the layout properly
-        if self.IsCollapsed():
-            # Disable Unitcell vis
-            clear_processor_network()
-            print("Not Unitcell")
-        else:
-            self.start_vis()
-
-    def start_vis(self):
         if self.isPathEmpty():
             return
-        elif "/UnitCell" in  h5py.File(self.parent_collapsible.path, 'r'):
-            #Start Unitcell vis
-            envision.inviwo.unitcell(self.parent_collapsible.path, 
-                                    xpos = 0, ypos = 0)
-            self.set_canvas_pos('Unitcell')
-            print("Unitcell")
-        else:
-            self.open_message('The file of choice does not contain Unitcell-data',
-                                'Visualization failed!')
-            self.Collapse(True)
-            self.update_collapse()
+        if not self.IsCollapsed():
+            # Initialize network handler which starts visualization
+            # Exception caught if hdf5 file is not valid
+            try:
+                self.networkHandler = UnitcellNetworkHandler(self.parent_collapsible.path)
+            except AssertionError as error:
+                print(error)
+                inviwopy.app.network.clear()
+                self.Collapse(True)
+                self.update_collapse()
+                self.open_message(str(error), "Cannot start visualization")
+                return
+
+            self.hasAtoms = False
+            for i in range(self.networkHandler.nAtomTypes):
+                self.add_atom_control(self.networkHandler.get_atom_name(i), i)
+
+            self.reset_canvas_position()
+
+        elif self.networkHandler:
+            # Disable charge visualization
+            self.networkHandler.clear_processor_network()
+            del self.networkHandler
+
+    def reset_canvas_position(self):
+        window = self.GetTopLevelParent()
+        self.networkHandler.set_canvas_position(window.GetPosition().x + window.GetSize().width, window.GetPosition().y)
 

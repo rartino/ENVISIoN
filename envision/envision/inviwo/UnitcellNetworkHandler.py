@@ -111,6 +111,15 @@ class UnitcellNetworkHandler():
         structMesh = network.getProcessorByIdentifier('Unit Cell Mesh')
         structMesh.fullMesh.value = enable
 
+    def set_canvas_position(self, x, y):
+    # Updates the position of the canvas
+    # Upper left corner will be at coordinate (x, y)
+        network = inviwopy.app.network
+        unitcellCanvas = network.getProcessorByIdentifier('Unit Cell Canvas')
+        if not unitcellCanvas:
+            return
+        unitcellCanvas.position.value = inviwopy.glm.ivec2(x, y)
+
 # ------------------------------------------
 # ------- Network building functions -------
 
