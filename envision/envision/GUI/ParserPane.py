@@ -90,31 +90,31 @@ class ParserPane(GeneralCollapsible):
                                     label="Type of Visualization:")
         self.selectVis = wx.ComboBox(self.GetPane(), size=self.itemSize,
                                     value = "Select type",
-                                    choices= ('All', 'Bandstructure', 'Charge',
+                                    choices= ('All', 'Bandstructure', 'Charge density',
                                             'DoS', 'ELF', 'Fermi energy',
-                                            'MD', 'Parchg', 'PCF',
+                                            'MD', 'Partial charge', 'PCF',
                                             'Unitcell'))
         self.parserDict = {
             'Unitcell' : 'unitcell from VASP' ,
             'MD' : 'molecular dynamics from VASP',
-            'Charge' : 'charge from VASP',
+            'Charge density' : 'charge from VASP',
             'ELF' : 'ELF from VASP',
             'DoS' : 'DOS from VASP',
             'Bandstructure' : 'bandstructure from VASP',
             'PCF' : 'PCF from VASP',
-            'Parchg' : 'Parchg from VASP',
+            'Partial charge' : 'Parchg from VASP',
             'Fermi energy': 'Fermi energy from VASP'
         }
 
         self.parseFuncDict = {
         'Unitcell': unitcell,
         'MD': md,
-        'Charge': charge,
+        'Charge density': charge,
         'ELF': elf,
         'DoS': dos,
         'Bandstructure': bandstructure,
         'PCF' : paircorrelation,
-        'Parchg' : parchg,
+        'Partial charge' : parchg,
         'Fermi energy': fermi_energy
     }
 
@@ -270,6 +270,7 @@ class ParserPane(GeneralCollapsible):
                                 " successfully done for: "+
                                 ', '.join(self.parseOut),
                                 "Succsessfully parsed!")
+        self.parseOut = None
 #Return path if the path exists.                        
     def directory_if_exists(self,path):
         if not os.path.exists(path):

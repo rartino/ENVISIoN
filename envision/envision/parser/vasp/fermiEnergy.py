@@ -25,7 +25,16 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 ##############################################################################################
-
+#
+#  Alterations to this file by Anton Hjert
+#
+#  To the extent possible under law, the person who associated CC0
+#  with the alterations to this file has waived all copyright and related
+#  or neighboring rights to the alterations made to this file.
+#
+#  You should have received a copy of the CC0 legalcode along with
+#  this work.  If not, see
+#  <http://creativecommons.org/publicdomain/zero/1.0/>.
 import os, sys, h5py, inspect
 path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 sys.path.insert(0, os.path.expanduser(path_to_current_folder+'/../'))
@@ -52,6 +61,9 @@ def fermi_energy_parser(vasp_dir):
     except OSError:
         print('DOSCAR file not in directory. Skipping.')
         return 0
+    except StopIteration:
+        print('Data not found in DOSCAR. Skipping.')
+        return 0
     return fermi_energy
 
 
@@ -68,6 +80,8 @@ def fermi_energy(h5file, vasp_dir):
                 print('Fermi energy already parsed. Skipping.')
                 return False
     energy = fermi_energy_parser(vasp_dir)
-    _write_fermi_energy(h5file, energy)
-    print('Fermi energy was parsed successfully.')
-    return True
+    if _write_fermi_energy(h5file, energy) == 0:
+        return False
+    else:
+        print('Fermi energy was parsed successfully.')
+        return True
