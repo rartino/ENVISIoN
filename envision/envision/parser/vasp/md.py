@@ -92,6 +92,7 @@ def md(h5_path, vasp_dir, elements=None):
                     text, length = instance.args
                     if length != 0:
                     	raise
+                    return False
                 if not coords_list:
                     break
                 _write_md(
