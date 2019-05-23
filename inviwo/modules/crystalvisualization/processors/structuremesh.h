@@ -26,8 +26,19 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  *********************************************************************************/
+ /*
+  *   Alterations to this file by Abdullatif Ismail
+  *
+  *   To the extent possible under law, the person who associated CC0
+  *   with the alterations to this file has waived all copyright and
+  *   related or neighboring rights to the alterations made to this file.
+  *
+  *   You should have received a copy of the CC0 legalcode along with
+  *   this work.  If not, see
+  *   <http://creativecommons.org/publicdomain/zero/1.0/>.
+  */
 
 #ifndef IVW_STRUCTUREMESH_H
 #define IVW_STRUCTUREMESH_H
@@ -53,7 +64,7 @@ namespace inviwo {
  *
  * ### Outports
  *   * __<Outport1>__ <description>.
- * 
+ *
  * ### Properties
  *   * __<Prop1>__ <description>.
  *   * __<Prop2>__ <description>
@@ -65,7 +76,7 @@ namespace inviwo {
  * \brief VERY_BRIEFLY_DESCRIBE_THE_PROCESSOR
  * DESCRIBE_THE_PROCESSOR_FROM_A_DEVELOPER_PERSPECTIVE
  */
-class IVW_MODULE_CRYSTALVISUALIZATION_API StructureMesh : public Processor { 
+class IVW_MODULE_CRYSTALVISUALIZATION_API StructureMesh : public Processor {
 public:
     StructureMesh();
     virtual ~StructureMesh() = default;
@@ -98,4 +109,3 @@ private:
 } // namespace
 
 #endif // IVW_STRUCTUREMESH_H
-
