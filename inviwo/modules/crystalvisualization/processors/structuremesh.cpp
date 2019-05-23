@@ -30,7 +30,7 @@
  *
  *********************************************************************************/
 /*
- *   Alterations to this file by Anders Rehult and Andreas Kempe
+ *   Alterations to this file by Anders Rehult, Andreas Kempe and Abdullatif Ismail
  *
  *   To the extent possible under law, the person who associated CC0
  *   with the alterations to this file has waived all copyright and
@@ -199,12 +199,12 @@ void StructureMesh::process() {
         invalidate(InvalidationLevel::InvalidOutput);
     }
 
-    
+
 }
 
 
 void StructureMesh::handlePicking(PickingEvent* p) {
-    if (enablePicking_.get()) { 
+    if (enablePicking_.get()) {
         if (p->getState() == PickingState::Updated &&
             p->getEvent()->hash() == MouseEvent::chash()) {
             auto me = p->getEventAs<MouseEvent>();
@@ -233,4 +233,3 @@ void StructureMesh::handlePicking(PickingEvent* p) {
 }
 
 } // namespace
-

@@ -25,7 +25,7 @@
  *
  *********************************************************************************/
 /*
- *   Alterations to this file by Viktor Bernholtz
+ *   Alterations to this file by Viktor Bernholtz and Abdullatif Ismail
  *
  *   To the extent possible under law, the person who associated CC0
  *   with the alterations to this file has waived all copyright and
@@ -391,4 +391,3 @@ void FunctionOperationNary::process() {
 }
 
 } // namespace
-
