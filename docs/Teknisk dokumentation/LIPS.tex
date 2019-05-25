@@ -1,3 +1,4 @@
+\usepackage[swedish]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{times}
@@ -44,7 +45,7 @@
         {\Large \textbf{Version \LIPSversion}}
     \end{center}
     \begin{center}
-        {Parts of chapter \ref{ch:intro} and \ref{ch:install} are based on the 2018 user guide for ENVISIoN, see appendix \ref{appendix:userGuide2018}}.
+        {Delvist innehåll från rubrik \ref{ssec:skrivning till HDF5}, \ref{ssec:inläsning av VASP}, \ref{ssec:datastrukturer}, \ref{ssec:processorer} och \ref{ssec:Properties} i denna tekniska dokumentation, är baserad på 2018 års tekniska dokumentation för visualiseringsvertyget ENVISIoN, \\se appendix \ref{appendix:teknisk2018}.}
     \end{center}
     \vfill
     \begin{center}{
@@ -62,12 +63,12 @@
 
 \newenvironment{LIPSdokumenthistorik}{
     \begin{center}
-        Document history\\[1ex]
+        Dokumenthistorik\\[1ex]
         \begin{small}
             \begin{tabular}{|l|l|p{60mm}|l|l|}
                 \hline
-                \textbf{Version} & \textbf{Date} & \textbf{Changes} &
-                \textbf{Done by} & \textbf{Reviewed} \\
+                \textbf{Version} & \textbf{Datum} & \textbf{Utförda förändringar} &
+                \textbf{Utförda av} & \textbf{Granskad} \\
                 }
                 {
                 \hline
@@ -130,7 +131,7 @@
     Krav nr x & {#1} & {#2} & {#3} \\
 }
 
-\newcommand{\LIPSleverans}[2]{
+\newcommand{\LIPSleverans}[2]{Ericsson
   {#1} & {#2} & \hline
 }
 
@@ -141,31 +142,33 @@
 \newenvironment{LIPSprojektidentitet}{%
 {\ }\vspace{45mm}
 \begin{center}
-  {\Large PROJECT IDENTITY}\\[0.5ex]
+  {\Large PROJEKTIDENTITET}\\[0.5ex]
   {\small
   \LIPSartaltermin, \LIPSprojektgrupp\\
   Linköpings Tekniska Högskola, IFM
   }
 \end{center}
 \begin{center}
-  {\small Group members}\\
+  {\small Gruppdeltagare}\\
 %  \begin{tabular}{|p{30mm}|p{40mm}|p{35mm}|p{45mm}|}
   \begin{tabular}{|l|p{45mm}|p{25mm}|l|}
     \hline
-    \textbf{Name} & \textbf{Role} & \textbf{Phone nr.} & \textbf{E-mail} \\
+    \textbf{Namn} & \textbf{Ansvar} & \textbf{Telefon} & \textbf{E-post} \\
     \hline
-}%
+}%Ericsson
 {%
     \hline
   \end{tabular}
 \end{center}
 \begin{center}
   {\small
-    \textbf{Website}: \LIPSgrupphemsida\\[1ex]
-    \textbf{Client}: \LIPSkund\\
-    \textbf{Contact person of client}: \LIPSkundkontakt\\
-    \textbf{Course examintor}: \LIPSkursansvarig\\
-    \textbf{Main supervisor}: \LIPShandledare\\
+    \textbf{E-postlista för hela gruppen}: %\LIPSgruppepost
+    se ovan\\
+    \textbf{Hemsida}: \LIPSgrupphemsida\\[1ex]
+    \textbf{Kund}: \LIPSkund\\
+    \textbf{Kontaktperson hos kund}: \LIPSkundkontakt\\
+    \textbf{Kursansvarig}: \LIPSkursansvarig\\
+    \textbf{Handledare}: \LIPShandledare\\
   }
 \end{center}
 \newpage
@@ -194,3 +197,4 @@
     \large{Licens}
     \end{center}
 }{}
+

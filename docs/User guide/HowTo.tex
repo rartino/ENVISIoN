@@ -1,0 +1,62 @@
+\section{How to build Inviwo with ENVISIoN on Ubuntu
+18.04 LTS}
+
+\label{ch:install}
+These instructions show how to build Inviwo and ENVISIoN on Ubuntu
+18.04 LTS.
+
+\subsection{Install git}
+Start by installing git, which will be used to fetch ENVISIoN in the
+next step.
+\begin{lstlisting}[frame = single, breaklines=true]
+    sudo apt install git
+\end{lstlisting}
+
+\subsection{Download ENVISIoN}
+Go to your home folder and clone ENVISIoN from Github. This guide will
+assume that both ENVISIoN and Inviwo will be placed directly under the
+home folder.
+\begin{lstlisting}[frame = single, breaklines=true]
+    cd
+    git clone https://github.com/rartino/ENVISIoN
+\end{lstlisting}
+
+\subsection{Prepare Inviwo using the ENVISIoN install script}
+ENVISIoN provides an install script for Ubuntu 18.04 LTS. Executing
+the installation script will install all required dependencies, clone
+Inviwo from Github and configure the Inviwo build.
+
+The script should \emph{NOT} be run as root, but as your own user and
+it will ask for your password when it needs root rights. It is
+possible that the script will ask for other user input during the
+process, if that's the case, just accept the default.
+\begin{lstlisting}[frame = single, breaklines = true]
+    cd ~/ENVISIoN/scripts
+    ./install.sh /home/$USER/ENVISIoN /home/$USER/inviwo
+\end{lstlisting}
+
+Once the installation script has run, it prints build instructions.
+Follow the instructions and start the build. The instructions will
+tell you to \emph{cd} to the build directory and execute make.
+
+An easy way to modify the build settings, if needed, is to install
+the cmake curses gui and run it in the build directory.
+
+To install the cmake gui:
+\begin{lstlisting}[frame = single, breaklines = true]
+    sudo apt install cmake-curses-gui
+\end{lstlisting}
+
+Running cmake in the build directory:
+\begin{lstlisting}[frame = single, breaklines = true]
+    cd ~/inviwo/build
+    ccmake .
+\end{lstlisting}
+
+When in the GUI, press \emph{c} to apply the current configuration,
+\emph{g} to generate build files and \emph{q} to quit. If settings
+have changed, it is possible that you will need to press \emph{c} more
+than once before the \emph{g} option becomes available.
+
+After having generated the build files, the project can now be rebuilt
+with the new settings by executing \emph{make} like earlier.

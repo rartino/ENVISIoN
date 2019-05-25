@@ -1,0 +1,15 @@
+\newpage
+\section{Översikt av systemet}
+\nyBild{oversikt.png}{Enkel skiss över ENVISIoN systemet}{oversikt}{0.8}
+
+Den produkt som utvecklas är ett verktyg för att visualisera viktiga egenskaper från elektronstrukturberäkningar. Systemet skall bestå av ett användargränssnitt där användaren får välja vilka beräkningsresultat som skall konverteras och visualiseras.
+
+I figur \ref{fig:oversikt} visas en grov systemskiss med de olika delsystem som ingår. Systemet kan grovt delas upp i tre olika delar. Ett system för parsning av datafiler från exempelvis VASP, ett system för att visualisera det som parsas i tidigare nämnt system, och ett GUI-system vilket användaren interagerar med visualiseringen via.
+
+\subsection{Ingående delsystem}
+Systemet för elektronvisualisering består i huvudsak av tre delar. Dels består systemet av en parsing-del där textfiler genererade från beräkningsprogrammet VASP skall översättas till det, med vår mjukvara, kompatibla filformatet HDF5. 
+
+När denna filkonvertering är klar så ska de genererade filerna behandlas i ett visualiseringssystem för att skapa önskade visualiseringar. Visualiseringen i Inviwo byggs upp av processorer vilka datan låts flöda igenom för att skapa önskat slutresultat.
+
+Den sista delen av systemet är det som möter användaren, det grafiska användargränssnittet, GUI:t.
+Genom detta system skall tillgång till att starta och göra ändringar i visualiseringen ges. Målet är att kunna styra hela systemet från GUI:t som en fristående del från de två första delsystemen.

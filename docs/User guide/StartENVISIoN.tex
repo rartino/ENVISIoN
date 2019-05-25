@@ -1,0 +1,12 @@
+\section{Start ENVISIoN}
+After the Inviwo build is done, an application named \textit{inviwo\_envisionminimum} will be available in the bin files in the build directory. The commands in this section are only compatible with Ubuntu 18.04 LTS and other UNIX based operating systems. To make the application start the graphical user interface, it needs the path to the interface source files located in the same directory. The file containing these files can be copied from \emph{$\sim$/ENVISIoN/scripts} and is named \textit{ENVISIoNimport.py}. Execute the command below to copy the file to the correct directory.
+
+\begin{lstlisting}[frame = single, breaklines = true]
+    cp ~/ENVISIoN/scripts/ENVISIoNimport.py ~/build/bin/ENVISIoNimport.py
+\end{lstlisting}
+
+The application can now be started by standing in the build directory and executing the command below.
+
+\begin{lstlisting}[frame = single, breaklines = true]
+    ./bin/inviwo_envisionminimum
+\end{lstlisting}

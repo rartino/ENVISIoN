@@ -1,0 +1,97 @@
+\section{Inledning}
+Elektronstrukturberäkningar är ett viktigt verktyg inom teoretisk fysik för att förstå hur materials och molekylers egenskaper kan härledas från kvantmekaniska effekter. För att förstå dessa egenskaper är det viktigt att kunna analysera data från beräkningarna, något som förenklas och görs möjligt genom visualisering. ENVISIoN är en kraftfull mjukvara som är avsedd för visualisering av data från beräkningsprogram som VASP. Mjukvaran bygger på forskningsverktyget Inviwo, utvecklad av Visualiseringscenter i Norrköping. Idén med ENVISIoN är att underlätta visualiseringarna från kvantmekaniska beräkningar. Det ska vara enkelt och smidigt att visualisera önskade och relevanta egenskaper hos olika system bestående av atomer. Mjukvaran tillgängliggör olika reglage och knappar för att på ett interaktivt sätt kunna ändra dess egenskaper. I följande dokument kommer de tekniska aspekterna av hur systemet är implementerat att redovisas.  
+
+\subsection{Parter}
+ENVISIoN är en produkt som beställts av beställaren Rickard Armiento. Produkten har skapats av projektgruppen, redovisade under projektidentiteten, under handledning av handledare Johan Jönsson. Se projektidentitet för mer genomgående information om beställare och handledare.    
+
+%Beställare: \LIPSkund \\
+%Leverantör: Grupp 1.
+
+\subsection{Projektets bakgrund} 
+%Visualisering och simulering av beräkningsresultat är mycket väsentligt för förståelsen hos olika sorterts analyser. Syftet med ENVISIoN är att visualisera kvantmekaniska beräkningar för att underlätta analyseringen av resultaten. När mjukvaran är klar är syftet att den används i forskningssyften. 
+Projektet skapades i samband med kandidatarbetet, kursen TFYA75. Som ett väsentligt examinerade moment ska projektet genomförande återspegla alla förutsättningar, krav och ansvarstaganden som råder under en formell anställning. Utveckling av ENVISIoN är en av flera projekt som kan väljas inom kursen. Produktens slutgiltiga syfte är att användas som ett forskningsverktyg for visualisering av kvantmekaniska beräkningar.      
+
+\subsection{Syfte och mål}
+Projektet syftar till att utveckla kreativiteten samt att ge färdigheter i fysikalisk tänkande och analys av teoretiska resultat. Projektet bedrivs realistiskt som en träning inför det kommande yrkeslivet. Resultatet av projektarbetet ska hålla hög vetenskaplig och teknisk kvalité och baseras på moderna kunskaper, dokumenteras i form av projekt-och tidsplan, krav-och designspecification samt i en teknisk/vetenskaplig rapport, presenteras muntligt, demonstreras och följas upp i en efterstudie. Målet är att i visualiseringsverktyget Inviwo utveckla ett system för visualisering av resultatet av elektronstrukturberäkningar. Att demonstrera systemetsfunktionalitet genom att använda det till att illustrera några befintliga beräkningsresultat.
+
+\subsection{Användning}
+Denna produkt kommer huvudsakligen användas vid Linköpings universitet för att analysera data från elektronstruktursberäkningar.
+
+\subsection{Begränsningar}
+I projektet kommer visualiseringsverktyget Inviwo och programmeringspråken Python och C++ användas. Det kommer inte utredas om det är bättre att använda andra verktyg.
+
+\subsection{Definitioner}
+\begin{itemize}
+\setlength\itemsep{0em}
+\item \textbf{Inviwo:} Ett forskningsverktyg som utvecklas vid Linköpings universitet och ger användaren möjlighet att styra visualisering med hjälp av programmering i Python3 eller grafiskt. Det tillhandahåller även användargränssnitt för interaktiv visualisering. \cite{Inviwo}
+
+\item \textbf{Processor:} Benämningen på ett funktionsblock i Inviwos nätverksredigerare som tar emot indata och producerar utdata. I detta dokument avser en processor alltid en inviwoprocessor om inte annat anges.
+
+\item \textbf{Canvas:} En processor i Inviwo som ritar upp en bild i ett fönster.
+
+\item \textbf{Data frame:} En tabell med lagrad data i form av tal. Varje kolumn i tabellen har ett specifikt namn.
+
+\item \textbf{Transferfunktion:} Begrepp inom volymrendering för den funktion som används för att översätta volymdensiteter till en färg.
+
+\item \textbf{Transferfunktionspunkt: } Ett värde i transferfunktionen som definerar en färg vid ett speciellt densitetsvärde.
+
+\item \textbf{Port:} Kanal som processorer använder för att utbyta data av specifika typer.
+
+\item \textbf{Property:} En inställning i en Inviwoprocessor.
+
+\item \textbf{Länkar:} Kanaler som processorer använder för att länka samman properties av samma typ så att deras tillstånd synkroniseras.
+
+\item \textbf{Nätverk:} Ett antal processorer sammankopplade via portar och länkar. 
+
+\item \textbf{Volymdata:} Tredimensionell data som beskriver en volym.
+
+\item \textbf{API:} Application Programming Interface, en specifikation av hur olika applikationer kan användas och kommunicera med en specifik programvara. Detta utgörs oftast av ett dynamiskt länkat bibliotek.\cite{API}
+
+\item \textbf{BSD2:} En licens för öppen källkod.
+	\cite{BSD2}
+
+\item \textbf{C++:} Ett programmeringsspråk.
+	\cite{C++}
+	\newline
+	I Inviwo används C++ för att skriva programkod till processorer.
+
+\item \textbf{Python3:} Ett programmeringsspråk.
+	\cite{Python3}
+	\newline
+	I Inviwo används Python3 för att knyta samman processorer.
+
+\item \textbf{Fermienergi:} Energinivån där antalet tillstånd som har en energi lägre än Fermienergin är lika med antalet elektroner i systemet. \cite{Fermi-energi}
+
+\item \textbf{Git:} Ett decentraliserat versionshanteringssystem.
+\cite{Git}
+    
+\item \textbf{GUI:} (Graphical User Interface) Ett grafiskt
+användargränssnitt.
+\cite{GUI}
+
+\item \textbf{PyQT:} En python-modul för GUI-programmering.\cite{PyQT}
+
+\item \textbf{wxPython:} En samling av python-moduler för GUI-programmering.\cite{wxPython}
+
+\item \textbf{PKF} En förkortning på Parkorrelationsfunktionen. Vilket ibland slarvigt kan anges synonymt som RDF, Radial Distribution Function.
+
+\item \textbf{HDF5:} Ett filformat som kan hantera stora mängder data. Alla HDF5-objekt har en rotgrupp som äger alla andra objekt i datastrukturen. Denna grupp innehåller i sin tur all övrig data i form av andra grupper, länkar till andra grupper eller dataset. Dataset innehåller rådata av något slag. Rådata kan i sammanhanget vara bilder, utdata från beräkningar, programdata, etc. \cite{HDF group} \cite{HDF group2} 
+
+De övriga objektstyperna gås inte igenom i detalj i detta dokument,
+men finns väl beskrivna i \emph{High Level Introduction to HDF5} \cite{HDF group2}.
+
+%\item \textbf{Metadata} - Data som beskriver rådatan i HDF5 filstrukturen. 
+\item \textbf{VASP:} The Vienna Ab initio simulation package, ett program för modellering på atomnivå, för t.ex. elektronstruktusrberäkningar och kvantmekanisk molekyldynamik.
+\cite{VASP}
+
+\item \textbf{Parser:} Ett system som översätter en viss typ av filer till en annan typ av filer. I detta fall sker översättningen från textfiler, genererat i beräkningsprogrammet VASP, till HDF5-filer.
+
+\item \textbf{Parsning:} Översättning utförd av parsern.
+
+\item \textbf{Mesh} - Beskriver ett geometriskt objekt som en uppsättning av ändliga element. 
+
+\item \textbf{array} - Ett dataobjekt som fungerar som behållare för element av samma typ \cite{what is array}.  
+
+\item \textbf{UNIX} - Benämning av en grupp operativsystem som härstammar från UNIX System from Bell Labs \cite{what is UNIX}.   
+\end{itemize}
+
