@@ -1,0 +1,73 @@
+\section{How to build Inviwo with ENVISIoN on other OS}
+
+\subsection{Install git}
+Start by installing git, which will be used to fetch ENVISIoN in the next step. Git can be downloaded from the website below.
+\begin{lstlisting}[frame = single, breaklines=true]
+    https://git-scm.com/downloads
+\end{lstlisting}
+
+\subsection{Download ENVISIoN}
+Change the working directory to the home folder and clone ENVISIoN from Github. This guide will assume that both ENVISIoN and Inviwo will be placed directly under the home folder. Clone the ENVISIoN repository be executing the command below.
+\begin{lstlisting}[frame = single, breaklines=true]
+    git clone https://github.com/rartino/ENVISIoN
+\end{lstlisting}
+
+\subsection{Prepare Inviwo for build}
+To be able to install Inviwo, all required dependencies needs to installed: 
+\begin{itemize}
+    \setlength\itemsep{0em}
+    \item gcc
+    \item hdf5 
+    \item cmake
+    \item qt
+    \item python3
+    \item numpy
+    \item h5py
+    \item regex
+    \item wxPython
+    \item pybind11
+\end{itemize}
+
+Make sure to install the latest version of all the softwares mentioned above. Clone the Inviwo repository into the home folder and make it your working directory. Clone the Inviwo repository be executing the command below.
+
+\begin{lstlisting}[frame = single, breaklines = true]
+    git clone https://github.com/inviwo/inviwo.git
+\end{lstlisting}
+
+ENVISIoN isn't compatible with the newest version of Inviwo due to a reconstruction in the Inviwo file system on April 15, 2019. To make ENVISIoN compatible with Inviwo that just got cloned, a checkout of a compatible version is needed.
+
+\begin{lstlisting}[frame = single, breaklines = true]
+    git checkout d20199dfd37c80559ce687243d296f6ce3e41c71
+\end{lstlisting}
+
+Some minor alterations has been made on the Inviwo source code by the ENVISIoN project group that need to be patched. 
+
+\begin{lstlisting}[frame = single, breaklines = true]
+    git apply < "~/ENVISIoN/inviwo/patches/2019/envisionTransferFuncFix2019.patch"
+    git apply < "~/ENVISIoN/inviwo/patches/2019/paneProperty2019.patch"
+\end{lstlisting}
+
+The only remaining change in the Inviwo repository is an update of its submodules.
+ 
+\begin{lstlisting}[frame = single, breaklines = true]
+    git submodule init
+\end{lstlisting}
+
+Create a build directory in the home folder and configure the ENVISIoN module and project path using cmake. Execute the command below when standing in the build directory. 
+
+\begin{lstlisting}[frame = single, breaklines = true]
+    cmake .. -DIVW_EXTERNAL_PROJECTS="~/ENVISIoN/inviwo/app" \
+         -DIVW_EXTERNAL_MODULES="$~/ENVISIoN/inviwo/modules" \
+         -DIVW_MODULE_CRYSTALVISUALIZATION=ON \
+         -DIVW_MODULE_FERMI=OFF \
+         -DIVW_MODULE_GRAPH2D=ON \
+         -DIVW_MODULE_PYTHON3=ON \
+         -DIVW_MODULE_PYTHON3QT=ON \
+         -DIVW_MODULE_QTWIDGETS=ON \
+         -DIVW_MODULE_HDF5=ON
+\end{lstlisting}
+
+Inviwo is now ready to be installed with the ENVISIoN modules added. Add the \emph{-j} extension to use multiple cores while installing.
+\begin{lstlisting}[frame = single, breaklines = true]
+    make -j5
+\end{lstlisting}
