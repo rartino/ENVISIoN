@@ -43,6 +43,7 @@
 import numpy as np
 import h5py
 import array as arr
+import scipy.ndimage
 
 
 def _write_coordinates(h5file, atom_count, coordinates_list, elements, path):
@@ -182,9 +183,21 @@ def _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy):
                         set_attrs(dataset, name, '', 'Density of States', '$D$', 'states/eV')
 
 def _write_volume(h5file, i, array, data_dim, hdfgroup):
+    print("DATA DIMENSIONS:")
+    print(data_dim)
+    # print(data_dim[0])
     with h5py.File(h5file, "a") as h5:
         if array:
-            h5.create_dataset('{}/{}'.format(hdfgroup, i), data = np.reshape(array, (data_dim[2],data_dim[1],data_dim[0])), dtype=np.float32)
+            volumeArray = np.reshape(array, (data_dim[2],data_dim[1],data_dim[0]))
+
+            # Inviwo requires arrays to be above a certain size.
+            # Resize array to fit
+            while any(x < 48 for x in data_dim):
+                data_dim[0] *= 2
+                data_dim[1] *= 2
+                data_dim[2] *= 2
+                volumeArray = scipy.ndimage.zoom(volumeArray, 2)
+            h5.create_dataset('{}/{}'.format(hdfgroup, i), data = volumeArray, dtype=np.float32)
         else:
             try:
                 h5['{}/final'.format(hdfgroup)] = h5['{}/{}'.format(hdfgroup, i-1)]
@@ -201,9 +214,21 @@ def _write_incar(h5file, incar_data):
 
 def _write_parcharges(h5file, array_tot, data_dim_tot, array_mag, data_dim_mag, band_nr):
     with h5py.File(h5file, "a") as h5:
-        h5.create_dataset('PARCHG/Bands/{}/total'.format(band_nr), data = np.reshape(array_tot, (data_dim_tot[2],data_dim_tot[1],data_dim_tot[0])), dtype=np.float32)
-        if not np.size(array_mag) == 0:
-            h5.create_dataset('PARCHG/Bands/{}/magnetic'.format(band_nr), data = np.reshape(array_mag, (data_dim_mag[2],data_dim_mag[1],data_dim_mag[0])), dtype=np.float32)
+        totVolume = np.reshape(array_tot, (data_dim_tot[2],data_dim_tot[1],data_dim_tot[0]))
+        while any(x < 48 for x in data_dim_tot):
+            data_dim_tot[0] *= 2
+            data_dim_tot[1] *= 2
+            data_dim_tot[2] *= 2
+            totVolume = scipy.ndimage.zoom(totVolume, 2)
+        h5.create_dataset('PARCHG/Bands/{}/total'.format(band_nr), data = totVolume, dtype=np.float32)
+        if np.size(array_mag) != 0:
+            magVolume = np.reshape(array_mag, (data_dim_mag[2],data_dim_mag[1],data_dim_mag[0]))
+            while any(x < 48 for x in data_dim_mag):
+                data_dim_mag[0] *= 2
+                data_dim_mag[1] *= 2
+                data_dim_mag[2] *= 2
+                magVolume = scipy.ndimage.zoom(magVolume, 2)
+            h5.create_dataset('PARCHG/Bands/{}/magnetic'.format(band_nr), data = magVolume, dtype=np.float32)
     return
 
 def _write_pcdat_multicol(h5file, pcdat_data, APACO_val, NPACO_val):
