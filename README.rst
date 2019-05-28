@@ -52,6 +52,7 @@ Prepare Inviwo for build
 ------------------------
 
 To be able to install Inviwo, all required dependencies needs to installed:
+
 - gcc
 - hdf5
 - cmake
@@ -145,8 +146,7 @@ Locate and press the Python menu in the Inviwo bar.
 5. Click open.
 6. Click the button in the top left corner to run.
 
-<img src="/docs/READMEimages/figure1.png" width="600">
-
+.. image:: docs/READMEimages/figure1.png
 
 Graphical user interface
 ------------------------
@@ -158,8 +158,8 @@ Start-up
 
 When the user run the application a window opens, see figure 2. After ENVISIoN has been opened, two possible menu-choices appear, “Parser” and “Visualization”.
 
-<img src="/docs/READMEimages/figure2.png" width="400">
-
+.. image:: docs/READMEimages/figure2.png
+  
 Parser menu
 ~~~~~~~~~~~~
 
@@ -167,7 +167,7 @@ The parser menu is localized on top in the interface. To access its content, pre
 
 For quick step-by-step guide, scroll down to last segment of this subsection.
 
-<img src="/docs/READMEimages/figure3.png" width="400">
+.. image:: docs/READMEimages/figure3.png
 
 In the blue box, labeled “1”, the path to the directory of VASP-files to parse is selected. There are two options, either the path can be entered as a string in the text field or the “..or select dir”-button can be pressed. This button will reveal the file explorer and allow to select the desired folder.
 
@@ -223,7 +223,7 @@ When opening any of the visualization main menues four sub-menues will be visibl
 Volume Rendering menu
 **********************
 
-<img src="/docs/READMEimages/figure4.png" width="300">
+.. image:: docs/READMEimages/figure4.png
 
 (1) Drop-down menu to choose volume shading mode. Affects how the volume is lighted.
 (2) Toggle full transparency for volume densities lower than the lowest transfer function point.
@@ -235,7 +235,7 @@ Volume Rendering menu
 Volume Slice menu
 *****************
 
-<img src="/docs/READMEimages/figure5.png" width="300">
+.. image:: docs/READMEimages/figure5.png
 
 (1) Text fields specify (x, y, z)-components of the normal vector of slice plane.
 (2) Slider controls the height of the slice plane.
@@ -244,14 +244,14 @@ Volume Slice menu
 Atom Rendering menu
 *******************
 
-<img src="/docs/READMEimages/figure6.png" width="300">
+.. image:: docs/READMEimages/figure6.png
 
 (1) Sliders to choose the radius of each atom type.
 
 Background menu
 ***************
 
-<img src="/docs/READMEimages/figure7.png" width="450">
+.. image:: docs/READMEimages/figure7.png
 
 (1) Drop-down menu to choose the background pattern style.
 (2) Select the two colors of the background. Either use the color picker on the left, or specify a RGBA-color via the text fields
@@ -261,7 +261,7 @@ Background menu
 Charge Density
 """""""""""""""
 
-<img src="/docs/READMEimages/figure8.png" width="300">
+.. image:: docs/READMEimages/figure8.png
 
 (1) Drop-down menu to select which band to visualize. Each band has its own volume data.
 (2) Toggle the atom sphere rendering.
@@ -274,7 +274,7 @@ Charge Density
 ELF - Electron Localization Function
 """""""""""""""""""""""""""""""""""""
 
-<img src="/docs/READMEimages/figure9.png" width="450">
+.. image:: docs/READMEimages/figure9.png
 
 (1) Drop-down menu to select which band to visualize. Each band has its own volume data.
 (2) Toggle the atom sphere rendering.
@@ -287,7 +287,7 @@ ELF - Electron Localization Function
 Partial charge density
 """""""""""""""""""""""
 
-<img src="/docs/READMEimages/figure10.png" width="450">
+.. image:: docs/READMEimages/figure10.png
 
 (1) Manage selected bands and modes. Band selections and modes can be changed. Select “None” to remove band from visualization.
 (2) Add new band selection with selected mode. Select any other opetion than ”None” to add new band to visualization.
@@ -303,7 +303,7 @@ Bandstructure
 
 When expanding the bandstructure visualization menu the visualization starts and a control panel appears. This menu is shown in figure 11.
 
-<img src="/docs/READMEimages/figure11.png" width="600">
+.. image:: docs/READMEimages/figure11.png
 
 The bandstructure visualization menu contains a number of possibilities to control parameters.
 
@@ -337,7 +337,7 @@ DoS - Density of States
 
 When expanding the density of states visualization menu the visualization starts and a control panel appears. The menu is shown in figure 12.
 
-<img src="/docs/READMEimages/figure12.png" width="600">
+.. image:: docs/READMEimages/figure12.png
 
 Range and Scale:
 ********************
@@ -369,7 +369,7 @@ PCF - Pair Correlation Function
 
 When expanding the PCF visualization menu the visualization starts and a control panel appears. In figure 13, this menu is visible.
 
-<img src="/docs/READMEimages/figure13.png" width="600">
+.. image:: docs/READMEimages/figure13.png
 
 Range and Scale:
 *****************
@@ -430,7 +430,7 @@ After the installation is done, the path to Qt needs to be added to the system. 
 
 The system is now ready for an Inviwo installation.
 
-<img src="/docs/READMEimages/figure14.png" width="600">
+.. image:: docs/READMEimages/figure14.png
 
 Build instructions from 2017 (stored here mostly for reference)
 ===================================================
