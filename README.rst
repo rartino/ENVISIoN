@@ -27,6 +27,7 @@ These instructions show how to build Inviwo and ENVISIoN on Ubuntu 18.04 LTS. EN
 The script should *NOT* be run as root, but as your own user and it will ask for your password when it needs root rights. It is possible that the script will ask for other user input during the process, if that’s the case, just accept the default. This guide will assume that both ENVISIoN and Inviwo will be placed directly under the home folder.
 
 ::
+
   cd ~/ENVISIoN/scripts
   ./install.sh /home/$USER/ENVISIoN /home/$USER/inviwo
 
@@ -34,14 +35,12 @@ Once the installation script has run, it prints build instructions. Follow the i
 
 An easy way to modify the build settings, if needed, is to install the cmake curses gui and run it in the build directory.
 
-To install the cmake gui:
+To install the cmake gui::
 
-::
   sudo apt install cmake-curses-gui
 
-Running cmake in the build directory:
+Running cmake in the build directory::
 
-::
   cd ~/inviwo/build
   ccmake .
 
@@ -67,27 +66,32 @@ To be able to install Inviwo, all required dependencies needs to installed:
 Make sure to install the latest version of all the softwares mentioned above. Clone the Inviwo repository into the home folder and make it your working directory. Clone the Inviwo repository be executing the command below.
 
 ::
+
   git clone https://github.com/inviwo/inviwo.git
 
 ENVISIoN isn’t compatible with the newest version of Inviwo due to a reconstruction in the Inviwo file system on April 15, 2019. To make ENVISIoN compatible with Inviwo that just got cloned, a checkout of a compatible version is needed.
 
 ::
+
   git checkout d20199dfd37c80559ce687243d296f6ce3e41c71
 
 Some minor alterations has been made on the Inviwo source code by the ENVISIoN project group that need to be patched.
 
 ::
+
   git apply < "~/ENVISIoN/inviwo/patches/2019/envisionTransferFuncFix2019.patch"
   git apply < "~/ENVISIoN/inviwo/patches/2019/paneProperty2019.patch"
 
 The only remaining change in the Inviwo repository is an update of its submodules.
 
 ::
+
   git submodule init
 
 Create a build directory in the home folder and configure the ENVISIoN module and project path using cmake. Execute the command below when standing in the build directory.
 
 ::
+
   cmake ../inviwo -DIVW_EXTERNAL_PROJECTS="~/ENVISIoN/inviwo/app" \
         -DIVW_EXTERNAL_MODULES="$~/ENVISIoN/inviwo/modules" \
         -DIVW_MODULE_CRYSTALVISUALIZATION=ON \
@@ -101,6 +105,7 @@ Create a build directory in the home folder and configure the ENVISIoN module an
 Inviwo is now ready to be installed with the ENVISIoN modules added. Add the -j extension to use multiple cores while installing.
 
 ::
+
   make -j5
 
 Start ENVISIoN
@@ -109,11 +114,13 @@ After the Inviwo build is done, an application named *inviwo_envisionminimum* wi
 Execute the command below to copy the file to the correct directory.
 
 ::
+
   cp ~/ENVISIoN/scripts/ENVISIoNimport.py ~/build/bin/ENVISIoNimport.py
 
 The application can now be started by standing in the build directory and executing the command below.
 
 ::
+
   ./bin/inviwo_envisionminimum
 
 Start Inviwo and run ENVISIoN scripts
@@ -123,6 +130,7 @@ If the user wishes to run Inviwo with its own graphical user interface, it’s p
 To run Inviwo in an UNIX environment, execute the commands below.
 
 ::
+
   cd ~/build
   ./bin/inviwo
 
@@ -399,12 +407,14 @@ Inviwo uses the graphics library Qt which isn’t always installed properly. The
 To download the installation file into the */Downloads* directory, simply execute the commands below.
 
 ::
+
   cd ~/Downloads
   wget http://download.qt.io/official_releases/qt/5.12/5.12.3/qt-opensource-linux-x64-5.12.3.run
 
 When the installation file has finished downloading, the user won’t have permission to run the file. To change permissions and run the file by executing the commands below and enter your superuser password immediately after.
 
 ::
+
   chmod +x qt-opensource-linux-x64-5.12.3.run
   sudo ./qt-opensource-linux-x64-5.12.3.run
 
@@ -413,6 +423,7 @@ An Qt installer is now shown on the screen. Notice that the manual installation 
 After the installation is done, the path to Qt needs to be added to the system. Add the necessary paths by executing the commands below.
 
 ::
+
   cd /usr/lib/x86_64-linux-gnu/qtchooser
   sudo echo "/opt/Qt5.12.3/5.12.3/gcc_64/bin" | sudo tee -a default.conf
   sudo echo "/opt/Qt5.12.3/5.12.3/gcc_64/lib" | sudo tee -a default.conf
