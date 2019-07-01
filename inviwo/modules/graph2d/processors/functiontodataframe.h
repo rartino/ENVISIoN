@@ -17,11 +17,11 @@
 #include <inviwo/core/common/inviwo.h>
 #include <inviwo/core/ports/datainport.h>
 #include <inviwo/core/processors/processor.h>
-#include <modules/plotting/datastructures/dataframe.h>
+#include <inviwo/dataframe/datastructures/dataframe.h>
 #include <modules/graph2d/datastructures/graph2ddata.h>
 
-using inviwo::plot::DataFrame;
-using inviwo::plot::DataFrameOutport;
+using inviwo::DataFrame;
+using inviwo::DataFrameOutport;
 
 namespace inviwo {
 

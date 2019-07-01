@@ -42,7 +42,7 @@
 
 #include <modules/graph2d/util/stringcomparenatural.h>
 
-using inviwo::plot::TemplateColumn;
+using inviwo::TemplateColumn;
 
 namespace inviwo {
 

@@ -47,13 +47,13 @@
 #include <inviwo/core/properties/optionproperty.h>
 #include <inviwo/core/properties/boolproperty.h>
 #include <inviwo/core/properties/ordinalproperty.h>
-#include <modules/plotting/datastructures/dataframe.h>
+#include <inviwo/dataframe/datastructures/dataframe.h>
 
 #include <modules/graph2d/datastructures/graph2ddata.h>
 
-using inviwo::plot::DataFrame;
-using inviwo::plot::DataFrameOutport;
-using inviwo::plot::DataFrameInport;
+using inviwo::DataFrame;
+using inviwo::DataFrameOutport;
+using inviwo::DataFrameInport;
 
 namespace inviwo {
 
