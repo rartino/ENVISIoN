@@ -43,22 +43,21 @@ sys.path.insert(0, os.path.expanduser(path_to_current_folder))
 import inviwopy
 import numpy as np
 import h5py
-from common import _add_h5source, _add_processor
 
 from VolumeNetworkHandler import VolumeNetworkHandler
 from envision.inviwo.UnitcellNetworkHandler import UnitcellNetworkHandler
 
 class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
-    """ Handler class for charge visualization network.
+    """ Handler class for charge visualization self.network.
         Sets up and manages the charge visualization
     """
-    def __init__(self, hdf5_path):
-        VolumeNetworkHandler.__init__(self)
+    def __init__(self, hdf5_path, inviwoApp):
+        VolumeNetworkHandler.__init__(self, inviwoApp)
 
         # Unitcell is not critical to visualization, if it fails, continnue anyway
         self.unitcellAvailable = True
         try: 
-            UnitcellNetworkHandler.__init__(self, hdf5_path)
+            UnitcellNetworkHandler.__init__(self, hdf5_path, inviwoApp)
         except AssertionError as error:
             print(error)
             self.unitcellAvailable = False
@@ -93,17 +92,17 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
     
     def set_active_band(self, key):
     # Sets the dataset which HDF5 to volume processor will read
-        network = inviwopy.app.network
-        toVolume = network.getProcessorByIdentifier('HDF5 To Volume')
+        
+        toVolume = self.network.getProcessorByIdentifier('HDF5 To Volume')
         toVolume.volumeSelection.selectedValue = '/CHG/' + key
 
     def position_canvases(self, x, y):
     # Updates the position of the canvases
     # Upper left corner will be at coordinate (x, y)
-        network = inviwopy.app.network
-        sliceCanvas = network.getProcessorByIdentifier('SliceCanvas')
-        volumeCanvas = network.getProcessorByIdentifier('Canvas')
-        unitcellCanvas = network.getProcessorByIdentifier('Unit Cell Canvas')
+        
+        sliceCanvas = self.network.getProcessorByIdentifier('SliceCanvas')
+        volumeCanvas = self.network.getProcessorByIdentifier('Canvas')
+        unitcellCanvas = self.network.getProcessorByIdentifier('Unit Cell Canvas')
         if not volumeCanvas:
             return
         volumeCanvas.position.value = inviwopy.glm.ivec2(x, y)
@@ -116,18 +115,18 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
 # ------- Network building functions -------
 
     def setup_charge_network(self, hdf5_path):
-    # Setup the part of the inviwo network which handles hdf5 to volume conversion*
-        network = inviwopy.app.network
+    # Setup the part of the inviwo self.network which handles hdf5 to volume conversion*
+        
         
         xstart_pos = 0
         ystart_pos = 0
 
-        # Add the "HDF Source" processor to inviwo network
-        HDFsource = _add_h5source(hdf5_path, xstart_pos, ystart_pos)
+        # Add the "HDF Source" processor to inviwo self.network
+        HDFsource = self.add_h5source(hdf5_path, xstart_pos, ystart_pos)
         HDFsource.filename.value = hdf5_path
 
         # Hdf5 to volume converter processor
-        HDFvolume = _add_processor('org.inviwo.hdf5.ToVolume', 'HDF5 To Volume', xstart_pos, ystart_pos+75)
+        HDFvolume = self.add_processor('org.inviwo.hdf5.ToVolume', 'HDF5 To Volume', xstart_pos, ystart_pos+75)
 
         # Read base vectors
         with h5py.File(hdf5_path, "r") as h5:
@@ -148,14 +147,14 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
                                                         scaling_factor * basis_4x4[3][0],scaling_factor * basis_4x4[3][1],scaling_factor * basis_4x4[3][2],
                                                         scaling_factor * basis_4x4[3][3])
         
-        network.addConnection(HDFsource.getOutport('outport'), HDFvolume.getInport('inport'))
+        self.network.addConnection(HDFsource.getOutport('outport'), HDFvolume.getInport('inport'))
         
         self.connect_volume(HDFvolume.getOutport('outport'))
 
         # Connect unitcell and volume visualisation.
-        volumeBoxRenderer = network.getProcessorByIdentifier('Mesh Renderer')
-        unitcellRenderer = network.getProcessorByIdentifier('Unit Cell Renderer')
+        volumeBoxRenderer = self.network.getProcessorByIdentifier('Mesh Renderer')
+        unitcellRenderer = self.network.getProcessorByIdentifier('Unit Cell Renderer')
         if volumeBoxRenderer and unitcellRenderer:
-            network.addConnection(unitcellRenderer.getOutport('image'), volumeBoxRenderer.getInport('imageInport'))
-            network.addLink(unitcellRenderer.getPropertyByIdentifier('camera'), volumeBoxRenderer.getPropertyByIdentifier('camera'))
-            network.addLink(volumeBoxRenderer.getPropertyByIdentifier('camera'), unitcellRenderer.getPropertyByIdentifier('camera'))
+            self.network.addConnection(unitcellRenderer.getOutport('image'), volumeBoxRenderer.getInport('imageInport'))
+            self.network.addLink(unitcellRenderer.getPropertyByIdentifier('camera'), volumeBoxRenderer.getPropertyByIdentifier('camera'))
+            self.network.addLink(volumeBoxRenderer.getPropertyByIdentifier('camera'), unitcellRenderer.getPropertyByIdentifier('camera'))

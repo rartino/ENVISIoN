@@ -127,7 +127,7 @@ class ChargeFrame(GeneralCollapsible):
             # Initialize network handler which starts visualization
             # Exception caught if hdf5 file is not valid
             try:
-                self.networkHandler = ChargeNetworkHandler(self.parent_collapsible.path)
+                self.networkHandler = ChargeNetworkHandler(self.parent_collapsible.path, self.inviwoApp)
             except AssertionError as error:
                 print(error)
                 inviwopy.app.network.clear()

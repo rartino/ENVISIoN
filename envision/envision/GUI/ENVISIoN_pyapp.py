@@ -53,7 +53,6 @@ class ENVISIoN(wx.App):
         return True
 
     def on_timer(self):
-        print("wx loop event")
         self.inviwoApp.update()
         wx.CallLater(1000/60, self.on_timer)
 
@@ -61,4 +60,6 @@ def main(inviwoApp):
     app = ENVISIoN(0)
     app.inviwoApp = inviwoApp
     app.on_timer()
+
+    app.frame.visFrame.chargeFrame.inviwoApp = inviwoApp
     app.MainLoop()
