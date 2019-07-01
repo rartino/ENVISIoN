@@ -44,15 +44,18 @@ import inviwopy
 import numpy as np
 from matplotlib import pyplot as plt 
 import h5py
-from common import _add_h5source, _add_processor
 from data import atomic_radii, element_names, element_colors
 
-class UnitcellNetworkHandler():
-    """ Base class for setting up and handling a network for generic unitcell rendering for ENVISIoN.
-    Does not build a complete network by itself. Need to be supplied with hdf5 data from somewhere.
+from envision.inviwo.NetworkHandler import NetworkHandler
+
+class UnitcellNetworkHandler(NetworkHandler):
+    """ Base class for setting up and handling a self.network for generic unitcell rendering for ENVISIoN.
+    Does not build a complete self.network by itself. Need to be supplied with hdf5 data from somewhere.
     Do not use directly, inherited in other classes for handling specific visualizations.
     """
-    def __init__(self, hdf5_path):
+    def __init__(self, hdf5_path, inviwoApp):
+        NetworkHandler.__init__(self, inviwoApp)
+
         # Make sure the hdf5 file is valid
         with h5py.File(hdf5_path, 'r') as file:
             if file.get("UnitCell") == None:
@@ -67,8 +70,8 @@ class UnitcellNetworkHandler():
 # ------- Property control functions -------
 
     def set_atom_radius(self, radius, index=None):
-        network = inviwopy.app.network
-        structureMesh = network.getProcessorByIdentifier('Unit Cell Mesh')
+        
+        structureMesh = self.network.getProcessorByIdentifier('Unit Cell Mesh')
         if structureMesh.fullMesh.value:
             if index != None:
                 structureMesh.getPropertyByIdentifier("radius" + str(index)).value = radius
@@ -76,7 +79,7 @@ class UnitcellNetworkHandler():
                 for i in range(self.nAtomTypes):
                     self.set_atom_radius(radius, i)
         else:
-            sphereRenderer = network.getProcessorByIdentifier('Unit Cell Renderer')
+            sphereRenderer = self.network.getProcessorByIdentifier('Unit Cell Renderer')
             sphereRenderer.sphereProperties.defaultRadius.value = radius
 
 
@@ -92,30 +95,30 @@ class UnitcellNetworkHandler():
 
     def toggle_unitcell_canvas(self, enable_unitcell):
     # Add or remove the unitcell canvas
-        network = inviwopy.app.network
-        unitcellCanvas = network.getProcessorByIdentifier('Unit Cell Canvas')
-        unitcellRenderer = network.getProcessorByIdentifier('Unit Cell Renderer')
+        
+        unitcellCanvas = self.network.getProcessorByIdentifier('Unit Cell Canvas')
+        unitcellRenderer = self.network.getProcessorByIdentifier('Unit Cell Renderer')
         # If already in correct mode dont do anything
         if (unitcellCanvas and enable_unitcell) or (not unitcellCanvas and not enable_unitcell):
             return
 
         if enable_unitcell:
-            unitcellCanvas = _add_processor('org.inviwo.CanvasGL', 'Unit Cell Canvas', -600, 400)
+            unitcellCanvas = self.add_processor('org.inviwo.CanvasGL', 'Unit Cell Canvas', -600, 400)
             unitcellCanvas.inputSize.dimensions.value = inviwopy.glm.ivec2(500, 500)
-            network.addConnection(unitcellRenderer.getOutport('image'), unitcellCanvas.getInport('inport'))
+            self.network.addConnection(unitcellRenderer.getOutport('image'), unitcellCanvas.getInport('inport'))
         else:
-            network.removeProcessor(unitcellCanvas)
+            self.network.removeProcessor(unitcellCanvas)
 
     def toggle_full_mesh(self, enable):
-        network = inviwopy.app.network
-        structMesh = network.getProcessorByIdentifier('Unit Cell Mesh')
+        
+        structMesh = self.network.getProcessorByIdentifier('Unit Cell Mesh')
         structMesh.fullMesh.value = enable
 
     def set_canvas_position(self, x, y):
     # Updates the position of the canvas
     # Upper left corner will be at coordinate (x, y)
-        network = inviwopy.app.network
-        unitcellCanvas = network.getProcessorByIdentifier('Unit Cell Canvas')
+        
+        unitcellCanvas = self.network.getProcessorByIdentifier('Unit Cell Canvas')
         if not unitcellCanvas:
             return
         unitcellCanvas.position.value = inviwopy.glm.ivec2(x, y)
@@ -123,26 +126,22 @@ class UnitcellNetworkHandler():
 # ------------------------------------------
 # ------- Network building functions -------
 
-    def clear_processor_network(self):
-        network = inviwopy.app.network
-        network.clear()
-
     def setup_unitcell_network(self, h5file):
-        network = inviwopy.app.network
+        
         xpos = -600
         ypos = 0
 
-        HDFsource = _add_h5source(h5file, xpos, ypos)
+        HDFsource = self.add_h5source(h5file, xpos, ypos)
 
-        meshRenderer = _add_processor('org.inviwo.SphereRenderer', 'Unit Cell Renderer', xpos, ypos+300)
-        canvas = _add_processor('org.inviwo.CanvasGL', 'Unit Cell Canvas', xpos, ypos+400)
-        network.addConnection(meshRenderer.getPort('image'), canvas.getInport('inport'))
+        meshRenderer = self.add_processor('org.inviwo.SphereRenderer', 'Unit Cell Renderer', xpos, ypos+300)
+        canvas = self.add_processor('org.inviwo.CanvasGL', 'Unit Cell Canvas', xpos, ypos+400)
+        self.network.addConnection(meshRenderer.getPort('image'), canvas.getInport('inport'))
 
-        strucMesh = _add_processor('envision.StructureMesh', 'Unit Cell Mesh', xpos, ypos+200)
+        strucMesh = self.add_processor('envision.StructureMesh', 'Unit Cell Mesh', xpos, ypos+200)
         # Activate fullMesh, this allows individual resizing of atoms and centers the unitcell around same origin as volume
         strucMesh.fullMesh.value = False
 
-        network.addConnection(strucMesh.getOutport('mesh'), meshRenderer.getInport('geometry'))
+        self.network.addConnection(strucMesh.getOutport('mesh'), meshRenderer.getInport('geometry'))
 
         with h5py.File(h5file,"r") as h5:
             basis_matrix = np.array(h5["/basis"], dtype='d')
@@ -167,9 +166,9 @@ class UnitcellNetworkHandler():
                 self.atomNames.append(name)
                 color = element_colors.get(element, (0.5, 0.5, 0.5, 1.0))
                 radius = atomic_radii.get(element, 0.5)
-                coordReader = _add_processor('envision.CoordinateReader', '{0} {1}'.format(i,name), xpos+int((i-species/2)*200), ypos+100)
-                network.addConnection(HDFsource.getOutport('outport'), coordReader.getInport('inport'))
-                network.addConnection(coordReader.getOutport('outport'), strucMesh.getInport('coordinates'))
+                coordReader = self.add_processor('envision.CoordinateReader', '{0} {1}'.format(i,name), xpos+int((i-species/2)*200), ypos+100)
+                self.network.addConnection(HDFsource.getOutport('outport'), coordReader.getInport('inport'))
+                self.network.addConnection(coordReader.getOutport('outport'), strucMesh.getInport('coordinates'))
                 coordReader_path_property = coordReader.getPropertyByIdentifier('path')
                 coordReader_path_property.value = base_group + '/Atoms/' + key
                 strucMesh_radius_property = strucMesh.getPropertyByIdentifier('radius{0}'.format(i))

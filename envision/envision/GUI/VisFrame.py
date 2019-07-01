@@ -80,7 +80,7 @@ class VisualizationFrame(GeneralCollapsible):
         self.add_item(self.chooseFile)
 
     # Initializa all the collapsible visualization menues
-        chargeFrame = ChargeFrame(self.GetPane())
+        self.chargeFrame = ChargeFrame(self.GetPane())
         elfFrame = ELFFrame(self.GetPane())
         pcfFrame = PCFFrame(self.GetPane())
         dosFrame = DosFrame(self.GetPane())
@@ -90,7 +90,7 @@ class VisualizationFrame(GeneralCollapsible):
 
     # Add them to the sizer
         self.add_sub_collapsible(bandstructureFrame)
-        self.add_sub_collapsible(chargeFrame)
+        self.add_sub_collapsible(self.chargeFrame)
         self.add_sub_collapsible(elfFrame)
         self.add_sub_collapsible(dosFrame)
         self.add_sub_collapsible(parchgFrame)
@@ -105,7 +105,7 @@ class VisualizationFrame(GeneralCollapsible):
 
     def on_change(self, event):
         if self.IsCollapsed():
-            parameter_utils.clear_processor_network()
+            # parameter_utils.clear_processor_network()
             print("Collapsed Visualization")
         else:
             print("Extended Visualization")
