@@ -13,7 +13,7 @@
 #include <modules/graph2d/processors/functiontodataframe.h>
 #include <inviwo/core/common/inviwo.h>
 
-using inviwo::plot::TemplateColumn;
+using inviwo::TemplateColumn;
 
 namespace inviwo {
 

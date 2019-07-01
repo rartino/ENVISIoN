@@ -51,14 +51,14 @@
 #include <modules/fontrendering/properties/fontproperty.h>
 #include <modules/fontrendering/textrenderer.h>
 #include <modules/opengl/rendering/texturequadrenderer.h>
-#include <modules/plotting/datastructures/dataframe.h>
+#include <inviwo/dataframe/datastructures/dataframe.h>
 #include <modules/graph2d/graph2dmoduledefine.h>
 #include <modules/graph2d/datastructures/graph2ddata.h>
 #include <modules/graph2d/datastructures/geometry/linemesh.h>
 
 namespace inviwo {
 
-using plot::DataFrameInport;
+using inviwo::DataFrameInport;
 
 /** \docpage{org.inviwo.LinePlotProcessor, Line Plot Processor}
  * ![](org.inviwo.LinePlotProcessor.png?classIdentifier=org.inviwo.LinePlotProcessor)

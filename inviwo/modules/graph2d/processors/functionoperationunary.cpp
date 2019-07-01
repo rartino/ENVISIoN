@@ -39,10 +39,10 @@
 #include <modules/graph2d/processors/functionoperationunary.h>
 
 #include <inviwo/core/common/inviwo.h>
-#include <modules/plotting/datastructures/column.h>
+#include <inviwo/dataframe/datastructures/column.h>
 
-using inviwo::plot::TemplateColumn;
-using inviwo::plot::Column;
+using inviwo::TemplateColumn;
+using inviwo::Column;
 
 namespace inviwo {
 

@@ -6,4 +6,5 @@ set(dependencies
     InviwoPython3Module
     InviwocrystalvisualizationModule
     InviwoPlottingModule
+    InviwoDataFrameModule
 )

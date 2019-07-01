@@ -59,9 +59,9 @@ bool operator<(const vec2& lhs, const vec2& rhs) {
 
 namespace inviwo {
 
-using plot::DataFrame;
-using plot::Column;
-using plot::TemplateColumn;
+using inviwo::DataFrame;
+using inviwo::Column;
+using inviwo::TemplateColumn;
 
 // The Class Identifier has to be globally unique. Use a reverse DNS naming scheme
 const ProcessorInfo LinePlotProcessor::processorInfo_{
