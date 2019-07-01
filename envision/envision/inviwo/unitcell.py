@@ -47,8 +47,8 @@ import h5py
 from common import _add_processor, _add_h5source, _add_property
 from data import atomic_radii, element_names, element_colors
 
-app = inviwopy.app
-network = app.network
+# app = inviwopy.app
+# network = app.network
 
 def _cellnetwork(h5file, md=False, xpos=0, ypos=0, smallAtoms=False):
     HDFsource = _add_h5source(h5file, xpos, ypos)

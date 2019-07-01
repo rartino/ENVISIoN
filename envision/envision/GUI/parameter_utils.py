@@ -47,8 +47,8 @@ import inviwopy
 import inspect
 import envision
 import envision.inviwo
-app = inviwopy.app
-network = app.network
+# app = inviwopy.app
+# network = app.network
 
 def clear_processor_network():
     network.clear()
