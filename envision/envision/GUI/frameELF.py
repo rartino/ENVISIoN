@@ -128,7 +128,7 @@ class ELFFrame(GeneralCollapsible):
             # Initialize network handler which starts visualization
             # Exception caught if hdf5 file is not valid
             try:
-                self.networkHandler = ELFNetworkHandler(self.parent_collapsible.path)
+                self.networkHandler = ELFNetworkHandler(self.parent_collapsible.path, self.inviwoApp)
             except AssertionError as error:
                 print(error)
                 inviwopy.app.network.clear()
