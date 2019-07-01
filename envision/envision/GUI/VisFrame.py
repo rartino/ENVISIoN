@@ -81,26 +81,37 @@ class VisualizationFrame(GeneralCollapsible):
 
     # Initializa all the collapsible visualization menues
         self.chargeFrame = ChargeFrame(self.GetPane())
-        elfFrame = ELFFrame(self.GetPane())
-        pcfFrame = PCFFrame(self.GetPane())
-        dosFrame = DosFrame(self.GetPane())
-        parchgFrame = ParchgFrame(self.GetPane())
-        bandstructureFrame = BandstructureFrame(self.GetPane())
-        unitcellFrame = UnitcellFrame(self.GetPane())
+        self.elfFrame = ELFFrame(self.GetPane())
+        self.pcfFrame = PCFFrame(self.GetPane())
+        self.dosFrame = DosFrame(self.GetPane())
+        self.parchgFrame = ParchgFrame(self.GetPane())
+        self.bandstructureFrame = BandstructureFrame(self.GetPane())
+        self.unitcellFrame = UnitcellFrame(self.GetPane())
 
     # Add them to the sizer
-        self.add_sub_collapsible(bandstructureFrame)
+        self.add_sub_collapsible(self.bandstructureFrame)
         self.add_sub_collapsible(self.chargeFrame)
-        self.add_sub_collapsible(elfFrame)
-        self.add_sub_collapsible(dosFrame)
-        self.add_sub_collapsible(parchgFrame)
-        self.add_sub_collapsible(pcfFrame)
-        self.add_sub_collapsible(unitcellFrame)
+        self.add_sub_collapsible(self.elfFrame)
+        self.add_sub_collapsible(self.dosFrame)
+        self.add_sub_collapsible(self.parchgFrame)
+        self.add_sub_collapsible(self.pcfFrame)
+        self.add_sub_collapsible(self.unitcellFrame)
 
     # Set some callbacks
         self.chooseFile.Bind(wx.EVT_BUTTON, self.file_pressed)
         self.enterPath.Bind(wx.EVT_TEXT_ENTER, self.path_OnEnter)
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.on_change)
+
+
+    def set_inviwo_app(self, inviwoApp):
+        self.chargeFrame.inviwoApp = inviwoApp
+        self.elfFrame.inviwoApp = inviwoApp
+        self.pcfFrame.inviwoApp = inviwoApp
+        self.dosFrame.inviwoApp = inviwoApp
+        self.parchgFrame.inviwoApp = inviwoApp
+        self.bandstructureFrame.inviwoApp = inviwoApp
+        self.unitcellFrame.inviwoApp = inviwoApp
+
 
 
     def on_change(self, event):

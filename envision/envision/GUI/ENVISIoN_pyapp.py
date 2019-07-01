@@ -61,5 +61,7 @@ def main(inviwoApp):
     app.inviwoApp = inviwoApp
     app.on_timer()
 
-    app.frame.visFrame.chargeFrame.inviwoApp = inviwoApp
+    app.frame.visFrame.set_inviwo_app(inviwoApp)
     app.MainLoop()
+
+
