@@ -28,8 +28,8 @@ import inviwopy
 import inviwopy.glm as glm
 import os
 
-app = inviwopy.app
-network = app.network
+# app = inviwopy.app
+# network = app.network
 
 def _add_processor(id,name,xpos=0,ypos=0):
     factory = app.processorFactory
