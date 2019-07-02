@@ -1,3 +1,13 @@
+//  Created by Jesper Ericsson
+//
+//  To the extent possible under law, the person who associated CC0
+//  with the alterations to this file has waived all copyright and related
+//  or neighboring rights to the alterations made to this file.
+//
+//  You should have received a copy of the CC0 legalcode along with
+//  this work.  If not, see
+//  <http://creativecommons.org/publicdomain/zero/1.0/>.
+
 const spawn = require("child_process").spawn;
 
 var pythonProcess = null
@@ -57,8 +67,13 @@ function on_data_recieve(packet) {
     // // Split up if multiple JSON objects were recieved
     data = data.toString().split("\n")
     for (i = 0; i < data.length - 1; i++) {
-        json_data = JSON.parse(data[i])
-        console.log(JSON.stringify(json_data))
+        try {
+            json_data = JSON.parse(data[i])
+            console.log(JSON.stringify(json_data))
+          }
+          catch(err) {
+            console.log("Python print: " + data[i])
+          } 
     }
 }
 

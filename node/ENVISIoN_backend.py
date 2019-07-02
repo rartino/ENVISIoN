@@ -1,4 +1,3 @@
-#
 #  Created by Jesper Ericsson
 #
 #  To the extent possible under law, the person who associated CC0
@@ -22,6 +21,8 @@ class ENVISIoN():
 
         Acts as an interface to control all aspects of envision.
 
+        Can be used by different interfaces as long as they send requests using
+        the same JSON standard.
     """
     def __init__(self):
         self.app = self.initialize_inviwo_app()
@@ -50,3 +51,7 @@ class ENVISIoN():
         app.waitForPool()
         app.update()
         return app
+
+    def handle_json_request(self, json_request):
+        response = {"type": "Response", "data": "1, 2, 3"}
+        return response
