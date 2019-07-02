@@ -1,0 +1,14 @@
+{
+  "name": "envision",
+  "version": "0.1.0",
+  "description": "visualization tool",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Jesper Ericsson",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^5.0.6"
+  }
+}
