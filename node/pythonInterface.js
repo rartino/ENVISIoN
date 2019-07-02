@@ -8,7 +8,7 @@ function start_python_process() {
     if (pythonProcess == null)
     {
         console.log("Starting python")
-        pythonProcess = spawn('/usr/bin/python3', ["script.py"]);
+        pythonProcess = spawn('/usr/bin/python3', ["py_js_networking.py"]);
         // console.log(pythonProcess)
         pythonProcess.stdout.on('data', on_data_recieve)
         pythonProcess.stderr.on('data', on_python_error)

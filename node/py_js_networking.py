@@ -3,7 +3,6 @@ import time
 import select
 import json
 
-sys.path.append("/home/labb/Inviwo-latest/build/bin")
 # TODO: select method for checking if input is empty will not work on windows.
 
 def send_packet(tag, data):
