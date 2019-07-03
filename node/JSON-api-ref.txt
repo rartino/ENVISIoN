@@ -1,0 +1,31 @@
+
+
+All JSON objects being send between python have the following structure:
+{"tag": TAG, "data": DATA}
+TAG is a string signaling generally what data the packet contains so that the program can send it to the correct location.
+DATA is some arbitrary data that usually specifies what should be done and if needed contains parameters for that action, 
+or contains some requested data.
+
+Used tags:
+"envision request":
+    Tag used for requesting actions of the ENVISIoN class.
+    Data is a list, where first element is a string signaling what action should be taken.
+    Second element is arbitrary data depending on action, set to null if none needed.
+
+    Examples:
+    {"tag": "envision request", "data": ["start charge", null]}
+    {"tag": "envision request", "data": ["stop vis", null]}
+
+"response": 
+    Tag used for packages send back as response to a requested action. 
+    Data is a list with two elements, 
+    where the first element is a string identifying the requested action. 
+    Second element in list is a boolean, true if action was successful and false if failed.
+    Third element in list is arbitrary data based on the action, set to null if not needed.
+
+"echo":
+    Tag used to signify sending back the same data which was recieved.
+    Data is the exact message which was recieved.
+
+    Example:
+    {"tag": "echo", "data": {"tag": "envision request", "data": ["start charge", null]}}

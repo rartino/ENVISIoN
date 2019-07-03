@@ -14,6 +14,7 @@ sys.path.append("/home/labb/Inviwo-latest/build/bin")
 import inviwopy as ivw
 import inviwopyapp as qt
 import time
+
 from processor_network.ChargeNetworkHandler import ChargeNetworkHandler
 from processor_network.NetworkHandler import NetworkHandler
 from processor_network.VolumeNetworkHandler import VolumeNetworkHandler
@@ -29,16 +30,14 @@ class ENVISIoN():
     """
     def __init__(self):
         self.initialize_inviwo_app()
-        # self.networkHandler = ChargeNetworkHandler("/home/labb/HDF5/nacl_new.hdf5", self.app)
-        # self.networkHandler = None
-        # Inviwo requires that a logcentral is created.
-        
+        self.networkHandler = None
 
         
     def update(self):
         self.app.update()
 
     def initialize_inviwo_app(self):
+        # Inviwo requires that a logcentral is created.
         self.lc = ivw.LogCentral()
         
         # Create and register a console logger
@@ -57,23 +56,30 @@ class ENVISIoN():
         self.app.waitForPool()
         self.app.update()
         self.app.network.clear()
-        # self.networkHandler = ChargeNetworkHandler("/home/labb/HDF5/nacl_new.hdf5", app)
-        
-        # return app
 
     def handle_request(self, request):
-        # TODO lotsa try catch
-        response = ["nothing done"]
+        response = [request[0], False, "Unhandled request"]
 
-        if request["data"] == "start charge":
-            try:
-                self.networkHandler = ChargeNetworkHandler("/home/labb/HDF5/nacl_new.hdf5", self.app)
-                response = ["success", "charge started"]
-            except AssertionError as error:
-                response = ["failure", "charge not started"]
-        # elif request["data"] == "end charge":
-        #     self.networkHandler.clear_processor_network()
-        #     del self.networkHandler
-        #     response = "Response", "charge stopped"
+        if request[0] == "start charge":
+            response = self.start_charge_vis()
+        elif request[0] == "stop vis":
+            response = self.stop_visualization()
         
         return response
+    
+    # def start_visualisation(self, vis_type):
+    #     if vis_type == "charge"
+
+    def start_charge_vis(self):
+        try:
+            self.networkHandler = ChargeNetworkHandler("/home/labb/HDF5/nacl_new.hdf5", self.app)
+            return ["start charge", True, None] # TODO return if unitcell was found
+        except AssertionError as error:
+            return ["start charge", False, "Invalid HDF5 file"]
+
+    def stop_visualization(self):
+        if self.networkHandler:
+            self.networkHandler.clear_processor_network()
+            self.networkHandler = None
+            return ["stop vis", True, "Process network cleared"]
+        return ["stop vis", True, "No available network handler"]
