@@ -85,7 +85,7 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
             band_keys = []
             for key in file.get("CHG").keys():
                 band_keys.append(key)
-            return band_keys
+            return [True, band_keys]
 
 # ------------------------------------------
 # ------- Property control functions -------
