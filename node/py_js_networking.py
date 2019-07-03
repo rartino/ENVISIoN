@@ -7,42 +7,49 @@
 #  You should have received a copy of the CC0 legalcode along with
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
-import sys
+
+import sys, os, inspect
 import time
 import select
 import json
-
-from ENVISIoN_backend import ENVISIoN
-
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.append(path_to_current_folder + "/../ENVISIoN")
+from ENVISIoN import ENVISIoN
 
 # TODO: select method for checking if input is empty will not work on windows.
 
 def send_packet(tag, data):
+# Package data into JSON-string-packet and send it via printing.
     packet = json.dumps({"type": tag, "data": data})
     print(packet)
     sys.stdout.flush()
 
 def decode_packet(packet):
-    # Process recieved data.
+# Return python dictionary based on JSON-string-packet
     obj = json.loads(packet)
     return obj
 
-def process_packet(packet):
-    data = decode_packet(packet)
-    send_packet("Echo", data)
+# Initialize ENVISIoN
+envision = ENVISIoN()
+# env.start_vis()
 
-env = ENVISIoN()
 
 while True:
-    time.sleep(1.0/20)
-    env.update()
 
+    # While stdin is not empty read lines
     while select.select([sys.stdin,],[],[],0.0)[0]:
-        # print(sys.stdin.readline())
-        # send_packet("Debug", "Input recieved")
-        process_packet(sys.stdin.readline())
-        # decode_data(input())
+        #JSON request packages are send from JavaScript via stdin
+        # send_packet("Debug", "Package recieved")
+        request = decode_packet(sys.stdin.readline())
+        send_packet("Echo", request)
+        if request["type"] == "envision request":
+            response = envision.handle_request(request)
+            send_packet("response", response)
     # else:
     #     send_data("Debug", "No input recieved")
     #     print("No input recieved")
 
+    
+    envision.update()
+    time.sleep(1.0/20)
+    

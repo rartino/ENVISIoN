@@ -27,7 +27,6 @@ class NetworkHandler():
     def __init__(self, inviwoApp):
         self.app = inviwoApp
         self.network = inviwoApp.network
-        # self.clear_processor_network()
 
         # self.processors = []
         # self.canvases = []
