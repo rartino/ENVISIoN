@@ -45,7 +45,7 @@ import numpy as np
 import h5py
 
 from VolumeNetworkHandler import VolumeNetworkHandler
-from envision.inviwo.UnitcellNetworkHandler import UnitcellNetworkHandler
+from UnitcellNetworkHandler import UnitcellNetworkHandler
 
 class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
     """ Handler class for charge visualization self.network.
@@ -53,7 +53,7 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
     """
     def __init__(self, hdf5_path, inviwoApp):
         VolumeNetworkHandler.__init__(self, inviwoApp)
-        print("PATH: " + hdf5_path)
+
         # Unitcell is not critical to visualization, if it fails, continnue anyway
         self.unitcellAvailable = True
         try: 

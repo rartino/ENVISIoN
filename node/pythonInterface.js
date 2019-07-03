@@ -10,6 +10,9 @@
 
 const spawn = require("child_process").spawn;
 
+const LOG_PYTHON_PRINT = false
+const LOG_PYTHON_ERROR = false
+
 var pythonProcess = null
 
 //TODO: not sure if encoding will always be the same on platforms
@@ -33,22 +36,18 @@ function start_python_process() {
 function one_greeting(){
     send_data("Greeting", "Hello from node.")
 }
-
-function two_goodbyes(){
-    send_data("Bye", "Goodbye")
-    send_data("Bye", "Seeya")
-}
-
-function three_things(){
-    send_data("Thing", "qwqw")
-    send_data("Thing", "asas")
-    send_data("Thing", "zxzx")
-}
-
 function lotsa_messages() {
     for (i = 0; i < 100; i++) {
         send_data("Message", "Here be data")
     } 
+}
+
+function start_charge_vis() {
+    send_data("envision request", "start charge")
+}
+
+function stop_vis(){
+    send_data("envision request", "end charge")
 }
 
 function send_data(tag, data) {
@@ -72,12 +71,15 @@ function on_data_recieve(packet) {
             console.log(JSON.stringify(json_data))
           }
           catch(err) {
-            console.log("Python print: " + data[i])
+            if (LOG_PYTHON_PRINT)
+                console.log("Python print: " + data[i])
           } 
     }
 }
 
 function on_python_error(data) {
+    if (!LOG_PYTHON_ERROR)
+        return
     console.log("PYTHON ERROR: ")
     var output = Buffer.from(data, 'hex')
     console.log(data.toString());
