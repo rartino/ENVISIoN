@@ -11,7 +11,7 @@
 const spawn = require("child_process").spawn;
 
 const LOG_PYTHON_PRINT = false
-const LOG_PYTHON_ERROR = false
+const LOG_PYTHON_ERROR = true
 
 var pythonProcess = null
 
@@ -43,11 +43,11 @@ function lotsa_messages() {
 }
 
 function start_charge_vis() {
-    send_data("envision request", "start charge")
+    send_data("envision request", ["start charge", null])
 }
 
 function stop_vis(){
-    send_data("envision request", "end charge")
+    send_data("envision request", ["stop vis", null])
 }
 
 function send_data(tag, data) {

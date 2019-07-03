@@ -31,25 +31,25 @@ def decode_packet(packet):
 
 # Initialize ENVISIoN
 envision = ENVISIoN()
-# env.start_vis()
-
 
 while True:
-
+    time_start = time.time()
     # While stdin is not empty read lines
     while select.select([sys.stdin,],[],[],0.0)[0]:
         #JSON request packages are send from JavaScript via stdin
         # send_packet("Debug", "Package recieved")
         request = decode_packet(sys.stdin.readline())
-        send_packet("Echo", request)
+        send_packet("echo", request)
         if request["type"] == "envision request":
-            response = envision.handle_request(request)
+            response = envision.handle_request(request["data"])
             send_packet("response", response)
     # else:
     #     send_data("Debug", "No input recieved")
     #     print("No input recieved")
-
     
     envision.update()
-    time.sleep(1.0/20)
+
+    # Try to loop at 60 fps
+    time_elapsed = time.time() - time_start
+    time.sleep(max([1.0/60 - time_elapsed, 0]))
     
