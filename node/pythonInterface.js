@@ -12,6 +12,7 @@ const spawn = require("child_process").spawn;
 
 const LOG_PYTHON_PRINT = false
 const LOG_PYTHON_ERROR = false
+const LOG_SENT_PACKAGES = true
 
 var pythonProcess = null
 
@@ -43,11 +44,11 @@ function lotsa_messages() {
 }
 
 function start_charge_vis() {
-    send_data("envision request", ["start vis", "charge"])
+    send_data("envision request", ["start", "charge"])
 }
 
 function stop_vis(){
-    send_data("envision request", ["stop vis", "all"])
+    send_data("envision request", ["stop", "all"])
 }
 
 function random_color(){
@@ -62,6 +63,8 @@ function send_data(tag, data) {
     var json_data = {type: tag, data: data}
     var packet = JSON.stringify(json_data) + "\r\n"
     pythonProcess.stdin.write(packet) 
+    if (LOG_SENT_PACKAGES)
+        console.log("Packet sent: \n", packet)
 }
 
 function on_data_recieve(packet) {
@@ -74,7 +77,7 @@ function on_data_recieve(packet) {
     for (i = 0; i < data.length - 1; i++) {
         try {
             json_data = JSON.parse(data[i])
-            console.log(JSON.stringify(json_data))
+            console.log("Packet recieved: \n", JSON.stringify(json_data))
           }
           catch(err) {
             if (LOG_PYTHON_PRINT)
