@@ -60,26 +60,51 @@ class ENVISIoN():
     def handle_request(self, request):
         response = [request[0], False, "Unhandled request"]
 
-        if request[0] == "start charge":
-            response = self.start_charge_vis()
+        if request[0] == "start vis":
+            # request[1] is the visualization-type-string
+            response = self.start_visualisation(request[1])
         elif request[0] == "stop vis":
-            response = self.stop_visualization()
+            # request[1] is the visualization-type-string
+            response = self.stop_visualization(request[1])
+        elif request[0] == "edit":
+            # request[1] is array containing 
+            # visualization type, edit type, and edit data
+            response = self.edit_visualization(request[1][0], request[1][1], request[1][2])
         
         return response
     
-    # def start_visualisation(self, vis_type):
-    #     if vis_type == "charge"
+    def start_visualisation(self, vis_type):
+    # Start visualizations here.
+        if vis_type == "charge":
+            try:
+                self.networkHandler = ChargeNetworkHandler("/home/labb/HDF5/nacl_new.hdf5", self.app)
+                return ["start vis", True, ["charge", None]] # TODO return if unitcell was found
+            except AssertionError as error:
+                return ["start vis", False, ["charge", "Invalid HDF5 file."]]
+        else:
+            return ["start vis", False, [vis_type, "Unknown visualization type"]]
 
-    def start_charge_vis(self):
-        try:
-            self.networkHandler = ChargeNetworkHandler("/home/labb/HDF5/nacl_new.hdf5", self.app)
-            return ["start charge", True, None] # TODO return if unitcell was found
-        except AssertionError as error:
-            return ["start charge", False, "Invalid HDF5 file"]
-
-    def stop_visualization(self):
-        if self.networkHandler:
-            self.networkHandler.clear_processor_network()
+    def stop_visualization(self, vis_type):
+        if vis_type == "all":
+            self.app.network.clear()
             self.networkHandler = None
-            return ["stop vis", True, "Process network cleared"]
-        return ["stop vis", True, "No available network handler"]
+            return ["stop vis", True, ["all", "Processor network cleared"]]
+        else:
+            return ["stop vis", False, [vis_type, "Unknown visualization type"]]
+
+    def edit_visualization(self, vis_type, edit_type, edit_data):
+        if vis_type == "charge":
+            if not type(self.networkHandler) is ChargeNetworkHandler:
+                return ["edit", False, ["charge", "Visualization is not running"]]
+            if edit_type == "add tf point":
+                self.networkHandler.add_tf_point(edit_data[0], arr2col(edit_data))
+                return ["edit", True, ["charge", "Color added."]]
+            
+    
+
+
+
+def arr2col(arr):
+    print("ARRAY HERE: ")
+    print(arr)
+    return ivw.glm.vec4(arr[0], arr[1], arr[2], arr[3])

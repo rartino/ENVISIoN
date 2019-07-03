@@ -12,9 +12,35 @@ Used tags:
     Data is a list, where first element is a string signaling what action should be taken.
     Second element is arbitrary data depending on action, set to null if none needed.
 
-    Examples:
-    {"tag": "envision request", "data": ["start charge", null]}
-    {"tag": "envision request", "data": ["stop vis", null]}
+    Envision general Request data packages:
+        Request data is structured in the following way:
+        [REQUEST_TYPE, DATA]
+        REQIEST_TYPE is a string signaling what the request wants done.
+        DATA is arbitrary data specific to the REQUEST_TYPE.
+
+    Envision general Response data:
+        Response data is structured in the following way
+        [REQUEST_TYPE, SUCCESS, DATA]
+        REQUEST_TYPE is the same string as the type in the request.
+        SUCCESS is a boolean signaling if request was fulfilled sucessfully.
+        DATA is abitrary relating to the request. 
+
+    Specific Request and Response pairs used.
+
+        Request data -> Response data
+
+        ["start vis", VIS_TYPE] -> ["start vis", SUCCESS, VIS_TYPE, INFO]
+        VIS_TYPE is string of visualization to be started
+        INFO is a string about what happened. Can for example be reason for failing to meet the request.
+
+        ["stop vis", VIS_TYPE] -> ["stop vis", true/false, VIS_TYPE, INFO]
+        VIS_TYPE is string of visualization to be started
+        true/false in response depends on if request was fulfilled correctly
+        INFO is a string about what happened. Can for example be reason for failing to meet the request.
+
+        ["edit", [VIS_TYPE, EDIT_TYPE, EDIT_DATA]] -> ["edit", SUCCESS, INFO]
+        ["data request", [VIS_TYPE, WHAT]] -> ["data request", SUCCESS, DATA]
+
 
 "response": 
     Tag used for packages send back as response to a requested action. 
