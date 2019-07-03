@@ -101,11 +101,11 @@ class VolumeNetworkHandler(NetworkHandler):
   
     def add_tf_point(self, value, color):
     # Add point to the raycaster transferfunction
-        
         Raycaster = self.network.getProcessorByIdentifier('Raycaster')
         if Raycaster:
             Raycaster.isotfComposite.transferFunction.add(value, color)
             self.slice_copy_tf()
+        return [True, None]
 
     def remove_tf_point(self, index):
         

@@ -11,7 +11,7 @@
 const spawn = require("child_process").spawn;
 
 const LOG_PYTHON_PRINT = false
-const LOG_PYTHON_ERROR = false
+const LOG_PYTHON_ERROR = true
 const LOG_SENT_PACKAGES = true
 
 var pythonProcess = null
@@ -35,31 +35,40 @@ function start_python_process() {
 }
 
 function one_greeting(){
-    send_data("Greeting", "Hello from node.")
+    send_data("Greeting", "Hello from node!")
 }
 function lotsa_messages() {
     for (i = 0; i < 100; i++) {
-        send_data("Message", "Here be data")
+        send_data("Message", "Let there be packets.")
     } 
 }
 
 function start_charge_vis() {
-    send_data("envision request", ["start", "charge"])
+    send_data("envision request", ["start", "charge", ["charge", "/home/labb/HDF5/nacl_new.hdf5"]])
 }
 
 function stop_vis(){
-    send_data("envision request", ["stop", "all"])
+    send_data(
+        "envision request",
+        ["stop", "-", true]
+    )
 }
 
 function random_color(){
     send_data(
         "envision request",  
-        ["edit", ["charge", "add tf point", [Math.random(), Math.random(), Math.random(), Math.random()]]])
+        ["add_tf_point", "charge", [Math.random(), [Math.random(), Math.random(), Math.random(), Math.random()]]])
+}
+
+function extra_button(){
+    send_data(
+        "envision request",
+        ["get_bands", "charge", "/home/labb/HDF5/nacl_new.hdf5"]
+    )
 }
 
 function send_data(tag, data) {
 // Put data into json object and send it
-    // console.log("sending data")
     var json_data = {type: tag, data: data}
     var packet = JSON.stringify(json_data) + "\r\n"
     pythonProcess.stdin.write(packet) 

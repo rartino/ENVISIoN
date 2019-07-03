@@ -39,7 +39,7 @@ while True:
         #JSON request packages are send from JavaScript via stdin
         # send_packet("Debug", "Package recieved")
         request = decode_packet(sys.stdin.readline())
-        send_packet("echo", request)
+        # send_packet("echo", request)
         if request["type"] == "envision request":
             response = envision.handle_request(request["data"])
             send_packet("response", response)
