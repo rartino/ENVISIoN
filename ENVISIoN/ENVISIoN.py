@@ -22,6 +22,8 @@ import time
 from processor_network.ChargeNetworkHandler import ChargeNetworkHandler
 from processor_network.ELFNetworkHandler import ELFNetworkHandler
 from processor_network.UnitcellNetworkHandler import UnitcellNetworkHandler
+from processor_network.BandstructureNetworkHandler import BandstructureNetworkHandler
+from processor_network.PCFNetworkHandler import PCFNetworkHandler
 
 
 class ENVISIoN():
@@ -74,7 +76,9 @@ class ENVISIoN():
         self.visualisationTypes = {
             "charge": ChargeNetworkHandler,
             "unitcell": UnitcellNetworkHandler,
-            "elf": ELFNetworkHandler}
+            "elf": ELFNetworkHandler,
+            "pcf": PCFNetworkHandler,
+            "bandstructure": BandstructureNetworkHandler}
 
     def update(self):
         self.app.update()
