@@ -92,9 +92,9 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
     
     def set_active_band(self, key):
     # Sets the dataset which HDF5 to volume processor will read
-        
         toVolume = self.network.getProcessorByIdentifier('HDF5 To Volume')
         toVolume.volumeSelection.selectedValue = '/CHG/' + key
+        return [True, None]
 
     def position_canvases(self, x, y):
     # Updates the position of the canvases
@@ -110,14 +110,13 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
             sliceCanvas.position.value = inviwopy.glm.ivec2(x, y + volumeCanvas.inputSize.dimensions.value.y + 50)
         if unitcellCanvas:
             unitcellCanvas.position.value = inviwopy.glm.ivec2(x + volumeCanvas.inputSize.dimensions.value.x, y)
+        return [True, None]
 
 # ------------------------------------------
 # ------- Network building functions -------
 
     def setup_charge_network(self, hdf5_path):
     # Setup the part of the inviwo self.network which handles hdf5 to volume conversion*
-        
-        
         xstart_pos = 0
         ystart_pos = 0
 

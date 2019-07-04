@@ -61,6 +61,14 @@ this work.  If not, see
     
     
 </p>
+<p> 
+    <input type="checkbox" onclick="LOG_PYTHON_PRINT=!LOG_PYTHON_PRINT"> Log python print.<br>
+    <input type="checkbox" onclick="LOG_PYTHON_ERROR=!LOG_PYTHON_ERROR" checked> Log python errors.<br>
+    <input type="checkbox" onclick="LOG_SENT_PACKAGES=!LOG_SENT_PACKAGES" checked> Log sent packages.<br> 
+</p>
+
+Enter command: <input type="text" id="command_line" value="">
+<button onclick="custom_action()">execute</button>
 
 <p>
     <button onclick="one_greeting()">One packet </button>

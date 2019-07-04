@@ -41,16 +41,45 @@ class ENVISIoN():
         
 
         # Mapp action strings to functions
+        # Functions should always take one id and a list of parameters.
         self.action_dict = {}
-        self.action_dict["start"] = lambda id, data: self.initialize_visualisation(id, data[0], data[1])
-        self.action_dict["stop"] = lambda id, data: self.stop_visualisation(id, data)
-        self.action_dict["add_tf_point"] = lambda id, data: self.networkHandlers[id].add_tf_point(data[0], arr2col(data[1]))
-        self.action_dict["get_bands"] = lambda id, data: self.networkHandlers[id].get_available_bands(data)
+        self.action_dict["start"] = lambda id, params: self.initialize_visualisation(id, *params)
+        self.action_dict["stop"] = lambda id, params: self.stop_visualisation(id, *params)
+
+        # Volume visualisation actions
+        self.action_dict["set_mask"] = lambda id, params: self.networkHandlers[id].set_mask(*params)
+        self.action_dict["clear_tf"] = lambda id, params: self.networkHandlers[id].clear_tf(*params)
+        self.action_dict["add_tf_point"] = lambda id, params: self.networkHandlers[id].add_tf_point(*params)
+        self.action_dict["remove_tf_point"] = lambda id, params: self.networkHandlers[id].remove_tf_point(*params)
+        self.action_dict["set_tf_point_color"] = lambda id, params: self.networkHandlers[id].set_tf_point_color(*params)
+        self.action_dict["get_tf_points"] = lambda id, params: self.networkHandlers[id].get_tf_points(*params)
+        self.action_dict["set_shading_mode"] = lambda id, params: self.networkHandlers[id].set_shading_mode(*params)
+        self.action_dict["set_volume_background"] = lambda id, params: self.networkHandlers[id].set_volume_background(*params)
+        self.action_dict["set_slice_background"] = lambda id, params: self.networkHandlers[id].set_slice_background(*params)
+        self.action_dict["toggle_slice_plane"] = lambda id, params: self.networkHandlers[id].toggle_slice_plane(*params)
+        self.action_dict["set_plane_normal"] = lambda id, params: self.networkHandlers[id].set_plane_normal(*params)
+        self.action_dict["set_plane_height"] = lambda id, params: self.networkHandlers[id].set_plane_height(*params)
+        self.action_dict["position_canvases"] = lambda id, params: self.networkHandlers[id].position_canvases(*params)
+        self.action_dict["toggle_slice_canvas"] = lambda id, params: self.networkHandlers[id].toggle_slice_canvas(*params)
+
+        # Unicell visalisation actions
+        self.action_dict["set_atom_radius"] = lambda id, params: self.networkHandlers[id].set_atom_radius(*params)
+        self.action_dict["hide_atoms"] = lambda id, params: self.networkHandlers[id].hide_atoms(*params)
+        self.action_dict["get_atom_name"] = lambda id, params: self.networkHandlers[id].get_atom_name(*params)
+        self.action_dict["toggle_unitcell_canvas"] = lambda id, params: self.networkHandlers[id].toggle_unitcell_canvas(*params)
+        self.action_dict["toggle_full_mesh"] = lambda id, params: self.networkHandlers[id].toggle_full_mesh(*params)
+        self.action_dict["set_canvas_position"] = lambda id, params: self.networkHandlers[id].set_canvas_position(*params)
+
+        # Charge and ELF visualisation actions
+        self.action_dict["get_bands"] = lambda id, params: self.networkHandlers[id].get_available_bands(*params)
+        self.action_dict["set_active_band"] = lambda id, params: self.networkHandlers[id].set_active_band(*params)
+
 
         self.visualisationTypes = {
             "charge": ChargeNetworkHandler,
             "unitcell": UnitcellNetworkHandler}
-        
+    
+
     def update(self):
         self.app.update()
 
@@ -78,8 +107,9 @@ class ENVISIoN():
     def handle_request(self, request):
     # Recieve a request, acts on it, then returns a response
     # See XXX.txt for request and response specifications.
-    # Requests are on form [ACTION, ID, DATA]
-        action, handler_id, data = request
+    # Requests are on form [ACTION, HANDLER_ID, [PARAMETERS]]'
+        action, handler_id, parameters = request
+
         # Check if action exist
         if not action in self.action_dict:
             return [request[0], False, "Unknown action"]
@@ -89,10 +119,10 @@ class ENVISIoN():
 
         try:
         # Runs the funtion with networkhandler id and request data as arguments.
-            return [action] + self.action_dict[action](handler_id, data)
+            return [action] + self.action_dict[action](handler_id, parameters)
         except AttributeError as error:
         # Triggered if network handler instance does not have desired function.
-            return [request[0], False, "Action not found."]
+            return [request[0], False, "Function does not exsist."]
     
     
     def initialize_visualisation(self, handler_id, vis_type, hdf5_file):
@@ -103,7 +133,7 @@ class ENVISIoN():
         if handler_id in self.networkHandlers:
             return [False, handler_id + " visualisation is already running"]
         self.networkHandlers[handler_id] = self.visualisationTypes[vis_type](hdf5_file, self.app)
-        return [True, vis_type + " visualisation started."]
+        return [True, [handler_id, vis_type]]
 
     def stop_visualisation(self, handler_id, stop_all):
     # Stop visualizations depending on vis_type.
@@ -119,4 +149,4 @@ class ENVISIoN():
             return [False, "That visualisation is not running."]
 
 def arr2col(arr):
-    return ivw.glm.vec4(arr[0], arr[1], arr[2], arr[3])
+    return 
