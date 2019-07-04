@@ -12,7 +12,8 @@ const spawn = require("child_process").spawn;
 
 var LOG_PYTHON_PRINT = false
 var LOG_PYTHON_ERROR = true
-var LOG_SENT_PACKAGES = true
+var LOG_SENT_PACKETS = true
+var LOG_RECIEVED_PACKETS = true
 
 var pythonProcess = null
 
@@ -44,12 +45,10 @@ function custom_action(){
     params = JSON.parse(params)
     send_data("envision request", [action, target, params])
 }
-function one_greeting(){
-    send_data("Greeting", "Hello from node!")
-}
-function lotsa_messages() {
-    for (i = 0; i < 100; i++) {
-        send_data("Message", "Let there be packets.")
+
+function send_test_packets(n){
+    for (i = 0; i < n; i++) {
+        send_data("Message", "Here be packets.")
     } 
 }
 
@@ -92,7 +91,7 @@ function send_data(tag, data) {
     var json_data = {type: tag, data: data}
     var packet = JSON.stringify(json_data) + "\r\n"
     pythonProcess.stdin.write(packet) 
-    if (LOG_SENT_PACKAGES)
+    if (LOG_SENT_PACKETS)
         console.log("Packet sent: \n", packet)
 }
 
@@ -106,7 +105,8 @@ function on_data_recieve(packet) {
     for (i = 0; i < data.length - 1; i++) {
         try {
             json_data = JSON.parse(data[i])
-            console.log("Packet recieved: \n", JSON.stringify(json_data))
+            if (LOG_RECIEVED_PACKETS)
+                console.log("Packet recieved: \n", JSON.stringify(json_data))
           }
           catch(err) {
             if (LOG_PYTHON_PRINT)

@@ -137,17 +137,15 @@ class ENVISIoN():
         self.networkHandlers[handler_id] = self.visualisationTypes[vis_type](hdf5_file, self.app)
         return [True, [handler_id, vis_type]]
 
-    def stop_visualisation(self, handler_id, stop_all):
+    def stop_visualisation(self, handler_id, stop_all=False):
     # Stop visualizations depending on vis_type.
-        print("DOING NOTHING")
-
-        # if stop_all:
-        #     print("STOPPING vis")
-        #     for id in self.networkHandlers:
-        #         self.networkHandlers[id].clear_processors()
-        #     # self.app.network.clear()
-        #     self.networkHandlers.clear()
-        #     return [True, "All visualisations stopped."]
+        if stop_all:
+            ids = tuple(self.networkHandlers)
+            for id in ids:
+                self.networkHandlers[id].clear_processors()
+            self.app.network.clear()
+            self.networkHandlers.clear()
+            return [True, ids]
         if handler_id in self.networkHandlers:
             self.networkHandlers[handler_id].clear_processors()
             del self.networkHandlers[handler_id]
