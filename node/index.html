@@ -62,7 +62,8 @@ this work.  If not, see
 <p> 
     <input type="checkbox" onclick="LOG_PYTHON_PRINT=!LOG_PYTHON_PRINT"> Log python print.<br>
     <input type="checkbox" onclick="LOG_PYTHON_ERROR=!LOG_PYTHON_ERROR" checked> Log python errors.<br>
-    <input type="checkbox" onclick="LOG_SENT_PACKAGES=!LOG_SENT_PACKAGES" checked> Log sent packages.<br> 
+    <input type="checkbox" onclick="LOG_SENT_PACKETS=!LOG_SENT_PACKETS" checked> Log sent packets.<br> 
+    <input type="checkbox" onclick="LOG_RECIEVED_PACKETS=!LOG_RECIEVED_PACKETS" checked> Log recieved packets.<br> 
 </p>
 
 Enter command: <input type="text" id="command_line" value="" size="40">
@@ -70,8 +71,10 @@ Enter command: <input type="text" id="command_line" value="" size="40">
 
 <p>
     Packet tests.
-    <button onclick="one_greeting()">One packet </button>
-    <button onclick="lotsa_messages()">lotsa </button>
+    <button onclick="send_test_packets(1)">1 packet </button>
+    <button onclick="send_test_packets(100)">100 packets </button>
+    <button onclick="send_test_packets(1000)">1000 packets </button>
+    <button onclick="send_test_packets(10000)">10000 packets </button>
 </p>
 
 <p>

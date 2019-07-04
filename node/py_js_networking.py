@@ -16,6 +16,10 @@ path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect
 sys.path.append(path_to_current_folder + "/../ENVISIoN")
 from ENVISIoN import ENVISIoN
 
+
+import threading
+import queue
+
 # TODO: select method for checking if input is empty will not work on windows.
 
 def send_packet(tag, data):
@@ -29,27 +33,57 @@ def decode_packet(packet):
     obj = json.loads(packet)
     return obj
 
+
+
+def input_loop(input_queue):
+    while True:
+        input_queue.put(sys.stdin.readline())
+
+def main():
+    input_queue = queue.Queue()
+
+    input_thread = threading.Thread(target=input_loop, args=(input_queue,))
+    input_thread.daemon = True
+    input_thread.start()
+
+    time_start = time.time()
+    while True:
+        while not input_queue.empty():
+            # send_packet("Debug", "Packet recieved")
+            request = decode_packet(input_queue.get())
+            send_packet("echo", request)
+            if request["type"] == "envision request":
+                response = envision.handle_request(request["data"])
+                send_packet("response", response)
+        
+        envision.update()
+
+        # Try to loop at 60 fps
+        time_elapsed = time.time() - time_start
+        time.sleep(max([1.0/60 - time_elapsed, 0]))
+
 # Initialize ENVISIoN
 envision = ENVISIoN()
 
-while True:
-    time_start = time.time()
-    # While stdin is not empty read lines
-    while select.select([sys.stdin,],[],[],0.0)[0]:
-        #JSON request packages are send from JavaScript via stdin
-        # send_packet("Debug", "Package recieved")
-        request = decode_packet(sys.stdin.readline())
-        # send_packet("echo", request)
-        if request["type"] == "envision request":
-            response = envision.handle_request(request["data"])
-            send_packet("response", response)
-    # else:
-    #     send_data("Debug", "No input recieved")
-    #     print("No input recieved")
+main()
+# while True:
+#     time_start = time.time()
+#     # While stdin is not empty read lines
+#     while select.select([sys.stdin,],[],[],0.0)[0]:
+#         #JSON request packages are send from JavaScript via stdin
+#         
+#         request = decode_packet(sys.stdin.readline())
+#         
+#         if request["type"] == "envision request":
+#             response = envision.handle_request(request["data"])
+#             send_packet("response", response)
+#     # else:
+#     #     send_data("Debug", "No input recieved")
+#     #     print("No input recieved")
     
-    envision.update()
+#     envision.update()
 
-    # Try to loop at 60 fps
-    time_elapsed = time.time() - time_start
-    time.sleep(max([1.0/60 - time_elapsed, 0]))
+#     # Try to loop at 60 fps
+#     time_elapsed = time.time() - time_start
+#     time.sleep(max([1.0/60 - time_elapsed, 0]))
     
