@@ -74,11 +74,9 @@ class ENVISIoN():
         self.action_dict["get_bands"] = lambda id, params: self.networkHandlers[id].get_available_bands(*params)
         self.action_dict["set_active_band"] = lambda id, params: self.networkHandlers[id].set_active_band(*params)
 
-
         self.visualisationTypes = {
             "charge": ChargeNetworkHandler,
             "unitcell": UnitcellNetworkHandler}
-    
 
     def update(self):
         self.app.update()
@@ -117,12 +115,14 @@ class ENVISIoN():
         if not handler_id in self.networkHandlers and (action != "start" and action != "stop"):
             return [action, False, "Non-existant network handler instance"]
 
-        try:
+        # try:
         # Runs the funtion with networkhandler id and request data as arguments.
-            return [action] + self.action_dict[action](handler_id, parameters)
-        except AttributeError as error:
-        # Triggered if network handler instance does not have desired function.
-            return [request[0], False, "Function does not exsist."]
+        return [action] + self.action_dict[action](handler_id, parameters)
+        # except AttributeError as error:
+        # # Triggered if network handler instance does not have desired function.
+        #     return [request[0], False, "Function does not exsist."]
+        # except TypeError as error:
+        #     return [request[0], False, "Bad parameters."]
     
     
     def initialize_visualisation(self, handler_id, vis_type, hdf5_file):
@@ -137,16 +137,23 @@ class ENVISIoN():
 
     def stop_visualisation(self, handler_id, stop_all):
     # Stop visualizations depending on vis_type.
-        if stop_all:
-            self.app.network.clear()
-            self.networkHandlers.clear()
-            return [True, "All visualisations stopped."]
-        elif handler_id in self.networkHandlers:
-            self.networkHandlers[handler_id].clear_processor_network()
-            del self.networkHandlers[handler_id]
-            return [True, handler_id + " stopped."]
-        else:
-            return [False, "That visualisation is not running."]
+        print("DOING NOTHING")
 
-def arr2col(arr):
-    return 
+        # if stop_all:
+        #     print("STOPPING vis")
+        #     for id in self.networkHandlers:
+        #         self.networkHandlers[id].clear_processors()
+        #     # self.app.network.clear()
+        #     self.networkHandlers.clear()
+        #     return [True, "All visualisations stopped."]
+        if handler_id in self.networkHandlers:
+            self.networkHandlers[handler_id].clear_processors()
+            del self.networkHandlers[handler_id]
+            return [True, handler_id]
+        # elif handler_id in self.networkHandlers:
+        #     self.networkHandlers[handler_id].clear_processor_network()
+        #     del self.networkHandlers[handler_id]
+        #     return [True, handler_id + " stopped."]
+        # else:
+        return [False, "That visualisation is not running."]
+

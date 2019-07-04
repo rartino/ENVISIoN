@@ -52,6 +52,7 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         Sets up and manages the charge visualization
     """
     def __init__(self, hdf5_path, inviwoApp):
+        self.processors = {}
         VolumeNetworkHandler.__init__(self, inviwoApp)
 
         # Unitcell is not critical to visualization, if it fails, continnue anyway
@@ -92,7 +93,7 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
     
     def set_active_band(self, key):
     # Sets the dataset which HDF5 to volume processor will read
-        toVolume = self.network.getProcessorByIdentifier('HDF5 To Volume')
+        toVolume = self.get_processor('HDF5 To Volume')
         toVolume.volumeSelection.selectedValue = '/CHG/' + key
         return [True, None]
 
@@ -100,9 +101,9 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
     # Updates the position of the canvases
     # Upper left corner will be at coordinate (x, y)
         
-        sliceCanvas = self.network.getProcessorByIdentifier('SliceCanvas')
-        volumeCanvas = self.network.getProcessorByIdentifier('Canvas')
-        unitcellCanvas = self.network.getProcessorByIdentifier('Unit Cell Canvas')
+        sliceCanvas = self.get_processor('SliceCanvas')
+        volumeCanvas = self.get_processor('Canvas')
+        unitcellCanvas = self.get_processor('Unit Cell Canvas')
         if not volumeCanvas:
             return
         volumeCanvas.position.value = inviwopy.glm.ivec2(x, y)
@@ -151,9 +152,10 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         self.connect_volume(HDFvolume.getOutport('outport'))
 
         # Connect unitcell and volume visualisation.
-        volumeBoxRenderer = self.network.getProcessorByIdentifier('Mesh Renderer')
-        unitcellRenderer = self.network.getProcessorByIdentifier('Unit Cell Renderer')
+        volumeBoxRenderer = self.get_processor('Mesh Renderer')
+        unitcellRenderer = self.get_processor('Unit Cell Renderer')
         if volumeBoxRenderer and unitcellRenderer:
             self.network.addConnection(unitcellRenderer.getOutport('image'), volumeBoxRenderer.getInport('imageInport'))
             self.network.addLink(unitcellRenderer.getPropertyByIdentifier('camera'), volumeBoxRenderer.getPropertyByIdentifier('camera'))
             self.network.addLink(volumeBoxRenderer.getPropertyByIdentifier('camera'), unitcellRenderer.getPropertyByIdentifier('camera'))
+                
