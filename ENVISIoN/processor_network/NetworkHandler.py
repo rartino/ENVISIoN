@@ -27,23 +27,37 @@ class NetworkHandler():
     def __init__(self, inviwoApp):
         self.app = inviwoApp
         self.network = inviwoApp.network
-
-        # self.processors = []
+        if not hasattr(self, "processors"):
+            self.processors = {}
         # self.canvases = []
 
-    def clear_processor_network(self):
-        self.network.clear()
+    def clear_processors(self):
+    # Remove all the processors associated with this handler.
+        for id in tuple(self.processors):
+            self.remove_processor(id)
 
     def add_processor(self, id, name, xpos=0, ypos=0):
         factory = self.app.processorFactory
         new_processor = factory.create(id, glm.ivec2(xpos, ypos))
         new_processor.identifier = name
         self.network.addProcessor(new_processor)
+
+        self.processors[name] = new_processor
+        # self.processors.append(new_processor)
         return new_processor
+
+    def remove_processor(self, id):
+        self.network.removeProcessor(self.processors[id])
+        del self.processors[id]
+    
+    def get_processor(self, id):
+        if id in self.processors:
+            return self.processors[id]
+        return None
 
     def add_h5source(self, h5file, xpos=0, ypos=0):
         name = os.path.splitext(os.path.basename(h5file))[0]
-        processor = self.network.getProcessorByIdentifier(name)
+        processor = self.get_processor(name)
         if processor is None:
             new_processor = self.add_processor('org.inviwo.hdf5.Source', name, xpos, ypos)
             filename = new_processor.getPropertyByIdentifier('filename')

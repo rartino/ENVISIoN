@@ -57,10 +57,14 @@ function start_charge_vis() {
     send_data("envision request", ["start", "charge", ["charge", "/home/labb/HDF5/nacl_new.hdf5"]])
 }
 
+function start_second_charge_vis(){
+    send_data("envision request", ["start", "charge2", ["charge", "/home/labb/HDF5/nacl_new.hdf5"]])
+}
+
 function stop_vis(){
     send_data(
         "envision request",
-        ["stop", "-", [true]]
+        ["stop", "charge", [false]]
     )
 }
 
@@ -68,6 +72,12 @@ function random_color(){
     send_data(
         "envision request",  
         ["add_tf_point", "charge", [Math.random(), [Math.random(), Math.random(), Math.random(), Math.random()]]])
+}
+
+function random_color_second(){
+    send_data(
+        "envision request",  
+        ["add_tf_point", "charge2", [Math.random(), [Math.random(), Math.random(), Math.random(), Math.random()]]])
 }
 
 function extra_button(){
@@ -100,7 +110,7 @@ function on_data_recieve(packet) {
           }
           catch(err) {
             if (LOG_PYTHON_PRINT)
-                console.log("Python print: " + data[i])
+                console.log("Python print: \n" + data[i])
           } 
     }
 }

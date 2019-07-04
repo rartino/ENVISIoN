@@ -70,7 +70,7 @@ class UnitcellNetworkHandler(NetworkHandler):
 # ------- Property control functions -------
 
     def set_atom_radius(self, radius, index=None):
-        structureMesh = self.network.getProcessorByIdentifier('Unit Cell Mesh')
+        structureMesh = self.get_processor('Unit Cell Mesh')
         if structureMesh.fullMesh.value:
             if index != None:
                 structureMesh.getPropertyByIdentifier("radius" + str(index)).value = radius
@@ -78,7 +78,7 @@ class UnitcellNetworkHandler(NetworkHandler):
                 for i in range(self.nAtomTypes):
                     self.set_atom_radius(radius, i)
         else:
-            sphereRenderer = self.network.getProcessorByIdentifier('Unit Cell Renderer')
+            sphereRenderer = self.get_processor('Unit Cell Renderer')
             sphereRenderer.sphereProperties.defaultRadius.value = radius
         return [True, None]
 
@@ -97,8 +97,8 @@ class UnitcellNetworkHandler(NetworkHandler):
     def toggle_unitcell_canvas(self, enable_unitcell):
     # Add or remove the unitcell canvas
         
-        unitcellCanvas = self.network.getProcessorByIdentifier('Unit Cell Canvas')
-        unitcellRenderer = self.network.getProcessorByIdentifier('Unit Cell Renderer')
+        unitcellCanvas = self.get_processor('Unit Cell Canvas')
+        unitcellRenderer = self.get_processor('Unit Cell Renderer')
         # If already in correct mode dont do anything
         if (unitcellCanvas and enable_unitcell) or (not unitcellCanvas and not enable_unitcell):
             return
@@ -108,12 +108,12 @@ class UnitcellNetworkHandler(NetworkHandler):
             unitcellCanvas.inputSize.dimensions.value = inviwopy.glm.ivec2(500, 500)
             self.network.addConnection(unitcellRenderer.getOutport('image'), unitcellCanvas.getInport('inport'))
         else:
-            self.network.removeProcessor(unitcellCanvas)
+            self.remove_processor('Unit Cell Canvas')
         return [True, None]
 
     def toggle_full_mesh(self, enable):
         
-        structMesh = self.network.getProcessorByIdentifier('Unit Cell Mesh')
+        structMesh = self.get_processor('Unit Cell Mesh')
         structMesh.fullMesh.value = enable
         return [True, None]
 
@@ -121,7 +121,7 @@ class UnitcellNetworkHandler(NetworkHandler):
     # Updates the position of the canvas
     # Upper left corner will be at coordinate (x, y)
         
-        unitcellCanvas = self.network.getProcessorByIdentifier('Unit Cell Canvas')
+        unitcellCanvas = self.get_processor('Unit Cell Canvas')
         if not unitcellCanvas:
             return
         unitcellCanvas.position.value = inviwopy.glm.ivec2(x, y)
