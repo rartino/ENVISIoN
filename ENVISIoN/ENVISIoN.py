@@ -20,9 +20,8 @@ import inviwopyapp as qt
 import time
 
 from processor_network.ChargeNetworkHandler import ChargeNetworkHandler
+from processor_network.ELFNetworkHandler import ELFNetworkHandler
 from processor_network.UnitcellNetworkHandler import UnitcellNetworkHandler
-from processor_network.NetworkHandler import NetworkHandler
-from processor_network.VolumeNetworkHandler import VolumeNetworkHandler
 
 
 class ENVISIoN():
@@ -37,8 +36,6 @@ class ENVISIoN():
     def __init__(self):
         self.initialize_inviwo_app()
         self.networkHandlers = {}
-
-        
 
         # Mapp action strings to functions
         # Functions should always take one id and a list of parameters.
@@ -76,7 +73,8 @@ class ENVISIoN():
 
         self.visualisationTypes = {
             "charge": ChargeNetworkHandler,
-            "unitcell": UnitcellNetworkHandler}
+            "unitcell": UnitcellNetworkHandler,
+            "elf": ELFNetworkHandler}
 
     def update(self):
         self.app.update()
@@ -103,9 +101,9 @@ class ENVISIoN():
         self.app.network.clear()
 
     def handle_request(self, request):
-    # Recieve a request, acts on it, then returns a response
-    # See XXX.txt for request and response specifications.
-    # Requests are on form [ACTION, HANDLER_ID, [PARAMETERS]]'
+        # Recieve a request, acts on it, then returns a response
+        # See XXX.txt for request and response specifications.
+        # Requests are on form [ACTION, HANDLER_ID, [PARAMETERS]]'
         action, handler_id, parameters = request
 
         # Check if action exist

@@ -1,5 +1,32 @@
 #
-#  Created by Jesper Ericsson
+#  ENVISIoN
+#
+#  Copyright (c) 2019 Jesper Ericsson
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#
+#  1. Redistributions of source code must retain the above copyright notice, this
+#  list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright notice,
+#  this list of conditions and the following disclaimer in the documentation
+#  and/or other materials provided with the distribution.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+#  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+#  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+#  ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+#  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+##############################################################################################
+#
+#  Alterations to this file by Jesper Ericsson
 #
 #  To the extent possible under law, the person who associated CC0
 #  with the alterations to this file has waived all copyright and related
@@ -25,6 +52,7 @@ class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         Sets up and manages the ELF visualization
     """
     def __init__(self, hdf5_path, inviwoApp):
+        self.processors = {}
         VolumeNetworkHandler.__init__(self, inviwoApp)
 
         # Unitcell is not critical to visualization, if it fails, continnue anyway
@@ -39,12 +67,12 @@ class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         # Check if  hdf5-file is valid
         with h5py.File(hdf5_path, 'r') as file:
             if file.get("ELF") == None:
-                raise AssertionError("No ELF data in that file")
+                raise AssertionError("No elf data in that file")
         if len(self.get_available_bands(hdf5_path)) == 0:
             raise AssertionError("No valid bands in that file")
         
-        # Setup default ELF settings
-        self.setup_ELF_network(hdf5_path)
+        # Setup default elf settings
+        self.setup_elf_network(hdf5_path)
         self.set_active_band('final')
 
         # Setup default unitcell settings
@@ -58,24 +86,24 @@ class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
             band_keys = []
             for key in file.get("ELF").keys():
                 band_keys.append(key)
-            return band_keys
+            return [True, band_keys]
 
 # ------------------------------------------
 # ------- Property control functions -------
     
     def set_active_band(self, key):
     # Sets the dataset which HDF5 to volume processor will read
-        
-        toVolume = self.network.getProcessorByIdentifier('HDF5 To Volume')
+        toVolume = self.get_processor('HDF5 To Volume')
         toVolume.volumeSelection.selectedValue = '/ELF/' + key
+        return [True, None]
 
     def position_canvases(self, x, y):
     # Updates the position of the canvases
     # Upper left corner will be at coordinate (x, y)
         
-        sliceCanvas = self.network.getProcessorByIdentifier('SliceCanvas')
-        volumeCanvas = self.network.getProcessorByIdentifier('Canvas')
-        unitcellCanvas = self.network.getProcessorByIdentifier('Unit Cell Canvas')
+        sliceCanvas = self.get_processor('SliceCanvas')
+        volumeCanvas = self.get_processor('Canvas')
+        unitcellCanvas = self.get_processor('Unit Cell Canvas')
         if not volumeCanvas:
             return
         volumeCanvas.position.value = inviwopy.glm.ivec2(x, y)
@@ -83,14 +111,13 @@ class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
             sliceCanvas.position.value = inviwopy.glm.ivec2(x, y + volumeCanvas.inputSize.dimensions.value.y + 50)
         if unitcellCanvas:
             unitcellCanvas.position.value = inviwopy.glm.ivec2(x + volumeCanvas.inputSize.dimensions.value.x, y)
+        return [True, None]
 
 # ------------------------------------------
 # ------- Network building functions -------
 
-    def setup_ELF_network(self, hdf5_path):
+    def setup_elf_network(self, hdf5_path):
     # Setup the part of the inviwo self.network which handles hdf5 to volume conversion*
-        
-        
         xstart_pos = 0
         ystart_pos = 0
 
@@ -125,9 +152,10 @@ class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         self.connect_volume(HDFvolume.getOutport('outport'))
 
         # Connect unitcell and volume visualisation.
-        volumeBoxRenderer = self.network.getProcessorByIdentifier('Mesh Renderer')
-        unitcellRenderer = self.network.getProcessorByIdentifier('Unit Cell Renderer')
+        volumeBoxRenderer = self.get_processor('Mesh Renderer')
+        unitcellRenderer = self.get_processor('Unit Cell Renderer')
         if volumeBoxRenderer and unitcellRenderer:
             self.network.addConnection(unitcellRenderer.getOutport('image'), volumeBoxRenderer.getInport('imageInport'))
             self.network.addLink(unitcellRenderer.getPropertyByIdentifier('camera'), volumeBoxRenderer.getPropertyByIdentifier('camera'))
             self.network.addLink(volumeBoxRenderer.getPropertyByIdentifier('camera'), unitcellRenderer.getPropertyByIdentifier('camera'))
+                
