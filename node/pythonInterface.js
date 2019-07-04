@@ -10,9 +10,9 @@
 
 const spawn = require("child_process").spawn;
 
-const LOG_PYTHON_PRINT = false
-const LOG_PYTHON_ERROR = true
-const LOG_SENT_PACKAGES = true
+var LOG_PYTHON_PRINT = false
+var LOG_PYTHON_ERROR = true
+var LOG_SENT_PACKAGES = true
 
 var pythonProcess = null
 
@@ -34,6 +34,16 @@ function start_python_process() {
     }
 }
 
+function custom_action(){
+    var entry = document.getElementById("command_line").value
+    var words = entry.split(" ")
+    var action = words[0]
+    var target = words[1]
+    var params = entry.substr(entry.indexOf(" ") + 1);
+    params = params.substr(params.indexOf(" ") + 1);
+    params = JSON.parse(params)
+    send_data("envision request", [action, target, params])
+}
 function one_greeting(){
     send_data("Greeting", "Hello from node!")
 }
@@ -50,7 +60,7 @@ function start_charge_vis() {
 function stop_vis(){
     send_data(
         "envision request",
-        ["stop", "-", true]
+        ["stop", "-", [true]]
     )
 }
 
