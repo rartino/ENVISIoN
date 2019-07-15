@@ -51,7 +51,7 @@ def main():
         while not input_queue.empty():
             # send_packet("Debug", "Packet recieved")
             request = decode_packet(input_queue.get())
-            send_packet("echo", request)
+            # send_packet("echo", request)
             if request["type"] == "envision request":
                 response = envision.handle_request(request["data"])
                 send_packet("response", response)

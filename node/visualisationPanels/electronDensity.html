@@ -21,6 +21,7 @@
     <select class="custom-select" id="shadingModeSelection">
       <option selected>No shading</option>
       <option>Blinn Phong</option>
+      <option>Something else</option>
     </select>
   </div>
 </div>
@@ -32,9 +33,12 @@
     </div>
     <input class="form-control col-md-2" id="backgroundColor1" type="color" value="#ffffff" required>
     <input class="form-control col-md-2" id="backgroundColor2" type="color" value="#000000" required>
-    <select class="custom-select" id="backgroundStyleSelection" onchange="console.log('bg style selected')">
-      <option selected>Linear gradient</option>
-      <option>other option</option>
+    <select class="custom-select" id="backgroundStyleSelection">
+      <option selected>Vertical gradient</option>
+      <option>Horizontal gradient</option>
+      <option>Spherical gradient</option>
+      <option>Uniform color</option>
+      <option>Checker board</option>
     </select>
   </div>
 </div>
@@ -116,8 +120,11 @@
 <script>
   $(document).ready(function () {
     console.log("Charge control element loaded")
-    $("#bandSelection").on("change", bandSelected)
-    $("#shadingModeSelection").on("change", shadingModeSelected)
+    
+    $("#bandSelection").on("change", bandChanged)
+    $("#shadingModeSelection").on("change", shadingModeChanged)
+    $("#backgroundColor1,#backgroundColor2,#backgroundStyleSelection").on("change", volumeBackgroundChanged)
+    // $("#backgroundStyleSelection").on("change", volumeBackgroundChanged)
 
     $("#tfAdder").on("submit", addTfPoint);
 

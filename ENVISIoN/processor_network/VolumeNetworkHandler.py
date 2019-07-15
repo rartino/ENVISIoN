@@ -91,7 +91,7 @@ class VolumeNetworkHandler(NetworkHandler):
             if len(tf_points) > 0:
                 VolumeSlice.tfGroup.transferFunction.add(0.99*tf_points[0][0], inviwopy.glm.vec4(1.0, 1.0, 1.0, 1.0))
 
-# ---- Transferfunction ----
+# ---- Transfer function ----
 
     def clear_tf(self):
     # Clears the transfer function of all points
@@ -161,9 +161,11 @@ class VolumeNetworkHandler(NetworkHandler):
         if styleIndex != None:
             Background.backgroundStyle.selectedIndex = styleIndex
         if color_1 != None:
-            Background.bgColor1.value = color_1
+            glm_col = inviwopy.glm.vec4(color_1[0], color_1[1], color_1[2], color_1[3])
+            Background.bgColor1.value = glm_col
         if color_2 != None:
-            Background.bgColor2.value = color_2
+            glm_col = inviwopy.glm.vec4(color_2[0], color_2[1], color_2[2], color_2[3])
+            Background.bgColor2.value = glm_col
         if blendModeIndex != None:
             Background.blendMode.selectedIndex = blendModeIndex
         return [True, None]
