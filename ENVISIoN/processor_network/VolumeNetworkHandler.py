@@ -245,7 +245,7 @@ class VolumeNetworkHandler(NetworkHandler):
 
         # If already in correct mode dont do anything
         if (SliceCanvas and enable_slice) or (not SliceCanvas and not enable_slice):
-            return
+            return [True, None]
 
         if enable_slice:
             SliceCanvas = self.add_processor('org.inviwo.CanvasGL', 'SliceCanvas', 25*7, 525)

@@ -3,11 +3,16 @@
 // require('popper.js');
 // require('bootstrap')
 
+var activeVisualisation = "";
+
+
 // --------------------------------
 // ----- File selection panel -----
 // --------------------------------
 
 function startVisPressed(){
+    // TODO load atom types
+    activeVisualisation = "charge";
     send_data("envision request", ["start", "charge", ["charge", "/home/labb/HDF5/nacl_new.hdf5"]]);
 }
 
@@ -43,12 +48,12 @@ function togglePathType() {
 
 function bandChanged(){
     let selection = $("#bandSelection").val();
-    send_data("envision request", ["set_active_band", "charge", [selection]]);
+    send_data("envision request", ["set_active_band", activeVisualisation, [selection]]);
 }
 
 function shadingModeChanged(){
     let selectionIndex = $(this)[0].selectedIndex;
-    send_data("envision request", ["set_shading_mode", "charge", [selectionIndex]])
+    send_data("envision request", ["set_shading_mode", activeVisualisation, [selectionIndex]]);
 }
 
 function volumeBackgroundChanged(){
@@ -58,14 +63,14 @@ function volumeBackgroundChanged(){
     color2.push(1);
     let styleIndex = $("#backgroundStyleSelection")[0].selectedIndex;
     console.log(JSON.stringify([color1, color2, styleIndex]));
-    send_data("envision request", ["set_volume_background", "charge", [color1, color2, styleIndex]])
+    send_data("envision request", ["set_volume_background", activeVisualisation, [color1, color2, styleIndex]])
 }
 
 function updateMask(){
     if (!$("#transperancyCheckbox").is(':checked'))
-        send_data("envision request", ["set_mask", "charge", [0, 1]]);
+        send_data("envision request", ["set_mask", activeVisualisation, [0, 1]]);
     else if (getTfPoints().length > 0)
-        send_data("envision request", ["set_mask", "charge", [getTfPoints()[0][0], 1]]);
+        send_data("envision request", ["set_mask", activeVisualisation, [getTfPoints()[0][0], 1]]);
 }
 
 function addTfPoint() {
@@ -116,23 +121,23 @@ function addTfPoint() {
         $(elementString).insertBefore($(rowNode))
     }
     $('[name="tfPoint"]').on("submit", removeTfPoint);
-    send_data("envision request", ["set_tf_points", "charge", [getTfPoints()]]);
+    send_data("envision request", ["set_tf_points", activeVisualisation, [getTfPoints()]]);
     updateMask()
     return false;
 }
 
 function removeTfPoint() {
     $(this).parent().remove();
-    send_data("envision request", ["set_tf_points", "charge", [getTfPoints()]]);
+    send_data("envision request", ["set_tf_points", activeVisualisation, [getTfPoints()]]);
     return false;
 }
 
 function sliceCanvasToggle(){
-    send_data("envision request", ["toggle_slice_canvas", "charge", [$("#sliceCanvasCheck").is(":checked")]]);
+    send_data("envision request", ["toggle_slice_canvas", activeVisualisation, [$("#sliceCanvasCheck").is(":checked")]]);
 }
 
 function slicePlaneToggle(){
-    send_data("envision request", ["toggle_slice_plane", "charge", [$("#slicePlaneCheck").is(":checked")]]);
+    send_data("envision request", ["toggle_slice_plane", activeVisualisation, [$("#slicePlaneCheck").is(":checked")]]);
 }
 
 function sliceHeightChanged(){
@@ -143,11 +148,14 @@ function sliceHeightChanged(){
         value = 0.5;
     else
         value = parseFloat(value);
-    send_data("envision request", ["set_plane_height", "charge", [value]]);
+    send_data("envision request", ["set_plane_height", activeVisualisation, [value]]);
 }
 
 function sliceNormalChanged(){
-    
+    let x = parseFloat($(this)[0].children[0].value);
+    let y = parseFloat($(this)[0].children[1].value);
+    let z = parseFloat($(this)[0].children[2].value);
+    send_data("envision request", ["set_plane_normal", activeVisualisation, [x, y, z]]);
     return false;
 }
 

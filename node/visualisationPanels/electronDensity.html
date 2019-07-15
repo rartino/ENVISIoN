@@ -108,9 +108,9 @@
 <div class="row row-margin">
   <!-- <form id="sliceNormalForm"> -->
   <form class="input-group col-sm-8" id="sliceNormalForm">
-    <input type="text" class="form-control" placeholder="x" value="0" required>
-    <input type="text" class="form-control" placeholder="y" value="0" required>
-    <input type="text" class="form-control" placeholder="z" value="0" required>
+    <input type="text" class="form-control" placeholder="x" value="0" id="sliceNormX" required>
+    <input type="text" class="form-control" placeholder="y" value="1" id="sliceNormY" required>
+    <input type="text" class="form-control" placeholder="z" value="0" id="sliceNormZ" required>
     <div class="input-group-append">
       <button class="btn btn-primary" type="submit">&#x2713</button>
     </div>
@@ -161,15 +161,15 @@
 
     // Setup input filters
     
-    $("#tfValue").inputFilter(function (value) {
+    $("#tfValue,#tfAlpha,#sliceHeightText,#sliceNormX,#sliceNormY,#sliceNormZ").inputFilter(function (value) {
       return /^(0?(\.\d*)?|1(\.0*)?)?$/.test(value) //allow float in range 0 to 1, or nothing.
     });
-    $("#tfAlpha").inputFilter(function (value) {
-      return /^(0?(\.\d*)?|1(\.0*)?)?$/.test(value) //allow float in range 0 to 1, or nothing.
-    });
-    $("#sliceHeightText").inputFilter(function (value) {
-      return /^(0?(\.\d*)?|1(\.0*)?)?$/.test(value) //allow float in range 0 to 1, or nothing.
-    });
+    // $("#tfAlpha").inputFilter(function (value) {
+    //   return /^(0?(\.\d*)?|1(\.0*)?)?$/.test(value) //allow float in range 0 to 1, or nothing.
+    // });
+    // $("#sliceHeightText").inputFilter(function (value) {
+    //   return /^(0?(\.\d*)?|1(\.0*)?)?$/.test(value) //allow float in range 0 to 1, or nothing.
+    // });
 
     // Setup normal event bindings
 
