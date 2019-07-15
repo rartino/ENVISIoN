@@ -18,6 +18,7 @@
   <script>require('bootstrap');</script>
   <script src="eventCallbacks.js"></script>
   <script src="pythonInterface.js"></script>
+  <script src="utils.js"></script>
   
   
   <!-- <script defer src="https://use.fontawesome.com/releases/v5.6.3/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY"
@@ -114,7 +115,7 @@
   <script>
     $("#loadPanelWrapper").load("loadPanel.html")
     $("#pageContentWrapper").load("visualisationPanels/electronDensity.html")
-
+    start_python_process()
     $(document).ready(function () {
 
       // Bind link clicks to reloading part of page.

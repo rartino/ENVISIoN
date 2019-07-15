@@ -62,8 +62,8 @@
   </div>
 </div>
 <div style="margin-bottom:5px">
-  <button type="button" class="btn btn-primary">Start visualisation</button>
-  <button type="button" class="btn btn-secondary">Stop visualisation</button>
+  <button id="startVisBtn" type="button" class="btn btn-primary">Start visualisation</button>
+  <button id="stopVisBtn" type="button" class="btn btn-secondary">Stop visualisation</button>
 </div>
 
 <script>
@@ -75,5 +75,7 @@
     $("#vaspSource").css("display", "block")
     $("#vaspSourceCheckbox").on("change", togglePathType)
     $("#hdf5SourceCheckbox").on("change", togglePathType)
+    $("#startVisBtn").on("click", startVisPressed);
+    $("#stopVisBtn").on("click", stopVisPressed);
   });
 </script>

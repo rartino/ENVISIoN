@@ -2,8 +2,37 @@
 // $ = require('jquery');
 // require('popper.js');
 // require('bootstrap')
+
+function startVisPressed(){
+    send_data("envision request", ["start", "charge", ["charge", "/home/labb/HDF5/nacl_new.hdf5"]]);
+}
+
+function stopVisPressed(){
+    send_data("envision request", ["stop", "-", [true]]);
+}
+
+function bandChanged(){
+    let selection = $("#bandSelection").val();
+    send_data("envision request", ["set_active_band", "charge", [selection]]);
+}
+
+function shadingModeChanged(){
+    let selectionIndex = $(this)[0].selectedIndex;
+    send_data("envision request", ["set_shading_mode", "charge", [selectionIndex]])
+}
+
+function volumeBackgroundChanged(){
+    let color1 = hexToRGB($("#backgroundColor1").val());
+    let color2 = hexToRGB($("#backgroundColor2").val());
+    color1.push(1);
+    color2.push(1);
+    let styleIndex = $("#backgroundStyleSelection")[0].selectedIndex;
+    console.log(JSON.stringify([color1, color2, styleIndex]));
+    send_data("envision request", ["set_volume_background", "charge", [color1, color2, styleIndex]])
+}
+
 function pathInputChanged() {
-    var filePath = $(this)[0].files[0].path;
+    let filePath = $(this)[0].files[0].path;
     $(this).next('.custom-file-label').addClass("selected").html(filePath);
     console.log(filePath)
 }
@@ -25,7 +54,6 @@ function togglePathType() {
 }
 
 function bandSelected() {
-    var selection = $("#bandSelection").val()
     console.log(selection)
 }
 
