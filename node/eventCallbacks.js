@@ -3,32 +3,16 @@
 // require('popper.js');
 // require('bootstrap')
 
+// --------------------------------
+// ----- File selection panel -----
+// --------------------------------
+
 function startVisPressed(){
     send_data("envision request", ["start", "charge", ["charge", "/home/labb/HDF5/nacl_new.hdf5"]]);
 }
 
 function stopVisPressed(){
     send_data("envision request", ["stop", "-", [true]]);
-}
-
-function bandChanged(){
-    let selection = $("#bandSelection").val();
-    send_data("envision request", ["set_active_band", "charge", [selection]]);
-}
-
-function shadingModeChanged(){
-    let selectionIndex = $(this)[0].selectedIndex;
-    send_data("envision request", ["set_shading_mode", "charge", [selectionIndex]])
-}
-
-function volumeBackgroundChanged(){
-    let color1 = hexToRGB($("#backgroundColor1").val());
-    let color2 = hexToRGB($("#backgroundColor2").val());
-    color1.push(1);
-    color2.push(1);
-    let styleIndex = $("#backgroundStyleSelection")[0].selectedIndex;
-    console.log(JSON.stringify([color1, color2, styleIndex]));
-    send_data("envision request", ["set_volume_background", "charge", [color1, color2, styleIndex]])
 }
 
 function pathInputChanged() {
@@ -53,13 +37,36 @@ function togglePathType() {
     }
 }
 
-function bandSelected() {
-    console.log(selection)
+// ----------------------------------
+// ----- Electron density panel -----
+// ----------------------------------
+
+function bandChanged(){
+    let selection = $("#bandSelection").val();
+    send_data("envision request", ["set_active_band", "charge", [selection]]);
 }
 
-function shadingModeSelected() {
-    var selection = $("#shadingModeSelection").val()
-    console.log(selection)
+function shadingModeChanged(){
+    let selectionIndex = $(this)[0].selectedIndex;
+    send_data("envision request", ["set_shading_mode", "charge", [selectionIndex]])
+}
+
+function volumeBackgroundChanged(){
+    let color1 = hexToRGB($("#backgroundColor1").val());
+    let color2 = hexToRGB($("#backgroundColor2").val());
+    color1.push(1);
+    color2.push(1);
+    let styleIndex = $("#backgroundStyleSelection")[0].selectedIndex;
+    console.log(JSON.stringify([color1, color2, styleIndex]));
+    send_data("envision request", ["set_volume_background", "charge", [color1, color2, styleIndex]])
+}
+
+function transperancyToggled(){
+    let points = getTfPoints();
+    if (points.length <= 0)
+        return;
+    console.log(points[0][0]);
+    send_data("envision request", ["set_mask", "charge", [points[0][0], 1]]);
 }
 
 
@@ -73,21 +80,17 @@ function addTfPoint() {
         $(this).addClass('was-validated');
         return false
     }
-
     // Removes validity symbols if input accepted
     $("this").removeClass("was-validated")
 
     const valueInput = parseFloat($(this)[0][0].value);
     const alphaInput = parseFloat($(this)[0][1].value);
-    const colorInput = $(this)[0][2].value
-    console.log(JSON.stringify([valueInput, alphaInput, colorInput]))
-    //TODO test if all are decently valid
+    const colorInput = $(this)[0][2].value;
 
     // Add a new element for the added point.
-    // This is not pretty.
     let elementString = (
         '<div class="row row-margin">' +
-        '<form class="col-sm-8" name="tfPoint">' +
+        '<form class="col-sm-10" name="tfPoint">' +
         '<div class="input-group">' +
         '<input type="text" class="form-control" value="' + valueInput + '" disabled>' +
         '<input type="text" class="form-control" value="' + alphaInput + '" disabled>' +
@@ -98,48 +101,51 @@ function addTfPoint() {
         '</div>' +
         '</form>' +
         '</div>');
-    // $("#tfPoints").prepend(elementString);
 
-    // Insert new element at correct index
-    let insertionIndex = 0;
-    let tfPoints = [[valueInput, alphaInput, colorInput]]
-    for (let i = 0; i < $("#tfPoints")[0].children.length; i++) {
-
-        let formNode = $("#tfPoints")[0].children[i].children[0];
-        if (formNode.getAttribute("id") == "tfAdder") {
-            continue;
-        }
-
-        let formValue = parseFloat(formNode.children[0].children[0].value);
-        let formAlpha = parseFloat(formNode.children[0].children[1].value);
-        let formColor = formNode.children[0].children[2].value;
-        tfPoints.push([formValue, formAlpha, formColor]);
-
-        if (valueInput == formValue) {
-            insertionIndex = -1;
-            break;
-        }
-        if (valueInput > formValue) {
-            console.log(formValue)
-            insertionIndex = i + 1;
-        }
+    let points = getTfPoints();
+    if (points.length == 0){
+        let rowNode = $("#tfPoints")[0].children[0];
+        $(elementString).insertBefore($(rowNode))
     }
-    // console.log(JSON.stringify(tfPoints))
-    if (insertionIndex == -1) {
-        // TODO: Set invalid input
-        console.log("Point with that value already exist.")
+    else if (points.find(function(point){point[0] == valueInput}) != undefined){
+        console.log("point already exist");
     }
-    else {
+    else{
+        let insertionIndex = points.findIndex(function(point){return point[0] > valueInput});
+        if (insertionIndex == -1)
+            insertionIndex = points.length;
         let rowNode = $("#tfPoints")[0].children[insertionIndex];
         $(elementString).insertBefore($(rowNode))
     }
     $('[name="tfPoint"]').on("submit", removeTfPoint);
-    return false; //Return false to stop page from reloading
-}
-
-function removeTfPoint() {
-    console.log("Removing point");
-    $(this).parent().remove();
+    send_data("envision request", ["set_tf_points", "charge", [getTfPoints()]]);
+    
     return false;
 }
 
+function removeTfPoint() {
+    $(this).parent().remove();
+    send_data("envision request", ["set_tf_points", "charge", [getTfPoints()]]);
+    return false;
+}
+
+
+
+// ----------------------------
+// ----- Helper functions -----
+// ----------------------------
+
+function getTfPoints(){
+    let tfPoints = [];
+    for (let i = 0; i < $("#tfPoints")[0].children.length; i++) {
+        let formNode = $("#tfPoints")[0].children[i].children[0];
+        if (formNode.getAttribute("id") == "tfAdder")
+            continue;
+        let value = parseFloat(formNode.children[0].children[0].value);
+        let alpha = parseFloat(formNode.children[0].children[1].value);
+        let color = hexToRGB(formNode.children[0].children[2].value);
+        color.push(alpha);
+        tfPoints.push([value, color]);
+    }
+    return tfPoints;
+}

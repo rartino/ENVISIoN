@@ -101,6 +101,17 @@ class VolumeNetworkHandler(NetworkHandler):
         Raycaster.isotfComposite.transferFunction.clear()
         self.slice_copy_tf()
         return [True, None]
+
+    def set_tf_points(self, points):
+    # Sets all transfer function points from an array of tf poitns.
+        Raycaster = self.get_processor('Raycaster')
+        Raycaster.isotfComposite.transferFunction.clear()
+        # return [False, points]
+        for point in points:
+            glm_col = inviwopy.glm.vec4(point[1][0], point[1][1], point[1][2], point[1][3])
+            Raycaster.isotfComposite.transferFunction.add(point[0], glm_col)
+        self.slice_copy_tf()
+        return [True, None]
   
     def add_tf_point(self, value, color):
     # Add point to the raycaster transferfunction
