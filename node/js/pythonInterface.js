@@ -11,13 +11,19 @@
 const spawn = require("child_process").spawn;
 
 var LOG_PYTHON_PRINT = false
-var LOG_PYTHON_ERROR = true
-var LOG_SENT_PACKETS = true
+var LOG_PYTHON_ERROR = false
+var LOG_SENT_PACKETS = false
 var LOG_RECIEVED_PACKETS = true
 
 var pythonProcess = null
 
 //TODO: not sure if encoding will always be the same on platforms
+
+var response_callbacks = {
+    "get_bands": loadBands,
+    "get_atom_names": loadAtoms
+}
+
 
 function start_python_process() {
     if (pythonProcess == null)
@@ -35,56 +41,12 @@ function start_python_process() {
     }
 }
 
-function custom_action(){
-    var entry = document.getElementById("command_line").value
-    var words = entry.split(" ")
-    var action = words[0]
-    var target = words[1]
-    var params = entry.substr(entry.indexOf(" ") + 1);
-    params = params.substr(params.indexOf(" ") + 1);
-    params = JSON.parse(params)
-    send_data("envision request", [action, target, params])
-}
-
 function send_test_packets(n){
     for (i = 0; i < n; i++) {
         send_data("Message", "Here be packets.")
     } 
 }
 
-function start_charge_vis() {
-    send_data("envision request", ["start", "charge", ["charge", "/home/labb/HDF5/nacl_new.hdf5"]])
-}
-
-function start_second_charge_vis(){
-    send_data("envision request", ["start", "charge2", ["charge", "/home/labb/HDF5/nacl_new.hdf5"]])
-}
-
-function stop_vis(){
-    send_data(
-        "envision request",
-        ["stop", "charge", [false]]
-    )
-}
-
-function random_color(){
-    send_data(
-        "envision request",  
-        ["add_tf_point", "charge", [Math.random(), [Math.random(), Math.random(), Math.random(), Math.random()]]])
-}
-
-function random_color_second(){
-    send_data(
-        "envision request",  
-        ["add_tf_point", "charge2", [Math.random(), [Math.random(), Math.random(), Math.random(), Math.random()]]])
-}
-
-function extra_button(){
-    send_data(
-        "envision request",
-        ["get_bands", "charge", "/home/labb/HDF5/nacl_new.hdf5"]
-    )
-}
 
 function send_data(tag, data) {
 // Put data into json object and send it
@@ -107,11 +69,22 @@ function on_data_recieve(packet) {
             json_data = JSON.parse(data[i])
             if (LOG_RECIEVED_PACKETS)
                 console.log("Packet recieved: \n", JSON.stringify(json_data))
+            if (json_data["type"] == "response")
+                handle_response_packet(json_data["data"])
           }
           catch(err) {
             if (LOG_PYTHON_PRINT)
                 console.log("Python print: \n" + data[i])
           } 
+    }
+}
+
+function handle_response_packet(packet){
+    let action = packet[0];
+    let status = packet[1];
+    let data = packet[2];
+    if (action in response_callbacks && status){
+        response_callbacks[action](data);
     }
 }
 
