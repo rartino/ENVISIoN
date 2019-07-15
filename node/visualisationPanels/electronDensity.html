@@ -6,8 +6,8 @@
       <label class="input-group-text" for="bandSelection">Selected band</label>
     </div>
     <select class="custom-select" id="bandSelection">
-      <option selected>final</option>
-      <option>1</option>
+      <!-- <option selected>final</option>
+      <option>1</option> -->
     </select>
   </div>
 </div>
@@ -83,7 +83,7 @@
 </div>
 <div class="form-check">
   <input type="checkbox" class="form-check-input" id="slicePlaneCheck"">
-  <label class="form-check-label" for="slicePlaneCheck">Toggle slice plane in volume</label>
+  <label class=" form-check-label" for="slicePlaneCheck">Toggle slice plane in volume</label>
 </div>
 
 <!-- <div class="form-row">
@@ -122,11 +122,12 @@
   <input type="checkbox" class="form-check-input" onclick="console.log('Atom spheres toggled')" checked>
   <label class="form-check-label">Toggle atom position rendering</label>
 </div>
-<div id="radiusInputs">
-  <div class="row row-margin">
-    <div class="col-sm-4">
+
+<div id="atomControls">
+  <div class="form-row row-margin" name="atomControlRow">
+    <div class="col-sm-3">
       <div class="form-check">
-        <input type="checkbox" class="form-check-input" onclick="console.log('sliceCanvasToggle')" checked>
+        <input type="checkbox" class="form-check-input" checked>
         <label class="form-check-label">Sodium radius</label>
       </div>
     </div>
@@ -139,11 +140,12 @@
 </div>
 
 
+
 <script>
   $(document).ready(function () {
     console.log("Charge control element loaded")
-    
-    
+
+
 
     // Restricts input for each element in the set of matched elements to the given inputFilter.
     $.fn.inputFilter = function (inputFilter) {
@@ -160,7 +162,7 @@
     };
 
     // Setup input filters
-    
+
     $("#tfValue,#tfAlpha,#sliceHeightText,#sliceNormX,#sliceNormY,#sliceNormZ").inputFilter(function (value) {
       return /^(0?(\.\d*)?|1(\.0*)?)?$/.test(value) //allow float in range 0 to 1, or nothing.
     });
@@ -184,7 +186,7 @@
     $("#sliceHeightText").on("input keydown keyup mousedown mouseup select contextmenu drop", sliceHeightChanged);
     $("#sliceNormalForm").on("submit", sliceNormalChanged)
 
-    
+
 
   });
 </script>

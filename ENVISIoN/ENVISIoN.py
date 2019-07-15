@@ -66,6 +66,7 @@ class ENVISIoN():
         self.action_dict["set_atom_radius"] = lambda id, params: self.networkHandlers[id].set_atom_radius(*params)
         self.action_dict["hide_atoms"] = lambda id, params: self.networkHandlers[id].hide_atoms(*params)
         self.action_dict["get_atom_name"] = lambda id, params: self.networkHandlers[id].get_atom_name(*params)
+        self.action_dict["get_atom_names"] = lambda id, params: self.networkHandlers[id].get_atom_names(*params)
         self.action_dict["toggle_unitcell_canvas"] = lambda id, params: self.networkHandlers[id].toggle_unitcell_canvas(*params)
         self.action_dict["toggle_full_mesh"] = lambda id, params: self.networkHandlers[id].toggle_full_mesh(*params)
         self.action_dict["set_canvas_position"] = lambda id, params: self.networkHandlers[id].set_canvas_position(*params)

@@ -14,6 +14,8 @@ function startVisPressed(){
     // TODO load atom types
     activeVisualisation = "charge";
     send_data("envision request", ["start", "charge", ["charge", "/home/labb/HDF5/nacl_new.hdf5"]]);
+    send_data("envision request", ["get_bands", "charge", ["/home/labb/HDF5/nacl_new.hdf5"]])
+    send_data("envision request", ["get_atom_names", "charge", []])
 }
 
 function stopVisPressed(){
@@ -74,18 +76,6 @@ function updateMask(){
 }
 
 function addTfPoint() {
-    // Validate input first
-    // console.log("adding something HERE")
-    // if ($(this)[0].checkValidity() === false) {
-    //     event.preventDefault();
-    //     event.stopPropagation();
-    //     //Adds indications of what input is invalid.
-    //     $(this).addClass('was-validated');
-    //     return false
-    // }
-    // // Removes validity symbols if input accepted
-    // $("this").removeClass("was-validated")
-
     const valueInput = parseFloat($(this)[0][0].value);
     const alphaInput = parseFloat($(this)[0][1].value);
     const colorInput = $(this)[0][2].value;
@@ -142,7 +132,7 @@ function slicePlaneToggle(){
 
 function sliceHeightChanged(){
     let value = $(this).val();
-    $("#sliceHeightRange").val(value);
+    $("#sl$iceHeightRange").val(value);
     $("#sliceHeightText").val(value);
     if (value == "")
         value = 0.5;
@@ -159,8 +149,39 @@ function sliceNormalChanged(){
     return false;
 }
 
+// ----------------------------------
+// ----- Python response events -----
+// ----------------------------------
 
+function loadBands(bands){
+    $("#bandSelection").empty();
+    for (let i = 0; i < bands.length; i++) {
+        if (i == bands.length - 1)
+            $("#bandSelection").append("<option selected>"+bands[i]+"</option>")
+        else
+            $("#bandSelection").append("<option>"+bands[i]+"</option>")
+    }
+}
 
+function loadAtoms(atoms){
+    $("#atomControls").empty();
+    for (let i = 0; i < atoms.length; i++) {
+        $("#atomControls").append(
+            '<div class="form-row row-margin" name="atomControlRow">' +
+            '<div class="col-sm-3">' +
+            '<div class="form-check">' +
+            '<input type="checkbox" class="form-check-input" checked>' +
+            '<label class="form-check-label">' + atoms[i] + ' radius</label>' +
+            '</div>' +
+            '</div>' +
+            '<div class="col-sm-4">' +
+            '<div class="form-group">' +
+            '<input type="range" class="form-control-range" id="formControlRange">' +
+            '</div>' +
+            '</div>' +
+            '</div>')
+    }
+}
 // ----------------------------
 // ----- Helper functions -----
 // ----------------------------
@@ -179,4 +200,6 @@ function getTfPoints(){
     }
     return tfPoints;
 }
+
+
 

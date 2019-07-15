@@ -88,7 +88,9 @@ class UnitcellNetworkHandler(NetworkHandler):
             return self.set_atom_radius(0)
         else:
             return self.set_atom_radius(0.5)
-        
+    
+    def get_atom_names(self):
+        return [True, self.atomNames]
     
     def get_atom_name(self, index):
         return [True, self.atomNames[index]]
