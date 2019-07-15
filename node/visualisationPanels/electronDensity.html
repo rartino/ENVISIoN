@@ -19,9 +19,12 @@
       <label class="input-group-text" for="shadingModeSelection">Shading mode</label>
     </div>
     <select class="custom-select" id="shadingModeSelection">
-      <option selected>No shading</option>
-      <option>Blinn Phong</option>
-      <option>Something else</option>
+      <option>No shading</option>
+      <option>Ambient</option>
+      <option>Diffuse</option>
+      <option>Specular</option>
+      <option selected>Blinn Phong</option>
+      <option>Phong</option>
     </select>
   </div>
 </div>
@@ -45,8 +48,7 @@
 
 <h6>Transfer Function</h6>
 <div class="form-check">
-  <input type="checkbox" class="form-check-input" id="transperancyCheckbox" onclick="console.log('Transperancy toggled')"
-    checked>
+  <input type="checkbox" class="form-check-input" id="transperancyCheckbox" checked>
   <label class="form-check-label" for="transperancyCheckbox">Toggle transperancy before first point</label>
 </div>
 
@@ -124,7 +126,7 @@
     $("#bandSelection").on("change", bandChanged)
     $("#shadingModeSelection").on("change", shadingModeChanged)
     $("#backgroundColor1,#backgroundColor2,#backgroundStyleSelection").on("change", volumeBackgroundChanged)
-    // $("#backgroundStyleSelection").on("change", volumeBackgroundChanged)
+    $("#transperancyCheckbox").on("click", transperancyToggled)
 
     $("#tfAdder").on("submit", addTfPoint);
 

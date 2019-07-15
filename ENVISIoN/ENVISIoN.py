@@ -48,6 +48,7 @@ class ENVISIoN():
         # Volume visualisation actions
         self.action_dict["set_mask"] = lambda id, params: self.networkHandlers[id].set_mask(*params)
         self.action_dict["clear_tf"] = lambda id, params: self.networkHandlers[id].clear_tf(*params)
+        self.action_dict["set_tf_points"] = lambda id, params: self.networkHandlers[id].set_tf_points(*params)
         self.action_dict["add_tf_point"] = lambda id, params: self.networkHandlers[id].add_tf_point(*params)
         self.action_dict["remove_tf_point"] = lambda id, params: self.networkHandlers[id].remove_tf_point(*params)
         self.action_dict["set_tf_point_color"] = lambda id, params: self.networkHandlers[id].set_tf_point_color(*params)
@@ -110,12 +111,16 @@ class ENVISIoN():
         # Requests are on form [ACTION, HANDLER_ID, [PARAMETERS]]'
         action, handler_id, parameters = request
 
+
         # Check if action exist
         if not action in self.action_dict:
             return [request[0], False, "Unknown action"]
         # Check if id exist
         if not handler_id in self.networkHandlers and (action != "start" and action != "stop"):
             return [action, False, "Non-existant network handler instance"]
+
+        # if action!="start":
+        #     return [action, parameters]
 
         # try:
         # Runs the funtion with networkhandler id and request data as arguments.
