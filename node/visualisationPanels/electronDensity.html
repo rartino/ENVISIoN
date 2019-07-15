@@ -1,0 +1,147 @@
+<!-- Settings panel -->
+<h5 class="border-top">General settings</h5>
+<div class="row row-margin">
+  <div class="input-group col-sm-10">
+    <div class="input-group-prepend medium">
+      <label class="input-group-text" for="bandSelection">Selected band</label>
+    </div>
+    <select class="custom-select" id="bandSelection">
+      <option selected>final</option>
+      <option>1</option>
+    </select>
+  </div>
+</div>
+
+<h5 class="border-top">Volume rendering settings</h5>
+<div class="row row-margin">
+  <div class="input-group col-sm-10">
+    <div class="input-group-prepend medium">
+      <label class="input-group-text" for="shadingModeSelection">Shading mode</label>
+    </div>
+    <select class="custom-select" id="shadingModeSelection">
+      <option selected>No shading</option>
+      <option>Blinn Phong</option>
+    </select>
+  </div>
+</div>
+
+<div class="row row-margin">
+  <div class="input-group col-sm-10">
+    <div class="input-group-prepend medium">
+      <label class="input-group-text">Background</label>
+    </div>
+    <input class="form-control col-md-2" id="backgroundColor1" type="color" value="#ffffff" required>
+    <input class="form-control col-md-2" id="backgroundColor2" type="color" value="#000000" required>
+    <select class="custom-select" id="backgroundStyleSelection" onchange="console.log('bg style selected')">
+      <option selected>Linear gradient</option>
+      <option>other option</option>
+    </select>
+  </div>
+</div>
+
+<h6>Transfer Function</h6>
+<div class="form-check">
+  <input type="checkbox" class="form-check-input" id="transperancyCheckbox" onclick="console.log('Transperancy toggled')"
+    checked>
+  <label class="form-check-label" for="transperancyCheckbox">Toggle transperancy before first point</label>
+</div>
+
+<div id="tfPoints">
+  <div class="row row-margin">
+    <form class="needs-validation col-sm-10" id="tfAdder" novalidate>
+      <div class="input-group" id="addTFGroup">
+        <input type="text" class="form-control" placeholder="value [0-1]" id="tfValue" required>
+        <input type="text" class="form-control" placeholder="alpha [0-1]" id="tfAlpha" required>
+        <input class="form-control" type="color" value="#563d7c" required>
+        <div class="input-group-append">
+          <button class="btn btn-primary" type="submit" id="tfAddButton">+</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="row row-margin">
+  <div class="btn-group col-sm-8" role="group" aria-label="Basic example">
+    <button type="button" class="btn btn-secondary">Save TF</button>
+    <button type="button" class="btn btn-secondary">Load TF</button>
+  </div>
+</div>
+</div>
+
+<h5 class="border-top">Slice plane</h5>
+<div class="form-check">
+  <input type="checkbox" class="form-check-input" id="sliceCanvasCheck" onclick="console.log('sliceCanvasToggle')"
+    checked>
+  <label class="form-check-label" for="sliceCanvasCheck">Toggle slice rendering</label>
+</div>
+<div class="form-check">
+  <input type="checkbox" class="form-check-input" id="slicePlaneCheck" onclick="console.log('slicePlaneToggle')">
+  <label class="form-check-label" for="slicePlaneCheck">Toggle slice plane in volume</label>
+</div>
+
+<h6>Slice plane normal</h6>
+<div class="row row-margin">
+  <form class="input-group col-sm-8" id="sliceNormalForm">
+    <input type="text" class="form-control" placeholder="x" required>
+    <input type="text" class="form-control" placeholder="y" required>
+    <input type="text" class="form-control" placeholder="z" required>
+    <div class="input-group-append">
+      <button class="btn btn-primary" type="submit">&#x2713</button>
+    </div>
+</div>
+
+<h5 class="border-top">Atom rendering</h5>
+<div class="form-check">
+  <input type="checkbox" class="form-check-input" onclick="console.log('Atom spheres toggled')" checked>
+  <label class="form-check-label">Toggle atom position rendering</label>
+</div>
+<div id="radiusInputs">
+  <div class="row row-margin">
+    <div class="col-sm-4">
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" onclick="console.log('sliceCanvasToggle')" checked>
+        <label class="form-check-label">Sodium radius</label>
+      </div>
+    </div>
+    <div class="col-sm-4">
+      <div class="form-group">
+        <input type="range" class="form-control-range" id="formControlRange">
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  $(document).ready(function () {
+    console.log("Charge control element loaded")
+    $("#bandSelection").on("change", bandSelected)
+    $("#shadingModeSelection").on("change", shadingModeSelected)
+
+    $("#tfAdder").on("submit", addTfPoint);
+
+    // Restricts input for each element in the set of matched elements to the given inputFilter.
+    $.fn.inputFilter = function (inputFilter) {
+      return this.on("input keydown keyup mousedown mouseup select contextmenu drop", function () {
+        if (inputFilter(this.value)) {
+          this.oldValue = this.value;
+          this.oldSelectionStart = this.selectionStart;
+          this.oldSelectionEnd = this.selectionEnd;
+        } else if (this.hasOwnProperty("oldValue")) {
+          this.value = this.oldValue;
+          this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+        }
+      });
+    };
+
+    // Restrict input to digits by using a regular expression filter.
+    $("#tfValue").inputFilter(function (value) {
+      return /^(0?(\.\d*)?|1(\.0*)?)?$/.test(value) //allow float in range 0 to 1, or nothing.
+    });
+    $("#tfAlpha").inputFilter(function (value) {
+      return /^(0?(\.\d*)?|1(\.0*)?)?$/.test(value) //allow float in range 0 to 1, or nothing.
+    });
+
+  });
+</script>

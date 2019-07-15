@@ -1,0 +1,79 @@
+<!-- File input stuff -->
+<h4 class="border-bottom">Select data source</h4>
+<div class="form-check col">
+  <label class="form-check-label" for="vaspSourceCheckbox">
+    <input type="radio" class="form-check-input" id="vaspSourceCheckbox" name="sourceSelection" onclick="togglePathType()"
+      checked>VASP directory
+  </label>
+</div>
+<div class="form-check">
+  <label class="form-check-label">
+    <input type="radio" class="form-check-input" id="hdf5SourceCheckbox" name="sourceSelection" onclick="togglePathType()">HDF5
+    file
+  </label>
+</div>
+<div id="vaspSource" style="display:block">
+  <div class="row row-margin">
+    <div class="input-group col-md">
+      <div class="input-group-prepend large">
+        <span class="input-group-text" id="vaspLoadSpan">Load VASP directory</span>
+      </div>
+      <div class="custom-file">
+        <input type="file" class="custom-file-input" id="vaspLoadInput" aria-describedby="vaspLoadSpan" webkitdirectory
+          onchange="">
+        <label class="custom-file-label" for="vaspLoadInput">Choose directory</label>
+      </div>
+    </div>
+  </div>
+  <label>Save parsed HDF5 file (optional)</label>
+  <div class="row row-margin">
+    <div class="input-group col-md">
+      <div class="input-group-prepend large">
+        <span class="input-group-text" id="hdf5FileNamePrep">HDF5 file name</span>
+      </div>
+      <input type="text" class="form-control" id="hdf5FileNameInput" aria-describedby="hdf5FileNamePrep" placeholder="example.hdf5">
+    </div>
+  </div>
+  <div class="row row-margin">
+    <div class="input-group col-md">
+      <div class="input-group-prepend large">
+        <span class="input-group-text" id="hdfSaveSpan">Save parsed HDF5 file to</span>
+      </div>
+      <div class="custom-file">
+        <input type="file" class="custom-file-input" id="hdfSaveInput" aria-describedby="hdfSaveSpan" webkitdirectory
+          onchange="">
+        <label class="custom-file-label" for="hdfSaveInput">Choose directory</label>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="hdf5Source" style="display:none">
+  <div class="row row-margin">
+    <div class="input-group col-md">
+      <div class="input-group-prepend large">
+        <span class="input-group-text" id="hdf5LoadSpan">Load HDF5 file</span>
+      </div>
+      <div class="custom-file">
+        <input type="file" class="custom-file-input" id="hdf5LoadInput" aria-describedby="hdf5LoadSpan" webkitdirectory
+          onchange="">
+        <label class="custom-file-label" for="hdf5LoadInput">Choose directory</label>
+      </div>
+    </div>
+  </div>
+</div>
+<div style="margin-bottom:5px">
+  <button type="button" class="btn btn-primary">Start visualisation</button>
+  <button type="button" class="btn btn-secondary">Stop visualisation</button>
+</div>
+
+<script>
+  $(document).ready(function () {
+
+    // Bind events
+    $(".custom-file-input").on("change", pathInputChanged);
+
+    $("#vaspSource").css("display", "block")
+    $("#vaspSourceCheckbox").on("change", togglePathType)
+    $("#hdf5SourceCheckbox").on("change", togglePathType)
+  });
+</script>

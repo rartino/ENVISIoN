@@ -1,105 +1,175 @@
-<!-- 
-Created by Jesper Ericsson
-
-To the extent possible under law, the person who associated CC0
-with the alterations to this file has waived all copyright and related
-or neighboring rights to the alterations made to this file.
-
-You should have received a copy of the CC0 legalcode along with
-this work.  If not, see
-<http://creativecommons.org/publicdomain/zero/1.0/>. 
--->
-
 <!DOCTYPE html>
-<html>
-<!-- <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">  -->
+<html lang="en">
+
 <head>
-<!-- <style>
-        .dropbtn {
-            background-color: #4CAF50;
-            color: white;
-            padding: 16px;
-            font-size: 16px;
-            border: none;
-        }
-        
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #f1f1f1;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
-        }
-        
-        .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
-        
-        .dropdown-content a:hover {background-color: #ddd;}
-        
-        .dropdown:hover .dropdown-content {display: block;}
-        
-        .dropdown:hover .dropbtn {background-color: #3e8e41;}
-</style> -->
-<script type="text/javascript" src="pythonInterface.js"></script>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- <link rel="stylesheet" href="tabs.css"> -->
+  <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script> -->
+
+
+  <script>let $ = require('jquery');</script>
+  <script>require('popper.js');</script>
+  <script>require('bootstrap');</script>
+  <script src="eventCallbacks.js"></script>
+  <script src="pythonInterface.js"></script>
+  
+  
+  <!-- <script defer src="https://use.fontawesome.com/releases/v5.6.3/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY"
+    crossorigin="anonymous"></script>
+  <script defer src="https://use.fontawesome.com/releases/v5.6.3/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ"
+    crossorigin="anonymous"></script> -->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+
 </head>
 
 <body>
 
-<h1>ENVISIoN 0.0000...001</h1>
-<p>
-    <button onclick="start_python_process()">Start python process </button>
-</p>
-<p> 
-    <input type="checkbox" onclick="LOG_PYTHON_PRINT=!LOG_PYTHON_PRINT"> Log python print.<br>
-    <input type="checkbox" onclick="LOG_PYTHON_ERROR=!LOG_PYTHON_ERROR" checked> Log python errors.<br>
-    <input type="checkbox" onclick="LOG_SENT_PACKETS=!LOG_SENT_PACKETS" checked> Log sent packets.<br> 
-    <input type="checkbox" onclick="LOG_RECIEVED_PACKETS=!LOG_RECIEVED_PACKETS" checked> Log recieved packets.<br> 
-</p>
 
-Enter command: <input type="text" id="command_line" value="" size="40">
-<button onclick="custom_action()">execute</button>
+  <div class="wrapper">
+    <!-- Sidebar  -->
+    <nav id="sidebar">
+      <div class="sidebar-header">
+        <h3>ENVISI<i class="fas fa-atom"></i>N</h3>
+      </div>
+      <div class="sidebar-header collapsed">
+          <h3><i class="fas fa-atom"></i></h3>
+      </div>
 
-<p>
-    Packet tests.
-    <button onclick="send_test_packets(1)">1 packet </button>
-    <button onclick="send_test_packets(100)">100 packets </button>
-    <button onclick="send_test_packets(1000)">1000 packets </button>
-    <button onclick="send_test_packets(10000)">10000 packets </button>
-</p>
+      <ul class="list-unstyled components">
+        <!-- <p>Visualisations</p> -->
+        <li id="visDropDown">
+          <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+            <i class="fas fa-eye"></i>
+            Visualisations</a>
+          <ul class="collapse list-unstyled show" id="homeSubmenu">
+            <li id="chargeLink" class="active">
+              <a href="#">Electron density</a>
+            </li>
+            <li id="elfLink">
+              <a href="#">Electron localisation function</a>
+            </li>
+            <li id="parchgLink">
+              <a href="#">Partial charge density</a>
+            </li>
+            <li id="bandLink">
+              <a href="#">Bandstructure</a>
+            </li>
+            <li id="dosLink">
+              <a href="#">Density of states</a>
+            </li>
+            <li id="pcfLink">
+              <a href="#">Pair correlation function</a>
+            </li>
+          </ul>
+        </li>
+        <li id="parserLink">
+          <a href="#">
+            <i class="fas fa-pen-nib"></i>
+            Parser
+          </a>
+        </li>
+        <li id="aboutLink">
+          <a href="#">
+            <i class="far fa-question-circle"></i>
+            About
+          </a>
+        </li>
+      </ul>
 
-<p>
-    <button onclick="start_charge_vis()">Charge visualization </button>
-    <button onclick="stop_vis()">Disable visualization </button>
-</p>
-<p>
-    <button onclick="random_color()">Add random color </button>
-    <button onclick="extra_button()">extra button </button>
-</p>
+    </nav>
 
-<p>
-    <button onclick="start_second_charge_vis()">Start second vis </button>
-    <button onclick="random_color_second()">Random color second </button>
-</p>
+    <!-- Page Content  -->
+    <div id="content">
 
-<!-- <div class="dropdown">
-    <button class="dropbtn">Dropdown</button>
-    <div class="dropdown-content">
-        <a href="#">Link 1</a>
-        <a href="#">Link 2</a>
-        <a href="#">Link 3</a>
+      <div class="container-fluid">
+        <!-- Dynamic page content can go here. -->
+          <div id="loadPanelWrapper"></div>
+          <div class="row row-margin">____</div>
+          <div id="pageContentWrapper"></div>
+
+      </div>
+
+
     </div>
-</div>  -->
+  </div>
+  <!-- 
+  <div class="container-fluid">
+    <div class="row">
+
+      <main class="col-10">
+        <div id=fileLoadWrapper></div>
+        <div id="pageContentWrapper"></div>
+      </main>
+    </div>
+
+  </div> -->
+
+
+  <script>
+    $("#loadPanelWrapper").load("loadPanel.html")
+    $("#pageContentWrapper").load("visualisationPanels/electronDensity.html")
+
+    $(document).ready(function () {
+
+      // Bind link clicks to reloading part of page.
+      $("#chargeLink").on("click", function(){
+        $("li").removeClass("active");
+        $(this).addClass("active");
+        $("#loadPanelWrapper").load("loadPanel.html")
+        $("#pageContentWrapper").load("visualisationPanels/electronDensity.html")
+      });
+      $("#elfLink").on("click", function(){
+        $("li").removeClass("active");
+        $(this).addClass("active");
+        $("#loadPanelWrapper").load("loadPanel.html")
+        $("#pageContentWrapper").load("visualisationPanels/elf.html")
+      });
+      $("#parchgLink").on("click", function(){
+        $("li").removeClass("active");
+        $(this).addClass("active");
+        $("#loadPanelWrapper").load("loadPanel.html")
+        $("#pageContentWrapper").load("visualisationPanels/parchg.html")
+      });
+      $("#bandLink").on("click", function(){
+        $("li").removeClass("active");
+        $(this).addClass("active");
+        $("#loadPanelWrapper").load("loadPanel.html")
+        $("#pageContentWrapper").load("visualisationPanels/bandstructure.html");
+      });
+      $("#dosLink").on("click", function(){
+        $("li").removeClass("active");
+        $(this).addClass("active");
+        $("#loadPanelWrapper").load("loadPanel.html")
+        $("#pageContentWrapper").load("visualisationPanels/dos.html")
+      });
+      $("#pcfLink").on("click", function(){
+        $("li").removeClass("active");
+        $(this).addClass("active");
+        $("#loadPanelWrapper").load("loadPanel.html")
+        $("#pageContentWrapper").load("visualisationPanels/pcf.html")
+      });
+      $("#aboutLink").on("click", function(){
+        $("li").removeClass("active");
+        $(this).addClass("active");
+        $("#loadPanelWrapper").load("about.html")
+        $("#pageContentWrapper").load("about.html")
+      });
+      $("#parserLink").on("click", function(){
+        $("li").removeClass("active");
+        $(this).addClass("active");
+        $("#loadPanelWrapper").load("parserPanel.html")
+        $("#pageContentWrapper").load("parserPanel.html")
+      });
+    });
+  </script>
 
 
 </body>
-</html> 
+
+</html>
