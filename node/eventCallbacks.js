@@ -61,27 +61,25 @@ function volumeBackgroundChanged(){
     send_data("envision request", ["set_volume_background", "charge", [color1, color2, styleIndex]])
 }
 
-function transperancyToggled(){
-    let points = getTfPoints();
-    if (points.length <= 0)
-        return;
-    console.log(points[0][0]);
-    send_data("envision request", ["set_mask", "charge", [points[0][0], 1]]);
+function updateMask(){
+    if (!$("#transperancyCheckbox").is(':checked'))
+        send_data("envision request", ["set_mask", "charge", [0, 1]]);
+    else if (getTfPoints().length > 0)
+        send_data("envision request", ["set_mask", "charge", [getTfPoints()[0][0], 1]]);
 }
-
-
 
 function addTfPoint() {
     // Validate input first
-    if ($(this)[0].checkValidity() === false) {
-        event.preventDefault();
-        event.stopPropagation();
-        //Adds indications of what input is invalid.
-        $(this).addClass('was-validated');
-        return false
-    }
-    // Removes validity symbols if input accepted
-    $("this").removeClass("was-validated")
+    // console.log("adding something HERE")
+    // if ($(this)[0].checkValidity() === false) {
+    //     event.preventDefault();
+    //     event.stopPropagation();
+    //     //Adds indications of what input is invalid.
+    //     $(this).addClass('was-validated');
+    //     return false
+    // }
+    // // Removes validity symbols if input accepted
+    // $("this").removeClass("was-validated")
 
     const valueInput = parseFloat($(this)[0][0].value);
     const alphaInput = parseFloat($(this)[0][1].value);
@@ -107,7 +105,7 @@ function addTfPoint() {
         let rowNode = $("#tfPoints")[0].children[0];
         $(elementString).insertBefore($(rowNode))
     }
-    else if (points.find(function(point){point[0] == valueInput}) != undefined){
+    else if (points.find(function(point){return point[0] == valueInput}) != undefined){
         console.log("point already exist");
     }
     else{
@@ -119,13 +117,37 @@ function addTfPoint() {
     }
     $('[name="tfPoint"]').on("submit", removeTfPoint);
     send_data("envision request", ["set_tf_points", "charge", [getTfPoints()]]);
-    
+    updateMask()
     return false;
 }
 
 function removeTfPoint() {
     $(this).parent().remove();
     send_data("envision request", ["set_tf_points", "charge", [getTfPoints()]]);
+    return false;
+}
+
+function sliceCanvasToggle(){
+    send_data("envision request", ["toggle_slice_canvas", "charge", [$("#sliceCanvasCheck").is(":checked")]]);
+}
+
+function slicePlaneToggle(){
+    send_data("envision request", ["toggle_slice_plane", "charge", [$("#slicePlaneCheck").is(":checked")]]);
+}
+
+function sliceHeightChanged(){
+    let value = $(this).val();
+    $("#sliceHeightRange").val(value);
+    $("#sliceHeightText").val(value);
+    if (value == "")
+        value = 0.5;
+    else
+        value = parseFloat(value);
+    send_data("envision request", ["set_plane_height", "charge", [value]]);
+}
+
+function sliceNormalChanged(){
+    
     return false;
 }
 
@@ -149,3 +171,4 @@ function getTfPoints(){
     }
     return tfPoints;
 }
+
