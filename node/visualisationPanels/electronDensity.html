@@ -1,4 +1,9 @@
 <!-- Settings panel -->
+<h2 class="border-bottom">Electron Density</h2>
+
+<div id="loadPanel"></div>
+
+
 <h5 class="border-top">General settings</h5>
 <div class="row row-margin">
   <div class="input-group col-sm-10">
@@ -142,6 +147,8 @@
 
 
 <script>
+  $("#loadPanel").load("visualisationPanels/loadPanel.html")
+
   activeVisualisation = "charge"
   hdf5_path = "/home/labb/HDF5/nacl_new.hdf5"
 

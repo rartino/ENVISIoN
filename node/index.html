@@ -86,86 +86,61 @@
     </nav>
 
     <!-- Page Content  -->
-    <div id="content">
-
-      <div class="container-fluid">
-        <!-- Dynamic page content can go here. -->
-          <div id="loadPanelWrapper"></div>
-          <div class="row row-margin">____</div>
-          <div id="pageContentWrapper"></div>
-
-      </div>
-
+    <div id="content" class="container-fluid">
 
     </div>
   </div>
-  <!-- 
-  <div class="container-fluid">
-    <div class="row">
-
-      <main class="col-10">
-        <div id=fileLoadWrapper></div>
-        <div id="pageContentWrapper"></div>
-      </main>
-    </div>
-
-  </div> -->
 
 
   <script>
-    $("#loadPanelWrapper").load("loadPanel.html")
-    $("#pageContentWrapper").load("visualisationPanels/electronDensity.html")
+    
+    // Load main page content
+    $("#content").load("visualisationPanels/electronDensity.html");
+
     start_python_process()
     $(document).ready(function () {
+
 
       // Bind link clicks to reloading part of page.
       $("#chargeLink").on("click", function(){
         $("li").removeClass("active");
         $(this).addClass("active");
-        $("#loadPanelWrapper").load("loadPanel.html")
-        $("#pageContentWrapper").load("visualisationPanels/electronDensity.html")
+        $("#content").load("visualisationPanels/electronDensity.html")
       });
       $("#elfLink").on("click", function(){
         $("li").removeClass("active");
         $(this).addClass("active");
-        $("#loadPanelWrapper").load("loadPanel.html")
-        $("#pageContentWrapper").load("visualisationPanels/elf.html")
+        $("#content").load("visualisationPanels/elf.html")
       });
       $("#parchgLink").on("click", function(){
         $("li").removeClass("active");
         $(this).addClass("active");
-        $("#loadPanelWrapper").load("loadPanel.html")
-        $("#pageContentWrapper").load("visualisationPanels/parchg.html")
+        $("#content").load("visualisationPanels/parchg.html")
       });
       $("#bandLink").on("click", function(){
         $("li").removeClass("active");
         $(this).addClass("active");
-        $("#loadPanelWrapper").load("loadPanel.html")
-        $("#pageContentWrapper").load("visualisationPanels/bandstructure.html");
+        $("#content").load("visualisationPanels/bandstructure.html");
       });
       $("#dosLink").on("click", function(){
         $("li").removeClass("active");
         $(this).addClass("active");
-        $("#loadPanelWrapper").load("loadPanel.html")
-        $("#pageContentWrapper").load("visualisationPanels/dos.html")
+        $("#content").load("visualisationPanels/dos.html")
       });
       $("#pcfLink").on("click", function(){
         $("li").removeClass("active");
         $(this).addClass("active");
-        $("#loadPanelWrapper").load("loadPanel.html")
-        $("#pageContentWrapper").load("visualisationPanels/pcf.html")
+        $("#content").load("visualisationPanels/pcf.html")
       });
       $("#aboutLink").on("click", function(){
         $("li").removeClass("active");
         $(this).addClass("active");
-        $("#loadPanelWrapper").load("about.html")
-        $("#pageContentWrapper").load("about.html")
+        $("#content").load("about.html")
       });
       $("#parserLink").on("click", function(){
         $("li").removeClass("active");
         $(this).addClass("active");
-        $("#loadPanelWrapper").load("parserPanel.html")
-        $("#pageContentWrapper").load("parserPanel.html")
+        $("#content").load("parserPanel.html")
       });
     });
   </script>
