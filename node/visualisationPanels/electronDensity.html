@@ -142,8 +142,11 @@
 
 
 <script>
+  activeVisualisation = "charge"
+  hdf5_path = "/home/labb/HDF5/nacl_new.hdf5"
+
+
   $(document).ready(function () {
-    console.log("Charge control element loaded")
 
 
 
@@ -187,6 +190,7 @@
     $("#sliceNormalForm").on("submit", sliceNormalChanged)
 
 
+    console.log("Charge control element loaded")
 
   });
 </script>
