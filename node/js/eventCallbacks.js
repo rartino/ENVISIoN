@@ -4,18 +4,23 @@
 // require('bootstrap')
 
 var activeVisualisation = "";
+var hdf5_path = "";
 
-
+const charge_hdf5 = "/home/labb/HDF5/nacl_new.hdf5";
 // --------------------------------
 // ----- File selection panel -----
 // --------------------------------
 
 function startVisPressed(){
     // TODO load atom types
-    activeVisualisation = "charge";
-    send_data("envision request", ["start", "charge", ["charge", "/home/labb/HDF5/nacl_new.hdf5"]]);
-    send_data("envision request", ["get_bands", "charge", ["/home/labb/HDF5/nacl_new.hdf5"]])
-    send_data("envision request", ["get_atom_names", "charge", []])
+    if (activeVisualisation == ""){
+        console.log("No visualisation type selected")
+        return
+    }
+
+    send_data("envision request", ["start", activeVisualisation, [activeVisualisation, hdf5_path]]);
+    send_data("envision request", ["get_bands", activeVisualisation, [hdf5_path]])
+    send_data("envision request", ["get_atom_names", activeVisualisation, []])
 }
 
 function stopVisPressed(){
