@@ -11,19 +11,24 @@ const charge_hdf5 = "/home/labb/HDF5/nacl_new.hdf5";
 // ----- File selection panel -----
 // --------------------------------
 
-function startVisPressed(){
+function startVisPressed() {
     // TODO load atom types
-    if (activeVisualisation == ""){
+    if (activeVisualisation == "") {
         console.log("No visualisation type selected")
         return
     }
 
     send_data("envision request", ["start", activeVisualisation, [activeVisualisation, hdf5_path]]);
-    send_data("envision request", ["get_bands", activeVisualisation, [hdf5_path]])
-    send_data("envision request", ["get_atom_names", activeVisualisation, []])
+    // intializeChargePanel();
+    if (activeVisualisation == "charge")
+        intializeChargePanel();
+    else if (activeVisualisation == "elf")
+        initializeELFPanel();
+    // send_data("envision request", ["get_bands", activeVisualisation, [hdf5_path]])
+    // send_data("envision request", ["get_atom_names", activeVisualisation, []])
 }
 
-function stopVisPressed(){
+function stopVisPressed() {
     send_data("envision request", ["stop", "-", [true]]);
 }
 
@@ -53,17 +58,17 @@ function togglePathType() {
 // ----- Electron density panel -----
 // ----------------------------------
 
-function bandChanged(){
+function bandChanged() {
     let selection = $("#bandSelection").val();
     send_data("envision request", ["set_active_band", activeVisualisation, [selection]]);
 }
 
-function shadingModeChanged(){
+function shadingModeChanged() {
     let selectionIndex = $(this)[0].selectedIndex;
     send_data("envision request", ["set_shading_mode", activeVisualisation, [selectionIndex]]);
 }
 
-function volumeBackgroundChanged(){
+function volumeBackgroundChanged() {
     let color1 = hexToRGB($("#backgroundColor1").val());
     let color2 = hexToRGB($("#backgroundColor2").val());
     color1.push(1);
@@ -73,7 +78,7 @@ function volumeBackgroundChanged(){
     send_data("envision request", ["set_volume_background", activeVisualisation, [color1, color2, styleIndex]])
 }
 
-function updateMask(){
+function updateMask() {
     if (!$("#transperancyCheckbox").is(':checked'))
         send_data("envision request", ["set_mask", activeVisualisation, [0, 1]]);
     else if (getTfPoints().length > 0)
@@ -86,56 +91,28 @@ function addTfPoint() {
     const colorInput = $(this)[0][2].value;
 
     // Add a new element for the added point.
-    let elementString = (
-        '<div class="row row-margin">' +
-        '<form class="col-sm-10" name="tfPoint">' +
-        '<div class="input-group">' +
-        '<input type="text" class="form-control" value="' + valueInput + '" disabled>' +
-        '<input type="text" class="form-control" value="' + alphaInput + '" disabled>' +
-        '<input class="form-control" type="color" value="' + colorInput + '" disabled>' +
-        '<div class="input-group-append">' +
-        '<button class="btn btn-primary" type="submit">-</button>' +
-        '</div>' +
-        '</div>' +
-        '</form>' +
-        '</div>');
-
-    let points = getTfPoints();
-    if (points.length == 0){
-        let rowNode = $("#tfPoints")[0].children[0];
-        $(elementString).insertBefore($(rowNode))
-    }
-    else if (points.find(function(point){return point[0] == valueInput}) != undefined){
-        console.log("point already exist");
-    }
-    else{
-        let insertionIndex = points.findIndex(function(point){return point[0] > valueInput});
-        if (insertionIndex == -1)
-            insertionIndex = points.length;
-        let rowNode = $("#tfPoints")[0].children[insertionIndex];
-        $(elementString).insertBefore($(rowNode))
-    }
-    $('[name="tfPoint"]').on("submit", removeTfPoint);
+    addTfPointElement(valueInput, alphaInput, colorInput);
+    
     send_data("envision request", ["set_tf_points", activeVisualisation, [getTfPoints()]]);
     updateMask()
     return false;
 }
 
 function removeTfPoint() {
-    $(this).parent().remove();
+    $(this).remove();
     send_data("envision request", ["set_tf_points", activeVisualisation, [getTfPoints()]]);
     return false;
 }
 
-function sliceCanvasToggle(){
+function sliceCanvasToggle() {
     send_data("envision request", ["toggle_slice_canvas", activeVisualisation, [$("#sliceCanvasCheck").is(":checked")]]);
 }
 
-function slicePlaneToggle(){
+function slicePlaneToggle() {
     send_data("envision request", ["toggle_slice_plane", activeVisualisation, [$("#slicePlaneCheck").is(":checked")]]);
 }
 
-function sliceHeightChanged(){
+function sliceHeightChanged() {
     let value = $(this).val();
     $("#sl$iceHeightRange").val(value);
     $("#sliceHeightText").val(value);
@@ -146,7 +123,7 @@ function sliceHeightChanged(){
     send_data("envision request", ["set_plane_height", activeVisualisation, [value]]);
 }
 
-function sliceNormalChanged(){
+function sliceNormalChanged() {
     let x = parseFloat($(this)[0].children[0].value);
     let y = parseFloat($(this)[0].children[1].value);
     let z = parseFloat($(this)[0].children[2].value);
@@ -158,17 +135,17 @@ function sliceNormalChanged(){
 // ----- Python response events -----
 // ----------------------------------
 
-function loadBands(bands){
+function loadBands(bands) {
     $("#bandSelection").empty();
     for (let i = 0; i < bands.length; i++) {
         if (i == bands.length - 1)
-            $("#bandSelection").append("<option selected>"+bands[i]+"</option>")
+            $("#bandSelection").append("<option selected>" + bands[i] + "</option>")
         else
-            $("#bandSelection").append("<option>"+bands[i]+"</option>")
+            $("#bandSelection").append("<option>" + bands[i] + "</option>")
     }
 }
 
-function loadAtoms(atoms){
+function loadAtoms(atoms) {
     $("#atomControls").empty();
     for (let i = 0; i < atoms.length; i++) {
         $("#atomControls").append(
@@ -187,11 +164,21 @@ function loadAtoms(atoms){
             '</div>')
     }
 }
+
+function loadTFPoints(points) {
+    $("#tfPoints").empty();
+    for (let i = 0; i < points.length; i++){
+        let hexColor = rgbToHex(points[i][1][0], points[i][1][1], points[i][1][2])
+        addTfPointElement(points[i][0], points[i][1][0], hexColor)
+    }
+}
+
 // ----------------------------
 // ----- Helper functions -----
 // ----------------------------
 
-function getTfPoints(){
+function getTfPoints() {
+    // Return a list containing current tfPonts
     let tfPoints = [];
     for (let i = 0; i < $("#tfPoints")[0].children.length; i++) {
         let formNode = $("#tfPoints")[0].children[i].children[0];
@@ -206,5 +193,51 @@ function getTfPoints(){
     return tfPoints;
 }
 
+function addTfPointElement(value, alpha, color) {
+    // Adds an elemend representing the point to the list in the interface.
+    let points = getTfPoints();
+    if (points.find(function (point) { return point[0] == value }) != undefined) {
+        console.log("Point with value already already exist.");
+        return false
+    }
 
+    let pointElement = $(
+        '<div class="row row-margin">' +
+        '<form class="col-sm-10" name="tfPoint">' +
+        '<div class="input-group">' +
+        '<input type="text" class="form-control" value="' + value + '" disabled>' +
+        '<input type="text" class="form-control" value="' + alpha + '" disabled>' +
+        '<input class="form-control" type="color" value="' + color + '" disabled>' +
+        '<div class="input-group-append">' +
+        '<button class="btn btn-primary" type="submit">-</button>' +
+        '</div>' +
+        '</div>' +
+        '</form>' +
+        '</div>');
 
+    let insertionIndex = points.findIndex(function (point) { return point[0] > value });
+    if (insertionIndex == -1)
+        $("#tfPoints").append(pointElement);
+    else {
+        pointElement.insertBefore($("#tfPoints")[0].children[insertionIndex])
+    }
+    pointElement.on("submit", removeTfPoint);
+}
+
+// ---------------------------------
+// ----- Panel initializations -----
+// ---------------------------------
+
+function intializeChargePanel() {
+    console.log("CHG")
+    send_data("envision request", ["get_bands", "charge", []])
+    send_data("envision request", ["get_atom_names", "charge", []])
+    send_data("envision request", ["get_tf_points", "charge", []])
+}
+
+function initializeELFPanel() {
+    console.log("ELF")
+    send_data("envision request", ["get_bands", "elf", []])
+    send_data("envision request", ["get_atom_names", "elf", []])
+    send_data("envision request", ["get_tf_points", "elf", []])
+}
