@@ -26,7 +26,7 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by Anton Hjert
+#  Alterations to this file by Anton Hjert and Abdullatif Ismail
 #
 #  To the extent possible under law, the person who associated CC0
 #  with the alterations to this file has waived all copyright and related
@@ -44,8 +44,8 @@ path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect
 sys.path.insert(0, os.path.expanduser(path_to_current_folder+'/..'))
 import re
 import h5py
-import numpy as np
 from h5writer import _write_bandstruct
+from fermiEnergy import fermi_energy_parser
 
 line_reg_int = re.compile(r'^( *[+-]?[0-9]+){3} *$')
 line_reg_float = re.compile(r'( *[+-]?[0-9]*\.[0-9]+(?:[eE][+-]?[0-9]+)? *){4}')
@@ -64,7 +64,7 @@ def bandstruct_parse(file_object):
 	-------
 	band_data : list
 		list containing all the band data
-		kval_list : list
+	kval_list : list
 		list containing all the K-points
 
 	"""
@@ -77,7 +77,6 @@ def bandstruct_parse(file_object):
 	for line in file_object:
 		match_float = line_reg_float.match(line)
 		match_int = line_reg_int.match(line)
-
 		if match_int:
 			data = [int(v) for v in line.split()]
 			band_data = [[] for _ in range(data[2])]
@@ -120,6 +119,11 @@ def bandstructure(h5file, vasp_dir):
 	try:
 		with open(os.path.join(vasp_dir, 'EIGENVAL'), 'r') as f:
 			band_data, kval_list = bandstruct_parse(f)
+			# Get's the Fermi energy as an int if the DOSCAR file exist.
+			fermi_energy = fermi_energy_parser(vasp_dir)
+			for band in band_data:
+				for data in band:
+					data -= fermi_energy
 			if not band_data:
 				print('EIGENVAL does not contain any data for band structure. Skipping.')
 				return False

@@ -78,7 +78,6 @@ const ProcessorInfo LinePlotProcessor::getProcessorInfo() const {
 LinePlotProcessor::LinePlotProcessor()
     : Processor()
     , dataFrameInport_("dataFrameInport")
-    , pointInport_("pointInport")
     , meshOutport_("outport")
     , xSelectionProperty_("xSelectionProperty", "Select X data")
     , ySelectionProperty_("ySelectionProperty", "Select Y data")
@@ -114,7 +113,6 @@ LinePlotProcessor::LinePlotProcessor()
     , labels_("labels", "Lable Outport") {
 
     addPort(dataFrameInport_);
-    addPort(pointInport_);
     addPort(meshOutport_);
     addPort(labels_);
 
@@ -143,7 +141,6 @@ LinePlotProcessor::LinePlotProcessor()
     addProperty(text_colour_);
     addProperty(label_number_);
 
-    pointInport_.setOptional(true);
     boolYSelection_.set(false);
     groupYSelection_.setVisible(false);
     groupYSelection_.set("1");
@@ -280,16 +277,7 @@ void LinePlotProcessor::process() {
             std::istringstream tmpIss(indexStr);
             tmpIss >> index;
             if (index < (int) data.size()) {
-                if (pointInport_.isConnected()) {
-                    std::shared_ptr <TemplateColumn<float>> yTmp =
-                            std::make_shared < TemplateColumn < float >> (data.at(index)->getHeader());
-                    for (size_t j = 0; j < data.at(index)->getSize(); j++) {
-                        yTmp->add(data.at(index)->getAsDouble(j) - pointInport_.getData()->value);
-                    }
-                    yData.push_back(yTmp);
-                } else {
-                    yData.push_back(data.at(index));
-                }
+                yData.push_back(data.at(index));
             }
         }
         xSize = xData->getSize();
@@ -327,15 +315,7 @@ void LinePlotProcessor::process() {
                 x = data.at(i);
             }
             if (ySelectionProperty_.getSelectedIdentifier() == data.at(i)->getHeader()) {
-                if (pointInport_.isConnected()) {
-                    std::shared_ptr<TemplateColumn<float>> yTmp = std::make_shared<TemplateColumn<float>>(data.at(i)->getHeader());
-                    for (size_t j = 0; j < data.at(i)->getSize(); j++) {
-                        yTmp->add(data.at(i)->getAsDouble(j) - pointInport_.getData()->value);
-                    }
-                    y = yTmp;
-                } else {
-                    y = data.at(i);
-                }
+                y = data.at(i);
             }
         }
         // Set local boundries for one vs one plot.
@@ -376,15 +356,7 @@ void LinePlotProcessor::process() {
             if (xSelectionProperty_.getSelectedIdentifier() == data.at(i)->getHeader()) {
                 xData = data.at(i);
             } else {
-                if (pointInport_.isConnected()) {
-                    std::shared_ptr<TemplateColumn<float>> yTmp = std::make_shared<TemplateColumn<float>>(data.at(i)->getHeader());
-                    for (size_t j = 0; j < data.at(i)->getSize(); j++) {
-                        yTmp->add(data.at(i)->getAsDouble(j) - pointInport_.getData()->value);
-                    }
-                    yData.push_back(yTmp);
-                } else {
                     yData.push_back(data.at(i));
-                }
             }
         }
         xSize = xData->getSize();
