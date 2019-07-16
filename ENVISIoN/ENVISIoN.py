@@ -75,6 +75,22 @@ class ENVISIoN():
         self.action_dict["get_bands"] = lambda id, params: self.networkHandlers[id].get_available_bands(*params)
         self.action_dict["set_active_band"] = lambda id, params: self.networkHandlers[id].set_active_band(*params)
 
+        # Line plot
+        self.action_dict["set_x_range"] = lambda id, params: self.networkHandlers[id].set_x_range(*params)
+        self.action_dict["set_y_range"] = lambda id, params: self.networkHandlers[id].set_y_range(*params)
+        self.action_dict["toggle_vertical_line"] = lambda id, params: self.networkHandlers[id].toggle_vertical_line(*params)
+        self.action_dict["set_vertical_line_x"] = lambda id, params: self.networkHandlers[id].set_vertical_line_x(*params)
+        self.action_dict["toggle_grid"] = lambda id, params: self.networkHandlers[id].toggle_grid(*params)
+        self.action_dict["set_grid_size"] = lambda id, params: self.networkHandlers[id].set_grid_size(*params)
+        self.action_dict["toggle_x_label"] = lambda id, params: self.networkHandlers[id].toggle_x_label(*params)
+        self.action_dict["toggle_y_label"] = lambda id, params: self.networkHandlers[id].toggle_y_label(*params)
+        self.action_dict["set_n_labels"] = lambda id, params: self.networkHandlers[id].set_n_labels(*params)
+        self.action_dict["toggle_all_y"] = lambda id, params: self.networkHandlers[id].toggle_all_y(*params)
+        self.action_dict["get_available_datasets"] = lambda id, params: self.networkHandlers[id].get_available_datasets(*params)
+        # self.action_dict["set_y_range"] = lambda id, params: self.networkHandlers[id].set_y_range(*params)
+        # self.action_dict["set_y_range"] = lambda id, params: self.networkHandlers[id].set_y_range(*params)
+
+
         self.visualisationTypes = {
             "charge": ChargeNetworkHandler,
             "unitcell": UnitcellNetworkHandler,
