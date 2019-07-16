@@ -71,6 +71,8 @@ class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         if len(self.get_available_bands(hdf5_path)) == 0:
             raise AssertionError("No valid bands in that file")
         
+        self.hdf5_path = hdf5_path
+
         # Setup default elf settings
         self.setup_elf_network(hdf5_path)
         self.set_active_band('final')
@@ -80,8 +82,10 @@ class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
             self.toggle_full_mesh(False)
             self.toggle_unitcell_canvas(False)
     
-    def get_available_bands(self, path):
+    def get_available_bands(self, path=None):
     # Return the keys to the available datasets in hdf5-file
+        if path == None:
+                path = self.hdf5_path
         with h5py.File(path, 'r') as file:
             band_keys = []
             for key in file.get("ELF").keys():

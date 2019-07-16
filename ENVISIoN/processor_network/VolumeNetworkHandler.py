@@ -156,7 +156,7 @@ class VolumeNetworkHandler(NetworkHandler):
         
         Raycaster = self.get_processor('Raycaster')
         tf_property = Raycaster.isotfComposite.transferFunction
-        point_list = [[x.pos, x.color] for x in tf_property.getValues()]
+        point_list = [[x.pos, [x.color[0], x.color[1], x.color[2], x.color[3]]] for x in tf_property.getValues()]
         return [True, point_list]
 
 # ---- Other Properties ----
