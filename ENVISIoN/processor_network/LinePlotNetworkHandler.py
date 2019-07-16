@@ -32,7 +32,7 @@ class LinePlotNetworkHandler(NetworkHandler):
 
     def toggle_all_y(self, enable):
         plotter = self.get_processor("Line plot")
-        plotter.allYSelection.value = True
+        plotter.allYSelection.value = enable
 
     def set_y_selection(self, selection):
         plotter = self.get_processor("Line plot")
@@ -50,6 +50,19 @@ class LinePlotNetworkHandler(NetworkHandler):
 
     def set_title_color(self):
         pass
+
+    def set_x_range(self, xMax, xMin):
+        plotter = self.get_processor("Line plot")
+        plotter.x_range.value = inviwopy.glm.vec2(xMin, xMax)
+        
+
+        
+    def get_dataset_list(self):
+        Plotter = self.get_processor("Line plot")
+        return [True, Plotter.ySelectionProperty.identifiers]
+    
+    
+
 # ------------------------------------------
 # ------- Network building functions -------
 

@@ -3,6 +3,13 @@
     margin-bottom: 5px;
 }
 
+/* Input group pre-, append sizes */
+.input-group>.input-group-prepend.small {
+    flex: 0 0 80px;
+}
+.input-group-prepend.small .input-group-text {
+    width: 80px;
+}
 .input-group>.input-group-prepend.medium {
     flex: 0 0 130px;
 }
@@ -13,6 +20,25 @@
     flex: 0 0 200px;
 }
 .input-group-prepend.large .input-group-text {
+    width: 200px;
+}
+
+.input-group>.input-group-append.small {
+    flex: 0 0 80px;
+}
+.input-group-append.small .input-group-text {
+    width: 80px;
+}
+.input-group>.input-group-append.medium {
+    flex: 0 0 130px;
+}
+.input-group-append.medium .input-group-text {
+    width: 130px;
+}
+.input-group>.input-group-append.large {
+    flex: 0 0 200px;
+}
+.input-group-append.large .input-group-text {
     width: 200px;
 }
 

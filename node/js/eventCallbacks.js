@@ -1,18 +1,13 @@
-
-// $ = require('jquery');
-// require('popper.js');
-// require('bootstrap')
-
 var activeVisualisation = "";
 var hdf5_path = "";
 
 const charge_hdf5 = "/home/labb/HDF5/nacl_new.hdf5";
+
 // --------------------------------
 // ----- File selection panel -----
 // --------------------------------
 
 function startVisPressed() {
-    // TODO load atom types
     if (activeVisualisation == "") {
         console.log("No visualisation type selected")
         return
@@ -48,7 +43,7 @@ function togglePathType() {
 }
 
 // ----------------------------------
-// ----- Electron density panel -----
+// ----- Volume rendering panel -----
 // ----------------------------------
 
 function bandChanged() {
@@ -78,14 +73,14 @@ function updateMask() {
         send_data("envision request", ["set_mask", activeVisualisation, [getTfPoints()[0][0], 1]]);
 }
 
-function addTfPoint() {
+function addTfPointSubmitted() {
     const valueInput = parseFloat($(this)[0][0].value);
     const alphaInput = parseFloat($(this)[0][1].value);
     const colorInput = $(this)[0][2].value;
 
     // Add a new element for the added point.
     addTfPointElement(valueInput, alphaInput, colorInput);
-    
+
     send_data("envision request", ["set_tf_points", activeVisualisation, [getTfPoints()]]);
     updateMask()
     return false;
@@ -124,14 +119,46 @@ function sliceNormalChanged() {
     return false;
 }
 
+// ---------------------------
+// ----- 2-D graph panel -----
+// ---------------------------
+
+function xRangeSubmitted() {
+    console.log("setting x range");
+    return false;
+
+}
+
+function ySelectionRadiosChanged() {
+    if ($("#allYCheck").is(":checked")) {
+        console.log("Select all Y")
+        $("#specificY").hide();
+        $("#multipleY").hide();
+    }
+    else if ($("#specificYCheck").is(":checked")) {
+        console.log("Select specific Y")
+        $("#specificY").show();
+        $("#multipleY").hide();
+    }
+    else if ($("#multipleYCheck").is(":checked")) {
+        console.log("Select multiple Y")
+        $("#specificY").hide();
+        $("#multipleY").show();
+    }
+
+
+    // if ()
+}
+
+
 // ----------------------------------
 // ----- Python response events -----
 // ----------------------------------
 
-function visualisationStarted(visInfo){
+function visualisationStarted(visInfo) {
     if (visInfo[0] == "charge")
         initializeChargePanel();
-    else if (visInfo[0] = "elf")
+    else if (visInfo[0] == "elf")
         initializeELFPanel();
 }
 
@@ -167,7 +194,7 @@ function loadAtoms(atoms) {
 
 function loadTFPoints(points) {
     $("#tfPoints").empty();
-    for (let i = 0; i < points.length; i++){
+    for (let i = 0; i < points.length; i++) {
         let hexColor = rgbToHex(points[i][1][0], points[i][1][1], points[i][1][2])
         addTfPointElement(points[i][0], points[i][1][0], hexColor)
     }
@@ -176,6 +203,10 @@ function loadTFPoints(points) {
 // ----------------------------
 // ----- Helper functions -----
 // ----------------------------
+
+function getXRange() {
+
+}
 
 function getTfPoints() {
     // Return a list containing current tfPonts
@@ -242,4 +273,8 @@ function initializeELFPanel() {
     send_data("envision request", ["get_bands", "elf", []])
     send_data("envision request", ["get_atom_names", "elf", []])
     send_data("envision request", ["get_tf_points", "elf", []])
+}
+
+function initializeBandstructurePanel() {
+    console.log("Bandstructure")
 }

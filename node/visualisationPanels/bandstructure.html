@@ -1,1 +1,202 @@
-BANDSTRUCTURE PANEL GOES HERE
+<!-- Settings panel -->
+<h2 class="border-bottom">Bandstructure</h2>
+
+<div id="loadPanel"></div>
+
+<div id="visSettings">
+
+  <h5 class="border-top">Graph settings</h5>
+  <div class="row row-margin">
+    <form class="needs-validation col-sm-6" id="xRangeForm">
+      <div class="input-group">
+        <div class="input-group-prepend small">
+          <label class="input-group-text">X range</label>
+        </div>
+        <input type="text" class="form-control" placeholder="min" required>
+        <input type="text" class="form-control" placeholder="max" required>
+        <div class="input-group-append">
+          <button class="btn btn-primary" type="submit">&#x2713</button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="row row-margin">
+    <form class="needs-validation col-sm-6" id="yRangeForm">
+      <div class="input-group">
+        <div class="input-group-prepend small">
+          <label class="input-group-text">Y range</label>
+        </div>
+        <input type="text" class="form-control" placeholder="min" required>
+        <input type="text" class="form-control" placeholder="max" required>
+        <div class="input-group-append">
+          <button class="btn btn-primary" type="submit">&#x2713</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Vertical line -->
+  <div class="form-check">
+    <input type="checkbox" class="form-check-input" id="verticalLineCheck">
+    <label class="form-check-label">Enable vertical line</label>
+  </div>
+  <div class="row row-margin">
+    <form class="needs-validation col-sm-6" id="verticalLineForm">
+      <div class="input-group">
+        <div class="input-group-prepend medium">
+          <label class="input-group-text">Line position</label>
+        </div>
+        <input type="text" class="form-control" placeholder="0" required>
+        <div class="input-group-append">
+          <button class="btn btn-primary" type="submit">&#x2713</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Grid -->
+  <div class="form-check">
+    <input type="checkbox" class="form-check-input" id="gridCheck" checked>
+    <label class="form-check-label">Enable grid</label>
+  </div>
+  <div class="row row-margin">
+    <form class="needs-validation col-sm-6" id="gridForm">
+      <div class="input-group">
+        <div class="input-group-prepend medium">
+          <label class="input-group-text">Grid size</label>
+        </div>
+        <input type="text" class="form-control" placeholder="0" required>
+        <div class="input-group-append">
+          <button class="btn btn-primary" type="submit">&#x2713</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Labels -->
+  <div class="form-check">
+    <input type="checkbox" class="form-check-input" id="xLabelCheck" checked>
+    <label class="form-check-label">x labels</label>
+  </div>
+  <div class="form-check">
+    <input type="checkbox" class="form-check-input" id="yLabelCheck" checked>
+    <label class="form-check-label">y labels</label>
+  </div>
+  <div class="row row-margin">
+    <form class="needs-validation col-sm-6" id="labelCountForm">
+      <div class="input-group">
+        <div class="input-group-prepend medium">
+          <label class="input-group-text">Label count</label>
+        </div>
+        <input type="text" class="form-control" placeholder="0" required>
+        <div class="input-group-append">
+          <button class="btn btn-primary" type="submit">&#x2713</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+
+  <h5 class="border-top">Dataset selection</h5>
+  <!-- Y dataset selection radios-->
+  <div class="form-check col">
+    <label class="form-check-label">
+      <input type="radio" class="form-check-input" id="allYCheck" name="datasetRadios" checked>
+      Use all Y datasets
+    </label>
+  </div>
+  <div class="form-check">
+    <label class="form-check-label">
+      <input type="radio" class="form-check-input" id="specificYCheck" name="datasetRadios">
+      Select one Y dataset
+    </label>
+  </div>
+  <div class="form-check">
+    <label class="form-check-label">
+      <input type="radio" class="form-check-input" id="multipleYCheck" name="datasetRadios">
+      Select multiple datasets
+    </label>
+  </div>
+
+  <!-- Y dataset selection elements -->
+
+  <div class="row row-margin" id="specificY" style="display:none">
+    <div class="input-group col-sm-10">
+      <div class="input-group-prepend medium">
+        <label class="input-group-text" for="bandSelection">Select dataset</label>
+      </div>
+      <select class="custom-select" id="ySelection">
+        <option selected>band1</option>
+        <option>band2</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="multipleY" style="display:none">
+    <div class="row row-margin">
+      <div class="input-group col-sm-10">
+        <div class="input-group-prepend">
+          <label class="input-group-text" for="bandSelection">Possible datasets</label>
+        </div>
+        <select class="custom-select" id="possibleYDatasets">
+          <option selected>band1</option>
+          <option>band2</option>
+        </select>
+
+      </div>
+    </div>
+    <div class="row row-margin">
+      <form class="input-group col-sm-10">
+        <input type="text" class="form-control" placeholder="ex: 0,1,5:10,15" id="yMultiSelect" required>
+        <div class="input-group-append">
+          <button class="btn btn-primary" type="submit">&#x2713</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+
+  <script>
+    $("#loadPanel").load("visualisationPanels/loadPanel.html");
+
+    activeVisualisation = "bandstructure"
+    hdf5_path = "/home/labb/HDF5/Bandstructure.hdf5"
+
+
+    $(document).ready(function () {
+      initializeBandstructurePanel();
+
+
+
+      // Restricts input for each element in the set of matched elements to the given inputFilter.
+      $.fn.inputFilter = function (inputFilter) {
+        return this.on("input keydown keyup mousedown mouseup select contextmenu drop", function () {
+          if (inputFilter(this.value)) {
+            this.oldValue = this.value;
+            this.oldSelectionStart = this.selectionStart;
+            this.oldSelectionEnd = this.selectionEnd;
+          } else if (this.hasOwnProperty("oldValue")) {
+            this.value = this.oldValue;
+            this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+          }
+        });
+      };
+
+      // Setup input filters
+
+      $("#yMultiSelect").inputFilter(function (value) {
+        return /^(\d*(,|:)?)*$/.test(value); //Allow numbers separated by , and :
+      });
+
+      // Setup normal event bindings
+
+      $("#xRangeForm").on("submit", xRangeSubmitted)
+      $('[name="datasetRadios"]').on("change", ySelectionRadiosChanged);
+
+
+
+      console.log("Bandstructure control element loaded")
+
+    });
+  </script>
