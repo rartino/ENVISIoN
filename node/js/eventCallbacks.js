@@ -19,13 +19,6 @@ function startVisPressed() {
     }
 
     send_data("envision request", ["start", activeVisualisation, [activeVisualisation, hdf5_path]]);
-    // intializeChargePanel();
-    if (activeVisualisation == "charge")
-        intializeChargePanel();
-    else if (activeVisualisation == "elf")
-        initializeELFPanel();
-    // send_data("envision request", ["get_bands", activeVisualisation, [hdf5_path]])
-    // send_data("envision request", ["get_atom_names", activeVisualisation, []])
 }
 
 function stopVisPressed() {
@@ -135,6 +128,13 @@ function sliceNormalChanged() {
 // ----- Python response events -----
 // ----------------------------------
 
+function visualisationStarted(visInfo){
+    if (visInfo[0] == "charge")
+        initializeChargePanel();
+    else if (visInfo[0] = "elf")
+        initializeELFPanel();
+}
+
 function loadBands(bands) {
     $("#bandSelection").empty();
     for (let i = 0; i < bands.length; i++) {
@@ -228,8 +228,9 @@ function addTfPointElement(value, alpha, color) {
 // ----- Panel initializations -----
 // ---------------------------------
 
-function intializeChargePanel() {
+function initializeChargePanel() {
     console.log("CHG")
+    // $("#visSettings :input").attr("disabled", false);
     send_data("envision request", ["get_bands", "charge", []])
     send_data("envision request", ["get_atom_names", "charge", []])
     send_data("envision request", ["get_tf_points", "charge", []])
@@ -237,6 +238,7 @@ function intializeChargePanel() {
 
 function initializeELFPanel() {
     console.log("ELF")
+    // $("#visSettings :input").attr("disabled", false);
     send_data("envision request", ["get_bands", "elf", []])
     send_data("envision request", ["get_atom_names", "elf", []])
     send_data("envision request", ["get_tf_points", "elf", []])
