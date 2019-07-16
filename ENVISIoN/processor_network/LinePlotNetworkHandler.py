@@ -35,13 +35,37 @@ class LinePlotNetworkHandler(NetworkHandler):
         plotter.allYSelection.value = enable
         return [True, None]
 
-    def set_y_selection(self, selection):
+    def toggle_multiple_y(self, enable):
         plotter = self.get_processor("Line plot")
-        plotter.ySelectionProperty.value = selection
+        plotter.boolYSelection.value = enable
+        return [True, None]
+
+    def set_y_selection_type(self, option):
+    # Set the type for date selection for Y datasets
+    # 0: single dataset. 1: multiple datasets. 2: all datasets
+        plotter = self.get_processor("Line plot")
+        plotter.boolYSelection.value = (option == 1)
+        plotter.allYSelection.value = (option == 2)
+        return [True, None]
+
+
+    
+    def set_y_single_selection(self, index):
+        plotter = self.get_processor("Line plot")
+        plotter.ySelectionProperty.selectedIndex = index
+        return [True, None]
+    
+    def set_y_multi_selection(self, selection):
+        plotter = self.get_processor("Line plot")
+        plotter.groupYSelection_.value = selection
+        return [True, None]
+
 
     def get_available_datasets(self):
         plotter = self.get_processor("Line plot")
         return [True, plotter.xSelectionProperty.identifiers]
+
+
 
 
     def set_title(self, title):

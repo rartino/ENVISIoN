@@ -23,7 +23,8 @@ var response_callbacks = {
     "get_bands": loadBands,
     "get_atom_names": loadAtoms,
     "get_tf_points": loadTFPoints,
-    "start": visualisationStarted
+    "start": visualisationStarted,
+    "get_available_datasets": loadAvailableDatasets
 }
 
 

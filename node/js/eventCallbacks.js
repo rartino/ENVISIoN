@@ -173,28 +173,34 @@ function nLabelsChanged() {
 
 function ySelectionRadiosChanged() {
     if ($("#allYCheck").is(":checked")) {
-        send_data("envision request", ["toggle_all_y", activeVisualisation, [true]]);
-        console.log("Select all Y")
+        send_data("envision request", ["set_y_selection_type", activeVisualisation, [2]]);
         $("#specificY").hide();
         $("#multipleY").hide();
     }
     else if ($("#specificYCheck").is(":checked")) {
-        send_data("envision request", ["toggle_all_y", activeVisualisation, [false]]);
-        console.log("Select specific Y")
+        send_data("envision request", ["set_y_selection_type", activeVisualisation, [0]]);
         $("#specificY").show();
         $("#multipleY").hide();
     }
     else if ($("#multipleYCheck").is(":checked")) {
-        send_data("envision request", ["toggle_all_y", activeVisualisation, [false]]);
-        console.log("Select multiple Y")
+        send_data("envision request", ["set_y_selection_type", activeVisualisation, [1]]);
         $("#specificY").hide();
         $("#multipleY").show();
     }
-
-
-    // if ()
 }
 
+function ySingleSelectionChanged(){
+    let selectionIndex = $("#ySingleSelection")[0].selectedIndex;
+    // let value = $("#ySingleSelection").val()
+    send_data("envision request", ["set_y_single_selection", activeVisualisation, [selectionIndex]]);
+}
+
+function yMultiSelectionChanged(){
+    let input = $("#yMultiSelectInput").val();
+    console.log(input)
+    send_data("envision request", ["set_y_multi_selection", activeVisualisation, [input]]);
+    return false;
+}
 
 // ----------------------------------
 // ----- Python response events -----
@@ -205,6 +211,8 @@ function visualisationStarted(visInfo) {
         initializeChargePanel();
     else if (visInfo[0] == "elf")
         initializeELFPanel();
+    else if (visInfo[0] == "bandstructure")
+        initializeBandstructurePanel();
 }
 
 function loadBands(bands) {
@@ -246,7 +254,13 @@ function loadTFPoints(points) {
 }
 
 function loadAvailableDatasets(options) {
-
+    console.log(JSON.stringify(options))
+    $("#possibleYDatasets").empty();
+    $("#ySingleSelection").empty();
+    for (let i = 0; i < options.length; i++){
+        $("#possibleYDatasets").append("<option>["+i+"]: "+options[i]+"</option>");
+        $("#ySingleSelection").append("<option>"+options[i]+"</option>");
+    }
 }
 
 // ----------------------------
@@ -326,4 +340,5 @@ function initializeELFPanel() {
 
 function initializeBandstructurePanel() {
     console.log("Bandstructure")
+    send_data("envision request", ["get_available_datasets", "bandstructure", []])
 }

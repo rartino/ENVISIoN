@@ -85,10 +85,12 @@ class ENVISIoN():
         self.action_dict["toggle_x_label"] = lambda id, params: self.networkHandlers[id].toggle_x_label(*params)
         self.action_dict["toggle_y_label"] = lambda id, params: self.networkHandlers[id].toggle_y_label(*params)
         self.action_dict["set_n_labels"] = lambda id, params: self.networkHandlers[id].set_n_labels(*params)
-        self.action_dict["toggle_all_y"] = lambda id, params: self.networkHandlers[id].toggle_all_y(*params)
+        self.action_dict["set_y_selection_type"] = lambda id, params: self.networkHandlers[id].set_y_selection_type(*params)
         self.action_dict["get_available_datasets"] = lambda id, params: self.networkHandlers[id].get_available_datasets(*params)
-        # self.action_dict["set_y_range"] = lambda id, params: self.networkHandlers[id].set_y_range(*params)
-        # self.action_dict["set_y_range"] = lambda id, params: self.networkHandlers[id].set_y_range(*params)
+        self.action_dict["set_y_single_selection"] = lambda id, params: self.networkHandlers[id].set_y_single_selection(*params)
+        self.action_dict["set_y_multi_selection"] = lambda id, params: self.networkHandlers[id].set_y_multi_selection(*params)
+        # self.action_dict["set_y_single_selection"] = lambda id, params: self.networkHandlers[id].set_y_single_selection(*params)
+        # self.action_dict["set_y_single_selection"] = lambda id, params: self.networkHandlers[id].set_y_single_selection(*params)
 
 
         self.visualisationTypes = {

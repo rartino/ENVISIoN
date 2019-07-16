@@ -125,7 +125,7 @@
         <div class="input-group-prepend medium">
           <label class="input-group-text" for="bandSelection">Select dataset</label>
         </div>
-        <select class="custom-select" id="ySelection">
+        <select class="custom-select" id="ySingleSelection">
           <option selected>band1</option>
           <option>band2</option>
         </select>
@@ -138,11 +138,7 @@
       Select multiple datasets
     </label>
   </div>
-
-  <!-- Y dataset selection elements -->
-
   
-
   <div id="multipleY" style="display:none">
     <div class="row row-margin">
       <div class="input-group col-sm-10">
@@ -157,8 +153,8 @@
       </div>
     </div>
     <div class="row row-margin">
-      <form class="input-group col-sm-10">
-        <input type="text" class="form-control" placeholder="ex: 0,1,5:10,15" id="yMultiSelect" required>
+      <form class="input-group col-sm-10" id="yMultiSelectForm">
+        <input type="text" class="form-control" placeholder="ex: 0,1,5:10,15" id="yMultiSelectInput" required>
         <div class="input-group-append">
           <button class="btn btn-primary" type="submit">&#x2713</button>
         </div>
@@ -196,10 +192,17 @@
 
       // Setup input filters
 
-      $("#yMultiSelect").inputFilter(function (value) {
+      $("#yMultiSelectInput").inputFilter(function (value) {
         return /^(\d*(,|:)?)*$/.test(value); //Allow numbers separated by , and :
       });
 
+      $("#xRangeMin,#xRangeMax,yRangeMin,yRangeMax,#verticalLineXInput,#gridSizeInput").inputFilter(function (value) {
+        return /^(\d*\.?\d*)?$/.test(value); //Allow any float
+      });
+      $("#labelCountInput").inputFilter(function (value) {
+        return /^\d*$/.test(value); //Allow any float
+      });
+      
       // Setup normal event bindings
 
       $("#xRangeForm").on("submit", xRangeSubmitted);
@@ -213,6 +216,11 @@
       $("#yLabelCheck").on("change", yLabelChecked);
       $("#labelCountForm").on("submit", nLabelsChanged);
 
+      $("#ySingleSelection").on("change", ySingleSelectionChanged);
+      $("#yMultiSelectForm").on("submit", yMultiSelectionChanged);
+
+
+      
       $('[name="datasetRadios"]').on("change", ySelectionRadiosChanged);
 
 
