@@ -33,10 +33,16 @@ class LinePlotNetworkHandler(NetworkHandler):
     def toggle_all_y(self, enable):
         plotter = self.get_processor("Line plot")
         plotter.allYSelection.value = enable
+        return [True, None]
 
     def set_y_selection(self, selection):
         plotter = self.get_processor("Line plot")
         plotter.ySelectionProperty.value = selection
+
+    def get_available_datasets(self):
+        plotter = self.get_processor("Line plot")
+        return [True, plotter.xSelectionProperty.identifiers]
+
 
     def set_title(self, title):
         title_text = self.get_processor("Title text")
@@ -54,9 +60,48 @@ class LinePlotNetworkHandler(NetworkHandler):
     def set_x_range(self, xMax, xMin):
         plotter = self.get_processor("Line plot")
         plotter.x_range.value = inviwopy.glm.vec2(xMin, xMax)
-        
+        return [True, None]
 
-        
+    def set_y_range(self, xMax, xMin):
+        plotter = self.get_processor("Line plot")
+        plotter.y_range.value = inviwopy.glm.vec2(xMin, xMax)
+        return [True, None]
+
+    def toggle_vertical_line(self, enable):
+        plotter = self.get_processor("Line plot")
+        plotter.enable_line.value = enable
+        return [True, None]
+
+    def set_vertical_line_x(self, xPos):
+        plotter = self.get_processor("Line plot")
+        plotter.line_x_coordinate.value = xPos
+        return [True, None]
+
+    def toggle_grid(self, enable):
+        plotter = self.get_processor("Line plot")
+        plotter.enable_grid.value = enable
+        return [True, None]
+    
+    def set_grid_size(self, width):
+        plotter = self.get_processor("Line plot")
+        plotter.grid_width.value = width
+        return [True, None]
+
+    def toggle_x_label(self, enable):
+        plotter = self.get_processor("Line plot")
+        plotter.show_x_labels.value = enable
+        return [True, None]
+
+    def toggle_y_label(self, enable):
+        plotter = self.get_processor("Line plot")
+        plotter.show_y_labels.value = enable
+        return [True, None]
+
+    def set_n_labels(self, n):
+        plotter = self.get_processor("Line plot")
+        plotter.label_number.value = n
+        return [True, None]
+    
     def get_dataset_list(self):
         Plotter = self.get_processor("Line plot")
         return [True, Plotter.ySelectionProperty.identifiers]

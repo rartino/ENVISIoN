@@ -124,23 +124,68 @@ function sliceNormalChanged() {
 // ---------------------------
 
 function xRangeSubmitted() {
-    console.log("setting x range");
+    let min = parseFloat($("#xRangeMin").val());
+    let max = parseFloat($("#xRangeMax").val());
+    send_data("envision request", ["set_x_range", activeVisualisation, [min, max]]);
     return false;
+}
 
+function yRangeSubmitted() {
+    let min = parseFloat($("#yRangeMin").val());
+    let max = parseFloat($("#yRangeMax").val());
+    send_data("envision request", ["set_y_range", activeVisualisation, [min, max]]);
+    return false;
+}
+
+function verticalLineChecked() {
+    let enable = $("#verticalLineCheck").is(":checked");
+    send_data("envision request", ["toggle_vertical_line", activeVisualisation, [enable]]);
+}
+
+function verticalLineXChanged() {
+    let value = parseFloat($("#verticalLineXInput").val());
+    send_data("envision request", ["set_vertical_line_x", activeVisualisation, [value]]);
+}
+
+function gridChecked() {
+    let enable = $("#gridCheck").is(":checked");
+    send_data("envision request", ["toggle_grid", activeVisualisation, [enable]]);
+}
+
+function gridSizeChanged() {
+    let value = parseFloat($("#gridSizeInput").val());
+    console.log(value)
+    send_data("envision request", ["set_grid_size", activeVisualisation, [value]]);
+}
+
+function xLabelChecked() {
+    send_data("envision request", ["toggle_x_label", activeVisualisation, [$("#xLabelCheck").is(":checked")]]);
+}
+
+function yLabelChecked() {
+    send_data("envision request", ["toggle_y_label", activeVisualisation, [$("#yLabelCheck").is(":checked")]]);
+}
+
+function nLabelsChanged() {
+    let value = parseInt($("#labelCountInput").val());
+    send_data("envision request", ["set_n_labels", activeVisualisation, [value]]);
 }
 
 function ySelectionRadiosChanged() {
     if ($("#allYCheck").is(":checked")) {
+        send_data("envision request", ["toggle_all_y", activeVisualisation, [true]]);
         console.log("Select all Y")
         $("#specificY").hide();
         $("#multipleY").hide();
     }
     else if ($("#specificYCheck").is(":checked")) {
+        send_data("envision request", ["toggle_all_y", activeVisualisation, [false]]);
         console.log("Select specific Y")
         $("#specificY").show();
         $("#multipleY").hide();
     }
     else if ($("#multipleYCheck").is(":checked")) {
+        send_data("envision request", ["toggle_all_y", activeVisualisation, [false]]);
         console.log("Select multiple Y")
         $("#specificY").hide();
         $("#multipleY").show();
@@ -198,6 +243,10 @@ function loadTFPoints(points) {
         let hexColor = rgbToHex(points[i][1][0], points[i][1][1], points[i][1][2])
         addTfPointElement(points[i][0], points[i][1][0], hexColor)
     }
+}
+
+function loadAvailableDatasets(options) {
+
 }
 
 // ----------------------------
