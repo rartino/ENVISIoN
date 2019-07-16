@@ -22,7 +22,8 @@ var pythonProcess = null
 var response_callbacks = {
     "get_bands": loadBands,
     "get_atom_names": loadAtoms,
-    "get_tf_points": loadTFPoints
+    "get_tf_points": loadTFPoints,
+    "start": visualisationStarted
 }
 
 
