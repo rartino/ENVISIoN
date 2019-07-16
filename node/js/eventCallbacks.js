@@ -131,7 +131,8 @@ function xRangeSubmitted() {
 }
 
 function yRangeSubmitted() {
-    let min = parseFloat($("#yRangeMin").val());
+    // let min = $("#yRangeMin").val()!="" ? parseFloat($("#yRangeMin").val()) : -10000;
+    let min = parseFloat($("#yRangeMin").val())
     let max = parseFloat($("#yRangeMax").val());
     send_data("envision request", ["set_y_range", activeVisualisation, [min, max]]);
     return false;
@@ -187,18 +188,20 @@ function ySelectionRadiosChanged() {
         $("#specificY").hide();
         $("#multipleY").show();
     }
+    xRangeSubmitted();
+    yRangeSubmitted();
 }
 
 function ySingleSelectionChanged(){
     let selectionIndex = $("#ySingleSelection")[0].selectedIndex;
-    // let value = $("#ySingleSelection").val()
     send_data("envision request", ["set_y_single_selection", activeVisualisation, [selectionIndex]]);
 }
 
 function yMultiSelectionChanged(){
     let input = $("#yMultiSelectInput").val();
-    console.log(input)
     send_data("envision request", ["set_y_multi_selection", activeVisualisation, [input]]);
+    xRangeSubmitted();
+    yRangeSubmitted();
     return false;
 }
 
