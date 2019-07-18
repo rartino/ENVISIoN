@@ -87,13 +87,14 @@ function addTfPointSubmitted() {
     addTfPointElement(valueInput, alphaInput, colorInput);
 
     send_data("envision request", ["set_tf_points", activeVisualisation, [getTfPoints()]]);
-    updateMask()
+    updateMask();
     return false;
 }
 
 function removeTfPoint() {
     $(this).remove();
     send_data("envision request", ["set_tf_points", activeVisualisation, [getTfPoints()]]);
+    updateMask();
     return false;
 }
 
@@ -209,6 +210,26 @@ function yMultiSelectionChanged(){
     yRangeSubmitted();
     return false;
 }
+
+// ------------------------
+// ----- Parser panel -----
+// ------------------------
+
+function parseClicked(){
+    let vaspDir = $("#vaspDirInput")[0].files[0].path;
+    let hdf5Dir = $("#hdf5DirInput")[0].files[0].path;
+    let hdf5FileName = $("#hdf5FileNameInput").val();
+    let parseType = $("#parseTypeSelect").val();
+    
+    if (!/^.*\.(hdf5|HDF5)$/.test(hdf5FileName)){
+        alert("File must end with .hdf5");
+        return;
+    }
+
+    send_data("parser request", [parseType, hdf5Dir+"/"+hdf5FileName, vaspDir])
+    console.log(vaspDir, hdf5Dir, hdf5FileName, parseType);
+}
+
 
 // ----------------------------------
 // ----- Python response events -----
