@@ -388,3 +388,8 @@ function initializePCFPanel(){
     console.log("PCF")
     send_data("envision request", ["get_available_datasets", "pcf", []])
 }
+
+function initializeDOSPanel(){
+    console.log("PCF")
+    send_data("envision request", ["get_available_datasets", "dos", []])
+}

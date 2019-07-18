@@ -33,6 +33,7 @@ from processor_network.ELFNetworkHandler import ELFNetworkHandler
 from processor_network.UnitcellNetworkHandler import UnitcellNetworkHandler
 from processor_network.BandstructureNetworkHandler import BandstructureNetworkHandler
 from processor_network.PCFNetworkHandler import PCFNetworkHandler
+from processor_network.DOSNetworkHandler import DOSNetworkHandler
 
 
 class ENVISIoN():
@@ -108,7 +109,9 @@ class ENVISIoN():
             "unitcell": UnitcellNetworkHandler,
             "elf": ELFNetworkHandler,
             "pcf": PCFNetworkHandler,
-            "bandstructure": BandstructureNetworkHandler}
+            "bandstructure": BandstructureNetworkHandler,
+            "dos": DOSNetworkHandler
+            }
 
         # print(dir(hdf5parser.vasp))
         self.parseFunctions = {
