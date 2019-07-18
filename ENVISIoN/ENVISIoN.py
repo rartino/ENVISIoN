@@ -112,10 +112,15 @@ class ENVISIoN():
 
         # print(dir(hdf5parser.vasp))
         self.parseFunctions = {
+            "charge": hdf5parser.vasp.charge,
             "Electron density": hdf5parser.vasp.charge,
+            "elf": hdf5parser.vasp.elf, 
             "Electron localisation function": hdf5parser.vasp.elf,
+            "bandstructure": hdf5parser.vasp.bandstructure,
             "Bandstructure": hdf5parser.vasp.bandstructure,
+            "pcf": hdf5parser.vasp.paircorrelation,
             "Pair correlation function": hdf5parser.vasp.paircorrelation,
+            "dos": hdf5parser.vasp.dos,
             "Density of states": hdf5parser.vasp.dos
         }
 
@@ -170,10 +175,17 @@ class ENVISIoN():
         #     return [request[0], False, "Bad parameters."]
     
     def handler_parse_request(self, request):
-        parse_type, hdf5_file, vasp_dir = request
-        self.parseFunctions[parse_type](hdf5_file, vasp_dir)
+        parse_type, hdf5_path, vasp_path = request
+        # if hdf5_path == None:
+        #     # hdf5_path = path_to_current_folder + "/temp.hdf5"
+        #     hdf5_path = "temp.hdf5"
+            
+        
+        successful = self.parseFunctions[parse_type](hdf5_path, vasp_path)
+
+
         # TODO: Return status of 
-        return [parse_type, True, "Parse may or may not have worked"]
+        return [parse_type, successful, "*Error message*"]
 
 
     def initialize_visualisation(self, handler_id, vis_type, hdf5_file):
