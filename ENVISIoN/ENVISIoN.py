@@ -12,12 +12,21 @@
 #       request strings onto functions.
 
 
-import sys#,os,inspect
-# path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-sys.path.append("C:/Kandidatprojekt/inviwo-latest/build/bin/Debug")
+import sys,os,inspect
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.append(path_to_current_folder)
+# sys.path.append(path_to_current_folder + "/processor_network")
+# sys.path.append(path_to_current_folder + "/parser")
+PATH_INVIWO_BIN = "/home/labb/Inviwo-latest/build/bin"
+sys.path.append(PATH_INVIWO_BIN)
 import inviwopy as ivw
 import inviwopyapp as qt
 import time
+
+# from parser import vasp
+import parser
+
+# import processor_network
 
 from processor_network.ChargeNetworkHandler import ChargeNetworkHandler
 from processor_network.ELFNetworkHandler import ELFNetworkHandler
@@ -99,6 +108,15 @@ class ENVISIoN():
             "elf": ELFNetworkHandler,
             "pcf": PCFNetworkHandler,
             "bandstructure": BandstructureNetworkHandler}
+
+
+        # self.parseTypes = {
+        #     "charge": charge,
+        #     "elf": elf,
+        #     "bandstructure": bandstructure,
+        #     "pcf": paircorrelation,
+        #     "dos": dos
+        # }
 
     def update(self):
         self.app.update()

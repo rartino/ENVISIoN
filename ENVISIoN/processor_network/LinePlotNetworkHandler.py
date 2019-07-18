@@ -9,15 +9,15 @@
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import sys,os,inspect
-path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-sys.path.insert(0, os.path.expanduser(path_to_current_folder))
+# path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+# sys.path.insert(0, os.path.expanduser(path_to_current_folder))
 
 import inviwopy
 import numpy as np
 import h5py
 
 
-from NetworkHandler import NetworkHandler
+from .NetworkHandler import NetworkHandler
 
 class LinePlotNetworkHandler(NetworkHandler):
     """ Handler class for charge visualization network.

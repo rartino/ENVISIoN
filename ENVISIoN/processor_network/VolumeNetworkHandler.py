@@ -10,14 +10,14 @@
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import sys,os,inspect
-path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-sys.path.insert(0, os.path.expanduser(path_to_current_folder))
+# path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+# sys.path.insert(0, os.path.expanduser(path_to_current_folder))
 
 import inviwopy
 import numpy as np
 from matplotlib import pyplot as plt 
 import h5py
-from NetworkHandler import NetworkHandler
+from .NetworkHandler import NetworkHandler
 
 # TODO: Would probably be better to save important processors as member variables
 #       instead of extracting them from the self.network all the time

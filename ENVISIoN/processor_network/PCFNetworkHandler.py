@@ -10,15 +10,15 @@
 
 
 import sys,os,inspect
-path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-sys.path.insert(0, os.path.expanduser(path_to_current_folder))
+# path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+# sys.path.insert(0, os.path.expanduser(path_to_current_folder))
 
 import inviwopy
 import numpy as np
 import h5py
 
 
-from LinePlotNetworkHandler import LinePlotNetworkHandler
+from .LinePlotNetworkHandler import LinePlotNetworkHandler
 
 class PCFNetworkHandler(LinePlotNetworkHandler):
     """ Handler class for charge visualization network.

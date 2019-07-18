@@ -39,9 +39,8 @@
 
 import os,sys
 import inspect
-path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-sys.path.insert(0, os.path.expanduser(path_to_current_folder))
-sys.path.insert(0, os.path.expanduser(path_to_current_folder))
+# path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+# sys.path.insert(0, os.path.expanduser(path_to_current_folder))
 import inviwopy
 import numpy as np
 import h5py
