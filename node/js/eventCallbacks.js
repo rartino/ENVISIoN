@@ -1,3 +1,5 @@
+const fs = require('fs')
+
 var activeVisualisation = "";
 
 
@@ -11,12 +13,17 @@ function startVisPressed() {
         return
     }
     let path = "";
-    if ($("#vaspSourceCheckbox").is(":checked")){
-        // Parse file
-        // save temp hdf5
-        // path to that hdf5
+    if ($("#vaspSourceCheckbox").is(":checked")) {
+        let vaspPath = $("#vaspDirInput")[0].files[0].path;
+        try {
+            fs.unlinkSync("temp.hdf5");
+        } catch (err) {
+            console.error(err)
+        }
+        send_data("parser request", [activeVisualisation, "temp.hdf5", vaspPath])
+        send_data("envision request", ["start", activeVisualisation, [activeVisualisation, "temp.hdf5"]]);
     }
-    else 
+    else
         path = $("#hdf5LoadInput")[0].files[0].path;
     send_data("envision request", ["start", activeVisualisation, [activeVisualisation, path]]);
 }
@@ -198,12 +205,12 @@ function ySelectionRadiosChanged() {
     yRangeSubmitted();
 }
 
-function ySingleSelectionChanged(){
+function ySingleSelectionChanged() {
     let selectionIndex = $("#ySingleSelection")[0].selectedIndex;
     send_data("envision request", ["set_y_single_selection", activeVisualisation, [selectionIndex]]);
 }
 
-function yMultiSelectionChanged(){
+function yMultiSelectionChanged() {
     let input = $("#yMultiSelectInput").val();
     send_data("envision request", ["set_y_multi_selection", activeVisualisation, [input]]);
     xRangeSubmitted();
@@ -215,18 +222,18 @@ function yMultiSelectionChanged(){
 // ----- Parser panel -----
 // ------------------------
 
-function parseClicked(){
+function parseClicked() {
     let vaspDir = $("#vaspDirInput")[0].files[0].path;
     let hdf5Dir = $("#hdf5DirInput")[0].files[0].path;
     let hdf5FileName = $("#hdf5FileNameInput").val();
     let parseType = $("#parseTypeSelect").val();
-    
-    if (!/^.*\.(hdf5|HDF5)$/.test(hdf5FileName)){
+
+    if (!/^.*\.(hdf5|HDF5)$/.test(hdf5FileName)) {
         alert("File must end with .hdf5");
         return;
     }
 
-    send_data("parser request", [parseType, hdf5Dir+"/"+hdf5FileName, vaspDir])
+    send_data("parser request", [parseType, hdf5Dir + "/" + hdf5FileName, vaspDir])
     console.log(vaspDir, hdf5Dir, hdf5FileName, parseType);
 }
 
@@ -286,9 +293,9 @@ function loadAvailableDatasets(options) {
     console.log(JSON.stringify(options))
     $("#possibleYDatasets").empty();
     $("#ySingleSelection").empty();
-    for (let i = 0; i < options.length; i++){
-        $("#possibleYDatasets").append("<option>["+i+"]: "+options[i]+"</option>");
-        $("#ySingleSelection").append("<option>"+options[i]+"</option>");
+    for (let i = 0; i < options.length; i++) {
+        $("#possibleYDatasets").append("<option>[" + i + "]: " + options[i] + "</option>");
+        $("#ySingleSelection").append("<option>" + options[i] + "</option>");
     }
 }
 

@@ -20,10 +20,10 @@ var pythonProcess = null
 //TODO: not sure if encoding will always be the same on platforms
 
 var response_callbacks = {
+    "start": visualisationStarted,
     "get_bands": loadBands,
     "get_atom_names": loadAtoms,
     "get_tf_points": loadTFPoints,
-    "start": visualisationStarted,
     "get_available_datasets": loadAvailableDatasets
 }
 

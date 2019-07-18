@@ -55,7 +55,7 @@ def main():
                 send_packet("response", response)
             elif request["type"] == "parser request":
                 response = envision.handler_parse_request(request["data"])
-                send_packet("parse response", response)
+                send_packet("response", response)
             
         
         envision.update()

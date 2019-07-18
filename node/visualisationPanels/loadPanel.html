@@ -9,7 +9,7 @@
 <div class="form-check">
   <label class="form-check-label">
     <input type="radio" class="form-check-input" id="hdf5SourceCheckbox" name="sourceSelection" onclick="togglePathType()">HDF5
-    file
+    file (faster startup)
   </label>
 </div>
 <div id="vaspSource" style="display:block">
@@ -25,7 +25,7 @@
       </div>
     </div>
   </div>
-  <label>Save parsed HDF5 file (optional)</label>
+  <!-- <label>Save parsed HDF5 file (optional)</label>
   <div class="row row-margin">
     <div class="input-group col-md">
       <div class="input-group-prepend large">
@@ -45,11 +45,12 @@
         <label class="custom-file-label" for="hdfSaveInput">Choose directory</label>
       </div>
     </div>
-  </div>
+  </div> -->
 </div>
 
 <!-- Load existing HDF5 file -->
 <div id="hdf5Source" style="display:none">
+  <p>HDF5 files can be created with the parser found in the left menu.</p>
   <div class="row row-margin">
     <div class="input-group col-md">
       <div class="input-group-prepend large">

@@ -657,3 +657,5 @@ MigrationBackup/
 # End of https://www.gitignore.io/api/c++,node,emacs,python,visualstudio,visualstudiocode
 
 .vscode
+*.hdf5
+*.HDF5
