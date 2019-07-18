@@ -1,1 +1,21 @@
-Pair correlation function goes here.
+<!-- Settings panel -->
+<h2 class="border-bottom">Pair correlation function</h2>
+
+<div id="loadPanel">
+</div>
+
+<div id="visSettings">
+</div>
+
+
+<script>
+  $("#loadPanel").load("visualisationPanels/loadPanel.html");
+  $("#visSettings").load("visualisationPanels/graph2D.html");
+
+  activeVisualisation = "pcf"
+
+  $(document).ready(function () {
+    initializeBandstructurePanel();
+    console.log("pcf control element loaded")
+  });
+</script>

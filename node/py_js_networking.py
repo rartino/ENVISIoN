@@ -13,7 +13,7 @@ import time
 import select
 import json
 path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-sys.path.append(path_to_current_folder + "/../ENVISIoN")
+sys.path.append(path_to_current_folder + "/../envision")
 from ENVISIoN import ENVISIoN
 
 
@@ -32,8 +32,6 @@ def decode_packet(packet):
 # Return python dictionary based on JSON-string-packet
     obj = json.loads(packet)
     return obj
-
-
 
 def input_loop(input_queue):
     while True:
@@ -55,6 +53,10 @@ def main():
             if request["type"] == "envision request":
                 response = envision.handle_request(request["data"])
                 send_packet("response", response)
+            elif request["type"] == "parser request":
+                response = envision.handler_parse_request(request["data"])
+                send_packet("parse response", response)
+            
         
         envision.update()
 

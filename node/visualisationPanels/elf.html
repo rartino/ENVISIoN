@@ -1,206 +1,21 @@
 <!-- Settings panel -->
 <h2 class="border-bottom">Electron localisation function</h2>
 
-<div id="loadPanel"></div>
+<div id="loadPanel">
+</div>
 
 <div id="visSettings">
-
-  <h5 class="border-top">General settings</h5>
-  <div class="row row-margin">
-    <div class="input-group col-sm-10">
-      <div class="input-group-prepend medium">
-        <label class="input-group-text" for="bandSelection">Selected band</label>
-      </div>
-      <select class="custom-select" id="bandSelection">
-        <!-- <option selected>final</option>
-      <option>1</option> -->
-      </select>
-    </div>
-  </div>
-
-  <h5 class="border-top">Volume rendering settings</h5>
-  <div class="row row-margin">
-    <div class="input-group col-sm-10">
-      <div class="input-group-prepend medium">
-        <label class="input-group-text" for="shadingModeSelection">Shading mode</label>
-      </div>
-      <select class="custom-select" id="shadingModeSelection">
-        <option>No shading</option>
-        <option>Ambient</option>
-        <option>Diffuse</option>
-        <option>Specular</option>
-        <option selected>Blinn Phong</option>
-        <option>Phong</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="row row-margin">
-    <div class="input-group col-sm-10">
-      <div class="input-group-prepend medium">
-        <label class="input-group-text">Background</label>
-      </div>
-      <input class="form-control col-md-2" id="backgroundColor1" type="color" value="#000000" required>
-      <input class="form-control col-md-2" id="backgroundColor2" type="color" value="#ffffff" required>
-      <select class="custom-select" id="backgroundStyleSelection">
-        <option selected>Vertical gradient</option>
-        <option>Horizontal gradient</option>
-        <option>Spherical gradient</option>
-        <option>Uniform color</option>
-        <option>Checker board</option>
-      </select>
-    </div>
-  </div>
-
-  <h6>Transfer Function</h6>
-  <div class="form-check">
-    <input type="checkbox" class="form-check-input" id="transperancyCheckbox" checked>
-    <label class="form-check-label" for="transperancyCheckbox">Toggle transperancy before first point</label>
-  </div>
-
-  <div id="tfPoints">
-
-  </div>
-
-  <div class="row row-margin">
-    <form class="needs-validation col-sm-10" id="tfAdder">
-      <div class="input-group" id="addTFGroup">
-        <input type="text" class="form-control" placeholder="value [0-1]" id="tfValue" required>
-        <input type="text" class="form-control" placeholder="alpha [0-1]" id="tfAlpha" required>
-        <input class="form-control" type="color" value="#563d7c" required>
-        <div class="input-group-append">
-          <button class="btn btn-primary" type="submit" id="tfAddButton">+</button>
-        </div>
-      </div>
-    </form>
-  </div>
-
-
-  <div class="row row-margin">
-    <div class="btn-group col-sm-8" role="group" aria-label="Basic example">
-      <button type="button" class="btn btn-secondary">Save TF</button>
-      <button type="button" class="btn btn-secondary">Load TF</button>
-    </div>
-  </div>
-
-  <h5 class="border-top">Slice plane</h5>
-  <div class="form-check">
-    <input type="checkbox" class="form-check-input" id="sliceCanvasCheck">
-    <label class="form-check-label" for="sliceCanvasCheck">Toggle slice rendering</label>
-  </div>
-  <div class="form-check">
-    <input type="checkbox" class="form-check-input" id="slicePlaneCheck"">
-  <label class=" form-check-label" for="slicePlaneCheck">Toggle slice plane in volume</label>
-  </div>
-
-  <!-- <div class="form-row">
-  <label class="col-sm-4">Slice plane height: </label>
-  <div class="col-sm-4">
-    <input type="range" class="form-control-range" id="formControlRange">
-  </div> -->
-
-  <div class="form-group form-row align-items-center">
-    <label class="col-sm-4" for="sliceHeightRange">Slice pane height:</label>
-    <div class="col-sm-4">
-      <input type="range" min="0" max="1" step="0.05" class="form-control-range" id="sliceHeightRange">
-    </div>
-    <div class="col-sm-2">
-      <input type="text" class="form-control" placeholder="[0-1]" id="sliceHeightText">
-    </div>
-  </div>
-
-
-  <h6>Slice plane normal</h6>
-  <div class="row row-margin">
-    <!-- <form id="sliceNormalForm"> -->
-    <form class="input-group col-sm-8" id="sliceNormalForm">
-      <input type="text" class="form-control" placeholder="x" value="0" id="sliceNormX" required>
-      <input type="text" class="form-control" placeholder="y" value="1" id="sliceNormY" required>
-      <input type="text" class="form-control" placeholder="z" value="0" id="sliceNormZ" required>
-      <div class="input-group-append">
-        <button class="btn btn-primary" type="submit">&#x2713</button>
-      </div>
-    </form>
-  </div>
-
-  <h5 class="border-top">Atom rendering</h5>
-  <div class="form-check">
-    <input type="checkbox" class="form-check-input" onclick="console.log('Atom spheres toggled')" checked>
-    <label class="form-check-label">Toggle atom position rendering</label>
-  </div>
-
-  <div id="atomControls">
-    <!-- <div class="form-row row-margin" name="atomControlRow">
-      <div class="col-sm-3">
-        <div class="form-check">
-          <input type="checkbox" class="form-check-input" checked>
-          <label class="form-check-label">Sodium radius</label>
-        </div>
-      </div>
-      <div class="col-sm-4">
-        <div class="form-group">
-          <input type="range" class="form-control-range" id="formControlRange">
-        </div>
-      </div>
-    </div>
-  </div> -->
 </div>
 
 
 <script>
   $("#loadPanel").load("visualisationPanels/loadPanel.html");
-  // $("#visSettings :input").attr("disabled", true);
+  $("#visSettings").load("visualisationPanels/volumePanel.html");
 
   activeVisualisation = "elf"
-  hdf5_path = "/home/labb/HDF5/ELF-demo.hdf5"
-
 
   $(document).ready(function () {
     initializeELFPanel();
-
-
-
-    // Restricts input for each element in the set of matched elements to the given inputFilter.
-    $.fn.inputFilter = function (inputFilter) {
-      return this.on("input keydown keyup mousedown mouseup select contextmenu drop", function () {
-        if (inputFilter(this.value)) {
-          this.oldValue = this.value;
-          this.oldSelectionStart = this.selectionStart;
-          this.oldSelectionEnd = this.selectionEnd;
-        } else if (this.hasOwnProperty("oldValue")) {
-          this.value = this.oldValue;
-          this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
-        }
-      });
-    };
-
-    // Setup input filters
-
-    $("#tfValue,#tfAlpha,#sliceHeightText,#sliceNormX,#sliceNormY,#sliceNormZ").inputFilter(function (value) {
-      return /^(0?(\.\d*)?|1(\.0*)?)?$/.test(value) //allow float in range 0 to 1, or nothing.
-    });
-    // $("#tfAlpha").inputFilter(function (value) {
-    //   return /^(0?(\.\d*)?|1(\.0*)?)?$/.test(value) //allow float in range 0 to 1, or nothing.
-    // });
-    // $("#sliceHeightText").inputFilter(function (value) {
-    //   return /^(0?(\.\d*)?|1(\.0*)?)?$/.test(value) //allow float in range 0 to 1, or nothing.
-    // });
-
-    // Setup normal event bindings
-
-    $("#bandSelection").on("change", bandChanged)
-    $("#shadingModeSelection").on("change", shadingModeChanged)
-    $("#backgroundColor1,#backgroundColor2,#backgroundStyleSelection").on("change", volumeBackgroundChanged)
-    $("#transperancyCheckbox").on("click", updateMask)
-    $("#tfAdder").on("submit", addTfPointSubmitted);
-    $("#sliceCanvasCheck").on("click", sliceCanvasToggle);
-    $("#slicePlaneCheck").on("click", slicePlaneToggle);
-    $("#sliceHeightRange").on("input", sliceHeightChanged);
-    $("#sliceHeightText").on("input keydown keyup mousedown mouseup select contextmenu drop", sliceHeightChanged);
-    $("#sliceNormalForm").on("submit", sliceNormalChanged)
-
-
     console.log("Charge control element loaded")
-
   });
 </script>

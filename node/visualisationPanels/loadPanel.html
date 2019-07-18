@@ -19,9 +19,9 @@
         <span class="input-group-text" id="vaspLoadSpan">Load VASP directory</span>
       </div>
       <div class="custom-file">
-        <input type="file" class="custom-file-input" id="vaspLoadInput" aria-describedby="vaspLoadSpan" webkitdirectory
+        <input type="file" class="custom-file-input" id="vaspDirInput" aria-describedby="vaspLoadSpan" webkitdirectory
           onchange="">
-        <label class="custom-file-label" for="vaspLoadInput">Choose directory</label>
+        <label class="custom-file-label" for="vaspDirInput">Choose directory</label>
       </div>
     </div>
   </div>
@@ -47,6 +47,8 @@
     </div>
   </div>
 </div>
+
+<!-- Load existing HDF5 file -->
 <div id="hdf5Source" style="display:none">
   <div class="row row-margin">
     <div class="input-group col-md">
@@ -54,9 +56,8 @@
         <span class="input-group-text" id="hdf5LoadSpan">Load HDF5 file</span>
       </div>
       <div class="custom-file">
-        <input type="file" class="custom-file-input" id="hdf5LoadInput" aria-describedby="hdf5LoadSpan" webkitdirectory
-          onchange="">
-        <label class="custom-file-label" for="hdf5LoadInput">Choose directory</label>
+        <input type="file" class="custom-file-input" id="hdf5LoadInput" aria-describedby="hdf5LoadSpan" accept=".hdf5,.HDF5">
+        <label class="custom-file-label" for="hdf5LoadInput">placeholder.hdf5</label>
       </div>
     </div>
   </div>

@@ -1,7 +1,5 @@
 var activeVisualisation = "";
-var hdf5_path = "";
 
-const charge_hdf5 = "/home/labb/HDF5/nacl_new.hdf5";
 
 // --------------------------------
 // ----- File selection panel -----
@@ -12,8 +10,15 @@ function startVisPressed() {
         console.log("No visualisation type selected")
         return
     }
-
-    send_data("envision request", ["start", activeVisualisation, [activeVisualisation, hdf5_path]]);
+    let path = "";
+    if ($("#vaspSourceCheckbox").is(":checked")){
+        // Parse file
+        // save temp hdf5
+        // path to that hdf5
+    }
+    else 
+        path = $("#hdf5LoadInput")[0].files[0].path;
+    send_data("envision request", ["start", activeVisualisation, [activeVisualisation, path]]);
 }
 
 function stopVisPressed() {
@@ -102,7 +107,7 @@ function slicePlaneToggle() {
 
 function sliceHeightChanged() {
     let value = $(this).val();
-    $("#sl$iceHeightRange").val(value);
+    $("#sliceHeightRange").val(value);
     $("#sliceHeightText").val(value);
     if (value == "")
         value = 0.5;
@@ -252,7 +257,7 @@ function loadTFPoints(points) {
     $("#tfPoints").empty();
     for (let i = 0; i < points.length; i++) {
         let hexColor = rgbToHex(points[i][1][0], points[i][1][1], points[i][1][2])
-        addTfPointElement(points[i][0], points[i][1][0], hexColor)
+        addTfPointElement(points[i][0], points[i][1][3], hexColor)
     }
 }
 
