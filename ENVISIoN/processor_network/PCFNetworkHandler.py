@@ -115,7 +115,7 @@ class PCFNetworkHandler(LinePlotNetworkHandler):
                 HDF5_to_func.yPathSelectionProperty.value = "/PCF for t_0"
 
 
-            self.set_y_selection("PCF for t_0")
+            self.set_y_single_selection_string("PCF for t_0")
             self.set_title("Pair Correlation Function")
 
 

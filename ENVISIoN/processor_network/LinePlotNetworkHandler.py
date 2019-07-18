@@ -50,10 +50,16 @@ class LinePlotNetworkHandler(NetworkHandler):
 
 
     
-    def set_y_single_selection(self, index):
+    def set_y_single_selection_index(self, index):
         plotter = self.get_processor("Line plot")
         plotter.ySelectionProperty.selectedIndex = index
         return [True, None]
+
+    def set_y_single_selection_string(self, name):
+        plotter = self.get_processor("Line plot")
+        plotter.ySelectionProperty.value = name
+        return [True, None]
+
     
     def set_y_multi_selection(self, selection):
         plotter = self.get_processor("Line plot")

@@ -97,7 +97,7 @@ class ENVISIoN():
         self.action_dict["set_n_labels"] = lambda id, params: self.networkHandlers[id].set_n_labels(*params)
         self.action_dict["set_y_selection_type"] = lambda id, params: self.networkHandlers[id].set_y_selection_type(*params)
         self.action_dict["get_available_datasets"] = lambda id, params: self.networkHandlers[id].get_available_datasets(*params)
-        self.action_dict["set_y_single_selection"] = lambda id, params: self.networkHandlers[id].set_y_single_selection(*params)
+        self.action_dict["set_y_single_selection_index"] = lambda id, params: self.networkHandlers[id].set_y_single_selection_index(*params)
         self.action_dict["set_y_multi_selection"] = lambda id, params: self.networkHandlers[id].set_y_multi_selection(*params)
         # self.action_dict["set_y_single_selection"] = lambda id, params: self.networkHandlers[id].set_y_single_selection(*params)
         # self.action_dict["set_y_single_selection"] = lambda id, params: self.networkHandlers[id].set_y_single_selection(*params)
@@ -121,7 +121,8 @@ class ENVISIoN():
             "pcf": hdf5parser.vasp.paircorrelation,
             "Pair correlation function": hdf5parser.vasp.paircorrelation,
             "dos": hdf5parser.vasp.dos,
-            "Density of states": hdf5parser.vasp.dos
+            "Density of states": hdf5parser.vasp.dos,
+            "Unitcell": hdf5parser.vasp.unitcell
         }
 
     def update(self):
@@ -175,17 +176,23 @@ class ENVISIoN():
         #     return [request[0], False, "Bad parameters."]
     
     def handler_parse_request(self, request):
-        parse_type, hdf5_path, vasp_path = request
-        # if hdf5_path == None:
-        #     # hdf5_path = path_to_current_folder + "/temp.hdf5"
-        #     hdf5_path = "temp.hdf5"
-            
-        
-        successful = self.parseFunctions[parse_type](hdf5_path, vasp_path)
+        parse_types, hdf5_path, vasp_path = request
 
+        if parse_types == "All":
+            parse_types = [
+                "Electron density", 
+                "Electron localisation function", 
+                "Bandstructure", 
+                "Pair correlation function",
+                "Density of states",
+                "Unitcell"]
+
+        parse_statuses = {}
+        for parse_type in parse_types:
+            parse_statuses[parse_type] = self.parseFunctions[parse_type](hdf5_path, vasp_path)
 
         # TODO: Return status of 
-        return [parse_type, successful, "*Error message*"]
+        return [parse_type, parse_statuses, "*Error message*"]
 
 
     def initialize_visualisation(self, handler_id, vis_type, hdf5_file):
