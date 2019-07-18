@@ -3,6 +3,9 @@ const fs = require('fs')
 var activeVisualisation = "";
 
 
+// TODO: Validations for most text field inputs.
+//       If they are empty you cant just send null
+
 // --------------------------------
 // ----- File selection panel -----
 // --------------------------------
@@ -18,9 +21,9 @@ function startVisPressed() {
         try {
             fs.unlinkSync("temp.hdf5");
         } catch (err) {
-            console.error(err)
+            // console.error(err)
         }
-        send_data("parser request", [activeVisualisation, "temp.hdf5", vaspPath])
+        send_data("parser request", ["All", "temp.hdf5", vaspPath])
         send_data("envision request", ["start", activeVisualisation, [activeVisualisation, "temp.hdf5"]]);
     }
     else
@@ -201,20 +204,20 @@ function ySelectionRadiosChanged() {
         $("#specificY").hide();
         $("#multipleY").show();
     }
-    xRangeSubmitted();
-    yRangeSubmitted();
+    // xRangeSubmitted();
+    // yRangeSubmitted();
 }
 
 function ySingleSelectionChanged() {
     let selectionIndex = $("#ySingleSelection")[0].selectedIndex;
-    send_data("envision request", ["set_y_single_selection", activeVisualisation, [selectionIndex]]);
+    send_data("envision request", ["set_y_single_selection_index", activeVisualisation, [selectionIndex]]);
 }
 
 function yMultiSelectionChanged() {
     let input = $("#yMultiSelectInput").val();
     send_data("envision request", ["set_y_multi_selection", activeVisualisation, [input]]);
-    xRangeSubmitted();
-    yRangeSubmitted();
+    // xRangeSubmitted();
+    // yRangeSubmitted();
     return false;
 }
 
@@ -233,7 +236,7 @@ function parseClicked() {
         return;
     }
 
-    send_data("parser request", [parseType, hdf5Dir + "/" + hdf5FileName, vaspDir])
+    send_data("parser request", [[parseType], hdf5Dir + "/" + hdf5FileName, vaspDir])
     console.log(vaspDir, hdf5Dir, hdf5FileName, parseType);
 }
 
@@ -249,6 +252,8 @@ function visualisationStarted(visInfo) {
         initializeELFPanel();
     else if (visInfo[0] == "bandstructure")
         initializeBandstructurePanel();
+    else if (visInfo[0] == "pcf")
+        initializePCFPanel();
 }
 
 function loadBands(bands) {
@@ -377,4 +382,9 @@ function initializeELFPanel() {
 function initializeBandstructurePanel() {
     console.log("Bandstructure")
     send_data("envision request", ["get_available_datasets", "bandstructure", []])
+}
+
+function initializePCFPanel(){
+    console.log("PCF")
+    send_data("envision request", ["get_available_datasets", "pcf", []])
 }
