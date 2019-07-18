@@ -1,7 +1,8 @@
 <!-- Settings panel -->
 <h2 class="border-bottom">Bandstructure</h2>
 
-<div id="loadPanel"></div>
+<div id="loadPanel">
+</div>
 
 <div id="visSettings">
 </div>
@@ -12,7 +13,6 @@
   $("#visSettings").load("visualisationPanels/graph2D.html");
 
   activeVisualisation = "bandstructure"
-  hdf5_path = "/home/labb/HDF5/Bandstructure.hdf5"
 
   $(document).ready(function () {
     initializeBandstructurePanel();

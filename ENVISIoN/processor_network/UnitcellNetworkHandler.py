@@ -55,14 +55,14 @@ class UnitcellNetworkHandler(NetworkHandler):
     """
     def __init__(self, hdf5_path, inviwoApp):
         NetworkHandler.__init__(self, inviwoApp)
-
+        self.nAtomTypes = 0
+        self.atomNames = []
         # Make sure the hdf5 file is valid
         with h5py.File(hdf5_path, 'r') as file:
             if file.get("UnitCell") == None:
                 raise AssertionError("No unitcell data in that file")
 
-        self.nAtomTypes = 0
-        self.atomNames = []
+        
         self.setup_unitcell_network(hdf5_path)
 
 

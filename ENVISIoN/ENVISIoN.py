@@ -14,7 +14,7 @@
 
 import sys#,os,inspect
 # path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-sys.path.append("/home/labb/Inviwo-latest/build/bin")
+sys.path.append("C:/Kandidatprojekt/inviwo-latest/build/bin/Debug")
 import inviwopy as ivw
 import inviwopyapp as qt
 import time
@@ -150,7 +150,10 @@ class ENVISIoN():
         # except TypeError as error:
         #     return [request[0], False, "Bad parameters."]
     
-    
+    def handler_parse_request(self, request):
+        pass
+
+
     def initialize_visualisation(self, handler_id, vis_type, hdf5_file):
         # Initializes a network handler which will start a visualization.
         # Type of subclass depends on vis_type

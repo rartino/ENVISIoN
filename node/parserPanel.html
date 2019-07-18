@@ -1,1 +1,54 @@
-<p>Some page where parsing can be done from</p>
+<!-- File input stuff -->
+<h4 class="border-bottom">Parser</h4>
+<p>Parse data from VASP output files into a HDF5 file that ENVISIoN can visualise.</p>
+<div>
+  <div class="row row-margin">
+    <div class="input-group col-md">
+      <div class="input-group-prepend medium">
+        <span class="input-group-text" id="vaspLoadSpan">VASP source</span>
+      </div>
+      <div class="custom-file">
+        <input type="file" class="custom-file-input" id="vaspDirInput" aria-describedby="vaspLoadSpan" webkitdirectory
+          onchange="">
+        <label class="custom-file-label" for="vaspDirInput">Choose directory</label>
+      </div>
+    </div>
+  </div>
+  <label>Save parsed HDF5 file</label>
+  <div class="row row-margin">
+    <div class="input-group col-md">
+      <div class="input-group-prepend medium">
+        <span class="input-group-text" id="hdf5FileNamePrep">HDF5 file name</span>
+      </div>
+      <input type="text" class="form-control" id="hdf5FileNameInput" aria-describedby="hdf5FileNamePrep" placeholder="example.hdf5">
+    </div>
+  </div>
+  <div class="row row-margin">
+    <div class="input-group col-md">
+      <div class="input-group-prepend medium">
+        <span class="input-group-text" id="hdfSaveSpan">Save directory</span>
+      </div>
+      <div class="custom-file">
+        <input type="file" class="custom-file-input" id="hdfSaveInput" aria-describedby="hdfSaveSpan" webkitdirectory
+          onchange="">
+        <label class="custom-file-label" for="hdfSaveInput">Choose directory</label>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:5px; margin-top:10px">
+    <button id="parseBtn" type="button" class="btn btn-primary">Parse</button>
+  </div>
+
+
+</div>
+
+
+<script>
+  $(document).ready(function () {
+
+
+    $("#startVisBtn").on("click", startVisPressed);
+    $("#stopVisBtn").on("click", stopVisPressed);
+  });
+</script>

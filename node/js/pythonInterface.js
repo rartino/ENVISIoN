@@ -12,7 +12,7 @@ const spawn = require("child_process").spawn;
 
 var LOG_PYTHON_PRINT = false
 var LOG_PYTHON_ERROR = true
-var LOG_SENT_PACKETS = true
+var LOG_SENT_PACKETS = false
 var LOG_RECIEVED_PACKETS = true
 
 var pythonProcess = null
@@ -32,7 +32,10 @@ function start_python_process() {
     if (pythonProcess == null)
     {
         console.log("Starting python")
-        pythonProcess = spawn('/usr/bin/python3', ["py_js_networking.py"]);
+        if (window.navigator.platform == "Win32")
+            pythonProcess = spawn('python', ["py_js_networking.py"]);
+        else
+            pythonProcess = spawn('python3', ["py_js_networking.py"]);
         // console.log(pythonProcess)
         pythonProcess.stdout.on('data', on_data_recieve)
         pythonProcess.stderr.on('data', on_python_error)
