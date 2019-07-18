@@ -37,15 +37,15 @@
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import sys,os,inspect
-path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-sys.path.insert(0, os.path.expanduser(path_to_current_folder))
+# path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+# sys.path.insert(0, os.path.expanduser(path_to_current_folder))
 
 import inviwopy
 import numpy as np
 import h5py
 
-from VolumeNetworkHandler import VolumeNetworkHandler
-from UnitcellNetworkHandler import UnitcellNetworkHandler
+from .VolumeNetworkHandler import VolumeNetworkHandler
+from .UnitcellNetworkHandler import UnitcellNetworkHandler
 
 class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
     """ Handler class for charge visualization self.network.

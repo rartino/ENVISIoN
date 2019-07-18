@@ -37,16 +37,16 @@
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import sys,os,inspect
-path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-sys.path.insert(0, os.path.expanduser(path_to_current_folder))
+# path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+# sys.path.insert(0, os.path.expanduser(path_to_current_folder))
 
 import inviwopy
 import numpy as np
 from matplotlib import pyplot as plt 
 import h5py
-from data import atomic_radii, element_names, element_colors
+from .data import atomic_radii, element_names, element_colors
 
-from NetworkHandler import NetworkHandler
+from .NetworkHandler import NetworkHandler
 
 class UnitcellNetworkHandler(NetworkHandler):
     """ Base class for setting up and handling a self.network for generic unitcell rendering for ENVISIoN.
