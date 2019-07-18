@@ -46,6 +46,11 @@ class VolumeNetworkHandler(NetworkHandler):
                             inviwopy.glm.vec4(1,1,1,1),3,0)
         self.slice_copy_tf()
 
+        self.add_tf_point(0.45, [0.1, 0.1, 0.8, 0.05])
+        self.add_tf_point(0.5, [0.2, 0.8, 0.1, 0.1])
+        self.add_tf_point(0.8, [0.9, 0.1, 0.1, 0.5])
+        self.set_mask(self.get_tf_points()[1][0][0], 1)
+
     def show_volume_dist(self, path_to_hdf5):
     # Shows a histogram plot over volume data
         

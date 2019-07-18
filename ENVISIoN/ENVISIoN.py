@@ -24,7 +24,7 @@ import inviwopyapp as qt
 import time
 
 # from parser import vasp
-import parser
+import hdf5parser.vasp
 
 # import processor_network
 
@@ -45,6 +45,7 @@ class ENVISIoN():
         the same JSON standard.
     """
     def __init__(self):
+        self.app = None
         self.initialize_inviwo_app()
         self.networkHandlers = {}
 
@@ -109,14 +110,14 @@ class ENVISIoN():
             "pcf": PCFNetworkHandler,
             "bandstructure": BandstructureNetworkHandler}
 
-
-        # self.parseTypes = {
-        #     "charge": charge,
-        #     "elf": elf,
-        #     "bandstructure": bandstructure,
-        #     "pcf": paircorrelation,
-        #     "dos": dos
-        # }
+        # print(dir(hdf5parser.vasp))
+        self.parseFunctions = {
+            "Electron density": hdf5parser.vasp.charge,
+            "Electron localisation function": hdf5parser.vasp.elf,
+            "Bandstructure": hdf5parser.vasp.bandstructure,
+            "Pair correlation function": hdf5parser.vasp.paircorrelation,
+            "Density of states": hdf5parser.vasp.dos
+        }
 
     def update(self):
         self.app.update()
@@ -169,7 +170,10 @@ class ENVISIoN():
         #     return [request[0], False, "Bad parameters."]
     
     def handler_parse_request(self, request):
-        pass
+        parse_type, hdf5_file, vasp_dir = request
+        self.parseFunctions[parse_type](hdf5_file, vasp_dir)
+        # TODO: Return status of 
+        return [parse_type, True, "Parse may or may not have worked"]
 
 
     def initialize_visualisation(self, handler_id, vis_type, hdf5_file):
