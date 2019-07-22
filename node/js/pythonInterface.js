@@ -13,7 +13,7 @@ const spawn = require("child_process").spawn;
 var LOG_PYTHON_PRINT = false;
 var LOG_PYTHON_ERROR = true;
 var LOG_SENT_PACKETS = true;
-var LOG_RECIEVED_PACKETS = true;
+var LOG_RECIEVED_PACKETS = false;
 
 var pythonProcess = null
 

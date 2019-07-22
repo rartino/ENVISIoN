@@ -1,7 +1,7 @@
 const fs = require('fs')
 
 var activeVisualisation = "";
-
+var runningVisualisations = [];
 
 // TODO: Validations for most text field inputs.
 //       If they are empty you cant just send null
@@ -15,30 +15,28 @@ function startVisPressed() {
         console.log("No visualisation type selected")
         return
     }
-    let path = "";
     if ($("#vaspSourceCheckbox").is(":checked")) {
         let vaspPath = $("#vaspDirInput")[0].files[0].path;
+        let hdf5Path = "temp_"+activeVisualisation+".hdf5";
         try {
-            fs.unlinkSync("temp.hdf5");
-        } catch (err) {
-            // console.error(err)
-        }
-        send_data("parser request", ["All", "temp.hdf5", vaspPath])
-        send_data("envision request", ["start", activeVisualisation, [activeVisualisation, "temp.hdf5"]]);
+            fs.unlinkSync(hdf5Path);
+        } catch (err) {}
+        send_data("parser request", ["All", hdf5Path, vaspPath])
+        send_data("envision request", ["start", activeVisualisation, [activeVisualisation, hdf5Path]]);
     }
-    else
-        path = $("#hdf5LoadInput")[0].files[0].path;
-    send_data("envision request", ["start", activeVisualisation, [activeVisualisation, path]]);
+    else {
+        let path = $("#hdf5LoadInput")[0].files[0].path;
+        send_data("envision request", ["start", activeVisualisation, [activeVisualisation, path]]);
+    }
 }
 
 function stopVisPressed() {
-    send_data("envision request", ["stop", "-", [true]]);
+    send_data("envision request", ["stop", activeVisualisation, [false]]);
 }
 
 function pathInputChanged() {
     let filePath = $(this)[0].files[0].path;
     $(this).next('.custom-file-label').addClass("selected").html(filePath);
-    console.log(filePath)
 }
 
 function togglePathType() {
@@ -46,12 +44,10 @@ function togglePathType() {
     var hdf5Div = $("#hdf5Source")
 
     if ($("#vaspSourceCheckbox").is(":checked")) {
-        console.log("Showing vasp")
         vaspDiv.css("display", "block")
         hdf5Div.css("display", "none")
     }
     else if ($("#hdf5SourceCheckbox").is(":checked")) {
-        console.log("Hiding vasp")
         vaspDiv.css("display", "none")
         hdf5Div.css("display", "block")
     }

@@ -20,8 +20,6 @@ from ENVISIoN import ENVISIoN
 import threading
 import queue
 
-# TODO: select method for checking if input is empty will not work on windows.
-
 def send_packet(tag, data):
 # Package data into JSON-string-packet and send it via printing.
     packet = json.dumps({"type": tag, "data": data})
