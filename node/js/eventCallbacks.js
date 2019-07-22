@@ -127,10 +127,25 @@ function sliceHeightChanged() {
     send_data("envision request", ["set_plane_height", activeVisualisation, [value]]);
 }
 
+function sliceZoomChanged() {
+    let value = $(this).val();
+    $("#sliceZoomtRange").val(value);
+    $("#sliceZoomText").val(value);
+    let a = Math.pow(10.99, value) - 0.99;
+    send_data("envision request", ["set_slice_zoom", activeVisualisation, [a]]);
+}
+
+
+function wrapModeSelected() {
+    let selectedIndex = $("#sliceWrapSelection")[0].selectedIndex;
+    let modeIndexes = [0, 2]
+    send_data("envision request", ["set_texture_wrap_mode", activeVisualisation, [modeIndexes[selectedIndex]]]);
+}
+
 function sliceNormalChanged() {
-    let x = parseFloat($(this)[0].children[0].value);
-    let y = parseFloat($(this)[0].children[1].value);
-    let z = parseFloat($(this)[0].children[2].value);
+    let x = parseFloat($(this)[0].children[1].value);
+    let y = parseFloat($(this)[0].children[2].value);
+    let z = parseFloat($(this)[0].children[3].value);
     send_data("envision request", ["set_plane_normal", activeVisualisation, [x, y, z]]);
     return false;
 }
@@ -171,7 +186,6 @@ function gridChecked() {
 
 function gridSizeChanged() {
     let value = parseFloat($("#gridSizeInput").val());
-    console.log(value)
     send_data("envision request", ["set_grid_size", activeVisualisation, [value]]);
 }
 
@@ -219,6 +233,23 @@ function yMultiSelectionChanged() {
     // xRangeSubmitted();
     // yRangeSubmitted();
     return false;
+}
+
+function hideAtomsChanged() {
+    let enable = $("#hideAllAtomsCheck").is(":checked");
+    if (!enable)
+        send_data("envision request", ["hide_atoms", activeVisualisation, []]);
+    else
+        $('[name="atomRadiusSlider"]').trigger("input");
+}
+
+function atomRadiusChanged() {
+    if (!$("#hideAllAtomsCheck").is(":checked"))
+        return
+    let value = parseInt($(this).val());
+    let radius = (Math.pow(1.0243, value) - 1) / 12;
+    let index = parseInt($(this).parent().parent().parent().index());
+    send_data("envision request", ["set_atom_radius", activeVisualisation, [radius, index]]);
 }
 
 // ------------------------
@@ -269,20 +300,23 @@ function loadBands(bands) {
 function loadAtoms(atoms) {
     $("#atomControls").empty();
     for (let i = 0; i < atoms.length; i++) {
-        $("#atomControls").append(
+        let atomControlElement = $(
             '<div class="form-row row-margin" name="atomControlRow">' +
             '<div class="col-sm-3">' +
-            '<div class="form-check">' +
-            '<input type="checkbox" class="form-check-input" checked>' +
+            // '<div class="form-check">' +
+            // '<input type="checkbox" class="form-check-input" checked>' +
             '<label class="form-check-label">' + atoms[i] + ' radius</label>' +
-            '</div>' +
+            // '</div>' +
             '</div>' +
             '<div class="col-sm-4">' +
             '<div class="form-group">' +
-            '<input type="range" class="form-control-range" id="formControlRange">' +
+            '<input type="range" class="form-control-range" name="atomRadiusSlider">' +
             '</div>' +
             '</div>' +
             '</div>')
+        $("#atomControls").append(atomControlElement)
+        atomControlElement.find(".form-control-range").on("input", atomRadiusChanged)
+        // atomControlElement.find(".form-control-range").on("input", atomRadiusChanged)
     }
 }
 

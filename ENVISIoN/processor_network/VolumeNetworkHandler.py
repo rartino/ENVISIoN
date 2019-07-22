@@ -218,14 +218,19 @@ class VolumeNetworkHandler(NetworkHandler):
     # Set the height of the volume slice plane
     # Height can vary between 0 and 1.
         VolumeSlice = self.get_processor('Volume Slice')
-
-        # Create position vector based on plane normal 
-        normal = VolumeSlice.planeNormal.value
-        xHeight = normal.x * height
-        yHeight = normal.y * height
-        zHeight = normal.z * height
-        VolumeSlice.planePosition.value = inviwopy.glm.vec3(xHeight, yHeight, zHeight)
+        VolumeSlice.planePosition.value = inviwopy.glm.vec3(height, height, height)
         return [True, None]
+
+    def set_texture_wrap_mode(self, mode):
+        volumeSlice = self.get_processor('Volume Slice')
+        volumeSlice.trafoGroup.volumeWrapping.selectedIndex = mode
+        return [True, None]
+
+    def set_slice_zoom(self, zoom):
+        volumeSlice = self.get_processor('Volume Slice')
+        volumeSlice.trafoGroup.imageScale.value = zoom
+        return [True, None]
+
 
     def position_canvases(self, x, y):
     # Updates the position of the canvases

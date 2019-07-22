@@ -57,6 +57,7 @@ class UnitcellNetworkHandler(NetworkHandler):
         NetworkHandler.__init__(self, inviwoApp)
         self.nAtomTypes = 0
         self.atomNames = []
+        
         # Make sure the hdf5 file is valid
         with h5py.File(hdf5_path, 'r') as file:
             if file.get("UnitCell") == None:
@@ -64,6 +65,7 @@ class UnitcellNetworkHandler(NetworkHandler):
 
         
         self.setup_unitcell_network(hdf5_path)
+        
 
 
 # ------------------------------------------
@@ -83,11 +85,8 @@ class UnitcellNetworkHandler(NetworkHandler):
         return [True, None]
 
 
-    def hide_atoms(self, hide):
-        if hide:
-            return self.set_atom_radius(0)
-        else:
-            return self.set_atom_radius(0.5)
+    def hide_atoms(self):
+        return self.set_atom_radius(0)
     
     def get_atom_names(self):
         return [True, self.atomNames]
