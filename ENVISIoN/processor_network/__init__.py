@@ -4,7 +4,7 @@
 from .ChargeNetworkHandler import ChargeNetworkHandler
 from .ELFNetworkHandler import ELFNetworkHandler
 from .UnitcellNetworkHandler import UnitcellNetworkHandler
-# from ParchgNetworkHandler import ParchgNetworkHandler
+from .ParchgNetworkHandler import ParchgNetworkHandler
 from .PCFNetworkHandler import PCFNetworkHandler
 from .BandstructureNetworkHandler import BandstructureNetworkHandler
 from .DOSNetworkHandler import DOSNetworkHandler

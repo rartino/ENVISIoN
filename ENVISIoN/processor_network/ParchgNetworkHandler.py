@@ -39,16 +39,15 @@
 
 import os,sys
 import inspect
+import inviwopy
 # path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 # sys.path.insert(0, os.path.expanduser(path_to_current_folder))
-import inviwopy
 import numpy as np
 import h5py
 import math
-from common import _add_h5source, _add_processor
 
-from VolumeNetworkHandler import VolumeNetworkHandler
-from UnitcellNetworkHandler import UnitcellNetworkHandler
+from .VolumeNetworkHandler import VolumeNetworkHandler
+from .UnitcellNetworkHandler import UnitcellNetworkHandler
 
 # TODO: Files parsed for parchg does not seem to work. Inviwo seems to not recognize the datasets as valid volumes.
 #       May have something to do with the different size of the volume data in hdf5 file. 
@@ -69,7 +68,7 @@ from UnitcellNetworkHandler import UnitcellNetworkHandler
 class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
     """ Class for setting up and handling the inviwo network for partial charge visualization
     """
-    def __init__(self, hdf5_path, band_list=[], mode_list=[]):
+    def __init__(self, hdf5_path, inviwoApp, band_list=[], mode_list=[]):
         """ Initializes the partial charge network 
         Parameters:
         hdf5_path : str
@@ -84,12 +83,13 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
             3 for 'down'
             Example: If band_list is [31, 212] and mode_list is [1,3], band 31 will be visualized as 'magnetic' and 212 as 'down'
         """
-        VolumeNetworkHandler.__init__(self)
+        self.processors = {}
+        VolumeNetworkHandler.__init__(self, inviwoApp)
 
         # Unitcell is not critical to visualization, if it fails, continnue anyway
         self.unitcellAvailable = True
         try: 
-            UnitcellNetworkHandler.__init__(self, hdf5_path)
+            UnitcellNetworkHandler.__init__(self, hdf5_path, inviwoApp)
         except AssertionError as error:
             print(error)
             self.unitcellAvailable = False
@@ -137,18 +137,19 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
 
     def clear_band_processors(self):
     # Removes all the band selection and merging processors
-        network = inviwopy.app.network
 
         for i in self.merger_processors:
             if type(i) is list:
                 for j in i:
-                    network.removeProcessor(j)
+                    self.remove_processor_by_ref(j)
+            else:
+                self.remove_processor_by_ref(i)
         for i in self.HDFvolume_processors:
             if type(i) is list:
                 for j in i:
-                    network.removeProcessor(j)
+                    self.remove_processor_by_ref(j)
             else:
-                network.removeProcessor(i)
+                self.remove_processor_by_ref(i)
 
         self.merger_processors = []
         self.HDFvolume_processors = []
@@ -178,17 +179,16 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
     
 
     def setup_parchg_network(self, hdf5_path):
-        network = inviwopy.app.network
-        self.HDFsource = _add_h5source(hdf5_path, -100, 0)
-        self.HDFsource.filename.value = hdf5_path
+        self.HDFsource = self.add_h5source(hdf5_path, -100, 0)
+        # self.HDFsource.filename.value = hdf5_path
 
         # Connect unitcell and volume visualisation.
-        volumeBoxRenderer = network.getProcessorByIdentifier('Mesh Renderer')
-        unitcellRenderer = network.getProcessorByIdentifier('Unit Cell Renderer')
+        volumeBoxRenderer = self.get_processor('Mesh Renderer')
+        unitcellRenderer = self.get_processor('Unit Cell Renderer')
         if volumeBoxRenderer and unitcellRenderer:
-            network.addConnection(unitcellRenderer.getOutport('image'), volumeBoxRenderer.getInport('imageInport'))
-            network.addLink(unitcellRenderer.getPropertyByIdentifier('camera'), volumeBoxRenderer.getPropertyByIdentifier('camera'))
-            network.addLink(volumeBoxRenderer.getPropertyByIdentifier('camera'), unitcellRenderer.getPropertyByIdentifier('camera'))
+            self.network.addConnection(unitcellRenderer.getOutport('image'), volumeBoxRenderer.getInport('imageInport'))
+            self.network.addLink(unitcellRenderer.getPropertyByIdentifier('camera'), volumeBoxRenderer.getPropertyByIdentifier('camera'))
+            self.network.addLink(volumeBoxRenderer.getPropertyByIdentifier('camera'), unitcellRenderer.getPropertyByIdentifier('camera'))
 
     def setup_band_processors(self, band_list, mode_list):
         """ Sets up the processors to handle the different band selections and modes, along with merging the resulting volumes.
@@ -200,7 +200,6 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         mode_list : list of int
             List that specifies what mode the individual bands should be visualized in.
         """
-        network = inviwopy.app.network
         
         xpos = 200-8*25
         ypos = -400+6*25
@@ -222,12 +221,12 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         mode_dict = ['total','magnetic','up','down']
         for i in range(0, n_bands):
             if mode_list[i] == 0 or mode_list[i] == 1:
-                volumeTotal = _add_processor('org.inviwo.hdf5.ToVolume', 'Band ' + str(band_list[i]) + ' ' + mode_dict[mode_list[i]], xpos + 180*i, ypos+225)
+                volumeTotal = self.add_processor('org.inviwo.hdf5.ToVolume', 'Band ' + str(band_list[i]) + ' ' + mode_dict[mode_list[i]], xpos + 180*i, ypos+225)
                 HDFvolume_list.append(volumeTotal)
             else:
-                volumeInPlus = _add_processor('org.inviwo.hdf5.ToVolume', 'Band ' + str(band_list[i]) + ' total', xpos + 180*i, ypos+75)
-                volumeInMinus = _add_processor('org.inviwo.hdf5.ToVolume', 'Band ' + str(band_list[i]) + ' magnetic', xpos + 180*i+25, ypos+150)
-                volumeCombine = _add_processor('org.inviwo.VolumeCombiner', 'Band ' + str(band_list[i]) + ' ' + mode_dict[mode_list[i]], xpos + 180*i, ypos+225)
+                volumeInPlus = self.add_processor('org.inviwo.hdf5.ToVolume', 'Band ' + str(band_list[i]) + ' total', xpos + 180*i, ypos+75)
+                volumeInMinus = self.add_processor('org.inviwo.hdf5.ToVolume', 'Band ' + str(band_list[i]) + ' magnetic', xpos + 180*i+25, ypos+150)
+                volumeCombine = self.add_processor('org.inviwo.VolumeCombiner', 'Band ' + str(band_list[i]) + ' ' + mode_dict[mode_list[i]], xpos + 180*i, ypos+225)
 
                 if mode_list[i] == 2:
                     volumeCombine.eqn.value = '0.5*(v1+v2)'
@@ -239,7 +238,7 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         for i in range(0, len(level_list)):
             submerger_list = []
             for j in range(0, level_list[i]):
-                submerger_list.append(_add_processor('org.inviwo.VolumeMerger', 'Level ' + str(i+1) + '  unit ' + str(j+1), xpos + 180*j, ypos + 300 + 75*i))
+                submerger_list.append(self.add_processor('org.inviwo.VolumeMerger', 'Level ' + str(i+1) + '  unit ' + str(j+1), xpos + 180*j, ypos + 300 + 75*i))
             merger_list.append(submerger_list)
         
         # Save the processors to class variables for later access
@@ -250,24 +249,24 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         # Also add volume mergers
         for i in range(0, n_bands):
             if mode_list[i] == 0 or mode_list[i] == 1:
-                network.addConnection(self.HDFsource.getOutport('outport'), HDFvolume_list[i].getInport('inport'))
+                self.network.addConnection(self.HDFsource.getOutport('outport'), HDFvolume_list[i].getInport('inport'))
                 if merger_list:
                     if ((i+1) % 4) == 1:
-                        network.addConnection(HDFvolume_list[i].getOutport('outport'), merger_list[0][math.floor(i/4)].getInport('inputVolume'))
+                        self.network.addConnection(HDFvolume_list[i].getOutport('outport'), merger_list[0][math.floor(i/4)].getInport('inputVolume'))
                     else:
-                        network.addConnection(HDFvolume_list[i].getOutport('outport'), merger_list[0][math.floor(i/4)].getInport('volume'+str((i%4)+1)))
+                        self.network.addConnection(HDFvolume_list[i].getOutport('outport'), merger_list[0][math.floor(i/4)].getInport('volume'+str((i%4)+1)))
                 
             else:
-                network.addConnection(self.HDFsource.getOutport('outport'), HDFvolume_list[i][0].getInport('inport'))
-                network.addConnection(self.HDFsource.getOutport('outport'), HDFvolume_list[i][1].getInport('inport'))
-                network.addConnection(HDFvolume_list[i][0].getOutport('outport'), HDFvolume_list[i][2].getInport('inport'))
-                network.addConnection(HDFvolume_list[i][1].getOutport('outport'), HDFvolume_list[i][2].getInport('inport'))
+                self.network.addConnection(self.HDFsource.getOutport('outport'), HDFvolume_list[i][0].getInport('inport'))
+                self.network.addConnection(self.HDFsource.getOutport('outport'), HDFvolume_list[i][1].getInport('inport'))
+                self.network.addConnection(HDFvolume_list[i][0].getOutport('outport'), HDFvolume_list[i][2].getInport('inport'))
+                self.network.addConnection(HDFvolume_list[i][1].getOutport('outport'), HDFvolume_list[i][2].getInport('inport'))
                 
                 if merger_list:
                     if ((i+1) % 4) == 1:
-                        network.addConnection(HDFvolume_list[i][2].getOutport('outport'), merger_list[0][math.floor(i/4)].getInport('inputVolume'))
+                        self.network.addConnection(HDFvolume_list[i][2].getOutport('outport'), merger_list[0][math.floor(i/4)].getInport('inputVolume'))
                     else:
-                        network.addConnection(HDFvolume_list[i][2].getOutport('outport'), merger_list[0][math.floor(i/4)].getInport('volume'+str((i%4)+1)))
+                        self.network.addConnection(HDFvolume_list[i][2].getOutport('outport'), merger_list[0][math.floor(i/4)].getInport('volume'+str((i%4)+1)))
 
         # Set hdf5 path properties
 
@@ -317,9 +316,9 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
                 if (i + 1) != len(merger_list):
                     for j in range(0, len(merger_list[i])):
                         if ((j+1) % 4) == 1:
-                            network.addConnection(merger_list[i][j].getOutport('outputVolume'), merger_list[i+1][math.floor(j/4)].getInport('inputVolume'))
+                            self.network.addConnection(merger_list[i][j].getOutport('outputVolume'), merger_list[i+1][math.floor(j/4)].getInport('inputVolume'))
                         else:
-                            network.addConnection(merger_list[i][j].getOutport('outputVolume'), merger_list[i+1][math.floor(j/4)].getInport('volume'+str((j%4)+1)))
+                            self.network.addConnection(merger_list[i][j].getOutport('outputVolume'), merger_list[i+1][math.floor(j/4)].getInport('volume'+str((j%4)+1)))
             
             volumeOutport = merger_list[-1][0].getOutport('outputVolume')
 

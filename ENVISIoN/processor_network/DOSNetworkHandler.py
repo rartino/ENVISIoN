@@ -261,4 +261,5 @@ class DOSNetworkHandler(LinePlotNetworkHandler):
                 hdf5_to_function.getPropertyByIdentifier('xPathFreeze').value = True
                 hdf5_to_function.getPropertyByIdentifier('yPathFreeze').value = True
             
+            # self.network.addConnection(collector.getOutport("dataframeOutport"), plotter_processor.getInport('dataFrameInport'))
             self.set_y_selection_type(2)

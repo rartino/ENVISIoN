@@ -49,7 +49,11 @@ class NetworkHandler():
     def remove_processor(self, id):
         self.network.removeProcessor(self.processors[id])
         del self.processors[id]
-    
+
+    def remove_processor_by_ref(self, processor):
+        self.network.removeProcessor(processor)
+        self.processors = {key:val for key, val in self.processors.items() if val != processor}
+
     def get_processor(self, id):
         if id in self.processors:
             return self.processors[id]
