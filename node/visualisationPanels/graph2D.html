@@ -179,9 +179,15 @@
         return /^(\d*(,|:)?)*$/.test(value); //Allow numbers separated by , and :
       });
 
-      $("#xRangeMin,#xRangeMax,yRangeMin,yRangeMax,#verticalLineXInput,#gridSizeInput").inputFilter(function (value) {
-        return /^(\d*\.?\d*)?$/.test(value); //Allow any float
+      $("#verticalLineXInput,#gridSizeInput").inputFilter(function (value) {
+        return /^(\d*\.?\d*)?$/.test(value); //Allow any positive float
       });
+
+      $("#xRangeMin,#xRangeMax,#yRangeMin,#yRangeMax").inputFilter(function (value) {
+        return /^-?(\d*\.?\d*)?$/.test(value); //Allow any float
+      });
+      
+
       $("#labelCountInput").inputFilter(function (value) {
         return /^\d*$/.test(value); //Allow any float
       });
@@ -190,14 +196,14 @@
       $("#xRangeForm").on("submit", xRangeSubmitted);
       $("#yRangeForm").on("submit", yRangeSubmitted);
       $("#verticalLineCheck").on("change", verticalLineChecked);
-      $("#verticalLineForm").on("submit", verticalLineXChanged);
+      $("#verticalLineForm").on("submit", verticalLineXSubmitted);
       $("#gridCheck").on("change", gridChecked);
-      $("#gridForm").on("submit", gridSizeChanged);
+      $("#gridForm").on("submit", gridSizeSubmitted);
       $("#xLabelCheck").on("change", xLabelChecked);
       $("#yLabelCheck").on("change", yLabelChecked);
-      $("#labelCountForm").on("submit", nLabelsChanged);
+      $("#labelCountForm").on("submit", nLabelsSubmitted);
       $("#ySingleSelection").on("change", ySingleSelectionChanged);
-      $("#yMultiSelectForm").on("submit", yMultiSelectionChanged);
+      $("#yMultiSelectForm").on("submit", yMultiSelectionSubmitted);
       $('[name="datasetRadios"]').on("change", ySelectionRadiosChanged);
     });
   </script>

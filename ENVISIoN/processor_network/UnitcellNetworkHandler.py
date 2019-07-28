@@ -44,7 +44,7 @@ import inviwopy
 import numpy as np
 from matplotlib import pyplot as plt 
 import h5py
-from .data import atomic_radii, element_names, element_colors
+from envision.utils.atomData import atomic_radii, element_names, element_colors
 
 from .NetworkHandler import NetworkHandler
 

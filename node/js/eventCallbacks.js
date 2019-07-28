@@ -194,9 +194,10 @@ function verticalLineChecked() {
     send_data("envision request", ["toggle_vertical_line", activeVisualisation, [enable]]);
 }
 
-function verticalLineXChanged() {
+function verticalLineXSubmitted() {
     let value = parseFloat($("#verticalLineXInput").val());
     send_data("envision request", ["set_vertical_line_x", activeVisualisation, [value]]);
+    return false;
 }
 
 function gridChecked() {
@@ -204,9 +205,10 @@ function gridChecked() {
     send_data("envision request", ["toggle_grid", activeVisualisation, [enable]]);
 }
 
-function gridSizeChanged() {
+function gridSizeSubmitted() {
     let value = parseFloat($("#gridSizeInput").val());
     send_data("envision request", ["set_grid_size", activeVisualisation, [value]]);
+    return false;
 }
 
 function xLabelChecked() {
@@ -217,9 +219,10 @@ function yLabelChecked() {
     send_data("envision request", ["toggle_y_label", activeVisualisation, [$("#yLabelCheck").is(":checked")]]);
 }
 
-function nLabelsChanged() {
+function nLabelsSubmitted() {
     let value = parseInt($("#labelCountInput").val());
     send_data("envision request", ["set_n_labels", activeVisualisation, [value]]);
+    return false;
 }
 
 function ySelectionRadiosChanged() {
@@ -247,7 +250,7 @@ function ySingleSelectionChanged() {
     send_data("envision request", ["set_y_single_selection_index", activeVisualisation, [selectionIndex]]);
 }
 
-function yMultiSelectionChanged() {
+function yMultiSelectionSubmitted() {
     let input = $("#yMultiSelectInput").val();
     send_data("envision request", ["set_y_multi_selection", activeVisualisation, [input]]);
     // xRangeSubmitted();
