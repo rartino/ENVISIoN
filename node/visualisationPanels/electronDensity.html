@@ -4,17 +4,31 @@
 <div id="loadPanel">
 </div>
 
-<div id="visSettings">
+<h5 class="border-top">Volume selection</h5>
+<div class="row row-margin">
+  <div class="input-group col-sm-10">
+    <div class="input-group-prepend medium">
+      <label class="input-group-text" for="bandSelection">Selected band</label>
+    </div>
+    <select class="custom-select" id="bandSelection">
+      <!-- <option selected>final</option>
+      <option>1</option> -->
+    </select>
+  </div>
+</div>
+
+<div id="volumeSettings">
 </div>
 
 
 <script>
   $("#loadPanel").load("visualisationPanels/loadPanel.html");
-  $("#visSettings").load("visualisationPanels/volumePanel.html");
+  $("#volumeSettings").load("visualisationPanels/volumePanel.html");
 
   activeVisualisation = "charge"
 
   $(document).ready(function () {
+    $("#bandSelection").on("change", bandChanged)
     initializeChargePanel();
     console.log("Charge control element loaded")
   });

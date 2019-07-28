@@ -84,6 +84,7 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
             Example: If band_list is [31, 212] and mode_list is [1,3], band 31 will be visualized as 'magnetic' and 212 as 'down'
         """
         self.processors = {}
+        self.hdf5_path = hdf5_path
         VolumeNetworkHandler.__init__(self, inviwoApp)
 
         # Unitcell is not critical to visualization, if it fails, continnue anyway
@@ -98,10 +99,8 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         with h5py.File(hdf5_path, 'r') as file:
             if file.get("PARCHG/Bands") == None:
                 raise AssertionError("No valid partial charge data in that file")
-        if len(self.get_available_bands(hdf5_path)) == 0:
+        if len(self.get_available_bands()[0]) == 0:
             raise AssertionError("No valid partial charge data in that file")
-
-
 
         self.setup_parchg_network(hdf5_path)
         self.setup_band_processors(band_list, mode_list)
@@ -123,14 +122,26 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         self.setup_band_processors(band_list, mode_list)
         self.current_bands = band_list
         self.current_modes = mode_list
+        return [True, None]
 
-    def get_available_bands(self, path):
+    def get_available_bands(self):
     # Return the keys to the available parchg bands in hdf5-file
-        with h5py.File(path, 'r') as file:
+        with h5py.File(self.hdf5_path, 'r') as file:
             band_keys = []
             for key in file.get("PARCHG/Bands").keys():
                 band_keys.append(key)
-            return band_keys
+            return [True, band_keys]
+
+    def get_available_modes(self):
+    # Return a list of available modes for hdf5 file
+        bands = self.get_available_bands()[1]
+        with h5py.File(self.hdf5_path, 'r') as file:
+            modes = []
+            for key in file.get("PARCHG/Bands")[bands[0]].keys():
+                modes.append(key)
+        if "magnetic" in modes:
+            modes += ["up", "down"]
+        return modes
 
 # ------------------------------------------
 # ------- Network building functions -------

@@ -35,6 +35,7 @@ from processor_network import UnitcellNetworkHandler
 from processor_network import BandstructureNetworkHandler
 from processor_network import PCFNetworkHandler
 from processor_network import DOSNetworkHandler
+from processor_network import ParchgNetworkHandler
 
 
 class ENVISIoN():
@@ -89,6 +90,9 @@ class ENVISIoN():
         self.action_dict["get_bands"] = lambda id, params: self.networkHandlers[id].get_available_bands(*params)
         self.action_dict["set_active_band"] = lambda id, params: self.networkHandlers[id].set_active_band(*params)
 
+        # Parchg visualisation actions
+        self.action_dict["select_bands"] = lambda id, params: self.networkHandlers[id].select_bands(*params)
+
         # Line plot
         self.action_dict["set_x_range"] = lambda id, params: self.networkHandlers[id].set_x_range(*params)
         self.action_dict["set_y_range"] = lambda id, params: self.networkHandlers[id].set_y_range(*params)
@@ -109,8 +113,9 @@ class ENVISIoN():
 
         self.visualisationTypes = {
             "charge": ChargeNetworkHandler,
-            "unitcell": UnitcellNetworkHandler,
             "elf": ELFNetworkHandler,
+            "parchg": ParchgNetworkHandler,
+            "unitcell": UnitcellNetworkHandler,
             "pcf": PCFNetworkHandler,
             "bandstructure": BandstructureNetworkHandler,
             "dos": DOSNetworkHandler
@@ -122,6 +127,8 @@ class ENVISIoN():
             "Electron density": hdf5parser.vasp.charge,
             "elf": hdf5parser.vasp.elf, 
             "Electron localisation function": hdf5parser.vasp.elf,
+            "Partial charge density": hdf5parser.vasp.parchg,
+            "parchg": hdf5parser.vasp.parchg,
             "bandstructure": hdf5parser.vasp.bandstructure,
             "Bandstructure": hdf5parser.vasp.bandstructure,
             "pcf": hdf5parser.vasp.paircorrelation,
@@ -174,6 +181,10 @@ class ENVISIoN():
 
         # try:
         # Runs the funtion with networkhandler id and request data as arguments.
+        # try:
+        #     response_data = self.action_dict[action](handler_id, parameters)
+        # except Exception as e:
+        #     return [action, False, e]
         return [action] + self.action_dict[action](handler_id, parameters)
         # except AttributeError as error:
         # # Triggered if network handler instance does not have desired function.
@@ -187,7 +198,8 @@ class ENVISIoN():
         if parse_types == "All":
             parse_types = [
                 "Electron density", 
-                "Electron localisation function", 
+                "Electron localisation function",
+                "Partial charge density",
                 "Bandstructure", 
                 "Pair correlation function",
                 "Density of states",
@@ -198,7 +210,7 @@ class ENVISIoN():
             parse_statuses[parse_type] = self.parseFunctions[parse_type](hdf5_path, vasp_path)
 
         # TODO: Return status of 
-        return [parse_type, parse_statuses, "*Error message*"]
+        return [parse_statuses, "*Error message*"]
 
 
     def initialize_visualisation(self, handler_id, vis_type, hdf5_file):

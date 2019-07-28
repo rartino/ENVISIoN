@@ -1,2 +1,76 @@
+<!-- Settings panel -->
+<h2 class="border-bottom">Partial charge density</h2>
 
-<h2 class="border-bottom">UNDER DEVELOPMENT</h2>
+<div id="loadPanel">
+</div>
+
+
+<h5 class="border-top">Partial selection</h5>
+
+<div id="partialBands">
+  <!-- <form class="row row-margin">
+    <div class="input-group col-sm-10">
+      <div class="input-group-prepend medium">
+        <label class="input-group-text" for="bandSelection">Active band</label>
+      </div>
+      <select class="custom-select">
+        <option>1</option>
+      </select>
+      <select class="custom-select">
+        <option>Total</option>
+        <option>Magnetic</option>
+        <option>Down spin</option>
+        <option>Up spin</option>
+      </select>
+      <div class="input-group-append">
+        <button class="btn btn-primary" type="submit">&nbsp;-</button>
+      </div>
+    </div>
+  </form> -->
+</div>
+
+
+
+
+<form class="row row-margin" id="partialBandAddForm">
+  <div class="input-group col-sm-10">
+    <div class="input-group-prepend medium">
+      <label class="input-group-text" for="partialBandSelection">Add band</label>
+    </div>
+    <select class="custom-select" id="partialBandSelection">
+      <option selected>band</option>
+      <option>1</option>
+      <option>2</option>
+      <option>3</option>
+    </select>
+    <select class="custom-select" id="partialModeSelection">
+      <option selected>mode</option>
+      <option>Total</option>
+      <option>Magnetic</option>
+      <option>Down spin</option>
+      <option>Up spin</option>
+    </select>
+    <div class="input-group-append">
+      <button class="btn btn-primary" type="submit">+</button>
+    </div>
+  </div>
+</form>
+
+<div id="visSettings">
+</div>
+
+
+<script>
+  $("#loadPanel").load("visualisationPanels/loadPanel.html");
+  $("#visSettings").load("visualisationPanels/volumePanel.html");
+
+  activeVisualisation = "parchg"
+
+  $(document).ready(function () {
+    $("#partialBandAddForm").on("submit", partialBandAdded)
+
+
+    initializeChargePanel();
+    console.log("Parchg control element loaded")
+  });
+</script>

@@ -146,6 +146,30 @@ function sliceNormalChanged() {
     return false;
 }
 
+// --------------------------------
+// ----- Partial charge panel -----
+// --------------------------------
+
+function partialBandAdded() {
+    let band = $("#partialBandSelection").val();
+    let mode = $("#partialModeSelection")[0].selectedIndex - 1;
+    if (band == "band" || mode == -1)
+        return false;
+    band = parseInt(band);
+    addPartialBandElement(band, mode);
+    $("#partialBandSelection").val("band");
+    $("#partialModeSelection").val("mode");
+    send_data("envision request", ["select_bands", activeVisualisation, getPartialBandSelections()]);
+    return false;
+}
+
+function partialBandRemoved() {
+    $(this).remove();
+    send_data("envision request", ["select_bands", activeVisualisation, getPartialBandSelections()]);
+    return false;
+}
+
+
 // ---------------------------
 // ----- 2-D graph panel -----
 // ---------------------------
@@ -277,6 +301,8 @@ function visualisationStarted(visInfo) {
         initializeChargePanel();
     else if (visInfo[0] == "elf")
         initializeELFPanel();
+    else if (visInfo[0] == "parchg")
+        initializeParchgPanel();
     else if (visInfo[0] == "bandstructure")
         initializeBandstructurePanel();
     else if (visInfo[0] == "pcf")
@@ -312,7 +338,6 @@ function loadAtoms(atoms) {
             '</div>')
         $("#atomControls").append(atomControlElement)
         atomControlElement.find(".form-control-range").on("input", atomRadiusChanged)
-        // atomControlElement.find(".form-control-range").on("input", atomRadiusChanged)
     }
 }
 
@@ -389,6 +414,49 @@ function addTfPointElement(value, alpha, color) {
     pointElement.on("submit", removeTfPoint);
 }
 
+function addPartialBandElement(band, mode) {
+    let elem = $(`
+    <form class="row row-margin">
+      <div class="input-group col-sm-10">
+        <div class="input-group-prepend medium">
+          <label class="input-group-text">Active band</label>
+        </div>
+        <select class="custom-select" name="bandSelect">
+        </select>
+        <select class="custom-select" name="modeSelect">
+        </select>
+        <div class="input-group-append">
+          <button class="btn btn-primary" type="submit">&nbsp;-</button>
+        </div>
+      </div>
+    </form>`);
+
+    // Copy options from the original element, excluding first option.
+    elem.find('[name="bandSelect"]').append($("#partialBandSelection > option").clone().slice(1));
+    elem.find('[name="modeSelect"]').append($("#partialModeSelection > option").clone().slice(1));
+
+    // Set correct selected option.
+    elem.find('[name="bandSelect"]').val(band);
+    elem.find('[name="modeSelect"]')[0][mode].selected = true;
+
+    elem.on("submit", partialBandRemoved)
+    $("#partialBands").append(elem);
+}
+
+function getPartialBandSelections() {
+    // Return two lists containing active bands and corresponding modes
+    let bands = [];
+    let modes = [];
+    for (let i = 0; i < $("#partialBands")[0].children.length; i++) {
+        let inputGroup = $("#partialBands")[0].children[i].children[0];
+        let band = parseInt(inputGroup.children[1].value);
+        let mode = inputGroup.children[2].selectedIndex
+        bands.push(band)
+        modes.push(mode)
+    }
+    return [bands, modes];
+}
+
 // ---------------------------------
 // ----- Panel initializations -----
 // ---------------------------------
@@ -407,6 +475,15 @@ function initializeELFPanel() {
     send_data("envision request", ["get_bands", "elf", []])
     send_data("envision request", ["get_atom_names", "elf", []])
     send_data("envision request", ["get_tf_points", "elf", []])
+}
+
+function initializeParchgPanel() {
+    console.log("Parchg")
+    send_data("envision request", ["select_bands", "parchg", [[0, 1], [0, 1]]])
+    // $("#visSettings :input").attr("disabled", false);
+    // send_data("envision request", ["get_bands", "elf", []])
+    // send_data("envision request", ["get_atom_names", "elf", []])
+    // send_data("envision request", ["get_tf_points", "elf", []])
 }
 
 function initializeBandstructurePanel() {
