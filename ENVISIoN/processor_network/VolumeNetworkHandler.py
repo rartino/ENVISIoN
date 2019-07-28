@@ -49,7 +49,7 @@ class VolumeNetworkHandler(NetworkHandler):
         self.add_tf_point(0.45, [0.1, 0.1, 0.8, 0.05])
         self.add_tf_point(0.5, [0.2, 0.8, 0.1, 0.1])
         self.add_tf_point(0.8, [0.9, 0.1, 0.1, 0.5])
-        self.set_mask(self.get_tf_points()[1][0][0], 1)
+        self.set_mask(self.get_tf_points()[0][0], 1)
 
     def show_volume_dist(self, path_to_hdf5):
     # Shows a histogram plot over volume data
@@ -80,7 +80,6 @@ class VolumeNetworkHandler(NetworkHandler):
             Raycaster.isotfComposite.transferFunction.setMask(maskMin, maskMax)
         if VolumeSlice:
             VolumeSlice.tfGroup.transferFunction.setMask(maskMin,maskMax)
-        return [True, None]
 
     def slice_copy_tf(self):
     # Function for copying the volume transferfunction to the slice transferfunction
@@ -92,7 +91,7 @@ class VolumeNetworkHandler(NetworkHandler):
             VolumeSlice.tfGroup.transferFunction.value = Raycaster.isotfComposite.transferFunction.value
             #VolumeSlice.tfGroup.transferFunction.add(0.0, inviwopy.glm.vec4(0.0, 0.0, 0.0, 1.0))
             #VolumeSlice.tfGroup.transferFunction.add(1.0, inviwopy.glm.vec4(1.0, 1.0, 1.0, 1.0))
-            tf_points = self.get_tf_points()[1]
+            tf_points = self.get_tf_points()
             if len(tf_points) > 0:
                 VolumeSlice.tfGroup.transferFunction.add(0.99*tf_points[0][0], inviwopy.glm.vec4(1.0, 1.0, 1.0, 1.0))
 
@@ -105,18 +104,15 @@ class VolumeNetworkHandler(NetworkHandler):
         print(self.network.getProcessorByIdentifier('Raycaster'))
         Raycaster.isotfComposite.transferFunction.clear()
         self.slice_copy_tf()
-        return [True, None]
 
     def set_tf_points(self, points):
     # Sets all transfer function points from an array of tf poitns.
         Raycaster = self.get_processor('Raycaster')
         Raycaster.isotfComposite.transferFunction.clear()
-        # return [False, points]
         for point in points:
             glm_col = inviwopy.glm.vec4(point[1][0], point[1][1], point[1][2], point[1][3])
             Raycaster.isotfComposite.transferFunction.add(point[0], glm_col)
         self.slice_copy_tf()
-        return [True, None]
   
     def add_tf_point(self, value, color):
     # Add point to the raycaster transferfunction
@@ -126,19 +122,18 @@ class VolumeNetworkHandler(NetworkHandler):
         if Raycaster:
             Raycaster.isotfComposite.transferFunction.add(value, glm_col)
             self.slice_copy_tf()
-            return [True, None]
-        return [False, "No raycaster found."]
+            return
+        raise KeyError("No raycaster found.")
 
     def remove_tf_point(self, index):
     # Remove a point by index
         Raycaster = self.get_processor('Raycaster')
         tf_property = Raycaster.isotfComposite.transferFunction
         if len(self.get_tf_points()) <= index:
-            return [False, "No tf point to remove."]
+            raise KeyError("No tf point to remove.")
         point_to_remove = tf_property.getValueAt(index)
         tf_property.remove(point_to_remove)
         self.slice_copy_tf()
-        return [True, None]
 
     def set_tf_point_color(self, value, color):
     # Changes the color of a tf point at a certain value
@@ -152,24 +147,21 @@ class VolumeNetworkHandler(NetworkHandler):
                 self.remove_tf_point(i)
                 break
         else:
-            return [False, "TF point value not found."]
+            raise KeyError("TF point value not found.")
         self.add_tf_point(value, color)
-        return [True, None]
 
     def get_tf_points(self):
     # Return a list of all the transferfunction points
-        
         Raycaster = self.get_processor('Raycaster')
         tf_property = Raycaster.isotfComposite.transferFunction
         point_list = [[x.pos, [x.color[0], x.color[1], x.color[2], x.color[3]]] for x in tf_property.getValues()]
-        return [True, point_list]
+        return point_list
 
 # ---- Other Properties ----
 
     def set_shading_mode(self, mode):
         Raycaster = self.get_processor('Raycaster')
         Raycaster.lighting.shadingMode.value = mode
-        return [True, None]
 
     def set_volume_background(self, color_1 = None, color_2 = None, styleIndex = None, blendModeIndex = None):
     # Set the background of the volume canvas
@@ -184,7 +176,6 @@ class VolumeNetworkHandler(NetworkHandler):
             Background.bgColor2.value = glm_col
         if blendModeIndex != None:
             Background.blendMode.selectedIndex = blendModeIndex
-        return [True, None]
 
     def set_slice_background(self, color_1 = None, color_2 = None, styleIndex = None, blendModeIndex = None):
     # Set the background of the volume canvas
@@ -197,13 +188,11 @@ class VolumeNetworkHandler(NetworkHandler):
             Background.bgColor2.value = color_2
         if blendModeIndex != None:
             Background.blendMode.selectedIndex = blendModeIndex
-        return [True, None]
 
     def toggle_slice_plane(self, enable):
     # Set if the slice plane should be visible in the volume
         Raycaster = self.get_processor('Raycaster')
         Raycaster.positionindicator.enable.value = enable
-        return [True, None]
 
     def set_plane_normal(self, x=0, y=1, z=0):
     # Set the normal of the slice plane
@@ -212,25 +201,20 @@ class VolumeNetworkHandler(NetworkHandler):
         VolumeSlice = self.get_processor('Volume Slice')
         VolumeSlice.sliceAxis.value = 3
         VolumeSlice.planeNormal.value = inviwopy.glm.vec3(x, y, z)
-        return [True, None]
 
     def set_plane_height(self, height):
     # Set the height of the volume slice plane
     # Height can vary between 0 and 1.
         VolumeSlice = self.get_processor('Volume Slice')
         VolumeSlice.planePosition.value = inviwopy.glm.vec3(height, height, height)
-        return [True, None]
 
     def set_texture_wrap_mode(self, mode):
         volumeSlice = self.get_processor('Volume Slice')
         volumeSlice.trafoGroup.volumeWrapping.selectedIndex = mode
-        return [True, None]
 
     def set_slice_zoom(self, zoom):
         volumeSlice = self.get_processor('Volume Slice')
         volumeSlice.trafoGroup.imageScale.value = zoom
-        return [True, None]
-
 
     def position_canvases(self, x, y):
     # Updates the position of the canvases
@@ -243,7 +227,6 @@ class VolumeNetworkHandler(NetworkHandler):
         if not sliceCanvas:
             return
         sliceCanvas.position.value = inviwopy.glm.ivec2(x, y + volumeCanvas.inputSize.dimensions.value.y + 50)
-        return [True, None]
 
 # ------------------------------------------
 # ------- Network building functions -------
@@ -255,7 +238,7 @@ class VolumeNetworkHandler(NetworkHandler):
 
         # If already in correct mode dont do anything
         if (SliceCanvas and enable_slice) or (not SliceCanvas and not enable_slice):
-            return [True, None]
+            return
 
         if enable_slice:
             SliceCanvas = self.add_processor('org.inviwo.CanvasGL', 'SliceCanvas', 25*7, 525)
@@ -263,7 +246,6 @@ class VolumeNetworkHandler(NetworkHandler):
             self.network.addConnection(self.get_processor('SliceBackground').getOutport('outport'), SliceCanvas.getInport('inport'))
         else:
             self.remove_processor('SliceCanvas')
-        return [True, None]
 
     def connect_volume(self, volume_outport):
         for inport in self.volumeInports:

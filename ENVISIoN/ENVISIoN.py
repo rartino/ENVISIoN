@@ -13,8 +13,8 @@
 
 
 import sys,os,inspect
-path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-sys.path.append(path_to_current_folder)
+# path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+# sys.path.append(path_to_current_folder)
 # sys.path.append(path_to_current_folder + "/processor_network")
 # sys.path.append(path_to_current_folder + "/parser")
 # PATH_INVIWO_BIN = "/home/labb/Inviwo-latest/build/bin"
@@ -24,18 +24,8 @@ import inviwopy as ivw
 import inviwopyapp as qt
 import time
 
-# from parser import vasp
-import hdf5parser.vasp
-
-# import processor_network
-
-from processor_network import ChargeNetworkHandler
-from processor_network import ELFNetworkHandler
-from processor_network import UnitcellNetworkHandler
-from processor_network import BandstructureNetworkHandler
-from processor_network import PCFNetworkHandler
-from processor_network import DOSNetworkHandler
-from processor_network import ParchgNetworkHandler
+from envision.processor_network import *
+import envision.hdf5parser
 
 
 class ENVISIoN():
@@ -123,19 +113,19 @@ class ENVISIoN():
 
         # print(dir(hdf5parser.vasp))
         self.parseFunctions = {
-            "charge": hdf5parser.vasp.charge,
-            "Electron density": hdf5parser.vasp.charge,
-            "elf": hdf5parser.vasp.elf, 
-            "Electron localisation function": hdf5parser.vasp.elf,
-            "Partial charge density": hdf5parser.vasp.parchg,
-            "parchg": hdf5parser.vasp.parchg,
-            "bandstructure": hdf5parser.vasp.bandstructure,
-            "Bandstructure": hdf5parser.vasp.bandstructure,
-            "pcf": hdf5parser.vasp.paircorrelation,
-            "Pair correlation function": hdf5parser.vasp.paircorrelation,
-            "dos": hdf5parser.vasp.dos,
-            "Density of states": hdf5parser.vasp.dos,
-            "Unitcell": hdf5parser.vasp.unitcell
+            "charge": envision.hdf5parser.charge,
+            "Electron density": envision.hdf5parser.charge,
+            "elf": envision.hdf5parser.elf, 
+            "Electron localisation function": envision.hdf5parser.elf,
+            "Partial charge density": envision.hdf5parser.parchg,
+            "parchg": envision.hdf5parser.parchg,
+            "bandstructure": envision.hdf5parser.bandstructure,
+            "Bandstructure": envision.hdf5parser.bandstructure,
+            "pcf": envision.hdf5parser.paircorrelation,
+            "Pair correlation function": envision.hdf5parser.paircorrelation,
+            "dos": envision.hdf5parser.dos,
+            "Density of states": envision.hdf5parser.dos,
+            "Unitcell": envision.hdf5parser.unitcell
         }
 
     def update(self):
@@ -181,11 +171,15 @@ class ENVISIoN():
 
         # try:
         # Runs the funtion with networkhandler id and request data as arguments.
-        # try:
-        #     response_data = self.action_dict[action](handler_id, parameters)
-        # except Exception as e:
-        #     return [action, False, e]
-        return [action] + self.action_dict[action](handler_id, parameters)
+        try:
+            response_data = self.action_dict[action](handler_id, parameters)
+        except Exception as e:
+            raise
+            return [action, False, repr(e)]
+        else:
+            return [action, True, response_data]
+
+        # return [action] + self.action_dict[action](handler_id, parameters)
         # except AttributeError as error:
         # # Triggered if network handler instance does not have desired function.
         #     return [request[0], False, "Function does not exsist."]
@@ -219,9 +213,9 @@ class ENVISIoN():
 
         # TODO: add exception on file not found and faulty hdf5 file
         if handler_id in self.networkHandlers:
-            return [False, handler_id + " visualisation is already running"]
+            raise KeyError(handler_id + " visualisation is already running")
         self.networkHandlers[handler_id] = self.visualisationTypes[vis_type](hdf5_file, self.app)
-        return [True, [handler_id, vis_type]]
+        return [handler_id, vis_type]
 
     def stop_visualisation(self, handler_id, stop_all=False):
     # Stop visualizations depending on vis_type.
@@ -231,15 +225,15 @@ class ENVISIoN():
                 self.networkHandlers[id].clear_processors()
             self.app.network.clear()
             self.networkHandlers.clear()
-            return [True, ids]
+            ids
         if handler_id in self.networkHandlers:
             self.networkHandlers[handler_id].clear_processors()
             del self.networkHandlers[handler_id]
-            return [True, handler_id]
+            handler_id
         # elif handler_id in self.networkHandlers:
         #     self.networkHandlers[handler_id].clear_processor_network()
         #     del self.networkHandlers[handler_id]
         #     return [True, handler_id + " stopped."]
         # else:
-        return [False, "That visualisation is not running."]
+        raise KeyError("That visualisation is not running.")
 

@@ -90,7 +90,7 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
             band_keys = []
             for key in file.get("CHG").keys():
                 band_keys.append(key)
-            return [True, band_keys]
+            return band_keys
 
 # ------------------------------------------
 # ------- Property control functions -------
@@ -99,7 +99,6 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
     # Sets the dataset which HDF5 to volume processor will read
         toVolume = self.get_processor('HDF5 To Volume')
         toVolume.volumeSelection.selectedValue = '/CHG/' + key
-        return [True, None]
 
     def position_canvases(self, x, y):
     # Updates the position of the canvases
@@ -115,7 +114,6 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
             sliceCanvas.position.value = inviwopy.glm.ivec2(x, y + volumeCanvas.inputSize.dimensions.value.y + 50)
         if unitcellCanvas:
             unitcellCanvas.position.value = inviwopy.glm.ivec2(x + volumeCanvas.inputSize.dimensions.value.x, y)
-        return [True, None]
 
 # ------------------------------------------
 # ------- Network building functions -------
