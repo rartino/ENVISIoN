@@ -25,11 +25,11 @@
   $("#loadPanel").load("visualisationPanels/loadPanel.html");
   $("#volumeSettings").load("visualisationPanels/volumePanel.html");
 
-  activeVisualisation = "elf"
+  activeVisualisation = "elf";
 
   $(document).ready(function () {
     $("#bandSelection").on("change", bandChanged)
-    initializeELFPanel();
+    visPanelChanged();
     console.log("ELF control element loaded")
   });
 </script>

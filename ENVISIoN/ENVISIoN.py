@@ -25,6 +25,7 @@ import inviwopyapp as qt
 import time
 
 from envision.processor_network import *
+from envision.utils.exceptions import *
 import envision.hdf5parser
 
 
@@ -47,6 +48,7 @@ class ENVISIoN():
         self.action_dict = {}
         self.action_dict["start"] = lambda id, params: self.initialize_visualisation(id, *params)
         self.action_dict["stop"] = lambda id, params: self.stop_visualisation(id, *params)
+        self.action_dict["get_ui_data"] = lambda id, params: self.networkHandlers[id].get_ui_data(*params)
 
         # Volume visualisation actions
         self.action_dict["set_mask"] = lambda id, params: self.networkHandlers[id].set_mask(*params)
@@ -161,10 +163,10 @@ class ENVISIoN():
 
         # Check if action exist
         if not action in self.action_dict:
-            return [request[0], False, "Unknown action"]
+            return [request[0], False, handler_id, format_error(InvalidRequestError("Unknown action"))]
         # Check if id exist
         if not handler_id in self.networkHandlers and (action != "start" and action != "stop"):
-            return [action, False, "Non-existant network handler instance"]
+            return [action, False, handler_id, format_error(HandlerNotFoundError('Non-existant network handler instance "' + handler_id + '".'))]
 
         # if action!="start":
         #     return [action, parameters]
@@ -173,10 +175,14 @@ class ENVISIoN():
         # Runs the funtion with networkhandler id and request data as arguments.
         try:
             response_data = self.action_dict[action](handler_id, parameters)
-        except TypeError as e:
-            return [action, False, repr(e)]
+        except HandlerNotFoundError as e:
+            return [action, False, handler_id, format_error(e)]
+        except EnvisionError as e:
+            return [action, False, handler_id, format_error(e)]
+        # except TypeError as e:
+        #     return [action, False, format_error(e)]
         else:
-            return [action, True, response_data]
+            return [action, True, handler_id, response_data]
 
         # return [action] + self.action_dict[action](handler_id, parameters)
         # except AttributeError as error:
@@ -184,7 +190,8 @@ class ENVISIoN():
         #     return [request[0], False, "Function does not exsist."]
         # except TypeError as error:
         #     return [request[0], False, "Bad parameters."]
-    
+
+
     def handler_parse_request(self, request):
         parse_types, hdf5_path, vasp_path = request
 
@@ -212,7 +219,7 @@ class ENVISIoN():
 
         # TODO: add exception on file not found and faulty hdf5 file
         if handler_id in self.networkHandlers:
-            raise KeyError(handler_id + " visualisation is already running")
+            raise InvalidRequestError(handler_id + " visualisation is already running")
         self.networkHandlers[handler_id] = self.visualisationTypes[vis_type](hdf5_file, self.app)
         return [handler_id, vis_type]
 

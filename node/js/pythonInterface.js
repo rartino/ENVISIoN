@@ -11,20 +11,22 @@
 const spawn = require("child_process").spawn;
 
 var LOG_PYTHON_PRINT = false;
-var LOG_PYTHON_ERROR = true;
-var LOG_SENT_PACKETS = false;
+var LOG_PYTHON_ERROR = false;
+var LOG_SENT_PACKETS = true;
 var LOG_RECIEVED_PACKETS = true;
+var LOG_FAILED_REQUESTS = true;
 
 var pythonProcess = null
 
 //TODO: not sure if encoding will always be the same on platforms
 
 var response_callbacks = {
-    "start": visualisationStarted,
-    "get_bands": loadBands,
-    "get_atom_names": loadAtoms,
-    "get_tf_points": loadTFPoints,
-    "get_available_datasets": loadAvailableDatasets
+    // "start": visualisationStarted,
+    // "get_bands": loadBands,
+    // "get_atom_names": loadAtoms,
+    // "get_tf_points": loadTFPoints,
+    // "get_available_datasets": loadAvailableDatasets,
+    "get_ui_data": uiDataRecieved
 }
 
 
@@ -88,13 +90,20 @@ function on_data_recieve(packet) {
 function handle_response_packet(packet){
     let action = packet[0];
     let status = packet[1];
-    let data = packet[2];
+    let id = packet[2]
+    let data = packet[3];
     if (action in response_callbacks && status){
-        response_callbacks[action](data);
+        response_callbacks[action](id, data);
     }
-    else if (!status){
-        console.log("Exception caught: ")
-        console.log(data.replace(/\\n/g, "\n"));
+    else if (!status && LOG_FAILED_REQUESTS){
+        let errorType = data[0];
+        let errorMsg = data[1].replace(/\\n/g, "\n");
+        console.log("Requested action failed: \n" + errorType + ": " + errorMsg);
+        if (errorType != "HandlerNotFoundError"){
+            alert(errorType + "\n" + errorMsg);
+        }
+        // alert(data.replace(/\\n/g, "\n"));
+        // console.log(data.replace(/\\n/g, "\n"));
     }
 }
 

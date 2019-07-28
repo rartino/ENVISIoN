@@ -27,6 +27,10 @@ class PCFNetworkHandler(LinePlotNetworkHandler):
     def __init__(self, hdf5_path, inviwoApp):
         LinePlotNetworkHandler.__init__(self, inviwoApp)
         self.setup_PCF_network(hdf5_path)
+    
+    def get_ui_data(self):
+    # Return data required to fill user interface
+        return [self.get_available_datasets()]
 
 # ------------------------------------------
 # ------- Network building functions -------

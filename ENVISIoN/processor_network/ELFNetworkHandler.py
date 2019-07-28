@@ -43,6 +43,7 @@ import sys,os,inspect
 import inviwopy
 import numpy as np
 import h5py
+from envision.utils.exceptions import *
 
 from .VolumeNetworkHandler import VolumeNetworkHandler
 from .UnitcellNetworkHandler import UnitcellNetworkHandler
@@ -59,7 +60,7 @@ class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         self.unitcellAvailable = True
         try: 
             UnitcellNetworkHandler.__init__(self, hdf5_path, inviwoApp)
-        except AssertionError as error:
+        except BadHDF5Error as error:
             print(error)
             self.unitcellAvailable = False
 
@@ -67,9 +68,9 @@ class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         # Check if  hdf5-file is valid
         with h5py.File(hdf5_path, 'r') as file:
             if file.get("ELF") == None:
-                raise AssertionError("No ELF data in that file")
+                raise BadHDF5Error("No ELF data in that file")
         if len(self.get_available_bands(hdf5_path)) == 0:
-            raise AssertionError("No valid bands in that file")
+            raise BadHDF5Error("No valid bands in that file")
         
         self.hdf5_path = hdf5_path
 
@@ -82,6 +83,13 @@ class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
             self.toggle_full_mesh(True)
             self.toggle_unitcell_canvas(False)
     
+    def get_ui_data(self):
+    # Return data required to fill user interface
+        if self.unitcellAvailable:
+            return [self.get_available_bands(), self.get_atom_names(), self.get_tf_points()]
+        else:
+            return [self.get_available_bands(), [], self.get_tf_points()]
+
     def get_available_bands(self, path=None):
     # Return the keys to the available datasets in hdf5-file
         if path == None:
@@ -154,9 +162,12 @@ class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         self.connect_volume(HDFvolume.getOutport('outport'))
 
         # Connect unitcell and volume visualisation.
-        volumeBoxRenderer = self.get_processor('Mesh Renderer')
-        unitcellRenderer = self.get_processor('Unit Cell Renderer')
-        if volumeBoxRenderer and unitcellRenderer:
+        try:
+            volumeBoxRenderer = self.get_processor('Mesh Renderer')
+            unitcellRenderer = self.get_processor('Unit Cell Renderer')
+        except ProcessorNotFoundError:
+            print("No unitcell available")
+        else:
             self.network.addConnection(unitcellRenderer.getOutport('image'), volumeBoxRenderer.getInport('imageInport'))
             self.network.addLink(unitcellRenderer.getPropertyByIdentifier('camera'), volumeBoxRenderer.getPropertyByIdentifier('camera'))
             self.network.addLink(volumeBoxRenderer.getPropertyByIdentifier('camera'), unitcellRenderer.getPropertyByIdentifier('camera'))
