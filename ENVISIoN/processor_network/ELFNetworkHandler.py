@@ -67,13 +67,13 @@ class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         # Check if  hdf5-file is valid
         with h5py.File(hdf5_path, 'r') as file:
             if file.get("ELF") == None:
-                raise AssertionError("No elf data in that file")
+                raise AssertionError("No ELF data in that file")
         if len(self.get_available_bands(hdf5_path)) == 0:
             raise AssertionError("No valid bands in that file")
         
         self.hdf5_path = hdf5_path
 
-        # Setup default elf settings
+        # Setup default ELF settings
         self.setup_elf_network(hdf5_path)
         self.set_active_band('final')
 
@@ -85,12 +85,12 @@ class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
     def get_available_bands(self, path=None):
     # Return the keys to the available datasets in hdf5-file
         if path == None:
-                path = self.hdf5_path
+            path = self.hdf5_path
         with h5py.File(path, 'r') as file:
             band_keys = []
             for key in file.get("ELF").keys():
                 band_keys.append(key)
-            return [True, band_keys]
+            return band_keys
 
 # ------------------------------------------
 # ------- Property control functions -------
@@ -99,7 +99,6 @@ class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
     # Sets the dataset which HDF5 to volume processor will read
         toVolume = self.get_processor('HDF5 To Volume')
         toVolume.volumeSelection.selectedValue = '/ELF/' + key
-        return [True, None]
 
     def position_canvases(self, x, y):
     # Updates the position of the canvases
@@ -115,7 +114,6 @@ class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
             sliceCanvas.position.value = inviwopy.glm.ivec2(x, y + volumeCanvas.inputSize.dimensions.value.y + 50)
         if unitcellCanvas:
             unitcellCanvas.position.value = inviwopy.glm.ivec2(x + volumeCanvas.inputSize.dimensions.value.x, y)
-        return [True, None]
 
 # ------------------------------------------
 # ------- Network building functions -------

@@ -82,17 +82,16 @@ class UnitcellNetworkHandler(NetworkHandler):
         else:
             sphereRenderer = self.get_processor('Unit Cell Renderer')
             sphereRenderer.sphereProperties.defaultRadius.value = radius
-        return [True, None]
 
 
     def hide_atoms(self):
         return self.set_atom_radius(0)
     
     def get_atom_names(self):
-        return [True, self.atomNames]
+        return self.atomNames
     
     def get_atom_name(self, index):
-        return [True, self.atomNames[index]]
+        return self.atomNames[index]
 
 
     def toggle_unitcell_canvas(self, enable_unitcell):
@@ -110,13 +109,11 @@ class UnitcellNetworkHandler(NetworkHandler):
             self.network.addConnection(unitcellRenderer.getOutport('image'), unitcellCanvas.getInport('inport'))
         else:
             self.remove_processor('Unit Cell Canvas')
-        return [True, None]
 
     def toggle_full_mesh(self, enable):
         
         structMesh = self.get_processor('Unit Cell Mesh')
         structMesh.fullMesh.value = enable
-        return [True, None]
 
     def set_canvas_position(self, x, y):
     # Updates the position of the canvas
@@ -126,7 +123,6 @@ class UnitcellNetworkHandler(NetworkHandler):
         if not unitcellCanvas:
             return
         unitcellCanvas.position.value = inviwopy.glm.ivec2(x, y)
-        return [True, None]
 # ------------------------------------------
 # ------- Network building functions -------
 
