@@ -12,10 +12,10 @@
   $("#loadPanel").load("visualisationPanels/loadPanel.html");
   $("#visSettings").load("visualisationPanels/graph2D.html");
 
-  activeVisualisation = "bandstructure"
+  activeVisualisation = "bandstructure";
 
   $(document).ready(function () {
-    initializeBandstructurePanel();
+    requestUiData("bandstructure");
     console.log("Bandstructure control element loaded")
   });
 </script>

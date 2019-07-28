@@ -37,15 +37,17 @@ import h5py
 
 
 from .LinePlotNetworkHandler import LinePlotNetworkHandler
+from .UnitcellNetworkHandler import UnitcellNetworkHandler
 
 
-class DOSNetworkHandler(LinePlotNetworkHandler):
+class DOSNetworkHandler(LinePlotNetworkHandler, UnitcellNetworkHandler):
     """ Handler class for charge visualizationself.network.
         Sets up and manages the charge visualization
     """
 
     def __init__(self, hdf5_path, inviwoApp):
         LinePlotNetworkHandler.__init__(self, inviwoApp)
+        UnitcellNetworkHandler.__init__(self, hdf5_path, inviwoApp)
         self.setup_PCF_network(hdf5_path)
 
 # ------------------------------------------

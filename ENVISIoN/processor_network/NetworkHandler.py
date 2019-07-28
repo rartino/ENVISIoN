@@ -10,6 +10,8 @@
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import sys,os,inspect
+from envision.utils.exceptions import *
+
 # path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 # sys.path.insert(0, os.path.expanduser(path_to_current_folder))
 
@@ -30,6 +32,9 @@ class NetworkHandler():
         if not hasattr(self, "processors"):
             self.processors = {}
         # self.canvases = []
+
+    def get_ui_data(self):
+        raise EnvisionError("get_ui_data must be overloaded in subclasses before using.")
 
     def clear_processors(self):
     # Remove all the processors associated with this handler.
@@ -57,17 +62,18 @@ class NetworkHandler():
     def get_processor(self, id):
         if id in self.processors:
             return self.processors[id]
-        return None
+        raise ProcessorNotFoundError("Processor with ID " + id + " not found.")
+        # return None
 
     def add_h5source(self, h5file, xpos=0, ypos=0):
         name = os.path.splitext(os.path.basename(h5file))[0]
-        processor = self.get_processor(name)
-        if processor is None:
+        try:
+            processor = self.get_processor(name)
+        except ProcessorNotFoundError:
             new_processor = self.add_processor('org.inviwo.hdf5.Source', name, xpos, ypos)
             filename = new_processor.getPropertyByIdentifier('filename')
             filename.value = h5file
             processor = new_processor
-
         return processor
 
     def add_property(self, id, name, processor):

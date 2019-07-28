@@ -47,6 +47,7 @@ import h5py
 from envision.utils.atomData import atomic_radii, element_names, element_colors
 
 from .NetworkHandler import NetworkHandler
+from envision.utils.exceptions import *
 
 class UnitcellNetworkHandler(NetworkHandler):
     """ Base class for setting up and handling a self.network for generic unitcell rendering for ENVISIoN.
@@ -61,7 +62,7 @@ class UnitcellNetworkHandler(NetworkHandler):
         # Make sure the hdf5 file is valid
         with h5py.File(hdf5_path, 'r') as file:
             if file.get("UnitCell") == None:
-                raise AssertionError("No unitcell data in that file")
+                raise BadHDF5Error("No unitcell data in that file")
 
         
         self.setup_unitcell_network(hdf5_path)

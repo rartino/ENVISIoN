@@ -67,6 +67,7 @@ def main():
 
 # Initialize ENVISIoN
 envision = ENVISIoN()
+send_packet("envision", ["envision started", True])
 
 main()
 # while True:

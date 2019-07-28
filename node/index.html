@@ -97,15 +97,15 @@
     // Load main page content
     $("#content").load("visualisationPanels/electronDensity.html");
 
-    start_python_process()
+    start_python_process();
+    
+
     $(document).ready(function () {
-
-
       // Bind link clicks to reloading part of page.
       $("#chargeLink").on("click", function(){
         $("li").removeClass("active");
         $(this).addClass("active");
-        $("#content").load("visualisationPanels/electronDensity.html")
+        $("#content").load("visualisationPanels/electronDensity.html");
       });
       $("#elfLink").on("click", function(){
         $("li").removeClass("active");
@@ -142,6 +142,8 @@
         $(this).addClass("active");
         $("#content").load("parserPanel.html")
       });
+
+      // $("#content").on("load", visPanelChanged);
     });
   </script>
 

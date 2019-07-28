@@ -45,6 +45,7 @@ import inviwopy
 import numpy as np
 import h5py
 import math
+from envision.utils.exceptions import *
 
 from .VolumeNetworkHandler import VolumeNetworkHandler
 from .UnitcellNetworkHandler import UnitcellNetworkHandler
@@ -193,9 +194,12 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         # self.HDFsource.filename.value = hdf5_path
 
         # Connect unitcell and volume visualisation.
-        volumeBoxRenderer = self.get_processor('Mesh Renderer')
-        unitcellRenderer = self.get_processor('Unit Cell Renderer')
-        if volumeBoxRenderer and unitcellRenderer:
+        try:
+            volumeBoxRenderer = self.get_processor('Mesh Renderer')
+            unitcellRenderer = self.get_processor('Unit Cell Renderer')
+        except ProcessorNotFoundError:
+            print("No unitcell available")
+        else:
             self.network.addConnection(unitcellRenderer.getOutport('image'), volumeBoxRenderer.getInport('imageInport'))
             self.network.addLink(unitcellRenderer.getPropertyByIdentifier('camera'), volumeBoxRenderer.getPropertyByIdentifier('camera'))
             self.network.addLink(volumeBoxRenderer.getPropertyByIdentifier('camera'), unitcellRenderer.getPropertyByIdentifier('camera'))

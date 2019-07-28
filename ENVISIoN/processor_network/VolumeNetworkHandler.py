@@ -18,6 +18,7 @@ import numpy as np
 from matplotlib import pyplot as plt 
 import h5py
 from .NetworkHandler import NetworkHandler
+from envision.utils.exceptions import *
 
 # TODO: Would probably be better to save important processors as member variables
 #       instead of extracting them from the self.network all the time
@@ -117,20 +118,18 @@ class VolumeNetworkHandler(NetworkHandler):
     def add_tf_point(self, value, color):
     # Add point to the raycaster transferfunction
     # Color should be an 4-element-array containing RGBA with values in 0-1 interval.
-        Raycaster = self.get_processor('Raycaster')
+        raycaster = self.get_processor('Raycaster')
         glm_col = inviwopy.glm.vec4(color[0], color[1], color[2], color[3])
-        if Raycaster:
-            Raycaster.isotfComposite.transferFunction.add(value, glm_col)
-            self.slice_copy_tf()
-            return
-        raise KeyError("No raycaster found.")
+        raycaster.isotfComposite.transferFunction.add(value, glm_col)
+        self.slice_copy_tf()
+        return
 
     def remove_tf_point(self, index):
     # Remove a point by index
         Raycaster = self.get_processor('Raycaster')
         tf_property = Raycaster.isotfComposite.transferFunction
         if len(self.get_tf_points()) <= index:
-            raise KeyError("No tf point to remove.")
+            raise EnvisionError("No tf point to remove.")
         point_to_remove = tf_property.getValueAt(index)
         tf_property.remove(point_to_remove)
         self.slice_copy_tf()
@@ -147,7 +146,7 @@ class VolumeNetworkHandler(NetworkHandler):
                 self.remove_tf_point(i)
                 break
         else:
-            raise KeyError("TF point value not found.")
+            raise EnvisionError("TF point value not found.")
         self.add_tf_point(value, color)
 
     def get_tf_points(self):
@@ -316,9 +315,12 @@ class VolumeNetworkHandler(NetworkHandler):
         pos_indicator.enable.value = False # Disabled by default
         pos_indicator.plane1.color.value = inviwopy.glm.vec4(1, 1, 1, 0.5)
 
-        # Connect unit cell and volume visualisation.
-        UnitCellRenderer = self.get_processor('Unit Cell Renderer')
-        if UnitCellRenderer:
+        # Connect unitcell and volume visualisation.
+        try:
+            UnitCellRenderer = self.get_processor('Unit Cell Renderer')
+        except ProcessorNotFoundError:
+            print("No unitcell processor active")
+        else:
             self.network.addConnection(UnitCellRenderer.getOutport('image'), MeshRenderer.getInport('imageInport'))
             self.network.addLink(UnitCellRenderer.getPropertyByIdentifier('camera'), MeshRenderer.getPropertyByIdentifier('camera'))
             self.network.addLink(MeshRenderer.getPropertyByIdentifier('camera'), UnitCellRenderer.getPropertyByIdentifier('camera'))

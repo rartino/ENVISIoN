@@ -25,11 +25,11 @@
   $("#loadPanel").load("visualisationPanels/loadPanel.html");
   $("#volumeSettings").load("visualisationPanels/volumePanel.html");
 
-  activeVisualisation = "charge"
+  activeVisualisation = "charge";
 
   $(document).ready(function () {
     $("#bandSelection").on("change", bandChanged)
-    initializeChargePanel();
+    visPanelChanged();
     console.log("Charge control element loaded")
   });
 </script>
