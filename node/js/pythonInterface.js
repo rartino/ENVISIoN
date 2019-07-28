@@ -12,7 +12,7 @@ const spawn = require("child_process").spawn;
 
 var LOG_PYTHON_PRINT = false;
 var LOG_PYTHON_ERROR = true;
-var LOG_SENT_PACKETS = true;
+var LOG_SENT_PACKETS = false;
 var LOG_RECIEVED_PACKETS = true;
 
 var pythonProcess = null
@@ -91,6 +91,10 @@ function handle_response_packet(packet){
     let data = packet[2];
     if (action in response_callbacks && status){
         response_callbacks[action](data);
+    }
+    else if (!status){
+        console.log("Exception caught: ")
+        console.log(data.replace(/\\n/g, "\n"));
     }
 }
 

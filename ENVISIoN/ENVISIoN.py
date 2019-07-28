@@ -173,8 +173,7 @@ class ENVISIoN():
         # Runs the funtion with networkhandler id and request data as arguments.
         try:
             response_data = self.action_dict[action](handler_id, parameters)
-        except Exception as e:
-            raise
+        except TypeError as e:
             return [action, False, repr(e)]
         else:
             return [action, True, response_data]

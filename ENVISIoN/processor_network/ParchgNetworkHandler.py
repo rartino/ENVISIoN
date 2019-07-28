@@ -122,7 +122,6 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         self.setup_band_processors(band_list, mode_list)
         self.current_bands = band_list
         self.current_modes = mode_list
-        return [True, None]
 
     def get_available_bands(self):
     # Return the keys to the available parchg bands in hdf5-file
@@ -130,11 +129,11 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
             band_keys = []
             for key in file.get("PARCHG/Bands").keys():
                 band_keys.append(key)
-            return [True, band_keys]
+            return band_keys
 
     def get_available_modes(self):
     # Return a list of available modes for hdf5 file
-        bands = self.get_available_bands()[1]
+        bands = self.get_available_bands()
         with h5py.File(self.hdf5_path, 'r') as file:
             modes = []
             for key in file.get("PARCHG/Bands")[bands[0]].keys():
