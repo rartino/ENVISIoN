@@ -314,10 +314,41 @@ function uiDataRecieved(id, data) {
         loadBands(data[0]);
         loadAtoms(data[1]);
         loadTFPoints(data[2]);
+    }else if (id == "parchg"){
+        // loadBands(data[0]);
+
+        
+
+        console.log(JSON.stringify(data[0]));
+        console.log(JSON.stringify(data[1]));
+        console.log(JSON.stringify(data[2]));
+        console.log(JSON.stringify(data[3]));
+
+        console.log("PARTIAL LOADING!")
+        loadAvailablePartials(data[0])
+        console.log("PARTIAL LOADING 1")
+        loadActivePartials(data[1]);
+        console.log("PARTIAL LOADING 2")
+        loadAtoms(data[2]);
+        console.log("PARTIAL LOADING 3")
+        loadTFPoints(data[3]);
+
+
+        console.log(data[0])
+        console.log(data[1]);
+        console.log(data[2]);
+        console.log(data[3]);
+
+        console.log("Parchg")
     }else if (id == "pcf"){
         loadAvailableDatasets(data[0]);
     } 
 }
+
+
+// ---------------------------------------
+// ----- Interface loading functions -----
+// ---------------------------------------
 
 function loadBands(bands) {
     $("#bandSelection").empty();
@@ -354,6 +385,7 @@ function loadAtoms(atoms) {
 function loadTFPoints(points) {
     $("#tfPoints").empty();
     for (let i = 0; i < points.length; i++) {
+        console.log("POINT ADDED")
         let hexColor = rgbToHex(points[i][1][0], points[i][1][1], points[i][1][2])
         addTfPointElement(points[i][0], points[i][1][3], hexColor)
     }
@@ -368,7 +400,27 @@ function loadAvailableDatasets(options) {
         $("#ySingleSelection").append("<option>" + options[i] + "</option>");
     }
     $("#ySingleSelection > option")[1].selected = true;
-    
+}
+
+function loadAvailablePartials(options) {
+    $("#partialBandSelection > option").slice(1).remove();
+    $("#partialModeSelection > option").slice(1).remove();
+    for (let i = 0; i < options[0].length; i++)
+        $("#partialBandSelection").append("<option>" + options[0][i] + "</option>");
+    for (let i = 0; i < options[1].length; i++)
+        $("#partialModeSelection").append("<option>" + options[1][i] + "</option>");
+}
+
+function loadActivePartials(partials) {
+    console.log("HERE 1")
+    $("#partialBands").empty();
+    console.log("HERE 2")
+    console.log(partials)
+    for (let i = 0; i < partials[0].length; i++) {
+        console.log("HERE FOR")
+        addPartialBandElement(partials[0][i], partials[1][i]);
+        console.log("HERE FOR out")
+    }
 }
 
 // ----------------------------

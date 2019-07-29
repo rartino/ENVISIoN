@@ -231,15 +231,15 @@ class ENVISIoN():
                 self.networkHandlers[id].clear_processors()
             self.app.network.clear()
             self.networkHandlers.clear()
-            ids
+            return ids
         if handler_id in self.networkHandlers:
             self.networkHandlers[handler_id].clear_processors()
             del self.networkHandlers[handler_id]
-            handler_id
+            return handler_id
         # elif handler_id in self.networkHandlers:
         #     self.networkHandlers[handler_id].clear_processor_network()
         #     del self.networkHandlers[handler_id]
         #     return [True, handler_id + " stopped."]
         # else:
-        raise KeyError("That visualisation is not running.")
+        raise HandlerNotFoundError("That visualisation is not running.")
 

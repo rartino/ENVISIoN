@@ -97,8 +97,10 @@ class UnitcellNetworkHandler(NetworkHandler):
 
     def toggle_unitcell_canvas(self, enable_unitcell):
     # Add or remove the unitcell canvas
-        
-        unitcellCanvas = self.get_processor('Unit Cell Canvas')
+        try:
+            unitcellCanvas = self.get_processor('Unit Cell Canvas')
+        except ProcessorNotFoundError:
+            unitcellCanvas = None
         unitcellRenderer = self.get_processor('Unit Cell Renderer')
         # If already in correct mode dont do anything
         if (unitcellCanvas and enable_unitcell) or (not unitcellCanvas and not enable_unitcell):

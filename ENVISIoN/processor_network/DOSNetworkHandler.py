@@ -38,6 +38,7 @@ import h5py
 
 from .LinePlotNetworkHandler import LinePlotNetworkHandler
 from .UnitcellNetworkHandler import UnitcellNetworkHandler
+from envision.utils.exceptions import *
 
 
 class DOSNetworkHandler(LinePlotNetworkHandler, UnitcellNetworkHandler):
@@ -47,7 +48,13 @@ class DOSNetworkHandler(LinePlotNetworkHandler, UnitcellNetworkHandler):
 
     def __init__(self, hdf5_path, inviwoApp):
         LinePlotNetworkHandler.__init__(self, inviwoApp)
-        UnitcellNetworkHandler.__init__(self, hdf5_path, inviwoApp)
+
+        # Unitcell is not critical to visualization, if it fails, continnue anyway
+        self.unitcellAvailable = True
+        try: 
+            UnitcellNetworkHandler.__init__(self, hdf5_path, inviwoApp)
+        except BadHDF5Error as error:
+            self.unitcellAvailable = False
         self.setup_PCF_network(hdf5_path)
 
 # ------------------------------------------
