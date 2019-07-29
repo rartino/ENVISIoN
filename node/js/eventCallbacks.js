@@ -161,7 +161,30 @@ function partialBandAdded() {
     $("#partialBandSelection").val("band");
     $("#partialModeSelection").val("mode");
     send_data("envision request", ["select_bands", activeVisualisation, getPartialBandSelections()]);
+    visPanelChanged();
     return false;
+}
+
+
+let elem = $(`
+    <form class="row row-margin">
+      <div class="input-group col-sm-10">
+        <div class="input-group-prepend medium">
+          <label class="input-group-text">Active band</label>
+        </div>
+        <select class="custom-select" name="bandSelect">
+        </select>
+        <select class="custom-select" name="modeSelect">
+        </select>
+        <div class="input-group-append">
+          <button class="btn btn-primary" type="submit">&nbsp;-</button>
+        </div>
+      </div>
+    </form>`);
+
+function partialBandChanged() {
+    send_data("envision request", ["select_bands", activeVisualisation, getPartialBandSelections()]);
+    visPanelChanged();
 }
 
 function partialBandRemoved() {
@@ -316,30 +339,11 @@ function uiDataRecieved(id, data) {
         loadTFPoints(data[2]);
     }else if (id == "parchg"){
         // loadBands(data[0]);
-
-        
-
-        console.log(JSON.stringify(data[0]));
-        console.log(JSON.stringify(data[1]));
-        console.log(JSON.stringify(data[2]));
-        console.log(JSON.stringify(data[3]));
-
-        console.log("PARTIAL LOADING!")
         loadAvailablePartials(data[0])
-        console.log("PARTIAL LOADING 1")
         loadActivePartials(data[1]);
-        console.log("PARTIAL LOADING 2")
         loadAtoms(data[2]);
-        console.log("PARTIAL LOADING 3")
         loadTFPoints(data[3]);
-
-
-        console.log(data[0])
-        console.log(data[1]);
-        console.log(data[2]);
-        console.log(data[3]);
-
-        console.log("Parchg")
+        console.log("parchg updated")
     }else if (id == "pcf"){
         loadAvailableDatasets(data[0]);
     } 
@@ -504,6 +508,7 @@ function addPartialBandElement(band, mode) {
     elem.find('[name="modeSelect"]')[0][mode].selected = true;
 
     elem.on("submit", partialBandRemoved)
+    elem.find('[name="bandSelect"],[name="modeSelect"]').on("change", partialBandChanged);
     $("#partialBands").append(elem);
 }
 
