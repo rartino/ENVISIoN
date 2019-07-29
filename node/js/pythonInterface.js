@@ -11,7 +11,7 @@
 const spawn = require("child_process").spawn;
 
 var LOG_PYTHON_PRINT = false;
-var LOG_PYTHON_ERROR = false;
+var LOG_PYTHON_ERROR = true;
 var LOG_SENT_PACKETS = true;
 var LOG_RECIEVED_PACKETS = true;
 var LOG_FAILED_REQUESTS = true;
@@ -26,7 +26,8 @@ var response_callbacks = {
     // "get_atom_names": loadAtoms,
     // "get_tf_points": loadTFPoints,
     // "get_available_datasets": loadAvailableDatasets,
-    "get_ui_data": uiDataRecieved
+    "get_ui_data": uiDataRecieved,
+    "stop": function(){console.log("Visualisation stopped")}
 }
 
 

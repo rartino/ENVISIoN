@@ -218,7 +218,10 @@ class VolumeNetworkHandler(NetworkHandler):
     def position_canvases(self, x, y):
     # Updates the position of the canvases
     # Upper left corner will be at coordinate (x, y)
-        sliceCanvas = self.get_processor('SliceCanvas')
+        try:
+            sliceCanvas = self.get_processor('SliceCanvas')
+        except ProcessorNotFoundError:
+            sliceCanvas = None
         volumeCanvas = self.get_processor('Canvas')
         if not volumeCanvas:
             return
@@ -232,17 +235,19 @@ class VolumeNetworkHandler(NetworkHandler):
 
     def toggle_slice_canvas(self, enable_slice):
     # Will add or remove the slice canvas
-
-        SliceCanvas = self.get_processor('SliceCanvas')
-
+        try:
+            sliceCanvas = self.get_processor('SliceCanvas')
+        except ProcessorNotFoundError:
+            sliceCanvas = None
+        
         # If already in correct mode dont do anything
-        if (SliceCanvas and enable_slice) or (not SliceCanvas and not enable_slice):
+        if (sliceCanvas and enable_slice) or (not sliceCanvas and not enable_slice):
             return
 
         if enable_slice:
-            SliceCanvas = self.add_processor('org.inviwo.CanvasGL', 'SliceCanvas', 25*7, 525)
-            SliceCanvas.inputSize.dimensions.value = inviwopy.glm.ivec2(500, 500)       
-            self.network.addConnection(self.get_processor('SliceBackground').getOutport('outport'), SliceCanvas.getInport('inport'))
+            sliceCanvas = self.add_processor('org.inviwo.CanvasGL', 'SliceCanvas', 25*7, 525)
+            sliceCanvas.inputSize.dimensions.value = inviwopy.glm.ivec2(500, 500)       
+            self.network.addConnection(self.get_processor('SliceBackground').getOutport('outport'), sliceCanvas.getInport('inport'))
         else:
             self.remove_processor('SliceCanvas')
 

@@ -90,18 +90,19 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
 
         # Unitcell is not critical to visualization, if it fails, continnue anyway
         self.unitcellAvailable = True
+        if not os.path.exists(hdf5_path):
+            raise BadHDF5Error("Selected file does not exist. " + hdf5_path) 
         try: 
             UnitcellNetworkHandler.__init__(self, hdf5_path, inviwoApp)
-        except AssertionError as error:
-            print(error)
+        except BadHDF5Error as error:
             self.unitcellAvailable = False
 
         # Check if  hdf5-file is valid
         with h5py.File(hdf5_path, 'r') as file:
             if file.get("PARCHG/Bands") == None:
-                raise AssertionError("No valid partial charge data in that file")
+                raise BadHDF5Error("No valid partial charge data in that file")
         if len(self.get_available_bands()[0]) == 0:
-            raise AssertionError("No valid partial charge data in that file")
+            raise BadHDF5Error("No valid partial charge data in that file")
 
         self.setup_parchg_network(hdf5_path)
         self.setup_band_processors(band_list, mode_list)
@@ -117,12 +118,30 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
             self.toggle_full_mesh(False)
             self.toggle_unitcell_canvas(False)
 
+    def get_ui_data(self):
+    # Return data required to fill user interface
+        if self.unitcellAvailable:
+            return [
+                [self.get_available_bands(), self.get_available_modes()], 
+                self.get_partial_selections(), 
+                self.get_atom_names(), 
+                self.get_tf_points()]
+        else:
+            return [
+                [self.get_available_bands(), self.get_available_modes()], 
+                self.get_partial_selections(), 
+                [], 
+                self.get_tf_points()]
+
     def select_bands(self, band_list, mode_list):
     # Re-selects bands. Clears old bands and adds the new ones.
         self.clear_band_processors()
         self.setup_band_processors(band_list, mode_list)
         self.current_bands = band_list
         self.current_modes = mode_list
+
+    def get_partial_selections(self):
+        return [self.current_bands, self.current_modes]
 
     def get_available_bands(self):
     # Return the keys to the available parchg bands in hdf5-file
@@ -139,7 +158,7 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
             modes = []
             for key in file.get("PARCHG/Bands")[bands[0]].keys():
                 modes.append(key)
-        if "magnetic" in modes:
+        if ("magnetic" in modes) and ("total" in modes):
             modes += ["up", "down"]
         return modes
 
@@ -303,25 +322,6 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
                                 scaling_factor * basis_4x4[3][0],scaling_factor * basis_4x4[3][1],scaling_factor * basis_4x4[3][2],
                                 scaling_factor * basis_4x4[3][3])
         
-        for i in range(0, n_bands):
-            if mode_list[i] == 0 or mode_list[i] == 1:
-                hdfvolume_volumeSelection_property = HDFvolume_list[i].getPropertyByIdentifier('volumeSelection')       
-                hdfvolume_volumeSelection_property.selectedValue = '/PARCHG/Bands/' + str(band_list[i]) + '/' + mode_dict[mode_list[i]] 
-                HDFvolume_basis_property = HDFvolume_list[i].getPropertyByIdentifier('basisGroup').getPropertyByIdentifier('basis')
-
-            else:
-                hdfvolume_volumeSelection_property = HDFvolume_list[i][0].getPropertyByIdentifier('volumeSelection')
-                hdfvolume_volumeSelection_property.selectedValue = '/PARCHG/Bands/' + str(band_list[i]) + '/' + mode_dict[0]
-                HDFvolume_basis_property = HDFvolume_list[i][0].getPropertyByIdentifier('basisGroup').getPropertyByIdentifier('basis')
-
-                hdfvolume_volumeSelection_property = HDFvolume_list[i][1].getPropertyByIdentifier('volumeSelection')
-                hdfvolume_volumeSelection_property.selectedValue = '/PARCHG/Bands/' + str(band_list[i]) + '/' + mode_dict[1]
-                HDFvolume_basis_property = HDFvolume_list[i][1].getPropertyByIdentifier('basisGroup').getPropertyByIdentifier('basis')
-
-            HDFvolume_basis_property.minValue = minValue
-            HDFvolume_basis_property.maxValue = maxValue
-            HDFvolume_basis_property.value = scaling_matrix
-
         # Connect volume mergers and save the resulting outport 
         if not merger_list:
             volumeOutport = HDFvolume_list[0].getOutport('outport')
@@ -337,4 +337,28 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
             volumeOutport = merger_list[-1][0].getOutport('outputVolume')
 
         self.connect_volume(volumeOutport)
+
+        # Set hdf5 paths
+        for i in range(0, n_bands):
+            if mode_list[i] == 0 or mode_list[i] == 1:
+                # HDFvolume_list[i].volumeSelection.selectedIndex = 2
+                HDFvolume_list[i].volumeSelection.selectedValue = '/PARCHG/Bands/' + str(band_list[i]) + '/' + mode_dict[mode_list[i]]
+                # HDFvolume_list[i].volumeSelection.value = '/PARCHG/Bands/' + str(band_list[i]) + '/' + mode_dict[mode_list[i]]
+
+                print("SOMETHING ABOUT PATHS")
+                # print(HDFvolume_list[i].volumeSelection.value)
+                print('/PARCHG/Bands/' + str(band_list[i]) + '/' + mode_dict[mode_list[i]])
+                # print(HDFvolume_list[i].volumeSelection.value == '/PARCHG/Bands/' + str(band_list[i]) + '/' + mode_dict[mode_list[i]])         
+                HDFvolume_list[i].basisGroup.basis.minValue = minValue
+                HDFvolume_list[i].basisGroup.basis.maxValue = maxValue
+                HDFvolume_list[i].basisGroup.basis.value = scaling_matrix
+            else:
+                HDFvolume_list[i][0].volumeSelection.selectedValue = '/PARCHG/Bands/' + str(band_list[i]) + '/' + mode_dict[0]
+                HDFvolume_list[i][1].volumeSelection.selectedValue = '/PARCHG/Bands/' + str(band_list[i]) + '/' + mode_dict[1]
+                HDFvolume_list[i][0].basisGroup.basis.minValue = minValue
+                HDFvolume_list[i][1].basisGroup.basis.minValue = minValue
+                HDFvolume_list[i][0].basisGroup.basis.maxValue = maxValue
+                HDFvolume_list[i][1].basisGroup.basis.maxValue = maxValue
+                HDFvolume_list[i][0].basisGroup.basis.value = scaling_matrix
+                HDFvolume_list[i][1].basisGroup.basis.value = scaling_matrix
 
