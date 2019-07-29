@@ -165,23 +165,6 @@ function partialBandAdded() {
     return false;
 }
 
-
-let elem = $(`
-    <form class="row row-margin">
-      <div class="input-group col-sm-10">
-        <div class="input-group-prepend medium">
-          <label class="input-group-text">Active band</label>
-        </div>
-        <select class="custom-select" name="bandSelect">
-        </select>
-        <select class="custom-select" name="modeSelect">
-        </select>
-        <div class="input-group-append">
-          <button class="btn btn-primary" type="submit">&nbsp;-</button>
-        </div>
-      </div>
-    </form>`);
-
 function partialBandChanged() {
     send_data("envision request", ["select_bands", activeVisualisation, getPartialBandSelections()]);
     visPanelChanged();
