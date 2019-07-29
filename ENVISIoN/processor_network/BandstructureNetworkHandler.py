@@ -28,6 +28,14 @@ class BandstructureNetworkHandler(LinePlotNetworkHandler):
         LinePlotNetworkHandler.__init__(self, inviwoApp)
         self.setup_bandstructure_network(hdf5_path)
 
+    def get_ui_data(self):
+    # Return data required to fill user interface
+        return [
+            self.get_x_range(),
+            self.get_y_range(),
+            self.get_label_count(),
+            self.get_available_datasets()
+            ]
 # ------------------------------------------
 # ------- Network building functions -------
 

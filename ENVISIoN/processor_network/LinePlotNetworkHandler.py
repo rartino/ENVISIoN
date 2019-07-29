@@ -18,6 +18,7 @@ import h5py
 
 
 from .NetworkHandler import NetworkHandler
+from envision.utils.exceptions import *
 
 class LinePlotNetworkHandler(NetworkHandler):
     """ Handler class for charge visualization network.
@@ -29,6 +30,25 @@ class LinePlotNetworkHandler(NetworkHandler):
 
 # ------------------------------------------
 # ------- Property functions -------
+
+
+    def toggle_graph_canvas(self, enable):
+    # Will add or remove the slice canvas
+        try:
+            graphCanvas = self.get_processor('graphCanvas')
+        except ProcessorNotFoundError:
+            graphCanvas = None
+        
+        # If already in correct mode dont do anything
+        if (graphCanvas and enable) or (not graphCanvas and not enable):
+            return
+
+        if enable:
+            graphCanvas = self.add_processor('org.inviwo.CanvasGL', 'graphCanvas', 25*7, 525)
+            graphCanvas.inputSize.dimensions.value = inviwopy.glm.ivec2(500, 500)       
+            self.network.addConnection(self.get_processor("Title text").getOutport('outport'), graphCanvas.getInport('inport'))
+        else:
+            self.remove_processor('graphCanvas')
 
     def toggle_all_y(self, enable):
         plotter = self.get_processor("Line plot")
@@ -117,6 +137,21 @@ class LinePlotNetworkHandler(NetworkHandler):
         Plotter = self.get_processor("Line plot")
         return Plotter.ySelectionProperty.identifiers
 
+    def get_x_range(self):
+        value = self.get_processor("Line plot").x_range.value
+        return [value[0], value[1]]
+
+    def get_y_range(self):
+        value = self.get_processor("Line plot").y_range.value
+        return [value[0], value[1]]
+
+    # def get_grid_width(self):
+    #     pass
+
+    def get_label_count(self):
+        return self.get_processor("Line plot").label_number.value
+
+
 # ------------------------------------------
 # ------- Network building functions -------
 
@@ -162,7 +197,7 @@ class LinePlotNetworkHandler(NetworkHandler):
 
         ypos += 75
 
-        canvas = self.add_processor("org.inviwo.CanvasGL", "Canvas", xpos, ypos)
+        canvas = self.add_processor("org.inviwo.CanvasGL", "graphCanvas", xpos, ypos)
         self.network.addConnection(title_text.getOutport('outport'), canvas.getInport('inport'))
 
         # Start modifying properties.

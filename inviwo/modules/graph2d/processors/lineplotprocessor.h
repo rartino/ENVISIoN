@@ -157,6 +157,10 @@ private:
     IntProperty label_number_;
 
     ImageOutport labels_;
+
+
+    int n_updates = 0;
+    double total_time = 0;
 };
 
 } // namespace

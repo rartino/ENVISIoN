@@ -32,6 +32,7 @@ function startVisPressed() {
 }
 
 function stopVisPressed() {
+    disableInputs();
     send_data("envision request", ["stop", activeVisualisation, [false]]);
 }
 
@@ -41,8 +42,8 @@ function pathInputChanged() {
 }
 
 function togglePathType() {
-    var vaspDiv = $("#vaspSource")
-    var hdf5Div = $("#hdf5Source")
+    let vaspDiv = $("#vaspSource")
+    let hdf5Div = $("#hdf5Source")
 
     if ($("#vaspSourceCheckbox").is(":checked")) {
         vaspDiv.css("display", "block")
@@ -86,20 +87,23 @@ function updateMask() {
 }
 
 function addTfPointSubmitted() {
-    const valueInput = parseFloat($(this)[0][0].value);
-    const alphaInput = parseFloat($(this)[0][1].value);
-    const colorInput = $(this)[0][2].value;
+    let value = parseFloat($(this)[0][0].value);
+    let alpha = parseFloat($(this)[0][1].value);
+    let color = hexToRGB($(this)[0][2].value);
+    color.push(alpha);
 
-    // Add a new element for the added point.
-    addTfPointElement(valueInput, alphaInput, colorInput);
-
-    send_data("envision request", ["set_tf_points", activeVisualisation, [getTfPoints()]]);
-    updateMask();
+    send_data("envision request", ["add_tf_point", activeVisualisation, [value, color]]);
+    visPanelChanged();
     return false;
 }
 
+function tfPointChanged(){
+    send_data("envision request", ["set_tf_points", activeVisualisation, [getTfPoints()]]);
+    visPanelChanged();
+}
+
 function removeTfPoint() {
-    $(this).remove();
+    $(this).closest('[name="tfPoint"]').remove();
     send_data("envision request", ["set_tf_points", activeVisualisation, [getTfPoints()]]);
     updateMask();
     return false;
@@ -185,6 +189,7 @@ function xRangeSubmitted() {
     let min = parseFloat($("#xRangeMin").val());
     let max = parseFloat($("#xRangeMax").val());
     send_data("envision request", ["set_x_range", activeVisualisation, [min, max]]);
+    visPanelChanged();
     return false;
 }
 
@@ -193,6 +198,7 @@ function yRangeSubmitted() {
     let min = parseFloat($("#yRangeMin").val())
     let max = parseFloat($("#yRangeMax").val());
     send_data("envision request", ["set_y_range", activeVisualisation, [min, max]]);
+    visPanelChanged();
     return false;
 }
 
@@ -316,20 +322,32 @@ function uiDataRecieved(id, data) {
         loadBands(data[0]);
         loadAtoms(data[1]);
         loadTFPoints(data[2]);
-    }else if (id == "elf"){
+    } else if (id == "elf"){
         loadBands(data[0]);
         loadAtoms(data[1]);
         loadTFPoints(data[2]);
-    }else if (id == "parchg"){
-        // loadBands(data[0]);
+    } else if (id == "parchg"){
         loadAvailablePartials(data[0])
         loadActivePartials(data[1]);
         loadAtoms(data[2]);
         loadTFPoints(data[3]);
-        console.log("parchg updated")
-    }else if (id == "pcf"){
-        loadAvailableDatasets(data[0]);
+    } else if (id = "bandstructure"){
+        loadXRange(data[0]);
+        loadYRange(data[1]);
+        loadLabelCount(data[2]);
+        loadAvailableDatasets(data[3]);
+    } else if (id == "pcf"){
+        loadXRange(data[0]);
+        loadYRange(data[1]);
+        loadLabelCount(data[2]);
+        loadAvailableDatasets(data[3]);
+    } else if (id == "dos"){
+        loadXRange(data[0]);
+        loadYRange(data[1]);
+        loadLabelCount(data[2]);
+        loadAvailableDatasets(data[3]);
     } 
+    enableInputs();
 }
 
 
@@ -374,12 +392,12 @@ function loadTFPoints(points) {
     for (let i = 0; i < points.length; i++) {
         console.log("POINT ADDED")
         let hexColor = rgbToHex(points[i][1][0], points[i][1][1], points[i][1][2])
-        addTfPointElement(points[i][0], points[i][1][3], hexColor)
+        addTfPointElement(points[i][0], Math.round(points[i][1][3] * 1000000) / 1000000, hexColor)
     }
+    updateMask();
 }
 
 function loadAvailableDatasets(options) {
-    console.log(JSON.stringify(options))
     $("#possibleYDatasets").empty();
     $("#ySingleSelection").empty();
     for (let i = 0; i < options.length; i++) {
@@ -399,20 +417,29 @@ function loadAvailablePartials(options) {
 }
 
 function loadActivePartials(partials) {
-    console.log("HERE 1")
     $("#partialBands").empty();
-    console.log("HERE 2")
-    console.log(partials)
     for (let i = 0; i < partials[0].length; i++) {
-        console.log("HERE FOR")
         addPartialBandElement(partials[0][i], partials[1][i]);
-        console.log("HERE FOR out")
     }
 }
 
-// ----------------------------
-// ----- Helper functions -----
-// ----------------------------
+function loadXRange(range){
+    $("#xRangeMin").val(range[1]);
+    $("#xRangeMax").val(range[0]);
+}
+
+function loadYRange(range){
+    $("#yRangeMin").val(range[1]);
+    $("#yRangeMax").val(range[0]);
+}
+
+function loadLabelCount(n){
+    $("#labelCountInput").val(n);
+}
+
+// -----------------------------------
+// ----- Interface value reading -----
+// -----------------------------------
 
 function getXRange() {
 
@@ -443,17 +470,17 @@ function addTfPointElement(value, alpha, color) {
     }
 
     let pointElement = $(
-        '<div class="row row-margin">' +
-        '<form class="col-sm-10" name="tfPoint">' +
-        '<div class="input-group">' +
-        '<input type="text" class="form-control" value="' + value + '" disabled>' +
-        '<input type="text" class="form-control" value="' + alpha + '" disabled>' +
-        '<input class="form-control" type="color" value="' + color + '" disabled>' +
-        '<div class="input-group-append">' +
-        '<button class="btn btn-primary" type="submit">-</button>' +
-        '</div>' +
-        '</div>' +
-        '</form>' +
+        '<div class="row row-margin" name="tfPoint">' +
+          '<div class="col-sm-10">' +
+            '<div class="input-group">' +
+              '<input type="text" class="form-control" value="' + value + '">' +
+              '<input type="text" class="form-control" value="' + alpha + '">' +
+              '<input class="form-control" type="color" value="' + color + '">' +
+              '<div class="input-group-append">' +
+                '<button class="btn btn-primary" type="submit">-</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
         '</div>');
 
     let insertionIndex = points.findIndex(function (point) { return point[0] > value });
@@ -462,7 +489,8 @@ function addTfPointElement(value, alpha, color) {
     else {
         pointElement.insertBefore($("#tfPoints")[0].children[insertionIndex])
     }
-    pointElement.on("submit", removeTfPoint);
+    pointElement.find("button").on("click", removeTfPoint);
+    pointElement.find("input").on("change", tfPointChanged);
 }
 
 function addPartialBandElement(band, mode) {
@@ -514,8 +542,20 @@ function getPartialBandSelections() {
 // ---------------------------------
 
 function visPanelChanged() {
-    console.log("Vis panel changed", activeVisualisation);
+    console.log("Updating panel: ", activeVisualisation);
     send_data("envision request", ["get_ui_data", activeVisualisation, []]);
+}
+
+function disableInputs(){
+    $("#visSettings :input").attr("disabled", true);
+    // $("#visSettings > select").attr("disabled", true);
+    // $("#visSettings > submit").attr("disabled", true);
+}
+
+function enableInputs(){
+    $("#visSettings :input").attr("disabled", false);
+    // $("#visSettings :select").attr("disabled", false);
+    // $("#visSettings :submit").attr("disabled", false);
 }
 // function initializeChargePanel() {
 //     console.log("CHG")

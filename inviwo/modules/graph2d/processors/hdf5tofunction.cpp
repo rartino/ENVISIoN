@@ -182,9 +182,9 @@ void HDF5ToFunction::pathSelectionOptionsReplace(OptionPropertyString& pathSelec
 }
 
 void HDF5ToFunction::process() {
+    clock_t begin = std::clock();
 
     const auto& functionVectorSharedPtr = std::make_shared<std::vector<Function>>();
-    functionVectorOutport_.setData(functionVectorSharedPtr);
 
     if (xPathSelectionProperty_.size() == 0 || yPathSelectionProperty_.size() == 0)
         return;
@@ -291,6 +291,13 @@ void HDF5ToFunction::process() {
                 std::move(yAxis)
             });
     }
+    
+    functionVectorOutport_.setData(functionVectorSharedPtr);
+    
+    clock_t end = std::clock();
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+    total_time += elapsed_secs;
+    LogError("HDF to func total time: " + std::to_string(total_time));
 }
 
 } // namespace
