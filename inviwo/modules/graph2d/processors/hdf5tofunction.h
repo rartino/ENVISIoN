@@ -91,6 +91,8 @@ private:
     DataOutport<std::vector<Function>> functionVectorOutport_;
 
     void pathSelectionOptionsReplace(OptionPropertyString& pathSelectionProperty);
+
+    double total_time = 0;
 };
 
 } // namespace

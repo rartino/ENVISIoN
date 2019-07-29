@@ -43,6 +43,8 @@
 #include <inviwo/core/util/interpolation.h>
 #include <modules/opengl/texture/textureutils.h>
 
+#include <ctime>
+
 namespace glm {
 
 using vec2 = tvec2<float, precision::packed_highp>;
@@ -189,6 +191,8 @@ LinePlotProcessor::LinePlotProcessor()
 }
 
 void LinePlotProcessor::process() {
+    clock_t begin = std::clock();
+    n_updates++;
     std::shared_ptr<const Column> x;
     std::shared_ptr<const Column> y;
     std::shared_ptr<const Column> xData;
@@ -566,6 +570,10 @@ void LinePlotProcessor::process() {
         }
     }
     meshOutport_.setData(mesh);
+    clock_t end = std::clock();
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+    total_time += elapsed_secs;
+    LogInfo("Line plot process time: " + std::to_string(total_time));
 }
 
 void LinePlotProcessor::drawAxes(std::shared_ptr<BasicMesh>& mesh,

@@ -15,7 +15,8 @@
   activeVisualisation = "bandstructure";
 
   $(document).ready(function () {
-    requestUiData("bandstructure");
+    visPanelChanged();
+    disableInputs();
     console.log("Bandstructure control element loaded")
   });
 </script>

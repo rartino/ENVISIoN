@@ -4,20 +4,22 @@
 <div id="loadPanel">
 </div>
 
-<h5 class="border-top">Volume selection</h5>
-<div class="row row-margin">
-  <div class="input-group col-sm-10">
-    <div class="input-group-prepend medium">
-      <label class="input-group-text" for="bandSelection">Selected band</label>
-    </div>
-    <select class="custom-select" id="bandSelection">
-      <!-- <option selected>final</option>
+<div id="visSettings">
+  <h5 class="border-top">Volume selection</h5>
+  <div class="row row-margin">
+    <div class="input-group col-sm-10">
+      <div class="input-group-prepend medium">
+        <label class="input-group-text" for="bandSelection">Selected band</label>
+      </div>
+      <select class="custom-select" id="bandSelection">
+        <!-- <option selected>final</option>
       <option>1</option> -->
-    </select>
+      </select>
+    </div>
   </div>
-</div>
 
-<div id="volumeSettings">
+  <div id="volumeSettings">
+  </div>
 </div>
 
 
@@ -30,6 +32,7 @@
   $(document).ready(function () {
     $("#bandSelection").on("change", bandChanged)
     visPanelChanged();
+    disableInputs();
     console.log("ELF control element loaded")
   });
 </script>

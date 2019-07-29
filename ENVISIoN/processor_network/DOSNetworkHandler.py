@@ -57,6 +57,15 @@ class DOSNetworkHandler(LinePlotNetworkHandler, UnitcellNetworkHandler):
             self.unitcellAvailable = False
         self.setup_PCF_network(hdf5_path)
 
+
+    def get_ui_data(self):
+    # Return data required to fill user interface
+        return [
+            self.get_x_range(),
+            self.get_y_range(),
+            self.get_label_count(),
+            self.get_available_datasets()
+            ]
 # ------------------------------------------
 # ------- Network building functions -------
 
@@ -192,7 +201,7 @@ class DOSNetworkHandler(LinePlotNetworkHandler, UnitcellNetworkHandler):
 
                     other_add_inport = other_add_processor.getInport('functionFlatMultiInport')
                     for other_type in other_type_list:
-                        other_type_processor = self.network.getProcessorByIdentifier(other_type)
+                        other_type_processor = self.get_processor(other_type)
                         other_outport = other_type_processor.getOutport('functionVectorOutport')
                         self.network.addConnection(other_outport, other_add_inport)
                     other_add_list.append(other_add_processor)
@@ -249,6 +258,9 @@ class DOSNetworkHandler(LinePlotNetworkHandler, UnitcellNetworkHandler):
             # picking of specific atoms if it exists, i.e. connect the two
             # properties describing what atom has been selected/should be
             # shown.
+            # self.app.update()
+            self.toggle_graph_canvas(False)
+            # self.app.update()
             unit_cell_processor = self.network.getProcessorByIdentifier('Unit Cell Mesh')
             partial_pick_processor = self.network.getProcessorByIdentifier('Partial Pick')
             if has_partial and unit_cell_processor is not None and partial_pick_processor is not None:
@@ -272,3 +284,4 @@ class DOSNetworkHandler(LinePlotNetworkHandler, UnitcellNetworkHandler):
             
             # self.network.addConnection(collector.getOutport("dataframeOutport"), plotter_processor.getInport('dataFrameInport'))
             self.set_y_selection_type(2)
+            self.toggle_graph_canvas(True)
