@@ -84,6 +84,30 @@ class NetworkHandler():
         return new_property
 
     
+
+    def position_canvases(self, x, y):
+    # Updates the position of the canvases
+    # Upper left corner will be at coordinate (x, y)
+        canvases = []
+        try: canvases.append(self.get_processor("Canvas"))
+        except ProcessorNotFoundError: pass
+        try: canvases.append(self.get_processor("SliceCanvas"))
+        except ProcessorNotFoundError: pass
+        try: canvases.append(self.get_processor("Unit Cell Canvas"))
+        except ProcessorNotFoundError: pass
+        print("CANVASES____")
+        print(canvases)
+        for canvas in canvases:
+            canvas.position.value = glm.ivec2(x, y)
+            # x += canvas.inputSize.dimensions.value.x
+            y += canvas.inputSize.dimensions.value.y
+
+        # volumeCanvas.position.value = inviwopy.glm.ivec2(x, y)
+        # if sliceCanvas:
+        #     sliceCanvas.position.value = inviwopy.glm.ivec2(x, y + volumeCanvas.inputSize.dimensions.value.y + 50)
+        # if unitcellCanvas:
+        #     unitcellCanvas.position.value = inviwopy.glm.ivec2(x + volumeCanvas.inputSize.dimensions.value.x, y)
+
     # def position_canvases(self, x, y):
     # # Updates the position of the canvases
     # # Upper left corner will be at coordinate (x, y)
