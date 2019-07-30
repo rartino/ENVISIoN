@@ -13,10 +13,13 @@ const spawn = require("child_process").spawn;
 var LOG_PYTHON_PRINT = false;
 var LOG_PYTHON_ERROR = false;
 var LOG_SENT_PACKETS = false;
-var LOG_RECIEVED_PACKETS = true;
+var LOG_RECIEVED_PACKETS = false;
 var LOG_FAILED_REQUESTS = false;
 
 var pythonProcess = null
+
+var nRequests = 0;
+var nResponses = 0;
 
 //TODO: not sure if encoding will always be the same on platforms
 
@@ -62,6 +65,8 @@ function send_data(tag, data) {
     var json_data = {type: tag, data: data}
     var packet = JSON.stringify(json_data) + "\r\n"
     pythonProcess.stdin.write(packet) 
+    nRequests += 1;
+    responsesBehind(nRequests - nResponses);
     if (LOG_SENT_PACKETS)
         console.log("Packet sent: \n", packet)
 }
@@ -78,8 +83,11 @@ function on_data_recieve(packet) {
             json_data = JSON.parse(data[i])
             if (LOG_RECIEVED_PACKETS)
                 console.log("Packet recieved: \n", JSON.stringify(json_data))
-            if (json_data["type"] == "response")
+            if (json_data["type"] == "response"){
                 handle_response_packet(json_data["data"])
+                nResponses += 1;
+                responsesBehind(nRequests - nResponses);
+            }
           }
           catch(err) {
             if (LOG_PYTHON_PRINT)
@@ -115,5 +123,23 @@ function on_python_error(data) {
     var output = Buffer.from(data, 'hex')
     console.log(data.toString());
 }
+
+var loadingTimeout = null;
+var dismissTimeout = null;
+function responsesBehind(n){
+    if (n == 0 && dismissTimeout == null){
+        clearTimeout(loadingTimeout)
+        loadingTimeout = null;
+        dismissTimeout = setTimeout(function(){$("#loadalert").slideUp(500);}, 500);
+    }
+    else if (loadingTimeout == null){
+        clearTimeout(dismissTimeout)
+        dismissTimeout = null;
+        loadingTimeout = setTimeout(function(){$("#loadalert").slideDown(500);}, 500);
+    }
+    $("#loadalert > span").text(" envision is " + n + " requests behind.");
+}
+
+
 
 

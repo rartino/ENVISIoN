@@ -68,6 +68,10 @@
   <button id="stopVisBtn" type="button" class="btn btn-secondary">Stop visualisation</button>
 </div>
 
+
+
+<button id="resetCanvasBtn" type="button" class="btn btn-primary">Reset canvas positions</button>
+
 <script>
   $(document).ready(function () {
 
@@ -79,5 +83,6 @@
     $("#hdf5SourceCheckbox").on("change", togglePathType)
     $("#startVisBtn").on("click", startVisPressed);
     $("#stopVisBtn").on("click", stopVisPressed);
+    $("#resetCanvasBtn").on("click", resetCanvasPositions);
   });
 </script>

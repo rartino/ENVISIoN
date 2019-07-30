@@ -98,6 +98,10 @@ class VolumeNetworkHandler(NetworkHandler):
 
 # ---- Transfer function ----
 
+    def toggle_tf_editor(self, enable):
+        raycaster = self.get_processor('Raycaster')
+        raycaster.isotfComposite.widgets[0].editorWidget.visible = enable
+
     def clear_tf(self):
     # Clears the transfer function of all points
         Raycaster = self.get_processor('Raycaster')

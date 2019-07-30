@@ -95,6 +95,8 @@ class NetworkHandler():
         except ProcessorNotFoundError: pass
         try: canvases.append(self.get_processor("Unit Cell Canvas"))
         except ProcessorNotFoundError: pass
+        try: canvases.append(self.get_processor("graphCanvas"))
+        except ProcessorNotFoundError: pass
         print("CANVASES____")
         print(canvases)
         for canvas in canvases:
