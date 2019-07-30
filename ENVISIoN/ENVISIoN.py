@@ -49,6 +49,7 @@ class ENVISIoN():
         self.action_dict["start"] = lambda id, params: self.initialize_visualisation(id, *params)
         self.action_dict["stop"] = lambda id, params: self.stop_visualisation(id, *params)
         self.action_dict["get_ui_data"] = lambda id, params: self.networkHandlers[id].get_ui_data(*params)
+        self.action_dict["position_canvases"] = lambda id, params: self.networkHandlers[id].position_canvases(*params)
 
         # Volume visualisation actions
         self.action_dict["set_mask"] = lambda id, params: self.networkHandlers[id].set_mask(*params)
@@ -64,7 +65,6 @@ class ENVISIoN():
         self.action_dict["toggle_slice_plane"] = lambda id, params: self.networkHandlers[id].toggle_slice_plane(*params)
         self.action_dict["set_plane_normal"] = lambda id, params: self.networkHandlers[id].set_plane_normal(*params)
         self.action_dict["set_plane_height"] = lambda id, params: self.networkHandlers[id].set_plane_height(*params)
-        self.action_dict["position_canvases"] = lambda id, params: self.networkHandlers[id].position_canvases(*params)
         self.action_dict["toggle_slice_canvas"] = lambda id, params: self.networkHandlers[id].toggle_slice_canvas(*params)
         self.action_dict["set_texture_wrap_mode"] = lambda id, params: self.networkHandlers[id].set_texture_wrap_mode(*params)
         self.action_dict["set_slice_zoom"] = lambda id, params: self.networkHandlers[id].set_slice_zoom(*params)

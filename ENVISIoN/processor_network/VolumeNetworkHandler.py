@@ -215,20 +215,6 @@ class VolumeNetworkHandler(NetworkHandler):
         volumeSlice = self.get_processor('Volume Slice')
         volumeSlice.trafoGroup.imageScale.value = zoom
 
-    def position_canvases(self, x, y):
-    # Updates the position of the canvases
-    # Upper left corner will be at coordinate (x, y)
-        try:
-            sliceCanvas = self.get_processor('SliceCanvas')
-        except ProcessorNotFoundError:
-            sliceCanvas = None
-        volumeCanvas = self.get_processor('Canvas')
-        if not volumeCanvas:
-            return
-        volumeCanvas.position.value = inviwopy.glm.ivec2(x, y)
-        if not sliceCanvas:
-            return
-        sliceCanvas.position.value = inviwopy.glm.ivec2(x, y + volumeCanvas.inputSize.dimensions.value.y + 50)
 
 # ------------------------------------------
 # ------- Network building functions -------

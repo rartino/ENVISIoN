@@ -24,6 +24,7 @@ function startVisPressed() {
         send_data("parser request", ["All", hdf5Path, vaspPath])
         send_data("envision request", ["start", activeVisualisation, [activeVisualisation, hdf5Path]]);
         send_data("envision request", ["get_ui_data", activeVisualisation, []]);
+        resetCanvasPositions();
     }
     else {
         let path = $("#hdf5LoadInput")[0].files[0].path;
@@ -55,6 +56,12 @@ function togglePathType() {
     }
 }
 
+function resetCanvasPositions() {
+    let xPos = window.screenX + window.outerWidth;
+    let yPos = window.screenY;
+    send_data("envision request", ["position_canvases", activeVisualisation, [xPos, yPos]]);
+}
+
 // ----------------------------------
 // ----- Volume rendering panel -----
 // ----------------------------------
@@ -62,6 +69,7 @@ function togglePathType() {
 function bandChanged() {
     let selection = $("#bandSelection").val();
     send_data("envision request", ["set_active_band", activeVisualisation, [selection]]);
+
 }
 
 function shadingModeChanged() {
@@ -111,6 +119,7 @@ function removeTfPoint() {
 
 function sliceCanvasToggle() {
     send_data("envision request", ["toggle_slice_canvas", activeVisualisation, [$("#sliceCanvasCheck").is(":checked")]]);
+    resetCanvasPositions();
 }
 
 function slicePlaneToggle() {

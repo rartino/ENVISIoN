@@ -108,21 +108,6 @@ class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         toVolume = self.get_processor('HDF5 To Volume')
         toVolume.volumeSelection.selectedValue = '/ELF/' + key
 
-    def position_canvases(self, x, y):
-    # Updates the position of the canvases
-    # Upper left corner will be at coordinate (x, y)
-        
-        sliceCanvas = self.get_processor('SliceCanvas')
-        volumeCanvas = self.get_processor('Canvas')
-        unitcellCanvas = self.get_processor('Unit Cell Canvas')
-        if not volumeCanvas:
-            return
-        volumeCanvas.position.value = inviwopy.glm.ivec2(x, y)
-        if sliceCanvas:
-            sliceCanvas.position.value = inviwopy.glm.ivec2(x, y + volumeCanvas.inputSize.dimensions.value.y + 50)
-        if unitcellCanvas:
-            unitcellCanvas.position.value = inviwopy.glm.ivec2(x + volumeCanvas.inputSize.dimensions.value.x, y)
-
 # ------------------------------------------
 # ------- Network building functions -------
 
