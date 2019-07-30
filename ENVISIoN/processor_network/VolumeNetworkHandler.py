@@ -261,6 +261,7 @@ class VolumeNetworkHandler(NetworkHandler):
         EntryExitPoints = self.add_processor('org.inviwo.EntryExitPoints', 'EntryExitPoints', xpos+30, ypos+225)
 
         Raycaster = self.add_processor('org.inviwo.VolumeRaycaster', "Raycaster", xpos, ypos+300)
+        Raycaster.isotfComposite.initializeWidget()
         Raycaster.raycaster.renderingType.selectedIndex = 1
         Raycaster.raycaster.samplingRate.value = 4
 

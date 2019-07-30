@@ -68,6 +68,7 @@ class ENVISIoN():
         self.action_dict["toggle_slice_canvas"] = lambda id, params: self.networkHandlers[id].toggle_slice_canvas(*params)
         self.action_dict["set_texture_wrap_mode"] = lambda id, params: self.networkHandlers[id].set_texture_wrap_mode(*params)
         self.action_dict["set_slice_zoom"] = lambda id, params: self.networkHandlers[id].set_slice_zoom(*params)
+        self.action_dict["toggle_tf_editor"] = lambda id, params: self.networkHandlers[id].toggle_tf_editor(*params)
 
         # Unicell visalisation actions
         self.action_dict["set_atom_radius"] = lambda id, params: self.networkHandlers[id].set_atom_radius(*params)
