@@ -19,13 +19,14 @@
   <script src="js/eventCallbacks.js"></script>
   <script src="js/pythonInterface.js"></script>
   <script src="js/utils.js"></script>
-  
-  
+
+
   <!-- <script defer src="https://use.fontawesome.com/releases/v5.6.3/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY"
     crossorigin="anonymous"></script>
   <script defer src="https://use.fontawesome.com/releases/v5.6.3/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ"
     crossorigin="anonymous"></script> -->
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/"
+    crossorigin="anonymous">
 
 </head>
 
@@ -39,7 +40,7 @@
         <h3>ENVISI<i class="fas fa-atom"></i>N</h3>
       </div>
       <div class="sidebar-header collapsed">
-          <h3><i class="fas fa-atom"></i></h3>
+        <h3><i class="fas fa-atom"></i></h3>
       </div>
 
       <ul class="list-unstyled components">
@@ -85,59 +86,74 @@
 
     </nav>
 
-    <!-- Page Content  -->
-    <div id="content" class="container-fluid">
+    <div id="page">
+
+      <div class="sticky">
+        <div id="loadalert" class="alert alert-info" >
+          <strong>Loading... </strong>
+          <span>envision is n requests behind.</span>
+        </div>
+      </div>
+
+
+      <!-- Page Content  -->
+      <div id="content" class="container-fluid">
+
+      </div>
+
 
     </div>
   </div>
 
 
   <script>
-    
+
     // Load main page content
     $("#content").load("visualisationPanels/electronDensity.html");
 
     start_python_process();
-    
+
 
     $(document).ready(function () {
+      $("#loadalert").hide();
       // Bind link clicks to reloading part of page.
-      $("#chargeLink").on("click", function(){
+      $("#chargeLink").on("click", function () {
         $("li").removeClass("active");
         $(this).addClass("active");
         $("#content").load("visualisationPanels/electronDensity.html");
+
       });
-      $("#elfLink").on("click", function(){
+      $("#elfLink").on("click", function () {
         $("li").removeClass("active");
         $(this).addClass("active");
         $("#content").load("visualisationPanels/elf.html")
       });
-      $("#parchgLink").on("click", function(){
+      $("#parchgLink").on("click", function () {
         $("li").removeClass("active");
         $(this).addClass("active");
         $("#content").load("visualisationPanels/parchg.html")
       });
-      $("#bandLink").on("click", function(){
+      $("#bandLink").on("click", function () {
         $("li").removeClass("active");
         $(this).addClass("active");
         $("#content").load("visualisationPanels/bandstructure.html");
       });
-      $("#dosLink").on("click", function(){
+      $("#dosLink").on("click", function () {
         $("li").removeClass("active");
         $(this).addClass("active");
         $("#content").load("visualisationPanels/dos.html")
       });
-      $("#pcfLink").on("click", function(){
+      $("#pcfLink").on("click", function () {
         $("li").removeClass("active");
         $(this).addClass("active");
         $("#content").load("visualisationPanels/pcf.html")
       });
-      $("#aboutLink").on("click", function(){
+      $("#aboutLink").on("click", function () {
         $("li").removeClass("active");
         $(this).addClass("active");
         $("#content").load("about.html")
       });
-      $("#parserLink").on("click", function(){
+      $("#parserLink").on("click", function () {
         $("li").removeClass("active");
         $(this).addClass("active");
         $("#content").load("parserPanel.html")
