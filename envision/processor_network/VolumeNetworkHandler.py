@@ -98,15 +98,13 @@ class VolumeNetworkHandler(NetworkHandler):
 
 # ---- Transfer function ----
 
-    def toggle_tf_editor(self, enable):
-        raycaster = self.get_processor('Raycaster')
-        raycaster.isotfComposite.widgets[0].editorWidget.visible = enable
+    # def toggle_tf_editor(self, enable):
+    #     raycaster = self.get_processor('Raycaster')
+    #     raycaster.isotfComposite.widgets[0].editorWidget.visible = enable
 
     def clear_tf(self):
     # Clears the transfer function of all points
         Raycaster = self.get_processor('Raycaster')
-        print(Raycaster)
-        print(self.network.getProcessorByIdentifier('Raycaster'))
         Raycaster.isotfComposite.transferFunction.clear()
         self.slice_copy_tf()
 
@@ -261,7 +259,7 @@ class VolumeNetworkHandler(NetworkHandler):
         EntryExitPoints = self.add_processor('org.inviwo.EntryExitPoints', 'EntryExitPoints', xpos+30, ypos+225)
 
         Raycaster = self.add_processor('org.inviwo.VolumeRaycaster', "Raycaster", xpos, ypos+300)
-        Raycaster.isotfComposite.initializeWidget()
+        # Raycaster.isotfComposite.initializeWidget()
         Raycaster.raycaster.renderingType.selectedIndex = 1
         Raycaster.raycaster.samplingRate.value = 4
 

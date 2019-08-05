@@ -18,7 +18,7 @@ import sys,os,inspect
 # sys.path.append(path_to_current_folder + "/processor_network")
 # sys.path.append(path_to_current_folder + "/parser")
 # PATH_INVIWO_BIN = "/home/labb/Inviwo-latest/build/bin"
-PATH_INVIWO_BIN = "C:/Kandidatprojekt/inviwo-latest/build/bin/Debug"
+PATH_INVIWO_BIN = "/home/labb/Inviwo-latest/build/bin"
 sys.path.append(PATH_INVIWO_BIN)
 import inviwopy as ivw
 import inviwopyapp as qt
@@ -29,7 +29,7 @@ from envision.utils.exceptions import *
 import envision.hdf5parser
 
 
-class ENVISIoN():
+class EnvisionMain():
     """ Class for managing a inviwo instance 
         and running ENVISIoN visualizations with it.
 
@@ -68,7 +68,7 @@ class ENVISIoN():
         self.action_dict["toggle_slice_canvas"] = lambda id, params: self.networkHandlers[id].toggle_slice_canvas(*params)
         self.action_dict["set_texture_wrap_mode"] = lambda id, params: self.networkHandlers[id].set_texture_wrap_mode(*params)
         self.action_dict["set_slice_zoom"] = lambda id, params: self.networkHandlers[id].set_slice_zoom(*params)
-        self.action_dict["toggle_tf_editor"] = lambda id, params: self.networkHandlers[id].toggle_tf_editor(*params)
+        # self.action_dict["toggle_tf_editor"] = lambda id, params: self.networkHandlers[id].toggle_tf_editor(*params)
 
         # Unicell visalisation actions
         self.action_dict["set_atom_radius"] = lambda id, params: self.networkHandlers[id].set_atom_radius(*params)

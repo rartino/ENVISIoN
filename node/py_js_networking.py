@@ -15,9 +15,9 @@ import json
 path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 # sys.path.append(path_to_current_folder + "/../envision")
 sys.path.append(path_to_current_folder + "/../")
-# from ENVISIoN import ENVISIoN
-# from ENVISIoN import ENVISIoN
-from envision import ENVISIoN
+# from envision import envision
+# from envision import envision
+from envision import EnvisionMain
 
 
 import threading
@@ -52,21 +52,21 @@ def main():
             request = decode_packet(input_queue.get())
             # send_packet("echo", request)
             if request["type"] == "envision request":
-                response = envision.handle_request(request["data"])
+                response = envisionMain.handle_request(request["data"])
                 send_packet("response", response)
             elif request["type"] == "parser request":
-                response = envision.handler_parse_request(request["data"])
+                response = envisionMain.handler_parse_request(request["data"])
                 send_packet("response", response)
             
         
-        envision.update()
+        envisionMain.update()
 
         # Try to loop at 60 fps
         time_elapsed = time.time() - time_start
         time.sleep(max([1.0/60 - time_elapsed, 0]))
 
 # Initialize ENVISIoN
-envision = ENVISIoN()
+envisionMain = EnvisionMain()
 send_packet("status", ["envision started", True])
 
 main()
