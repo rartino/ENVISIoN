@@ -259,7 +259,7 @@ class DOSNetworkHandler(LinePlotNetworkHandler, UnitcellNetworkHandler):
             # properties describing what atom has been selected/should be
             # shown.
             # self.app.update()
-            self.toggle_graph_canvas(False)
+            # self.toggle_graph_canvas(False)
             # self.app.update()
             unit_cell_processor = self.network.getProcessorByIdentifier('Unit Cell Mesh')
             partial_pick_processor = self.network.getProcessorByIdentifier('Partial Pick')
@@ -284,4 +284,4 @@ class DOSNetworkHandler(LinePlotNetworkHandler, UnitcellNetworkHandler):
             
             # self.network.addConnection(collector.getOutport("dataframeOutport"), plotter_processor.getInport('dataFrameInport'))
             self.set_y_selection_type(2)
-            self.toggle_graph_canvas(True)
+            # self.toggle_graph_canvas(True)

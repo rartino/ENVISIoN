@@ -34,7 +34,7 @@ function startVisPressed() {
 
 function stopVisPressed() {
     disableInputs();
-    send_data("envision request", ["toggle_tf_editor", activeVisualisation, [false]]);
+    // send_data("envision request", ["toggle_tf_editor", activeVisualisation, [false]]);
     send_data("envision request", ["stop", activeVisualisation, [false]]);
 }
 
@@ -61,7 +61,7 @@ function resetCanvasPositions() {
     let xPos = window.screenX + window.outerWidth;
     let yPos = window.screenY;
     send_data("envision request", ["position_canvases", activeVisualisation, [xPos, yPos]]);
-    send_data("envision request", ["toggle_tf_editor", activeVisualisation, [true]]);
+    // send_data("envision request", ["toggle_tf_editor", activeVisualisation, [true]]);
 }
 
 // ----------------------------------
