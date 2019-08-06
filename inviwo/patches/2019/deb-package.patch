@@ -1,0 +1,32 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 8a3a85317..56a3539b1 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -26,7 +26,7 @@
+  # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  #
+  #################################################################################
+-
++set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Jesper Ericsson")
+ cmake_minimum_required(VERSION 3.2.0)
+ cmake_policy(VERSION 3.2.0)
+ 
+diff --git a/src/core/util/filesystem.cpp b/src/core/util/filesystem.cpp
+index c1b084daa..eb2b614d9 100644
+--- a/src/core/util/filesystem.cpp
++++ b/src/core/util/filesystem.cpp
+@@ -535,8 +535,13 @@ std::string findBasePath() {
+         inviwo::filesystem::getExecutablePath(), {"data/workspaces", "modules"});
+ 
+     if (basePath.empty()) {
++        // if inviwow was installed from .deb package
++        if (directoryExists("/usr/share/inviwo/data/workspaces") &&
++            directoryExists("/usr/share/inviwo/modules")) {
++            basePath = "/usr/share/inviwo";
++        }
+         // could not locate base path relative to executable, try CMake source path
+-        if (directoryExists(IVW_TRUNK + "/data/workspaces") &&
++        else if (directoryExists(IVW_TRUNK + "/data/workspaces") &&
+             directoryExists(IVW_TRUNK + "/modules")) {
+             basePath = IVW_TRUNK;
+         } else {
