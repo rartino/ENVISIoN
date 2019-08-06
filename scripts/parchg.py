@@ -37,24 +37,26 @@
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import os, sys, inspect, inviwopy
-path_to_current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-sys.path.insert(0, os.path.expanduser(path_to_current_dir + "/../envision"))
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.append(path_to_current_folder + "/../")
+
 import envision
-from envision.inviwo.ParchgNetworkHandler import ParchgNetworkHandler
+import envision.hdf5parser
+from envision.processor_network.ParchgNetworkHandler import ParchgNetworkHandler
 
 # Set the path to existing VASP directory and to the desired save location for HDF5-file.
-PATH_TO_VASP_CALC=os.path.expanduser("C:/Kandidatprojekt/VASP/partial_charges")
-PATH_TO_HDF5=os.path.expanduser("C:/Kandidatprojekt/HDF5/parchg_demo.hdf5")
+PATH_TO_VASP_CALC=os.path.expanduser("/home/labb/VASP_files/diamond_partial_charges/partial_charges")
+PATH_TO_HDF5=os.path.expanduser("/home/labb/HDF5_new/pachg_demo.hdf5")
 
 # Parse for charge density visualisation.
-envision.parser.vasp.parchg(PATH_TO_HDF5, PATH_TO_VASP_CALC)
-envision.parser.vasp.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+envision.hdf5parser.parchg(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+envision.hdf5parser.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
 # Clear any old network
 inviwopy.app.network.clear()
 
 # Initialize inviwo network
-networkHandler = ParchgNetworkHandler(PATH_TO_HDF5)
+networkHandler = ParchgNetworkHandler(PATH_TO_HDF5, inviwopy.app)
 
 # Set band selections and modes
 # band_list : list of the bands you want to visualize, by number, e.g. [34,55,190] to select band 34, 55 and 190
@@ -64,8 +66,8 @@ networkHandler = ParchgNetworkHandler(PATH_TO_HDF5)
 #    2 for 'up'
 #    3 for 'down'
 # Example: If band_list is [31, 212] and mode_list is [1,3], band 31 will be visualized as 'magnetic' and 212 as 'down'
-band_list = [0, 2, 5, 7]
-mode_list = [0, 1, 2, 3]
+band_list = [1, 2, 3]
+mode_list = [0, 0, 0]
 networkHandler.select_bands(band_list, mode_list)
 
 # Set some default properties, everything can either be 
@@ -84,7 +86,6 @@ networkHandler.set_plane_height(0.5)
 
 # Configure unitcell visualisation
 if networkHandler.unitcellAvailable:
-    networkHandler.hide_atoms(False)
     networkHandler.toggle_unitcell_canvas(True)
     networkHandler.set_atom_radius(0.2)
 
