@@ -56,8 +56,8 @@ networkHandler = ParchgNetworkHandler(PATH_TO_HDF5, inviwopy.app)
 #    2 for 'up'
 #    3 for 'down'
 # Example: If band_list is [31, 212] and mode_list is [1,3], band 31 will be visualized as 'magnetic' and 212 as 'down'
-band_list = [1, 2, 3]
-mode_list = [0, 0, 0]
+band_list = [1, 2, 3, 4]
+mode_list = [0, 0, 0, 0]
 networkHandler.select_bands(band_list, mode_list)
 
 # Set some default properties, everything can either be 
@@ -65,8 +65,9 @@ networkHandler.select_bands(band_list, mode_list)
 # the network editor
 
 # Add some default transfer function points
-networkHandler.add_tf_point(0.45, inviwopy.glm.vec4(1, 1, 1, 0))
-networkHandler.add_tf_point(0.5, inviwopy.glm.vec4(0.1, 1, 0.1, 0.1))
+# networkHandler.clear_tf()
+# networkHandler.add_tf_point(0.45, inviwopy.glm.vec4(1, 1, 1, 0))
+# networkHandler.add_tf_point(0.5, inviwopy.glm.vec4(0.1, 1, 0.1, 0.1))
 
 # Configure slice visualisation
 networkHandler.toggle_slice_canvas(False)
