@@ -47,8 +47,8 @@ PATH_TO_HDF5=os.path.expanduser("~/ENVISIoN/HDF5/PCF_LiC300KRealx1.hdf5")
 
 sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION))
 
-import envision
-import envision.inviwo
+import envisionpy
+import envisionpy.inviwo
 
 envision.parser.vasp.paircorrelation(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 

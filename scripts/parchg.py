@@ -30,9 +30,9 @@ import os, sys, inspect, inviwopy
 path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 sys.path.append(path_to_current_folder + "/../")
 
-import envision
-import envision.hdf5parser
-from envision.processor_network.ParchgNetworkHandler import ParchgNetworkHandler
+import envisionpy
+import envisionpy.hdf5parser
+from envisionpy.processor_network.ParchgNetworkHandler import ParchgNetworkHandler
 
 # Set the path to existing VASP directory and to the desired save location for HDF5-file.
 PATH_TO_VASP_CALC=os.path.expanduser("/home/labb/VASP_files/diamond_partial_charges/partial_charges")

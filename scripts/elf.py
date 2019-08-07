@@ -39,8 +39,8 @@
 import os, sys, inspect, inviwopy
 path_to_current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 sys.path.insert(0, os.path.expanduser(path_to_current_dir + "/../envision"))
-import envision
-from envision.inviwo.ELFNetworkHandler import ELFNetworkHandler
+import envisionpy
+from envisionpy.inviwo.ELFNetworkHandler import ELFNetworkHandler
 
 # Set the path to existing VASP directory and to the desired save location for HDF5-file.
 PATH_TO_VASP_CALC=os.path.expanduser("C:/Kandidatprojekt/VASP/TiPO4_ELF")
