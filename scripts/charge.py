@@ -30,17 +30,17 @@ import os, sys, inspect, inviwopy
 path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 sys.path.append(path_to_current_folder + "/../")
 
-import envision
-import envision.hdf5parser
-from envision.processor_network.ChargeNetworkHandler import ChargeNetworkHandler
+import envisionpy
+import envisionpy.hdf5parser
+from envisionpy.processor_network.ChargeNetworkHandler import ChargeNetworkHandler
 
 # Set the path to existing VASP directory and to the desired save location for HDF5-file.
-PATH_TO_VASP_CALC=os.path.expanduser("/home/labb/VASP_files/NaCl_charge_density")
-PATH_TO_HDF5=os.path.expanduser("/home/labb/HDF5_new/charge_demo.hdf5")
+PATH_TO_VASP_CALC=os.path.expanduser("/home/labb/VASP/NaCl_charge_density")
+PATH_TO_HDF5=os.path.expanduser("/home/labb/HDF5/charge_demo.hdf5")
 
 # Parse for charge density visualisation.
-envision.hdf5parser.charge(PATH_TO_HDF5, PATH_TO_VASP_CALC)
-envision.hdf5parser.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+envisionpy.hdf5parser.charge(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+envisionpy.hdf5parser.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
 # Clear any old network
 inviwopy.app.network.clear()

@@ -36,8 +36,8 @@ PATH_TO_HDF5=os.path.expanduser("/home/ofaismail/HDF5/BandsWithFermiDone8.hdf5")
 
 sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION))
 
-import envision
-import envision.inviwo
+import envisionpy
+import envisionpy.inviwo
 
 envision.parser.vasp.bandstructure(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 envision.parser.vasp.fermi_energy(PATH_TO_HDF5, PATH_TO_VASP_CALC)

@@ -45,8 +45,8 @@ PATH_TO_HDF5=os.path.expanduser("C:/Users/sille/Downloads/dostest.hdf5")
 
 sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION))
 
-import envision
-import envision.inviwo
+import envisionpy
+import envisionpy.inviwo
 
 #envision.parser.vasp.dos(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 

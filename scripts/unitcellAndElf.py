@@ -45,8 +45,8 @@ PATH_TO_HDF5=os.path.expanduser("/tmp/envision_demo_unitcellAndElf.hdf5")
 
 sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION))
 
-import envision
-import envision.inviwo
+import envisionpy
+import envisionpy.inviwo
 
 envision.parser.vasp.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 envision.parser.vasp.elf(PATH_TO_HDF5, PATH_TO_VASP_CALC)
