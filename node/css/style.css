@@ -4,6 +4,7 @@
 }
 
 /* Input group pre-, append sizes */
+
 .input-group>.input-group-prepend.small {
     flex: 0 0 80px;
 }
@@ -62,7 +63,7 @@ a:hover,
 a:focus {
     color: inherit;
     text-decoration: none;
-    transition: all 0.3s;
+    /* transition: all 0.3s; */
 }
 
 .navbar {
@@ -173,7 +174,7 @@ ul ul a {
 }
 
 
-#sidebar ul li.active{
+#sidebar ul a.active{
     color: #fff;
     background: #3b4679;
 }
@@ -209,7 +210,7 @@ a.article:hover {
     width: 100%;
     padding: 20px;
     min-height: 100vh;
-    transition: all 0.3s;
+    /* transition: all 0.3s; */
 }
 
 /* ---------------------------------------------------

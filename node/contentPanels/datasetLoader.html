@@ -1,0 +1,98 @@
+<h2 class="border-top">Load datasets</h2>
+<p>Loaded datasets can be visualised by selecting them in the menu on the left.</p>
+
+<div class="form-check col">
+  <label class="form-check-label" for="vaspSourceCheckbox">
+    <input type="radio" class="form-check-input" id="vaspSourceCheckbox" name="sourceSelection" checked>
+    VASP directory
+  </label>
+</div>
+<div class="form-check">
+  <label class="form-check-label">
+    <input type="radio" class="form-check-input" id="hdf5SourceCheckbox" name="sourceSelection">
+    HDF5 file (faster visualisation startup)
+  </label>
+</div>
+<div id="vaspSource" style="display:block">
+  <div class="row row-margin">
+    <div class="input-group col-md">
+      <div class="input-group-prepend large">
+        <span class="input-group-text" id="vaspLoadSpan">Load VASP directory</span>
+      </div>
+      <div class="custom-file">
+        <input type="file" class="custom-file-input" id="vaspDirInput" aria-describedby="vaspLoadSpan" webkitdirectory
+          onchange="">
+        <label class="custom-file-label" for="vaspDirInput">Choose directory</label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Load existing HDF5 file -->
+<div id="hdf5Source" style="display:none">
+  <p>HDF5 files can be created with the parser found in the left menu.</p>
+  <div class="row row-margin">
+    <div class="input-group col-md">
+      <div class="input-group-prepend large">
+        <span class="input-group-text" id="hdf5LoadSpan">Load HDF5 file</span>
+      </div>
+      <div class="custom-file">
+        <input type="file" class="custom-file-input" id="hdf5LoadInput" aria-describedby="hdf5LoadSpan"
+          accept=".hdf5,.HDF5">
+        <label class="custom-file-label" for="hdf5LoadInput">placeholder.hdf5</label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row row-margin">
+  <div class="input-group col-md">
+    <div class="input-group-prepend large">
+      <span class="input-group-text">Name dataset (optional)</span>
+    </div>
+    <input type="text" class="form-control" id="datasetNameText" placeholder="Dataset 1">
+  </div>
+</div>
+
+
+<button id="loadDatasetBtn" type="button" class="btn btn-primary">Load data</button>
+
+
+<h5 class="border-top">Loaded datasets</h5>
+
+<div id="datasetsList">
+<!--   <div class="row row-margin">
+    <div class="input-group col" id="addTFGroup">
+      <div class="input-group-prepend">
+        <label class="input-group-text">short</label>
+        <label class="input-group-text">path1</label>
+      </div>
+      <div class="input-group-append">
+        <button class="btn btn-primary" type="submit" id="tfAddButton">Remove</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row row-margin">
+      <div class="input-group col-md" id="addTFGroup">
+        <div class="input-group-prepend medium">
+          <label class="input-group-text">much longer name</label>
+        </div>
+        <input type="text" class="form-control" id="wawawaw" value="path1" disabled>
+        <div class="input-group-append">
+          <button class="btn btn-primary" type="submit" id="tfAddButton">Remove</button>
+        </div>
+      </div>
+    </div> -->
+</div>
+
+
+<script>
+  $(document).ready(function () {
+    $("#vaspSourceCheckbox").on("click", togglePathType);
+    $("#hdf5SourceCheckbox").on("click", togglePathType);
+    $("#loadDatasetBtn").on("click", loadDataset);
+
+    console.log("Dataset selector")
+  });
+</script>
