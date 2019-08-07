@@ -27,9 +27,9 @@
 ##############################################################################################
 
 import os, sys, inspect, inviwopy
-path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-sys.path.append(path_to_current_folder + "/../")
 
+path_to_envisionpy = "/home/labb/ENVISIoN"
+sys.path.append(path_to_envisionpy)
 import envisionpy
 import envisionpy.hdf5parser
 from envisionpy.processor_network.ParchgNetworkHandler import ParchgNetworkHandler
@@ -39,8 +39,8 @@ PATH_TO_VASP_CALC=os.path.expanduser("/home/labb/VASP_files/diamond_partial_char
 PATH_TO_HDF5=os.path.expanduser("/home/labb/HDF5_new/pachg_demo.hdf5")
 
 # Parse for charge density visualisation.
-envision.hdf5parser.parchg(PATH_TO_HDF5, PATH_TO_VASP_CALC)
-envision.hdf5parser.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+envisionpy.hdf5parser.parchg(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+envisionpy.hdf5parser.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
 # Clear any old network
 inviwopy.app.network.clear()

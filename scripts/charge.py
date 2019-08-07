@@ -27,9 +27,8 @@
 ##############################################################################################
 
 import os, sys, inspect, inviwopy
-path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-sys.path.append(path_to_current_folder + "/../")
-
+path_to_envisionpy = "/home/labb/ENVISIoN"
+sys.path.append(path_to_envisionpy)
 import envisionpy
 import envisionpy.hdf5parser
 from envisionpy.processor_network.ChargeNetworkHandler import ChargeNetworkHandler
