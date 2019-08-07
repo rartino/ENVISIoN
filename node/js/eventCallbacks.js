@@ -3,8 +3,87 @@ const fs = require('fs')
 var activeVisualisation = "";
 var runningVisualisations = [];
 
+var loadedDatasets = {};
+//var loadedHdf5Files = [];
+var tempHdf5Files = []
+
 // TODO: Validations for most text field inputs.
 //       If they are empty you cant just send null
+
+// --------------------------------
+// ----- Dataset loader -----------
+// --------------------------------
+
+function loadDataset() {
+    let isVaspPath = $("#vaspSourceCheckbox").is(":checked");
+    let isHdf5Path = $("#hdf5SourceCheckbox").is(":checked");
+    let datasetName = $("#datasetNameText").val()
+
+    if (datasetName == "") {
+        let idx = 1;
+        while ("Dataset " + idx in loadedDatasets) idx++;
+        datasetName = "Dataset " + idx;
+    }
+
+
+    let hdf5Path;
+
+    if (isVaspPath) {
+        let vaspPath = $("#vaspDirInput")[0].files[0].path;
+        hdf5Path = "temp" + tempHdf5Files.length + ".hdf5";
+        loadedDatasets[datasetName] = hdf5Path;
+        tempHdf5Files.push(hdf5Path);
+        //send_data("parser request", ["All", hdf5Path, vaspPath]);
+    }
+    else if (isHdf5Path) {
+        hdf5Path = $("#hdf5LoadInput")[0].files[0].path;
+        loadedDatasets[datasetName] = hdf5Path;
+    }
+    // add to list at bottom of page
+    let elem = $(`
+        <div class="row row-margin">
+        <div class="input-group col" id="addTFGroup">
+        <div class="input-group-prepend medium">
+        <label class="input-group-text">` + datasetName + `</label>
+        </div>
+        <input type="text" class="form-control" value="` + hdf5Path + `" disabled>
+        <div class="input-group-append">
+        <button class="btn btn-primary">Clear</button>
+        </div>
+        </div>
+        </div>`);
+    elem.find("button").on("click", removeDataset);
+    $("#datasetsList").append(elem);
+
+    // add to sidebar
+    let sidebarElem = $(`
+        <div>
+        <li>
+        <a>` + datasetName + `</a>
+        </li>
+        <ul class="list-unstyled show">
+        </ul>
+        </div>`);
+    sidebarElem.find("li").on("click", function () {
+        $("#sidebar a").removeClass("active");
+        $(this).find("> a").addClass("active");
+    });
+    $("#datasetLinks").append(sidebarElem);
+}
+
+function removeDataset() {
+    let name = $(this).parent().parent().find(".input-group-prepend > label")[0].textContent;
+    delete loadedDatasets[name];
+    console.log("removing dataset: ", name);
+    $(this).parent().parent().parent().remove();
+}
+
+function openDatasetPanel() {
+    
+}
+
+
+
 
 // --------------------------------
 // ----- File selection panel -----
@@ -17,10 +96,10 @@ function startVisPressed() {
     }
     if ($("#vaspSourceCheckbox").is(":checked")) {
         let vaspPath = $("#vaspDirInput")[0].files[0].path;
-        let hdf5Path = "temp_"+activeVisualisation+".hdf5";
+        let hdf5Path = "temp_" + activeVisualisation + ".hdf5";
         try {
             fs.unlinkSync(hdf5Path);
-        } catch (err) {}
+        } catch (err) { }
         send_data("parser request", ["All", hdf5Path, vaspPath])
         send_data("envision request", ["start", activeVisualisation, [activeVisualisation, hdf5Path]]);
         send_data("envision request", ["get_ui_data", activeVisualisation, []]);
@@ -111,7 +190,7 @@ function addTfPointSubmitted() {
     return false;
 }
 
-function tfPointChanged(){
+function tfPointChanged() {
     send_data("envision request", ["set_tf_points", activeVisualisation, [getTfPoints()]]);
     visPanelChanged();
 }
@@ -328,40 +407,40 @@ function parseClicked() {
 // ----------------------------------
 
 function uiDataRecieved(id, data) {
-// TODO: Disable input elements by default, enable from here.
-    if (id != activeVisualisation){
+    // TODO: Disable input elements by default, enable from here.
+    if (id != activeVisualisation) {
         console.log("Data for inactive panel");
         return;
     }
-    if (id == "charge"){
+    if (id == "charge") {
         loadBands(data[0]);
         loadAtoms(data[1]);
         loadTFPoints(data[2]);
-    } else if (id == "elf"){
+    } else if (id == "elf") {
         loadBands(data[0]);
         loadAtoms(data[1]);
         loadTFPoints(data[2]);
-    } else if (id == "parchg"){
+    } else if (id == "parchg") {
         loadAvailablePartials(data[0])
         loadActivePartials(data[1]);
         loadAtoms(data[2]);
         loadTFPoints(data[3]);
-    } else if (id = "bandstructure"){
+    } else if (id = "bandstructure") {
         loadXRange(data[0]);
         loadYRange(data[1]);
         loadLabelCount(data[2]);
         loadAvailableDatasets(data[3]);
-    } else if (id == "pcf"){
+    } else if (id == "pcf") {
         loadXRange(data[0]);
         loadYRange(data[1]);
         loadLabelCount(data[2]);
         loadAvailableDatasets(data[3]);
-    } else if (id == "dos"){
+    } else if (id == "dos") {
         loadXRange(data[0]);
         loadYRange(data[1]);
         loadLabelCount(data[2]);
         loadAvailableDatasets(data[3]);
-    } 
+    }
     enableInputs();
 }
 
@@ -438,17 +517,17 @@ function loadActivePartials(partials) {
     }
 }
 
-function loadXRange(range){
+function loadXRange(range) {
     $("#xRangeMin").val(range[1]);
     $("#xRangeMax").val(range[0]);
 }
 
-function loadYRange(range){
+function loadYRange(range) {
     $("#yRangeMin").val(range[1]);
     $("#yRangeMax").val(range[0]);
 }
 
-function loadLabelCount(n){
+function loadLabelCount(n) {
     $("#labelCountInput").val(n);
 }
 
@@ -486,16 +565,16 @@ function addTfPointElement(value, alpha, color) {
 
     let pointElement = $(
         '<div class="row row-margin" name="tfPoint">' +
-          '<div class="col-sm-10">' +
-            '<div class="input-group">' +
-              '<input type="text" class="form-control" value="' + value + '">' +
-              '<input type="text" class="form-control" value="' + alpha + '">' +
-              '<input class="form-control" type="color" value="' + color + '">' +
-              '<div class="input-group-append">' +
-                '<button class="btn btn-primary" type="submit">-</button>' +
-              '</div>' +
-            '</div>' +
-          '</div>' +
+        '<div class="col-sm-10">' +
+        '<div class="input-group">' +
+        '<input type="text" class="form-control" value="' + value + '">' +
+        '<input type="text" class="form-control" value="' + alpha + '">' +
+        '<input class="form-control" type="color" value="' + color + '">' +
+        '<div class="input-group-append">' +
+        '<button class="btn btn-primary" type="submit">-</button>' +
+        '</div>' +
+        '</div>' +
+        '</div>' +
         '</div>');
 
     let insertionIndex = points.findIndex(function (point) { return point[0] > value });
@@ -561,14 +640,14 @@ function visPanelChanged() {
     send_data("envision request", ["get_ui_data", activeVisualisation, []]);
 }
 
-function disableInputs(){
+function disableInputs() {
     $("#visSettings :input").attr("disabled", true);
     $("#visSettings :button").attr("disabled", true);
     // $("#visSettings > select").attr("disabled", true);
     // $("#visSettings > submit").attr("disabled", true);
 }
 
-function enableInputs(){
+function enableInputs() {
     $("#visSettings :input").attr("disabled", false);
     $("#visSettings :button").attr("disabled", false);
     // $("#visSettings :select").attr("disabled", false);
