@@ -1,4 +1,8 @@
 <h5 class="border-top">Volume rendering settings</h5>
+
+
+
+
 <div class="row row-margin">
   <div class="input-group col-sm-10">
     <div class="input-group-prepend medium">
@@ -32,7 +36,9 @@
   </div>
 </div>
 
-<h6>Transfer Function</h6>
+<h5>Transfer Function</h5>
+
+
 <div class="form-check">
   <input type="checkbox" class="form-check-input" id="transperancyCheckbox" checked>
   <label class="form-check-label" for="transperancyCheckbox">Toggle transperancy before first point</label>
@@ -57,7 +63,8 @@
 
 
 <div class="row row-margin">
-  <div class="btn-group col-sm-8" role="group" aria-label="Basic example">
+  <div class="btn-group col-sm-8" role="group" aria-label="TF-buttons">
+    <button class="btn btn-primary" id="volumeDistBtn">Show volume distribution</button>
     <button type="button" class="btn btn-secondary">Save TF</button>
     <button type="button" class="btn btn-secondary">Load TF</button>
   </div>
@@ -160,6 +167,7 @@
     });
 
     // Setup normal event bindings
+    $("#volumeDistBtn").on("click", showVolumeDist)
     $("#shadingModeSelection").on("change", shadingModeChanged)
     $("#backgroundColor1,#backgroundColor2,#backgroundStyleSelection").on("change", volumeBackgroundChanged)
     $("#transperancyCheckbox").on("click", updateMask)
