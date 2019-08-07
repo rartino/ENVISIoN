@@ -1,7 +1,7 @@
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2018 Viktor Bernholtz
+#  Copyright (c) 2018 Jesper Ericsson
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -25,29 +25,19 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 ##############################################################################################
-#
-#  Alterations to this file by Viktor Bernholtz
-#
-#  To the extent possible under law, the person who associated CC0
-#  with the alterations to this file has waived all copyright and related
-#  or neighboring rights to the alterations made to this file.
-#
-#  You should have received a copy of the CC0 legalcode along with
-#  this work.  If not, see
-#  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
-import os, sys
-
-# Configuration
-PATH_TO_ENVISION=os.path.expanduser("C:/ENVISIoN/envision")
-#PATH_TO_VASP_CALC=os.path.expanduser("~/ENVISIoN/data/Cu/1/11")
-PATH_TO_HDF5=os.path.expanduser("C:/Users/sille/Downloads/dostest.hdf5")
-
-sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION))
-
+import os, sys, inspect, inviwopy
+path_to_envisionpy = "/home/labb/ENVISIoN"
+sys.path.append(path_to_envisionpy)
 import envisionpy
-import envisionpy.inviwo
+import envisionpy.hdf5parser
+from envisionpy.processor_network.DOSNetworkHandler import DOSNetworkHandler
 
 #envision.parser.vasp.dos(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+HDF5_PATH = "/home/labb/HDF5/dostestNew.hdf5"
+VASP_PATH = "/"
 
-envision.inviwo.dos(PATH_TO_HDF5, atom = 0, xpos = 0, ypos = 0)
+#envisionpy.hdf5parser.dos(HDF5_PATH, VASP_PATH)
+#envisionpy.hdf5parser.unitcell(HDF5_PATH, VASP_PATH)
+
+networkHandler = DOSNetworkHandler(HDF5_PATH, inviwopy.app)
