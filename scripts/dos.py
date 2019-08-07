@@ -35,9 +35,10 @@ from envisionpy.processor_network.DOSNetworkHandler import DOSNetworkHandler
 
 #envision.parser.vasp.dos(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 HDF5_PATH = "/home/labb/HDF5/dostestNew.hdf5"
-VASP_PATH = "/"
+VASP_PATH = "/home/labb/VASP/TiPO4_DoS"
 
-#envisionpy.hdf5parser.dos(HDF5_PATH, VASP_PATH)
-#envisionpy.hdf5parser.unitcell(HDF5_PATH, VASP_PATH)
+envisionpy.hdf5parser.dos(HDF5_PATH, VASP_PATH)
+envisionpy.hdf5parser.unitcell(HDF5_PATH, VASP_PATH)
 
+inviwopy.app.network.clear()
 networkHandler = DOSNetworkHandler(HDF5_PATH, inviwopy.app)
