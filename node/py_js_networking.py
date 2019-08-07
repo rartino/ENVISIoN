@@ -15,9 +15,9 @@ import json
 path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 # sys.path.append(path_to_current_folder + "/../envision")
 sys.path.append(path_to_current_folder + "/../")
-# from envision import envision
-# from envision import envision
-from envision import EnvisionMain
+# from envisionpy import envisionpy
+# from envisionpy import envisionpy
+from envisionpy import EnvisionMain
 
 
 import threading
@@ -63,7 +63,7 @@ def main():
 
         # Try to loop at 60 fps
         time_elapsed = time.time() - time_start
-        time.sleep(max([1.0/60 - time_elapsed, 0]))
+        time.sleep(max([1.0/60.0 - time_elapsed, 0]))
 
 # Initialize ENVISIoN
 envisionMain = EnvisionMain()
