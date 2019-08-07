@@ -17,11 +17,11 @@ import sys,os,inspect
 # sys.path.append(path_to_current_folder)
 # sys.path.append(path_to_current_folder + "/processor_network")
 # sys.path.append(path_to_current_folder + "/parser")
-PATH_INVIWO_BIN = "/home/labb/inviwo-latest/build-low-qt/bin"
-#PATH_INVIWO_BIN = "/usr/bin"
+#PATH_INVIWO_BIN = "/home/labb/inviwo-latest/build-low-qt/bin"
+PATH_INVIWO_BIN = "/usr/bin"
 sys.path.append(PATH_INVIWO_BIN)
 import inviwopy as ivw
-#import inviwopyapp as ivwapp
+import inviwopyapp as ivwapp
 import time
 
 from envisionpy.processor_network import *
@@ -143,8 +143,8 @@ class EnvisionMain():
         self.lc.registerLogger(self.cl)
 
         # Create the inviwo application
-        self.app = ivw.InviwoApplication()
-        #self.app.registerModules()
+        self.app = ivwapp.InviwoApplicationQt()
+        self.app.registerModules()
 
         # load a workspace
         # self.app.network.load(self.app.getPath(ivw.PathType.Workspaces) + "/boron.inv")
