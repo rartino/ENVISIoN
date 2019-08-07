@@ -14,6 +14,7 @@ import sys,os,inspect
 # sys.path.insert(0, os.path.expanduser(path_to_current_folder))
 
 import inviwopy
+import threading
 import numpy as np
 from matplotlib import pyplot as plt 
 import h5py
@@ -52,21 +53,24 @@ class VolumeNetworkHandler(NetworkHandler):
         self.add_tf_point(0.8, [0.9, 0.1, 0.1, 0.5])
         self.set_mask(self.get_tf_points()[0][0], 1)
 
-    def show_volume_dist(self, path_to_hdf5):
+    def show_volume_dist(self):
     # Shows a histogram plot over volume data
-        
-        volume = self.get_processor("HDF5 To Volume")#self.get_processor('HDF5 To Volume')
-        with h5py.File(path_to_hdf5,"r") as h5:
-            data = h5[volume.volumeSelection.value].value
-            result = []
-            [ result.extend(el) for el in data[0] ]
-            newResult = []
-            [ newResult.append((element + abs(min(result)))/(max(result) + abs(min(result)))) \
-               for element in result ]
-            dataList= np.array(newResult)
-            plt.hist(dataList,bins=200, density = True)
-            plt.title("TF and ISO data") 
-            plt.show()
+        def start_plot():
+            path_to_hdf5 = self.hdf5_path
+            volume = self.get_processor("HDF5 To Volume")#self.get_processor('HDF5 To Volume')
+            with h5py.File(path_to_hdf5,"r") as h5:
+                data = h5[volume.volumeSelection.value].value
+                result = []
+                [ result.extend(el) for el in data[0] ]
+                newResult = []
+                [ newResult.append((element + abs(min(result)))/(max(result) + abs(min(result)))) \
+                for element in result ]
+                dataList= np.array(newResult)
+                plt.hist(dataList,bins=200, density = True)
+                plt.title("Volume density distribution") 
+                plt.show()
+        th = threading.Thread(target=start_plot)
+        th.start()
 
 # ------------------------------------------
 # ------- Property control functions -------

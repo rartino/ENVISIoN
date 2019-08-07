@@ -64,6 +64,10 @@ function resetCanvasPositions() {
     // send_data("envision request", ["toggle_tf_editor", activeVisualisation, [true]]);
 }
 
+function showVolumeDist() {
+    send_data("envision request", ["show_volume_dist", activeVisualisation, []]);
+}
+
 // ----------------------------------
 // ----- Volume rendering panel -----
 // ----------------------------------
@@ -559,12 +563,14 @@ function visPanelChanged() {
 
 function disableInputs(){
     $("#visSettings :input").attr("disabled", true);
+    $("#visSettings :button").attr("disabled", true);
     // $("#visSettings > select").attr("disabled", true);
     // $("#visSettings > submit").attr("disabled", true);
 }
 
 function enableInputs(){
     $("#visSettings :input").attr("disabled", false);
+    $("#visSettings :button").attr("disabled", false);
     // $("#visSettings :select").attr("disabled", false);
     // $("#visSettings :submit").attr("disabled", false);
 }
