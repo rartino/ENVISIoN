@@ -10,7 +10,7 @@
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import sys,os,inspect
-from envision.utils.exceptions import *
+from envisionpy.utils.exceptions import *
 
 # path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 # sys.path.insert(0, os.path.expanduser(path_to_current_folder))

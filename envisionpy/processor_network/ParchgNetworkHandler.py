@@ -45,7 +45,7 @@ import inviwopy
 import numpy as np
 import h5py
 import math
-from envision.utils.exceptions import *
+from envisionpy.utils.exceptions import *
 
 from .VolumeNetworkHandler import VolumeNetworkHandler
 from .UnitcellNetworkHandler import UnitcellNetworkHandler

@@ -43,7 +43,7 @@ import sys,os,inspect
 import inviwopy
 import numpy as np
 import h5py
-from envision.utils.exceptions import *
+from envisionpy.utils.exceptions import *
 
 from .VolumeNetworkHandler import VolumeNetworkHandler
 from .UnitcellNetworkHandler import UnitcellNetworkHandler
