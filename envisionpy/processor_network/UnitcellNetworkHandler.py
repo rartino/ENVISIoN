@@ -44,10 +44,10 @@ import inviwopy
 import numpy as np
 from matplotlib import pyplot as plt 
 import h5py
-from envision.utils.atomData import atomic_radii, element_names, element_colors
+from envisionpy.utils.atomData import atomic_radii, element_names, element_colors
 
 from .NetworkHandler import NetworkHandler
-from envision.utils.exceptions import *
+from envisionpy.utils.exceptions import *
 
 class UnitcellNetworkHandler(NetworkHandler):
     """ Base class for setting up and handling a self.network for generic unitcell rendering for ENVISIoN.

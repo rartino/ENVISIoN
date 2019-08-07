@@ -38,7 +38,7 @@ import h5py
 
 from .LinePlotNetworkHandler import LinePlotNetworkHandler
 from .UnitcellNetworkHandler import UnitcellNetworkHandler
-from envision.utils.exceptions import *
+from envisionpy.utils.exceptions import *
 
 
 class DOSNetworkHandler(LinePlotNetworkHandler, UnitcellNetworkHandler):

@@ -18,7 +18,7 @@ import h5py
 
 
 from .NetworkHandler import NetworkHandler
-from envision.utils.exceptions import *
+from envisionpy.utils.exceptions import *
 
 class LinePlotNetworkHandler(NetworkHandler):
     """ Handler class for charge visualization network.

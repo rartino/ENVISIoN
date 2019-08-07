@@ -17,16 +17,16 @@ import sys,os,inspect
 # sys.path.append(path_to_current_folder)
 # sys.path.append(path_to_current_folder + "/processor_network")
 # sys.path.append(path_to_current_folder + "/parser")
-# PATH_INVIWO_BIN = "/home/labb/Inviwo-latest/build/bin"
-PATH_INVIWO_BIN = "/home/labb/Inviwo-latest/build/bin"
+PATH_INVIWO_BIN = "/home/labb/inviwo-latest/build-low-qt/bin"
+#PATH_INVIWO_BIN = "/usr/bin"
 sys.path.append(PATH_INVIWO_BIN)
 import inviwopy as ivw
-import inviwopyapp as qt
+#import inviwopyapp as ivwapp
 import time
 
-from envision.processor_network import *
-from envision.utils.exceptions import *
-import envision.hdf5parser
+from envisionpy.processor_network import *
+from envisionpy.utils.exceptions import *
+import envisionpy.hdf5parser
 
 
 class EnvisionMain():
@@ -116,19 +116,19 @@ class EnvisionMain():
 
         # print(dir(hdf5parser.vasp))
         self.parseFunctions = {
-            "charge": envision.hdf5parser.charge,
-            "Electron density": envision.hdf5parser.charge,
-            "elf": envision.hdf5parser.elf, 
-            "Electron localisation function": envision.hdf5parser.elf,
-            "Partial charge density": envision.hdf5parser.parchg,
-            "parchg": envision.hdf5parser.parchg,
-            "bandstructure": envision.hdf5parser.bandstructure,
-            "Bandstructure": envision.hdf5parser.bandstructure,
-            "pcf": envision.hdf5parser.paircorrelation,
-            "Pair correlation function": envision.hdf5parser.paircorrelation,
-            "dos": envision.hdf5parser.dos,
-            "Density of states": envision.hdf5parser.dos,
-            "Unitcell": envision.hdf5parser.unitcell
+            "charge": envisionpy.hdf5parser.charge,
+            "Electron density": envisionpy.hdf5parser.charge,
+            "elf": envisionpy.hdf5parser.elf, 
+            "Electron localisation function": envisionpy.hdf5parser.elf,
+            "Partial charge density": envisionpy.hdf5parser.parchg,
+            "parchg": envisionpy.hdf5parser.parchg,
+            "bandstructure": envisionpy.hdf5parser.bandstructure,
+            "Bandstructure": envisionpy.hdf5parser.bandstructure,
+            "pcf": envisionpy.hdf5parser.paircorrelation,
+            "Pair correlation function": envisionpy.hdf5parser.paircorrelation,
+            "dos": envisionpy.hdf5parser.dos,
+            "Density of states": envisionpy.hdf5parser.dos,
+            "Unitcell": envisionpy.hdf5parser.unitcell
         }
 
     def update(self):
@@ -143,8 +143,8 @@ class EnvisionMain():
         self.lc.registerLogger(self.cl)
 
         # Create the inviwo application
-        self.app = qt.InviwoApplicationQt()
-        self.app.registerModules()
+        self.app = ivw.InviwoApplication()
+        #self.app.registerModules()
 
         # load a workspace
         # self.app.network.load(self.app.getPath(ivw.PathType.Workspaces) + "/boron.inv")

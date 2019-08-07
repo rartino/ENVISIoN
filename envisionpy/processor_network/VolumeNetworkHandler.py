@@ -18,7 +18,7 @@ import numpy as np
 from matplotlib import pyplot as plt 
 import h5py
 from .NetworkHandler import NetworkHandler
-from envision.utils.exceptions import *
+from envisionpy.utils.exceptions import *
 
 # TODO: Would probably be better to save important processors as member variables
 #       instead of extracting them from the self.network all the time
