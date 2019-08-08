@@ -466,6 +466,14 @@ function uiDataRecieved(id, data) {
         $("#visControlPanel").load("contentPanels/charge.html");
     }else if (data[0] == "elf") {
         $("#visControlPanel").load("contentPanels/elf.html");
+    }else if (data[0] == "parchg"){
+        $("#visControlPanel").load("contentPanels/parchg.html");
+    }else if (data[0] == "bandstructure"){
+        $("#visControlPanel").load("contentPanels/bandstructure.html");
+    }else if (data[0] == "pcf"){
+        $("#visControlPanel").load("contentPanels/pcf.html");
+    }else if (data[0] == "dos"){
+        $("#visControlPanel").load("contentPanels/dos.html");
     }
 }
 
@@ -474,8 +482,9 @@ function uiDataRecieved(id, data) {
 // ----- Interface loading functions -----
 // ---------------------------------------
 
-function loadBands(bands) {
-    console.log(bands);
+function loadBands(data) {
+    bands = data[0];
+    activeBand = data[1];
     $("#bandSelection").empty();
     for (let i = 0; i < bands.length; i++) {
         if (i == bands.length - 1)
@@ -483,6 +492,7 @@ function loadBands(bands) {
         else
             $("#bandSelection").append("<option>" + bands[i] + "</option>")
     }
+    $("#bandSelection")[0][activeBand].selected = true;
 }
 
 function loadAtoms(atoms) {
@@ -655,4 +665,10 @@ function getPartialBandSelections() {
         modes.push(mode)
     }
     return [bands, modes];
+}
+
+
+function visPanelChanged() {
+    console.log("Updating panel: ", activeVisId);
+    send_data("envision request", ["get_ui_data", activeVisId, []]);
 }

@@ -40,6 +40,8 @@ class VolumeNetworkHandler(NetworkHandler):
         self.volumeInports = []
         self.setup_volume_network()
 
+        self.transperancy_before = True
+
         # Set initial conditions
         self.clear_tf()
         self.toggle_slice_canvas(False)
@@ -86,10 +88,17 @@ class VolumeNetworkHandler(NetworkHandler):
         if VolumeSlice:
             VolumeSlice.tfGroup.transferFunction.setMask(maskMin,maskMax)
 
+    def toggle_transperancy_before(self, enable):
+        self.transperancy_before = enable
+        self.update_transperancy_before()
+
+    def update_transperancy_before(self):
+        lowestVal = self.get_tf_points()[0][0]
+        self.set_mask(lowestVal, 1)
+
     def slice_copy_tf(self):
     # Function for copying the volume transferfunction to the slice transferfunction
     # Adds a white point just before the first one aswell
-        
         VolumeSlice = self.get_processor('Volume Slice')
         Raycaster = self.get_processor('Raycaster')
         if VolumeSlice and Raycaster:
@@ -120,6 +129,7 @@ class VolumeNetworkHandler(NetworkHandler):
             glm_col = inviwopy.glm.vec4(point[1][0], point[1][1], point[1][2], point[1][3])
             Raycaster.isotfComposite.transferFunction.add(point[0], glm_col)
         self.slice_copy_tf()
+        self.update_transperancy_before()
   
     def add_tf_point(self, value, color):
     # Add point to the raycaster transferfunction
@@ -128,7 +138,7 @@ class VolumeNetworkHandler(NetworkHandler):
         glm_col = inviwopy.glm.vec4(color[0], color[1], color[2], color[3])
         raycaster.isotfComposite.transferFunction.add(value, glm_col)
         self.slice_copy_tf()
-        return
+        self.update_transperancy_before()
 
     def remove_tf_point(self, index):
     # Remove a point by index
@@ -139,6 +149,7 @@ class VolumeNetworkHandler(NetworkHandler):
         point_to_remove = tf_property.getValueAt(index)
         tf_property.remove(point_to_remove)
         self.slice_copy_tf()
+        self.update_transperancy_before()
 
     def set_tf_point_color(self, value, color):
     # Changes the color of a tf point at a certain value
@@ -221,6 +232,25 @@ class VolumeNetworkHandler(NetworkHandler):
         volumeSlice = self.get_processor('Volume Slice')
         volumeSlice.trafoGroup.imageScale.value = zoom
 
+    def get_slice_active(self):
+        try:
+            self.get_processor('SliceCanvas')
+            return True
+        except ProcessorNotFoundError:
+            return False
+
+    def get_plane_height(self):
+        return self.get_processor('Volume Slice').planePosition.value.x
+
+    def get_slice_zoom(self):
+        return self.get_processor('Volume Slice').trafoGroup.imageScale.value
+
+    def get_texture_wrap_mode(self):
+        return self.get_processor('Volume Slice').trafoGroup.volumeWrapping.selectedIndex
+
+    def get_plane_normal(self):
+        vec = self.get_processor('Volume Slice').planeNormal.value
+        return [vec.x, vec.y, vec.z]
 
 # ------------------------------------------
 # ------- Network building functions -------

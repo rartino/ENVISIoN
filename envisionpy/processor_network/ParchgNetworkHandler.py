@@ -120,18 +120,15 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
 
     def get_ui_data(self):
     # Return data required to fill user interface
-        if self.unitcellAvailable:
-            return [
-                [self.get_available_bands(), self.get_available_modes()], 
-                self.get_partial_selections(), 
-                self.get_atom_names(), 
-                self.get_tf_points()]
-        else:
-            return [
-                [self.get_available_bands(), self.get_available_modes()], 
-                self.get_partial_selections(), 
-                [], 
-                self.get_tf_points()]
+        if self.unitcellAvailable: atomNames = self.get_atom_names()
+        else: atomNames = []
+
+        return [
+            "parchg",
+            [self.get_available_bands(), self.get_available_modes()], 
+            self.get_partial_selections(), 
+            atomNames, 
+            self.get_tf_points()]
 
     def select_bands(self, band_list, mode_list):
     # Re-selects bands. Clears old bands and adds the new ones.
