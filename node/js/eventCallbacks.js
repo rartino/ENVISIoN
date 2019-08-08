@@ -33,6 +33,7 @@ function datasetFocused() {
     console.log("dataset opened: ", name);
     datasetInfo = loadedDatasets[name];
     activeDatasetName = name;
+    $("#datasetTitle").text(name);
 }
 
 function visualisationFocused() {
@@ -144,27 +145,20 @@ function startVisPressed() {
     let visIndex = 0;
     while (datasetInfo[3].includes(activeDatasetName + "_" + visType + "_" + visIndex)) visIndex += 1;
     let visId = activeDatasetName + "_" + visType + "_" + visIndex;
-    loadedDatasets[activeDatasetName][3].push(visId);
-
-    // Add sidebar element
-    let sidebarElem = $(`
-        <li data-show="#visControlPanel" data-vis-id="` + visId + `" class="subLink">
-        <a href="#">` + visType + "_" + visIndex + `<button class="btn btn-danger navbar-btn btn-sm float-right">Stop</button></a>
-        </li>`);
-    loadedDatasets[activeDatasetName][1].find("ul").append(sidebarElem);
-    sidebarElem.on("click", sidebarLinkClicked);
-    sidebarElem.on("click", visualisationFocused);
+    
 
     // Start the visualisation
-    send_data("envision request", ["start", visId, [visType, hdf5Path]]);
-    send_data("envision request", ["set_active_band", visId, ["final"]]);
-    
+    send_data("envision request", ["start", visId, [
+        visType, 
+        hdf5Path, 
+        visType + "_" + visIndex,
+        activeDatasetName]]);
 }
 
-function stopVisPressed() {
-    disableInputs();
-    // send_data("envision request", ["toggle_tf_editor", activeVisId, [false]]);
-    send_data("envision request", ["stop", activeVisId, [false]]);
+
+function stopVisPressed(sidebarElem, visId) {
+    send_data("envision request", ["stop", visId, [false]]);
+    sidebarElem.remove();
 }
 
 function pathInputChanged() {
@@ -456,8 +450,40 @@ function parseClicked() {
 // ----- Python response events -----
 // ----------------------------------
 
-function uiDataRecieved(id, data) {
-    console.log("UI data recieved")
+function visualisationStarted(status, id, data) {
+    // If visualisation was started add it to the sidebar
+    if (!status){
+        alert("Visualisation failed to start \n" + "Reason: " + data);
+        console.log("Visualisation start failed");
+        return;
+    }
+    let visName = data[2];
+    let datasetName = data[3]; 
+    loadedDatasets[datasetName][3].push(id);
+    
+    // Add sidebar element
+    let sidebarElem = $(`
+        <li data-show="#visControlPanel" data-vis-id="` + id + `" class="subLink">
+        <a href="#">` + visName + `<button class="btn btn-danger navbar-btn btn-sm float-right">Stop</button></a>
+        </li>`);
+    loadedDatasets[datasetName][1].find("ul").append(sidebarElem);
+    sidebarElem.on("click", sidebarLinkClicked);
+    sidebarElem.on("click", visualisationFocused);
+    sidebarElem.find("button").on("click", function(){stopVisPressed(sidebarElem, id)})
+}
+
+function visualisationStopped(status, id, data) {
+    if (!status){
+        console.log("Visualisation stop failed");
+    }
+}
+
+
+function uiDataRecieved(status, id, data) {
+    if (!status){
+        console.log("UI data recieve failed");
+        return;
+    }
     // TODO: Disable input elements by default, enable from here.
     if (id != activeVisId) {
         console.log("Data for inactive panel");
