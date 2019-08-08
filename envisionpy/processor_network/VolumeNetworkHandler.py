@@ -55,19 +55,20 @@ class VolumeNetworkHandler(NetworkHandler):
         self.add_tf_point(0.8, [0.9, 0.1, 0.1, 0.5])
         self.set_mask(self.get_tf_points()[0][0], 1)
 
-    # def get_ui_data(self):
-    #     return [
-    #         "volume",
-    #         self.get_processor('Raycaster').lighting.shadingMode.selectedIndex,
-    #         self.get_tf_points(),
-    #         self.transperancy_before,
-    #         self.get_slice_active(),
-    #         self.get_plane_active(),
-    #         self.get_plane_height(),
-    #         self.get_texture_wrap_mode(),
-    #         self.get_slice_zoom(),
-    #         self.get_plane_normal(),
-    #     ]
+    def get_ui_data(self):
+        return [
+            "volume",
+            self.get_processor('Raycaster').lighting.shadingMode.selectedIndex,
+            self.get_background_info(),
+            self.get_tf_points(),
+            self.transperancy_before,
+            self.get_slice_active(),
+            self.get_plane_active(),
+            self.get_plane_height(),
+            self.get_texture_wrap_mode(),
+            self.get_slice_zoom(),
+            self.get_plane_normal(),
+        ]
 
 
     def show_volume_dist(self):
@@ -274,6 +275,15 @@ class VolumeNetworkHandler(NetworkHandler):
         vec = self.get_processor('Volume Slice').planeNormal.value
         return [vec.x, vec.y, vec.z]
 
+    def get_background_info(self):
+        background = self.get_processor("VolumeBackground")
+        style = background.backgroundStyle.selectedIndex
+        col_1 = background.bgColor1.value
+        col_2 = background.bgColor2.value
+        return [
+            [col_1.r, col_1.g, col_1.b], 
+            [col_2.r, col_2.g, col_2.b], 
+            style]
 # ------------------------------------------
 # ------- Network building functions -------
 

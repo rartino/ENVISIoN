@@ -58,6 +58,7 @@ class UnitcellNetworkHandler(NetworkHandler):
         NetworkHandler.__init__(self, inviwoApp)
         self.nAtomTypes = 0
         self.atomNames = []
+        self.atomRadii = []
         
         # Make sure the hdf5 file is valid
         with h5py.File(hdf5_path, 'r') as file:
@@ -67,7 +68,12 @@ class UnitcellNetworkHandler(NetworkHandler):
         
         self.setup_unitcell_network(hdf5_path)
         
-
+    def get_ui_data(self):
+        return [
+            "unitcell",
+            self.get_atom_names(),
+            self.get_atom_radii()
+        ]
 
 # ------------------------------------------
 # ------- Property control functions -------
@@ -76,13 +82,17 @@ class UnitcellNetworkHandler(NetworkHandler):
         structureMesh = self.get_processor('Unit Cell Mesh')
         if structureMesh.fullMesh.value:
             if index != None:
+                self.atomRadii[index] = radius
                 structureMesh.getPropertyByIdentifier("radius" + str(index)).value = radius
             else:
                 for i in range(self.nAtomTypes):
+                    self.atomRadii[i] = radius
                     self.set_atom_radius(radius, i)
         else:
             sphereRenderer = self.get_processor('Unit Cell Renderer')
             sphereRenderer.sphereProperties.defaultRadius.value = radius
+            for i in range(self.nAtomTypes):
+                self.atomRadii[i] = radius
 
 
     def hide_atoms(self):
@@ -94,6 +104,8 @@ class UnitcellNetworkHandler(NetworkHandler):
     def get_atom_name(self, index):
         return self.atomNames[index]
 
+    def get_atom_radii(self):
+        return self.atomRadii
 
     def toggle_unitcell_canvas(self, enable_unitcell):
     # Add or remove the unitcell canvas
@@ -180,6 +192,7 @@ class UnitcellNetworkHandler(NetworkHandler):
                 strucMesh_radius_property.maxValue = 10
                 strucMesh_radius_property.value = radius
                 strucMesh_radius_property.value = 0.3
+                self.atomRadii.append(radius)
                 strucMesh_color_property = strucMesh.getPropertyByIdentifier('color{0}'.format(i))
                 strucMesh_color_property.value = inviwopy.glm.vec4(color[0],color[1],color[2],color[3])
 
