@@ -29,14 +29,16 @@
 
 
 <script>
-  $("#volumeSettings").load("visualisationPanels/volumePanel.html");
+  $("#volumeSettings").load("contentPanels/volumePanel.html");
 
   activeVisualisation = "parchg"
 
   $(document).ready(function () {
     $("#partialBandAddForm").on("submit", partialBandAdded)
-    visPanelChanged();
-    disableInputs();
+    loadAvailablePartials(uiData[1])
+    loadActivePartials(uiData[2]);
+    loadAtoms(uiData[3]);
+    loadTFPoints(uiData[4]);
     console.log("Parchg control element loaded")
   });
 </script>
