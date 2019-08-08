@@ -448,33 +448,9 @@ function uiDataRecieved(id, data) {
     uiData = data;
     if (data[0] == "charge") {
         $("#visControlPanel").load("contentPanels/charge.html");
-    } 
-    // else if (id == "elf") {
-    //     loadBands(data[0]);
-    //     loadAtoms(data[1]);
-    //     loadTFPoints(data[2]);
-    // } else if (id == "parchg") {
-    //     loadAvailablePartials(data[0])
-    //     loadActivePartials(data[1]);
-    //     loadAtoms(data[2]);
-    //     loadTFPoints(data[3]);
-    // } else if (id = "bandstructure") {
-    //     loadXRange(data[0]);
-    //     loadYRange(data[1]);
-    //     loadLabelCount(data[2]);
-    //     loadAvailableDatasets(data[3]);
-    // } else if (id == "pcf") {
-    //     loadXRange(data[0]);
-    //     loadYRange(data[1]);
-    //     loadLabelCount(data[2]);
-    //     loadAvailableDatasets(data[3]);
-    // } else if (id == "dos") {
-    //     loadXRange(data[0]);
-    //     loadYRange(data[1]);
-    //     loadLabelCount(data[2]);
-    //     loadAvailableDatasets(data[3]);
-    // }
-    // enableInputs();
+    }else if (data[0] == "elf") {
+        $("#visControlPanel").load("contentPanels/elf.html");
+    }
 }
 
 
@@ -664,67 +640,3 @@ function getPartialBandSelections() {
     }
     return [bands, modes];
 }
-
-// ---------------------------------
-// ----- Panel initializations -----
-// ---------------------------------
-
-function visPanelChanged() {
-    console.log("Updating panel: ", activeVisId);
-    send_data("envision request", ["get_ui_data", activeVisId, []]);
-}
-
-function disableInputs() {
-    $("#visSettings :input").attr("disabled", true);
-    $("#visSettings :button").attr("disabled", true);
-    // $("#visSettings > select").attr("disabled", true);
-    // $("#visSettings > submit").attr("disabled", true);
-}
-
-function enableInputs() {
-    $("#visSettings :input").attr("disabled", false);
-    $("#visSettings :button").attr("disabled", false);
-    // $("#visSettings :select").attr("disabled", false);
-    // $("#visSettings :submit").attr("disabled", false);
-}
-// function initializeChargePanel() {
-//     console.log("CHG")
-//     // $("#visSettings :input").attr("disabled", false);
-//     send_data("envision request", ["get_ui_data", "charge", []])
-//     // send_data("envision request", ["get_bands", "charge", []])
-//     // send_data("envision request", ["get_atom_names", "charge", []])
-//     // send_data("envision request", ["get_tf_points", "charge", []])
-// }
-
-// function initializeELFPanel() {
-//     console.log("ELF")
-//     // $("#visSettings :input").attr("disabled", false);
-//     send_data("envision request", ["get_ui_data", "elf", []])
-//     // send_data("envision request", ["get_bands", "elf", []])
-//     // send_data("envision request", ["get_atom_names", "elf", []])
-//     // send_data("envision request", ["get_tf_points", "elf", []])
-// }
-
-// function initializeParchgPanel() {
-//     console.log("Parchg")
-//     send_data("envision request", ["select_bands", "parchg", [[0, 1], [0, 1]]])
-//     // $("#visSettings :input").attr("disabled", false);
-//     // send_data("envision request", ["get_bands", "elf", []])
-//     // send_data("envision request", ["get_atom_names", "elf", []])
-//     // send_data("envision request", ["get_tf_points", "elf", []])
-// }
-
-// function initializeBandstructurePanel() {
-//     console.log("Bandstructure")
-//     send_data("envision request", ["get_available_datasets", "bandstructure", []])
-// }
-
-// function initializePCFPanel(){
-//     console.log("PCF")
-//     send_data("envision request", ["get_available_datasets", "pcf", []])
-// }
-
-// function initializeDOSPanel(){
-//     console.log("PCF")
-//     send_data("envision request", ["get_available_datasets", "dos", []])
-// }

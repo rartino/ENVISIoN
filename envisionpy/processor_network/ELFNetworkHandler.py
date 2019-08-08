@@ -85,10 +85,9 @@ class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
     
     def get_ui_data(self):
     # Return data required to fill user interface
-        if self.unitcellAvailable:
-            return [self.get_available_bands(), self.get_atom_names(), self.get_tf_points()]
-        else:
-            return [self.get_available_bands(), [], self.get_tf_points()]
+        if self.unitcellAvailable: atomNames = self.get_atom_names()
+        else: atomNames = []
+        return ["elf", self.get_available_bands(), atomNames, self.get_tf_points()]
 
     def get_available_bands(self, path=None):
     # Return the keys to the available datasets in hdf5-file

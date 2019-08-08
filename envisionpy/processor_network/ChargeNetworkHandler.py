@@ -86,7 +86,6 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
     # Return data required to fill user interface
         if self.unitcellAvailable: atomNames = self.get_atom_names()
         else: atomNames = []
-
         return ["charge", self.get_available_bands(), atomNames, self.get_tf_points()]
     
     def get_available_bands(self, path=None):
