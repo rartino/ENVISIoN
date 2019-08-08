@@ -25,16 +25,6 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 ##############################################################################################
-#
-#  Alterations to this file by Jesper Ericsson
-#
-#  To the extent possible under law, the person who associated CC0
-#  with the alterations to this file has waived all copyright and related
-#  or neighboring rights to the alterations made to this file.
-#
-#  You should have received a copy of the CC0 legalcode along with
-#  this work.  If not, see
-#  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import sys,os,inspect
 # path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -49,8 +39,8 @@ from .VolumeNetworkHandler import VolumeNetworkHandler
 from .UnitcellNetworkHandler import UnitcellNetworkHandler
 
 class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
-    """ Handler class for ELF visualization self.network.
-        Sets up and manages the ELF visualization
+    """ Handler class for elf visualization self.network.
+        Sets up and manages the elf visualization
     """
     def __init__(self, hdf5_path, inviwoApp):
         self.processors = {}
@@ -61,20 +51,19 @@ class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         try: 
             UnitcellNetworkHandler.__init__(self, hdf5_path, inviwoApp)
         except BadHDF5Error as error:
-            print(error)
             self.unitcellAvailable = False
 
 
         # Check if  hdf5-file is valid
         with h5py.File(hdf5_path, 'r') as file:
             if file.get("ELF") == None:
-                raise BadHDF5Error("No ELF data in that file")
+                raise BadHDF5Error("No elf data in that file.")
         if len(self.get_available_bands(hdf5_path)) == 0:
-            raise BadHDF5Error("No valid bands in that file")
+            raise BadHDF5Error("No valid bands in that file.")
         
         self.hdf5_path = hdf5_path
 
-        # Setup default ELF settings
+        # Setup default elf settings
         self.setup_elf_network(hdf5_path)
         self.set_active_band('final')
 
@@ -82,13 +71,23 @@ class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         if self.unitcellAvailable:
             self.toggle_full_mesh(True)
             self.toggle_unitcell_canvas(False)
-    
+
     def get_ui_data(self):
     # Return data required to fill user interface
-        if self.unitcellAvailable: atomNames = self.get_atom_names()
-        else: atomNames = []
-        return ["elf", self.get_available_bands(), atomNames, self.get_tf_points()]
-
+        if self.unitcellAvailable: 
+            unitcellData = UnitcellNetworkHandler.get_ui_data(self)
+        else: 
+            unitcellData = [[], []]
+        return [
+            "elf", 
+            VolumeNetworkHandler.get_ui_data(self),
+            unitcellData,
+            [
+                self.get_available_bands(), 
+                self.get_active_band()
+            ]
+            ]
+    
     def get_available_bands(self, path=None):
     # Return the keys to the available datasets in hdf5-file
         if path == None:
@@ -98,6 +97,11 @@ class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
             for key in file.get("ELF").keys():
                 band_keys.append(key)
             return band_keys
+
+    def get_active_band(self):
+        value = self.get_processor('HDF5 To Volume').volumeSelection.selectedValue.split("/")[-1]
+        index = self.get_available_bands().index(value)
+        return index
 
 # ------------------------------------------
 # ------- Property control functions -------

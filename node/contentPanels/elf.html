@@ -19,16 +19,14 @@
   </div>
 </div>
 
-
-
-
 <script>
   $("#volumeSettings").load("contentPanels/volumePanel.html");
   $(document).ready(function () {
-    loadBands(uiData[1]);
-    loadAtoms(uiData[2]);
-    loadTFPoints(uiData[3]);
+    loadVolumeUiData(uiData[1]);
+    loadAtoms(uiData[2].slice(1, 3));
+    loadBands(uiData[3]);
+
     $("#bandSelection").on("change", bandChanged)
-    console.log("ELF control element loaded")
+    console.log("elf control element loaded")
   });
 </script>
