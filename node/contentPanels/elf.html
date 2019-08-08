@@ -1,9 +1,6 @@
 <!-- Settings panel -->
 <h2 class="border-bottom">Electron localisation function</h2>
 
-<div id="loadPanel">
-</div>
-
 <div id="visSettings">
   <h5 class="border-top">Volume selection</h5>
   <div class="row row-margin">
@@ -13,26 +10,25 @@
       </div>
       <select class="custom-select" id="bandSelection">
         <!-- <option selected>final</option>
-      <option>1</option> -->
+        <option>1</option> -->
       </select>
     </div>
   </div>
-
+  
   <div id="volumeSettings">
   </div>
 </div>
 
 
+
+
 <script>
-  $("#loadPanel").load("visualisationPanels/loadPanel.html");
-  $("#volumeSettings").load("visualisationPanels/volumePanel.html");
-
-  activeVisualisation = "elf";
-
+  $("#volumeSettings").load("contentPanels/volumePanel.html");
   $(document).ready(function () {
+    loadBands(uiData[1]);
+    loadAtoms(uiData[2]);
+    loadTFPoints(uiData[3]);
     $("#bandSelection").on("change", bandChanged)
-    visPanelChanged();
-    disableInputs();
     console.log("ELF control element loaded")
   });
 </script>
