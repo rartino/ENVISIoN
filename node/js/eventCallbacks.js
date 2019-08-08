@@ -44,16 +44,20 @@ function visualisationFocused() {
 // ----- Dataset loader -----------
 // --------------------------------
 
+function fixDatasetName(name){
+    // Make sure there are no duplicate names.
+    if (name in loadedDatasets){
+        let idx = 1;
+        while (name + "_" + idx in loadedDatasets) idx++;
+        name = name + "_" + idx;
+    }
+    return name;
+}
+
 function loadDataset() {
     let isVaspPath = $("#vaspSourceCheckbox").is(":checked");
     let isHdf5Path = $("#hdf5SourceCheckbox").is(":checked");
     let datasetName = $("#datasetNameText").val()
-
-    if (datasetName == "") {
-        let idx = 1;
-        while ("Dataset " + idx in loadedDatasets) idx++;
-        datasetName = "Dataset " + idx;
-    }
 
     let hdf5Path;
 
@@ -61,17 +65,33 @@ function loadDataset() {
         let vaspPath = $("#vaspDirInput")[0].files[0].path;
         hdf5Path = "temp_" + tempHdf5Files.length + ".hdf5";
         tempHdf5Files.push(hdf5Path);
-        console.log("Sending data?")
+        try {
+            fs.unlinkSync(hdf5Path);
+            console.log("Old temp file removed")
+        } catch (err) {}
         send_data("parser request", ["All", hdf5Path, vaspPath]);
+
+        if (datasetName == ""){
+            let strs = vaspPath.split(/[\\/]/);
+            datasetName = strs[strs.length - 1];
+        }
     }
     else if (isHdf5Path) {
         hdf5Path = $("#hdf5LoadInput")[0].files[0].path;
+        if (datasetName == ""){
+            let strs = hdf5Path.split(/[\\/]/);
+            datasetName = strs[strs.length - 1].split(".")[0];
+        }
     }
+
+    // Make sure name is not duplicate
+    datasetName = fixDatasetName(datasetName);
+
     // add to list at bottom of page
     let elem = $(`
         <div class="row row-margin">
         <div class="input-group col">
-        <div class="input-group-prepend medium">
+        <div class="input-group-prepend large">
         <label class="input-group-text">` + datasetName + `</label>
         </div>
         <input type="text" class="form-control" value="` + hdf5Path + `" disabled>
@@ -96,10 +116,7 @@ function loadDataset() {
     sidebarElem.find("> li").on("click", datasetFocused);
     $("#datasetLinks").append(sidebarElem);
 
-
     loadedDatasets[datasetName] = [hdf5Path, sidebarElem, elem, []];
-
-    console.log(JSON.stringify(loadedDatasets));
 }
 
 function removeDataset() {
@@ -115,7 +132,6 @@ function removeDataset() {
 
     delete loadedDatasets[name];
     console.log("removing dataset: ", name);
-    // $(this).parent().parent().parent().remove();
 }
 
 function startVisPressed() {
