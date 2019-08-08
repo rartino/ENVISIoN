@@ -12,6 +12,10 @@ function componentToHex(c) {
     return hex.length == 1 ? "0" + hex : hex;
 }
 
+function rgbArrToHex(rgb){
+    return rgbToHex(rgb[0], rgb[1], rgb[2]);
+}
+
 function rgbToHex(r, g, b) {
     return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }

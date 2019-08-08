@@ -273,7 +273,7 @@ function sliceZoomChanged() {
     let value = $(this).val();
     $("#sliceZoomtRange").val(value);
     $("#sliceZoomText").val(value);
-    let a = Math.pow(10.99, value) - 0.99;
+    let a = Math.pow(20.99, value) - 0.99;
     send_data("envision request", ["set_slice_zoom", activeVisId, [a]]);
 }
 
@@ -423,8 +423,9 @@ function hideAtomsChanged() {
 function atomRadiusChanged() {
     if (!$("#hideAllAtomsCheck").is(":checked"))
         return
-    let value = parseInt($(this).val());
-    let radius = (Math.pow(1.0243, value) - 1) / 12;
+    let value = parseFloat($(this).val());
+    let radius = (Math.pow(2.999, value) - 0.999);
+    console.log(radius);
     let index = parseInt($(this).parent().parent().parent().index());
     send_data("envision request", ["set_atom_radius", activeVisId, [radius, index]]);
 }
@@ -481,9 +482,39 @@ function uiDataRecieved(id, data) {
 // ----- Interface loading functions -----
 // ---------------------------------------
 
+function loadVolumeUiData(data){
+    // Load state of all volume controls from envision data. 
+    let [type, shadingMode, bgInfo, tfPoints, transperancyMode, 
+        sliceActive, planeActive, planeHeight, wrapMode, 
+        sliceZoom, planeNormal] = data;
+    if (type != "volume") console.log("Something is very wrong here");
+    $("#shadingModeSelection")[0][shadingMode].selected = true;
+    $("#transperancyCheckbox").prop("checked", transperancyMode);
+    $("#sliceCanvasCheck").prop("checked", sliceActive);
+    $("#slicePlaneCheck").prop("checked", planeActive);
+    $("#sliceWrapSelection")[0][new Map([[0,0], [2,1]]).get(wrapMode)].selected = true;
+    planeHeight = Math.round(planeHeight * 1000) / 1000
+    $("#sliceHeightRange").val(planeHeight);
+    $("#sliceHeightText").val(planeHeight);
+    sliceZoom = Math.round(-0.32851*Math.log(100/(100*sliceZoom + 99))*1000)/1000
+    $("#sliceZoomRange").val(sliceZoom);
+    $("#sliceZoomText").val(sliceZoom);
+
+    $("#sliceNormX").val(planeNormal[0]);
+    $("#sliceNormY").val(planeNormal[1]);
+    $("#sliceNormZ").val(planeNormal[2]);
+
+    $("#backgroundColor1").val(rgbArrToHex(bgInfo[0]));
+    $("#backgroundColor2").val(rgbArrToHex(bgInfo[1]));
+    $("#backgroundStyleSelection")[0][bgInfo[2]].selected = true;
+    
+    loadTFPoints(tfPoints);
+}
+
+
 function loadBands(data) {
-    bands = data[0];
-    activeBand = data[1];
+    let [bands, activeBand]  = data;
+
     $("#bandSelection").empty();
     for (let i = 0; i < bands.length; i++) {
         if (i == bands.length - 1)
@@ -494,14 +525,8 @@ function loadBands(data) {
     $("#bandSelection")[0][activeBand].selected = true;
 }
 
-function loadMisc(shadingIndex, transperancyEnabled, sliceActive, planeActive){
-    $("#shadingModeSelection")[0][shadingIndex].selected = true;
-    $("#transperancyCheckbox").prop("checked", transperancyEnabled);
-    $("#sliceCanvasCheck").prop("checked", sliceActive);
-    $("#slicePlaneCheck").prop("checked", planeActive);
-}
-
-function loadAtoms(atoms) {
+function loadAtoms(data) {
+    let [atoms, atomRadii] = data;
     $("#atomControls").empty();
     for (let i = 0; i < atoms.length; i++) {
         let atomControlElement = $(
@@ -514,12 +539,16 @@ function loadAtoms(atoms) {
             '</div>' +
             '<div class="col-sm-4">' +
             '<div class="form-group">' +
-            '<input type="range" class="form-control-range" name="atomRadiusSlider">' +
+            '<input type="range" min="0" max="1" step="0.01" class="form-control-range" name="atomRadiusSlider">' +
             '</div>' +
             '</div>' +
-            '</div>')
-        $("#atomControls").append(atomControlElement)
-        atomControlElement.find(".form-control-range").on("input", atomRadiusChanged)
+            '</div>');
+        let rangeVal = -0.913014*Math.log(100/(100*atomRadii[i] + 99));
+        console.log(rangeVal)
+        atomControlElement.find("input").val(rangeVal);
+        $("#atomControls").append(atomControlElement);
+
+        atomControlElement.find(".form-control-range").on("input", atomRadiusChanged);
     }
 }
 

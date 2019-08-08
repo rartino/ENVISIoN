@@ -85,27 +85,19 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
     def get_ui_data(self):
     # Return data required to fill user interface
         if self.unitcellAvailable: 
-            atomNames = self.get_atom_names()
-            atomRadii = []
+            unitcellData = UnitcellNetworkHandler.get_ui_data(self)
         else: 
-            atomNames = []
-            atomRadii = []
+            unitcellData = [[], []]
         return [
             # super(ChargeNetworkHandler, self).
             "charge", 
-            [self.get_available_bands(), self.get_active_band()],
-            self.get_processor('Raycaster').lighting.shadingMode.selectedIndex,
-            ["background"],
-            self.get_tf_points(),
-            self.transperancy_before,
-            self.get_slice_active(),
-            self.get_plane_active(),
-            self.get_plane_height(),
-            self.get_texture_wrap_mode(),
-            self.get_slice_zoom(),
-            self.get_plane_normal(),
-            atomNames,
-            atomRadii]
+            VolumeNetworkHandler.get_ui_data(self),
+            unitcellData,
+            [
+                self.get_available_bands(), 
+                self.get_active_band()
+            ]
+            ]
     
     def get_available_bands(self, path=None):
     # Return the keys to the available datasets in hdf5-file
