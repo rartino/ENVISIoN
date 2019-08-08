@@ -1,9 +1,6 @@
 <!-- Settings panel -->
 <h2 class="border-bottom">Electron Density</h2>
 
-<div id="loadPanel">
-</div>
-
 <div id="visSettings">
   <h5 class="border-top">Volume selection</h5>
   <div class="row row-margin">
@@ -26,15 +23,16 @@
 
 
 <script>
-  $("#loadPanel").load("contentPanels/loadPanel.html");
   $("#volumeSettings").load("contentPanels/volumePanel.html");
 
   activeVisualisation = "charge";
 
   $(document).ready(function () {
+    
+    loadBands(uiData[1]);
+    loadAtoms(uiData[2]);
+    loadTFPoints(uiData[3]);
     $("#bandSelection").on("change", bandChanged)
-    visPanelChanged();
-    disableInputs();
     console.log("Charge control element loaded")
   });
 </script>

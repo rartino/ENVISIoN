@@ -5,7 +5,9 @@ var loadedDatasets = {};
 var activeDatasetName;
 var activeVisId;
 //var loadedHdf5Files = [];
-var tempHdf5Files = []
+var tempHdf5Files = [];
+
+var uiData;
 
 // TODO: Validations for most text field inputs.
 //       If they are empty you cant just send null
@@ -14,6 +16,7 @@ var tempHdf5Files = []
 function sidebarLinkClicked() {
     if($(this).hasClass("subLink")){
         $("#sidebar a").not($(this).parent().parent().find("> li > a")).removeClass("active");
+        $(this).parent().parent().find("> li > a").addClass("active")
     }
     else {
         $("#sidebar a").removeClass("active");
@@ -33,7 +36,8 @@ function datasetFocused() {
 }
 
 function visualisationFocused() {
-   activeVisId = $(this).data("vis-id")
+   activeVisId = $(this).data("vis-id");
+   send_data("envision request", ["get_ui_data", activeVisId, []])
 }
 
 // --------------------------------
@@ -141,8 +145,8 @@ function startVisPressed() {
 
 function stopVisPressed() {
     disableInputs();
-    // send_data("envision request", ["toggle_tf_editor", activeVisualisation, [false]]);
-    send_data("envision request", ["stop", activeVisualisation, [false]]);
+    // send_data("envision request", ["toggle_tf_editor", activeVisId, [false]]);
+    send_data("envision request", ["stop", activeVisId, [false]]);
 }
 
 function pathInputChanged() {
@@ -167,12 +171,12 @@ function togglePathType() {
 function resetCanvasPositions() {
     let xPos = window.screenX + window.outerWidth;
     let yPos = window.screenY;
-    send_data("envision request", ["position_canvases", activeVisualisation, [xPos, yPos]]);
-    // send_data("envision request", ["toggle_tf_editor", activeVisualisation, [true]]);
+    send_data("envision request", ["position_canvases", activeVisId, [xPos, yPos]]);
+    // send_data("envision request", ["toggle_tf_editor", activeVisId, [true]]);
 }
 
 function showVolumeDist() {
-    send_data("envision request", ["show_volume_dist", activeVisualisation, []]);
+    send_data("envision request", ["show_volume_dist", activeVisId, []]);
 }
 
 // ----------------------------------
@@ -181,13 +185,13 @@ function showVolumeDist() {
 
 function bandChanged() {
     let selection = $("#bandSelection").val();
-    send_data("envision request", ["set_active_band", activeVisualisation, [selection]]);
+    send_data("envision request", ["set_active_band", activeVisId, [selection]]);
 
 }
 
 function shadingModeChanged() {
     let selectionIndex = $(this)[0].selectedIndex;
-    send_data("envision request", ["set_shading_mode", activeVisualisation, [selectionIndex]]);
+    send_data("envision request", ["set_shading_mode", activeVisId, [selectionIndex]]);
 }
 
 function volumeBackgroundChanged() {
@@ -197,14 +201,14 @@ function volumeBackgroundChanged() {
     color2.push(1);
     let styleIndex = $("#backgroundStyleSelection")[0].selectedIndex;
     console.log(JSON.stringify([color1, color2, styleIndex]));
-    send_data("envision request", ["set_volume_background", activeVisualisation, [color1, color2, styleIndex]])
+    send_data("envision request", ["set_volume_background", activeVisId, [color1, color2, styleIndex]])
 }
 
 function updateMask() {
     if (!$("#transperancyCheckbox").is(':checked'))
-        send_data("envision request", ["set_mask", activeVisualisation, [0, 1]]);
+        send_data("envision request", ["set_mask", activeVisId, [0, 1]]);
     else if (getTfPoints().length > 0)
-        send_data("envision request", ["set_mask", activeVisualisation, [getTfPoints()[0][0], 1]]);
+        send_data("envision request", ["set_mask", activeVisId, [getTfPoints()[0][0], 1]]);
 }
 
 function addTfPointSubmitted() {
@@ -213,30 +217,30 @@ function addTfPointSubmitted() {
     let color = hexToRGB($(this)[0][2].value);
     color.push(alpha);
 
-    send_data("envision request", ["add_tf_point", activeVisualisation, [value, color]]);
+    send_data("envision request", ["add_tf_point", activeVisId, [value, color]]);
     visPanelChanged();
     return false;
 }
 
 function tfPointChanged() {
-    send_data("envision request", ["set_tf_points", activeVisualisation, [getTfPoints()]]);
+    send_data("envision request", ["set_tf_points", activeVisId, [getTfPoints()]]);
     visPanelChanged();
 }
 
 function removeTfPoint() {
     $(this).closest('[name="tfPoint"]').remove();
-    send_data("envision request", ["set_tf_points", activeVisualisation, [getTfPoints()]]);
+    send_data("envision request", ["set_tf_points", activeVisId, [getTfPoints()]]);
     updateMask();
     return false;
 }
 
 function sliceCanvasToggle() {
-    send_data("envision request", ["toggle_slice_canvas", activeVisualisation, [$("#sliceCanvasCheck").is(":checked")]]);
+    send_data("envision request", ["toggle_slice_canvas", activeVisId, [$("#sliceCanvasCheck").is(":checked")]]);
     resetCanvasPositions();
 }
 
 function slicePlaneToggle() {
-    send_data("envision request", ["toggle_slice_plane", activeVisualisation, [$("#slicePlaneCheck").is(":checked")]]);
+    send_data("envision request", ["toggle_slice_plane", activeVisId, [$("#slicePlaneCheck").is(":checked")]]);
 }
 
 function sliceHeightChanged() {
@@ -247,7 +251,7 @@ function sliceHeightChanged() {
         value = 0.5;
     else
         value = parseFloat(value);
-    send_data("envision request", ["set_plane_height", activeVisualisation, [value]]);
+    send_data("envision request", ["set_plane_height", activeVisId, [value]]);
 }
 
 function sliceZoomChanged() {
@@ -255,21 +259,21 @@ function sliceZoomChanged() {
     $("#sliceZoomtRange").val(value);
     $("#sliceZoomText").val(value);
     let a = Math.pow(10.99, value) - 0.99;
-    send_data("envision request", ["set_slice_zoom", activeVisualisation, [a]]);
+    send_data("envision request", ["set_slice_zoom", activeVisId, [a]]);
 }
 
 
 function wrapModeSelected() {
     let selectedIndex = $("#sliceWrapSelection")[0].selectedIndex;
     let modeIndexes = [0, 2]
-    send_data("envision request", ["set_texture_wrap_mode", activeVisualisation, [modeIndexes[selectedIndex]]]);
+    send_data("envision request", ["set_texture_wrap_mode", activeVisId, [modeIndexes[selectedIndex]]]);
 }
 
 function sliceNormalChanged() {
     let x = parseFloat($(this)[0].children[1].value);
     let y = parseFloat($(this)[0].children[2].value);
     let z = parseFloat($(this)[0].children[3].value);
-    send_data("envision request", ["set_plane_normal", activeVisualisation, [x, y, z]]);
+    send_data("envision request", ["set_plane_normal", activeVisId, [x, y, z]]);
     return false;
 }
 
@@ -286,19 +290,19 @@ function partialBandAdded() {
     addPartialBandElement(band, mode);
     $("#partialBandSelection").val("band");
     $("#partialModeSelection").val("mode");
-    send_data("envision request", ["select_bands", activeVisualisation, getPartialBandSelections()]);
+    send_data("envision request", ["select_bands", activeVisId, getPartialBandSelections()]);
     visPanelChanged();
     return false;
 }
 
 function partialBandChanged() {
-    send_data("envision request", ["select_bands", activeVisualisation, getPartialBandSelections()]);
+    send_data("envision request", ["select_bands", activeVisId, getPartialBandSelections()]);
     visPanelChanged();
 }
 
 function partialBandRemoved() {
     $(this).remove();
-    send_data("envision request", ["select_bands", activeVisualisation, getPartialBandSelections()]);
+    send_data("envision request", ["select_bands", activeVisId, getPartialBandSelections()]);
     return false;
 }
 
@@ -310,7 +314,7 @@ function partialBandRemoved() {
 function xRangeSubmitted() {
     let min = parseFloat($("#xRangeMin").val());
     let max = parseFloat($("#xRangeMax").val());
-    send_data("envision request", ["set_x_range", activeVisualisation, [min, max]]);
+    send_data("envision request", ["set_x_range", activeVisId, [min, max]]);
     visPanelChanged();
     return false;
 }
@@ -319,60 +323,60 @@ function yRangeSubmitted() {
     // let min = $("#yRangeMin").val()!="" ? parseFloat($("#yRangeMin").val()) : -10000;
     let min = parseFloat($("#yRangeMin").val())
     let max = parseFloat($("#yRangeMax").val());
-    send_data("envision request", ["set_y_range", activeVisualisation, [min, max]]);
+    send_data("envision request", ["set_y_range", activeVisId, [min, max]]);
     visPanelChanged();
     return false;
 }
 
 function verticalLineChecked() {
     let enable = $("#verticalLineCheck").is(":checked");
-    send_data("envision request", ["toggle_vertical_line", activeVisualisation, [enable]]);
+    send_data("envision request", ["toggle_vertical_line", activeVisId, [enable]]);
 }
 
 function verticalLineXSubmitted() {
     let value = parseFloat($("#verticalLineXInput").val());
-    send_data("envision request", ["set_vertical_line_x", activeVisualisation, [value]]);
+    send_data("envision request", ["set_vertical_line_x", activeVisId, [value]]);
     return false;
 }
 
 function gridChecked() {
     let enable = $("#gridCheck").is(":checked");
-    send_data("envision request", ["toggle_grid", activeVisualisation, [enable]]);
+    send_data("envision request", ["toggle_grid", activeVisId, [enable]]);
 }
 
 function gridSizeSubmitted() {
     let value = parseFloat($("#gridSizeInput").val());
-    send_data("envision request", ["set_grid_size", activeVisualisation, [value]]);
+    send_data("envision request", ["set_grid_size", activeVisId, [value]]);
     return false;
 }
 
 function xLabelChecked() {
-    send_data("envision request", ["toggle_x_label", activeVisualisation, [$("#xLabelCheck").is(":checked")]]);
+    send_data("envision request", ["toggle_x_label", activeVisId, [$("#xLabelCheck").is(":checked")]]);
 }
 
 function yLabelChecked() {
-    send_data("envision request", ["toggle_y_label", activeVisualisation, [$("#yLabelCheck").is(":checked")]]);
+    send_data("envision request", ["toggle_y_label", activeVisId, [$("#yLabelCheck").is(":checked")]]);
 }
 
 function nLabelsSubmitted() {
     let value = parseInt($("#labelCountInput").val());
-    send_data("envision request", ["set_n_labels", activeVisualisation, [value]]);
+    send_data("envision request", ["set_n_labels", activeVisId, [value]]);
     return false;
 }
 
 function ySelectionRadiosChanged() {
     if ($("#allYCheck").is(":checked")) {
-        send_data("envision request", ["set_y_selection_type", activeVisualisation, [2]]);
+        send_data("envision request", ["set_y_selection_type", activeVisId, [2]]);
         $("#specificY").hide();
         $("#multipleY").hide();
     }
     else if ($("#specificYCheck").is(":checked")) {
-        send_data("envision request", ["set_y_selection_type", activeVisualisation, [0]]);
+        send_data("envision request", ["set_y_selection_type", activeVisId, [0]]);
         $("#specificY").show();
         $("#multipleY").hide();
     }
     else if ($("#multipleYCheck").is(":checked")) {
-        send_data("envision request", ["set_y_selection_type", activeVisualisation, [1]]);
+        send_data("envision request", ["set_y_selection_type", activeVisId, [1]]);
         $("#specificY").hide();
         $("#multipleY").show();
     }
@@ -382,12 +386,12 @@ function ySelectionRadiosChanged() {
 
 function ySingleSelectionChanged() {
     let selectionIndex = $("#ySingleSelection")[0].selectedIndex;
-    send_data("envision request", ["set_y_single_selection_index", activeVisualisation, [selectionIndex]]);
+    send_data("envision request", ["set_y_single_selection_index", activeVisId, [selectionIndex]]);
 }
 
 function yMultiSelectionSubmitted() {
     let input = $("#yMultiSelectInput").val();
-    send_data("envision request", ["set_y_multi_selection", activeVisualisation, [input]]);
+    send_data("envision request", ["set_y_multi_selection", activeVisId, [input]]);
     // xRangeSubmitted();
     // yRangeSubmitted();
     return false;
@@ -396,7 +400,7 @@ function yMultiSelectionSubmitted() {
 function hideAtomsChanged() {
     let enable = $("#hideAllAtomsCheck").is(":checked");
     if (!enable)
-        send_data("envision request", ["hide_atoms", activeVisualisation, []]);
+        send_data("envision request", ["hide_atoms", activeVisId, []]);
     else
         $('[name="atomRadiusSlider"]').trigger("input");
 }
@@ -407,7 +411,7 @@ function atomRadiusChanged() {
     let value = parseInt($(this).val());
     let radius = (Math.pow(1.0243, value) - 1) / 12;
     let index = parseInt($(this).parent().parent().parent().index());
-    send_data("envision request", ["set_atom_radius", activeVisualisation, [radius, index]]);
+    send_data("envision request", ["set_atom_radius", activeVisId, [radius, index]]);
 }
 
 // ------------------------
@@ -435,41 +439,42 @@ function parseClicked() {
 // ----------------------------------
 
 function uiDataRecieved(id, data) {
+    console.log("UI data recieved")
     // TODO: Disable input elements by default, enable from here.
-    if (id != activeVisualisation) {
+    if (id != activeVisId) {
         console.log("Data for inactive panel");
         return;
     }
-    if (id == "charge") {
-        loadBands(data[0]);
-        loadAtoms(data[1]);
-        loadTFPoints(data[2]);
-    } else if (id == "elf") {
-        loadBands(data[0]);
-        loadAtoms(data[1]);
-        loadTFPoints(data[2]);
-    } else if (id == "parchg") {
-        loadAvailablePartials(data[0])
-        loadActivePartials(data[1]);
-        loadAtoms(data[2]);
-        loadTFPoints(data[3]);
-    } else if (id = "bandstructure") {
-        loadXRange(data[0]);
-        loadYRange(data[1]);
-        loadLabelCount(data[2]);
-        loadAvailableDatasets(data[3]);
-    } else if (id == "pcf") {
-        loadXRange(data[0]);
-        loadYRange(data[1]);
-        loadLabelCount(data[2]);
-        loadAvailableDatasets(data[3]);
-    } else if (id == "dos") {
-        loadXRange(data[0]);
-        loadYRange(data[1]);
-        loadLabelCount(data[2]);
-        loadAvailableDatasets(data[3]);
-    }
-    enableInputs();
+    uiData = data;
+    if (data[0] == "charge") {
+        $("#visControlPanel").load("contentPanels/charge.html");
+    } 
+    // else if (id == "elf") {
+    //     loadBands(data[0]);
+    //     loadAtoms(data[1]);
+    //     loadTFPoints(data[2]);
+    // } else if (id == "parchg") {
+    //     loadAvailablePartials(data[0])
+    //     loadActivePartials(data[1]);
+    //     loadAtoms(data[2]);
+    //     loadTFPoints(data[3]);
+    // } else if (id = "bandstructure") {
+    //     loadXRange(data[0]);
+    //     loadYRange(data[1]);
+    //     loadLabelCount(data[2]);
+    //     loadAvailableDatasets(data[3]);
+    // } else if (id == "pcf") {
+    //     loadXRange(data[0]);
+    //     loadYRange(data[1]);
+    //     loadLabelCount(data[2]);
+    //     loadAvailableDatasets(data[3]);
+    // } else if (id == "dos") {
+    //     loadXRange(data[0]);
+    //     loadYRange(data[1]);
+    //     loadLabelCount(data[2]);
+    //     loadAvailableDatasets(data[3]);
+    // }
+    // enableInputs();
 }
 
 
@@ -478,6 +483,7 @@ function uiDataRecieved(id, data) {
 // ---------------------------------------
 
 function loadBands(bands) {
+    console.log(bands);
     $("#bandSelection").empty();
     for (let i = 0; i < bands.length; i++) {
         if (i == bands.length - 1)
@@ -664,8 +670,8 @@ function getPartialBandSelections() {
 // ---------------------------------
 
 function visPanelChanged() {
-    console.log("Updating panel: ", activeVisualisation);
-    send_data("envision request", ["get_ui_data", activeVisualisation, []]);
+    console.log("Updating panel: ", activeVisId);
+    send_data("envision request", ["get_ui_data", activeVisId, []]);
 }
 
 function disableInputs() {
