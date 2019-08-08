@@ -26,8 +26,10 @@
   $("#volumeSettings").load("contentPanels/volumePanel.html");
   $(document).ready(function () {
     loadBands(uiData[1]);
-    loadAtoms(uiData[11]);
+    // loadAtoms(uiData[11]);
     loadTFPoints(uiData[4]);
+
+    loadMisc(uiData[2], uiData[5], uiData[6], uiData[7]);
     $("#bandSelection").on("change", bandChanged)
     console.log("Charge control element loaded")
   });

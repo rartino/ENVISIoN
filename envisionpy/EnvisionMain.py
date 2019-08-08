@@ -18,7 +18,8 @@ import sys,os,inspect
 # sys.path.append(path_to_current_folder + "/processor_network")
 # sys.path.append(path_to_current_folder + "/parser")
 #PATH_INVIWO_BIN = "/home/labb/inviwo-latest/build-low-qt/bin"
-PATH_INVIWO_BIN = "/usr/bin"
+# PATH_INVIWO_BIN = "/usr/bin"
+PATH_INVIWO_BIN = "C:/Kandidatprojekt/inviwo-latest/build/bin/Debug"
 sys.path.append(PATH_INVIWO_BIN)
 import inviwopy as ivw
 import inviwopyapp as ivwapp
@@ -52,7 +53,6 @@ class EnvisionMain():
         self.action_dict["position_canvases"] = lambda id, params: self.networkHandlers[id].position_canvases(*params)
 
         # Volume visualisation actions
-        self.action_dict["set_mask"] = lambda id, params: self.networkHandlers[id].set_mask(*params)
         self.action_dict["clear_tf"] = lambda id, params: self.networkHandlers[id].clear_tf(*params)
         self.action_dict["set_tf_points"] = lambda id, params: self.networkHandlers[id].set_tf_points(*params)
         self.action_dict["add_tf_point"] = lambda id, params: self.networkHandlers[id].add_tf_point(*params)
@@ -69,6 +69,7 @@ class EnvisionMain():
         self.action_dict["set_texture_wrap_mode"] = lambda id, params: self.networkHandlers[id].set_texture_wrap_mode(*params)
         self.action_dict["set_slice_zoom"] = lambda id, params: self.networkHandlers[id].set_slice_zoom(*params)
         self.action_dict["show_volume_dist"] = lambda id, params: self.networkHandlers[id].show_volume_dist(*params)
+        self.action_dict["toggle_transperancy_before"] = lambda id, params: self.networkHandlers[id].toggle_transperancy_before(*params)
         # self.action_dict["toggle_tf_editor"] = lambda id, params: self.networkHandlers[id].toggle_tf_editor(*params)
 
         # Unicell visalisation actions
