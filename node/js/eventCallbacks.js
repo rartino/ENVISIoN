@@ -1,14 +1,40 @@
 const fs = require('fs')
 
-var activeVisualisation = "";
-var runningVisualisations = [];
 
 var loadedDatasets = {};
+var activeDatasetName;
+var activeVisId;
 //var loadedHdf5Files = [];
 var tempHdf5Files = []
 
 // TODO: Validations for most text field inputs.
 //       If they are empty you cant just send null
+
+
+function sidebarLinkClicked() {
+    if($(this).hasClass("subLink")){
+        $("#sidebar a").not($(this).parent().parent().find("> li > a")).removeClass("active");
+    }
+    else {
+        $("#sidebar a").removeClass("active");
+    }
+    $(this).find("> a").addClass("active");
+    
+    var div = $($(this).data("show")).show();
+    div.siblings("div").hide();
+    console.log("sidebar link clicked")
+}
+
+function datasetFocused() {
+    let name = $(this).find("> a")[0].textContent;
+    console.log("dataset opened: ", name);
+    datasetInfo = loadedDatasets[name];
+    activeDatasetName = name;
+}
+
+function visualisationFocused() {
+   activeVisId = $(this).data("vis-id")
+}
 
 // --------------------------------
 // ----- Dataset loader -----------
@@ -25,90 +51,92 @@ function loadDataset() {
         datasetName = "Dataset " + idx;
     }
 
-
     let hdf5Path;
 
     if (isVaspPath) {
         let vaspPath = $("#vaspDirInput")[0].files[0].path;
-        hdf5Path = "temp" + tempHdf5Files.length + ".hdf5";
-        loadedDatasets[datasetName] = hdf5Path;
+        hdf5Path = "temp_" + tempHdf5Files.length + ".hdf5";
         tempHdf5Files.push(hdf5Path);
-        //send_data("parser request", ["All", hdf5Path, vaspPath]);
+        console.log("Sending data?")
+        send_data("parser request", ["All", hdf5Path, vaspPath]);
     }
     else if (isHdf5Path) {
         hdf5Path = $("#hdf5LoadInput")[0].files[0].path;
-        loadedDatasets[datasetName] = hdf5Path;
     }
     // add to list at bottom of page
     let elem = $(`
         <div class="row row-margin">
-        <div class="input-group col" id="addTFGroup">
+        <div class="input-group col">
         <div class="input-group-prepend medium">
         <label class="input-group-text">` + datasetName + `</label>
         </div>
         <input type="text" class="form-control" value="` + hdf5Path + `" disabled>
         <div class="input-group-append">
-        <button class="btn btn-primary">Clear</button>
+        <button class="btn btn-danger">Clear</button>
         </div>
         </div>
         </div>`);
-    elem.find("button").on("click", removeDataset);
+    elem.find(".btn-danger").on("click", removeDataset);
     $("#datasetsList").append(elem);
 
     // add to sidebar
     let sidebarElem = $(`
         <div>
-        <li>
-        <a>` + datasetName + `</a>
+        <li data-show="#datasetPanel">
+        <a href="#">` + datasetName + `</a>
         </li>
         <ul class="list-unstyled show">
         </ul>
         </div>`);
-    sidebarElem.find("li").on("click", function () {
-        $("#sidebar a").removeClass("active");
-        $(this).find("> a").addClass("active");
-    });
+    sidebarElem.find("> li").on("click", sidebarLinkClicked);
+    sidebarElem.find("> li").on("click", datasetFocused);
     $("#datasetLinks").append(sidebarElem);
+
+
+    loadedDatasets[datasetName] = [hdf5Path, sidebarElem, elem, []];
+
+    console.log(JSON.stringify(loadedDatasets));
 }
 
 function removeDataset() {
     let name = $(this).parent().parent().find(".input-group-prepend > label")[0].textContent;
+    let datasetInfo = loadedDatasets[name];
+    datasetInfo[1].remove();
+    datasetInfo[2].remove();
+    // TODO, remove path in dataset[0] if it was in tempHdf5Files
+    // TODO, stop running visualisations using dataset
+    for (var i = 0; i < datasetInfo[3].length; i++) {
+        send_data("envision request", ["stop", datasetInfo[3][i], [false]]);
+    }
+
     delete loadedDatasets[name];
     console.log("removing dataset: ", name);
-    $(this).parent().parent().parent().remove();
+    // $(this).parent().parent().parent().remove();
 }
-
-function openDatasetPanel() {
-    
-}
-
-
-
-
-// --------------------------------
-// ----- File selection panel -----
-// --------------------------------
 
 function startVisPressed() {
-    if (activeVisualisation == "") {
-        console.log("No visualisation type selected")
-        return
-    }
-    if ($("#vaspSourceCheckbox").is(":checked")) {
-        let vaspPath = $("#vaspDirInput")[0].files[0].path;
-        let hdf5Path = "temp_" + activeVisualisation + ".hdf5";
-        try {
-            fs.unlinkSync(hdf5Path);
-        } catch (err) { }
-        send_data("parser request", ["All", hdf5Path, vaspPath])
-        send_data("envision request", ["start", activeVisualisation, [activeVisualisation, hdf5Path]]);
-        send_data("envision request", ["get_ui_data", activeVisualisation, []]);
-        resetCanvasPositions();
-    }
-    else {
-        let path = $("#hdf5LoadInput")[0].files[0].path;
-        send_data("envision request", ["start", activeVisualisation, [activeVisualisation, path]]);
-    }
+    let datasetInfo = loadedDatasets[activeDatasetName];
+    let visTypes = ["charge","elf","parchg","unitcell","pcf","bandstructure","dos"];
+    let selectionIndex = $("#visTypeSelection")[0].selectedIndex;
+    let visType = visTypes[selectionIndex];
+    let hdf5Path = datasetInfo[0];
+    
+    let visIndex = 0;
+    while (datasetInfo[3].includes(activeDatasetName + "_" + visType + "_" + visIndex)) visIndex += 1;
+    let visId = activeDatasetName + "_" + visType + "_" + visIndex;
+    loadedDatasets[activeDatasetName][3].push(visId);
+
+    // Add sidebar element
+    let sidebarElem = $(`
+        <li data-show="#visControlPanel" data-vis-id="` + visId + `" class="subLink">
+        <a href="#">` + visType + "_" + visIndex + `<button class="btn btn-danger navbar-btn btn-sm float-right">Stop</button></a>
+        </li>`);
+    loadedDatasets[activeDatasetName][1].find("ul").append(sidebarElem);
+    sidebarElem.on("click", sidebarLinkClicked);
+    sidebarElem.on("click", visualisationFocused);
+
+    // Start the visualisation
+    send_data("envision request", ["start", visId, [visType, hdf5Path]]);
 }
 
 function stopVisPressed() {

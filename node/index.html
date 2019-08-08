@@ -25,8 +25,8 @@
     crossorigin="anonymous"></script>
   <script defer src="https://use.fontawesome.com/releases/v5.6.3/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ"
     crossorigin="anonymous"></script> -->
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css"
-    integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/"
+    crossorigin="anonymous">
 
 </head>
 
@@ -45,85 +45,45 @@
 
       <ul class="list-unstyled components">
 
-        <li id="datasetLoaderLink">
-          <a class="active">
+        <!-- <div>
+          <li>
+            <a href="#homeSubmenu">Visualisations</a>
+          </li>
+          <ul class="list-unstyled show">
+            <li id="chargeLink">
+              <a href="#">Electron density</a>
+            </li>
+            <li>
+              <a href="#">Electron localisation function</a>
+            </li>
+          </ul>
+        </div> -->
+
+
+
+        <li id="datasetLoaderLink" data-show="#dataLoaderPanel">
+          <a href="#" class="active">
             <i class="fas fa-pen-nib"></i>
             Dataset loader
           </a>
         </li>
 
         <hr>
+
         <h5>Active datasets</h5>
         <div id="datasetLinks">
-          <!-- <div>
-            <li>
-              <a class="active">
-                <i class="fas fa-eye"></i>
-                <span>Dataset1</span>
-              </a>
-            </li>
-            <ul class="list-unstyled show">
-              <li>
-                <a href="#"><span>Electron density</span></a>
-              </li>
-              <li>
-                <a href="#">Electron localisation function</a>
-              </li>
-              <li>
-                <a href="#">Partial charge density</a>
-              </li>
-              <li>
-                <a href="#">Bandstructure</a>
-              </li>
-              <li>
-                <a href="#">Density of states</a>
-              </li>
-              <li>
-                <a href="#">Pair correlation function</a>
-              </li>
-            </ul>
-          </div> -->
 
 
         </div>
         <hr>
-        <li id="visDropDown">
-          <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-            <i class="fas fa-eye"></i>
-            Visualisations
-          </a>
-          <ul class="collapse list-unstyled show" id="homeSubmenu">
-            <li id="chargeLink" class="active">
-              <a href="#">
-                <label>Electron density</label>
-                <!-- <button id="wawa" type="button" class="btn btn-primary btn-sm">X</button> -->
-                <button id="wawa" type="button" class="btn btn-primary btn-sm float-right">X</button>
-              </a>
-            </li>
-            <li id="elfLink">
-              <a href="#">Electron localisation function</a>
-            </li>
-            <li id="parchgLink">
-              <a href="#">Partial charge density</a>
-            </li>
-            <li id="bandLink">
-              <a href="#">Bandstructure</a>
-            </li>
-            <li id="dosLink">
-              <a href="#">Density of states</a>
-            </li>
-            <li id="pcfLink">
-              <a href="#">Pair correlation function</a>
-            </li>
-          </ul>
-        </li>
-        <li id="parserLink">
+
+        <li id="parserLink" data-show="#parserPanel">
           <a href="#">
             <i class="fas fa-pen-nib"></i>
             Parser
           </a>
         </li>
-        <li id="aboutLink">
+        <li id="aboutLink" data-show="#aboutPanel">
           <a href="#">
             <i class="far fa-question-circle"></i>
             About
@@ -145,10 +105,12 @@
 
       <!-- Page Content  -->
       <div id="content" class="container-fluid">
-        <!-- <div id="dataLoaderPanel" class="content-panel" style="display:block"></div>
+
+        <div id="dataLoaderPanel" class="content-panel" style="display:block"></div>
         <div id="aboutPanel" class="content-panel" style="display:none"></div>
-        <div id="chargePanel" class="content-panel" style="display:none"></div>
-        <div id="elfPanel" class="content-panel" style="display:none"></div> -->
+        <div id="parserPanel" class="content-panel" style="display:none"></div>
+        <div id="datasetPanel" class="content-panel" style="display:none">DATASET CONSTROLS HERE</div>
+        <div id="visControlPanel" class="content-panel" style="display:none">VISUALISATION CONTROLS HERE</div>
 
       </div>
 
@@ -158,25 +120,30 @@
 
 
   <script>
-    // $("#dataLoaderPanel").load("visualisationPanels/datasetLoader.html")
+    $("#dataLoaderPanel").load("contentPanels/datasetLoader.html");
+    $("#datasetPanel").load("contentPanels/datasetControls.html");
     // $("#chargePanel").load("visualisationPanels/electronDensity.html")
     // $("#elfPanel").load("visualisationPanels/elf.html")
-    // $("#aboutPanel").load("about.html")
+    $("#aboutPanel").load("about.html");
+    $("#parserPanel").load("parserPanel.html");
+
+
     // Load main page content
     // $("#content").load("visualisationPanels/electronDensity.html");
 
-    // start_python_process();
+    start_python_process();
 
-    $("#content").load("contentPanels/datasetLoader.html");
+    //$("#content").load("contentPanels/datasetLoader.html");
 
     $(document).ready(function () {
-      $("li").on("click", function () {
-        $("#sidebar a").removeClass("active");
-        $(this).find("> a").addClass("active");
-      });
-      $("#datasetLoaderLink").on("click", function () { $("#content").load("contentPanels/datasetLoader.html"); });
-      $("#aboutLink").on("click", function () { $("#content").load("about.html"); });
-      $("#chargeLink").on("click", function () { $("#content").load("contentPanels/electronDensity.html"); });
+      $("li").on("click", sidebarLinkClicked);
+
+
+
+
+      // $("#datasetLoaderLink").on("click", function () { $("#content").load("contentPanels/datasetLoader.html"); });
+      // $("#aboutLink").on("click", function () { $("#content").load("about.html"); });
+      // $("#chargeLink").on("click", function () { $("#content").load("contentPanels/electronDensity.html"); });
 
 
 
