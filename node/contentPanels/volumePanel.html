@@ -105,7 +105,7 @@
 <div class="row row-margin">
   <div class="input-group col-sm-8">
     <div class="input-group-prepend medium">
-      <label class="input-group-text" for="shadingModeSelection">Texture wrap</label>
+      <label class="input-group-text" for="sliceWrapSelection">Texture wrap</label>
     </div>
     <select class="custom-select" id="sliceWrapSelection">
       <option selected>Fill with color</option>
@@ -170,7 +170,7 @@
     $("#volumeDistBtn").on("click", showVolumeDist)
     $("#shadingModeSelection").on("change", shadingModeChanged)
     $("#backgroundColor1,#backgroundColor2,#backgroundStyleSelection").on("change", volumeBackgroundChanged)
-    $("#transperancyCheckbox").on("click", updateMask)
+    $("#transperancyCheckbox").on("click", transperancyChecked)
     $("#tfAdder").on("submit", addTfPointSubmitted);
     $("#sliceCanvasCheck").on("click", sliceCanvasToggle);
     $("#slicePlaneCheck").on("click", slicePlaneToggle);

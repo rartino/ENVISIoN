@@ -22,7 +22,7 @@ import inviwopy.glm as glm
 
 # TODO: Manage canvases better.
 
-class NetworkHandler():
+class NetworkHandler(object):
     """ Base class for managing an inviwo network.
 
     """

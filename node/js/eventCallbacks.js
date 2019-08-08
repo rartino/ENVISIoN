@@ -220,11 +220,11 @@ function volumeBackgroundChanged() {
     send_data("envision request", ["set_volume_background", activeVisId, [color1, color2, styleIndex]])
 }
 
-function updateMask() {
-    if (!$("#transperancyCheckbox").is(':checked'))
-        send_data("envision request", ["set_mask", activeVisId, [0, 1]]);
-    else if (getTfPoints().length > 0)
-        send_data("envision request", ["set_mask", activeVisId, [getTfPoints()[0][0], 1]]);
+function transperancyChecked() {
+    send_data("envision request", [
+        "toggle_transperancy_before", 
+        activeVisId, 
+        [$("#transperancyCheckbox").is(':checked')]]);
 }
 
 function addTfPointSubmitted() {
@@ -246,7 +246,6 @@ function tfPointChanged() {
 function removeTfPoint() {
     $(this).closest('[name="tfPoint"]').remove();
     send_data("envision request", ["set_tf_points", activeVisId, [getTfPoints()]]);
-    updateMask();
     return false;
 }
 
@@ -495,6 +494,13 @@ function loadBands(data) {
     $("#bandSelection")[0][activeBand].selected = true;
 }
 
+function loadMisc(shadingIndex, transperancyEnabled, sliceActive, planeActive){
+    $("#shadingModeSelection")[0][shadingIndex].selected = true;
+    $("#transperancyCheckbox").prop("checked", transperancyEnabled);
+    $("#sliceCanvasCheck").prop("checked", sliceActive);
+    $("#slicePlaneCheck").prop("checked", planeActive);
+}
+
 function loadAtoms(atoms) {
     $("#atomControls").empty();
     for (let i = 0; i < atoms.length; i++) {
@@ -524,7 +530,6 @@ function loadTFPoints(points) {
         let hexColor = rgbToHex(points[i][1][0], points[i][1][1], points[i][1][2])
         addTfPointElement(points[i][0], Math.round(points[i][1][3] * 1000000) / 1000000, hexColor)
     }
-    updateMask();
 }
 
 function loadAvailableDatasets(options) {

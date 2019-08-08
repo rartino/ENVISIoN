@@ -91,6 +91,7 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
             atomNames = []
             atomRadii = []
         return [
+            # super(ChargeNetworkHandler, self).
             "charge", 
             [self.get_available_bands(), self.get_active_band()],
             self.get_processor('Raycaster').lighting.shadingMode.selectedIndex,
@@ -98,6 +99,7 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
             self.get_tf_points(),
             self.transperancy_before,
             self.get_slice_active(),
+            self.get_plane_active(),
             self.get_plane_height(),
             self.get_texture_wrap_mode(),
             self.get_slice_zoom(),

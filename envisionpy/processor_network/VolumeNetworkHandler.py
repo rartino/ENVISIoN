@@ -55,6 +55,21 @@ class VolumeNetworkHandler(NetworkHandler):
         self.add_tf_point(0.8, [0.9, 0.1, 0.1, 0.5])
         self.set_mask(self.get_tf_points()[0][0], 1)
 
+    # def get_ui_data(self):
+    #     return [
+    #         "volume",
+    #         self.get_processor('Raycaster').lighting.shadingMode.selectedIndex,
+    #         self.get_tf_points(),
+    #         self.transperancy_before,
+    #         self.get_slice_active(),
+    #         self.get_plane_active(),
+    #         self.get_plane_height(),
+    #         self.get_texture_wrap_mode(),
+    #         self.get_slice_zoom(),
+    #         self.get_plane_normal(),
+    #     ]
+
+
     def show_volume_dist(self):
     # Shows a histogram plot over volume data
         def start_plot():
@@ -90,11 +105,15 @@ class VolumeNetworkHandler(NetworkHandler):
 
     def toggle_transperancy_before(self, enable):
         self.transperancy_before = enable
-        self.update_transperancy_before()
+        return self.update_transperancy_before()
 
     def update_transperancy_before(self):
-        lowestVal = self.get_tf_points()[0][0]
+        if self.transperancy_before:
+            lowestVal = self.get_tf_points()[0][0]
+        else:
+            lowestVal = 0
         self.set_mask(lowestVal, 1)
+        return [lowestVal, 1]
 
     def slice_copy_tf(self):
     # Function for copying the volume transferfunction to the slice transferfunction
@@ -238,6 +257,9 @@ class VolumeNetworkHandler(NetworkHandler):
             return True
         except ProcessorNotFoundError:
             return False
+
+    def get_plane_active(self):
+        return self.get_processor('Raycaster').positionindicator.enable.value
 
     def get_plane_height(self):
         return self.get_processor('Volume Slice').planePosition.value.x
