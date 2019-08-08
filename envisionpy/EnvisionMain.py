@@ -180,7 +180,9 @@ class EnvisionMain():
             response_data = self.action_dict[action](handler_id, parameters)
         except HandlerNotFoundError as e:
             return [action, False, handler_id, format_error(e)]
-        except EnvisionError as e:
+        # except EnvisionError as e:
+        #     return [action, False, handler_id, format_error(e)]
+        except BadHDF5Error as e:
             return [action, False, handler_id, format_error(e)]
         # except TypeError as e:
         #     return [action, False, format_error(e)]
@@ -216,7 +218,7 @@ class EnvisionMain():
         return [parse_statuses, "*Error message*"]
 
 
-    def initialize_visualisation(self, handler_id, vis_type, hdf5_file):
+    def initialize_visualisation(self, handler_id, vis_type, hdf5_file, name=None, datasetName=None):
         # Initializes a network handler which will start a visualization.
         # Type of subclass depends on vis_type
 
@@ -224,7 +226,8 @@ class EnvisionMain():
         if handler_id in self.networkHandlers:
             raise InvalidRequestError(handler_id + " visualisation is already running")
         self.networkHandlers[handler_id] = self.visualisationTypes[vis_type](hdf5_file, self.app)
-        return [handler_id, vis_type]
+
+        return [handler_id, vis_type, name, datasetName]
 
     def stop_visualisation(self, handler_id, stop_all=False):
     # Stop visualizations depending on vis_type.

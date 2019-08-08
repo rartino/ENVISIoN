@@ -10,10 +10,10 @@
 
 const spawn = require("child_process").spawn;
 
-var LOG_PYTHON_PRINT = true;
+var LOG_PYTHON_PRINT = false;
 var LOG_PYTHON_ERROR = true;
-var LOG_SENT_PACKETS = false;
-var LOG_RECIEVED_PACKETS = false;
+var LOG_SENT_PACKETS = true;
+var LOG_RECIEVED_PACKETS = true;
 var LOG_FAILED_REQUESTS = false;
 
 var pythonProcess = null
@@ -30,8 +30,10 @@ var response_callbacks = {
     // "get_tf_points": loadTFPoints,
     // "get_available_datasets": loadAvailableDatasets,
     "get_ui_data": uiDataRecieved,
-    "stop": function(){console.log("Visualisation stopped")}
+    "start": visualisationStarted,
+    "stop": visualisationStopped
 }
+
 
 
 function start_python_process() {
@@ -108,10 +110,10 @@ function handle_response_packet(packet){
     let status = packet[1];
     let id = packet[2]
     let data = packet[3];
-    if (action in response_callbacks && status){
-        response_callbacks[action](id, data);
+    if (action in response_callbacks){
+        response_callbacks[action](status, id, data);
     }
-    else if (!status && LOG_FAILED_REQUESTS){
+    if (!status && LOG_FAILED_REQUESTS){
         let errorType = data[0];
         let errorMsg = data[1].replace(/\\n/g, "\n");
         console.log("Requested action failed: \n" + errorType + ": " + errorMsg);

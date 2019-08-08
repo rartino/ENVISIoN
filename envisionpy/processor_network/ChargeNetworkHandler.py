@@ -57,6 +57,7 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         # Check if  hdf5-file is valid
         with h5py.File(hdf5_path, 'r') as file:
             if file.get("CHG") == None:
+                self.clear_processors()
                 raise BadHDF5Error("No charge data in that file.")
         if len(self.get_available_bands(hdf5_path)) == 0:
             raise BadHDF5Error("No valid bands in that file.")
