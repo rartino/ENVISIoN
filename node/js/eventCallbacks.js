@@ -157,6 +157,8 @@ function startVisPressed() {
 
     // Start the visualisation
     send_data("envision request", ["start", visId, [visType, hdf5Path]]);
+    send_data("envision request", ["set_active_band", visId, ["final"]]);
+    
 }
 
 function stopVisPressed() {

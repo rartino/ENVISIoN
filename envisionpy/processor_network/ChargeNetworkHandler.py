@@ -25,16 +25,6 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 ##############################################################################################
-#
-#  Alterations to this file by Jesper Ericsson
-#
-#  To the extent possible under law, the person who associated CC0
-#  with the alterations to this file has waived all copyright and related
-#  or neighboring rights to the alterations made to this file.
-#
-#  You should have received a copy of the CC0 legalcode along with
-#  this work.  If not, see
-#  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import sys,os,inspect
 # path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -75,7 +65,11 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
 
         # Setup default charge settings
         self.setup_charge_network(hdf5_path)
-        self.set_active_band('final')
+        # self.set_active_band(self.get_available_bands()[0])
+        self.app.update()
+        self.set_active_band(self.get_available_bands()[-1])
+        # self.app.update()
+        # self.set_active_band('final')
 
         # Setup default unitcell settings
         if self.unitcellAvailable:
@@ -89,7 +83,6 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         else: 
             unitcellData = [[], []]
         return [
-            # super(ChargeNetworkHandler, self).
             "charge", 
             VolumeNetworkHandler.get_ui_data(self),
             unitcellData,

@@ -10,7 +10,7 @@
 
 const spawn = require("child_process").spawn;
 
-var LOG_PYTHON_PRINT = false;
+var LOG_PYTHON_PRINT = true;
 var LOG_PYTHON_ERROR = true;
 var LOG_SENT_PACKETS = false;
 var LOG_RECIEVED_PACKETS = false;
@@ -81,13 +81,20 @@ function on_data_recieve(packet) {
     for (i = 0; i < data.length - 1; i++) {
         try {
             json_data = JSON.parse(data[i])
-            if (LOG_RECIEVED_PACKETS)
+            if ("type" in json_data){
+                if (LOG_RECIEVED_PACKETS)
                 console.log("Packet recieved: \n", JSON.stringify(json_data))
-            if (json_data["type"] == "response"){
-                handle_response_packet(json_data["data"])
-                nResponses += 1;
-                responsesBehind(nRequests - nResponses);
+                if (json_data["type"] == "response"){
+                    handle_response_packet(json_data["data"])
+                    nResponses += 1;
+                    responsesBehind(nRequests - nResponses);
+                }
             }
+            else{
+                if (LOG_PYTHON_PRINT)
+                    console.log("Python print: \n" + data[i])
+            }
+            
           }
           catch(err) {
             if (LOG_PYTHON_PRINT)
