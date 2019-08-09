@@ -64,9 +64,17 @@ function send_test_packets(n){
 
 function send_data(tag, data) {
 // Put data into json object and send it
+    if (pythonCrashed)
+        return;
     var json_data = {type: tag, data: data}
-    var packet = JSON.stringify(json_data) + "\r\n"
-    pythonProcess.stdin.write(packet) 
+    var packet = JSON.stringify(json_data) + "\r\n";
+    try{
+        pythonProcess.stdin.write(packet) 
+    }
+    catch {
+        pythonCrashed = true;
+        alert("ENVISIoN crashed!\nThe python process of envision has crashed. You must restart envision to fix this.");
+    }
     nRequests += 1;
     responsesBehind(nRequests - nResponses);
     if (LOG_SENT_PACKETS)
@@ -125,7 +133,11 @@ function handle_response_packet(packet){
     }
 }
 
+var lastError;
+var pythonCrashed = false;
 function on_python_error(data) {
+    lastError = Buffer.from(data, 'hex')
+    setTimeout(function(){send_data("crash test", "");}, 1000);
     if (!LOG_PYTHON_ERROR)
         return
     console.log("PYTHON ERROR: ")

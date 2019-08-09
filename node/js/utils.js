@@ -7,15 +7,21 @@ function hexToRGB(hex) {
 }
 
 function componentToHex(c) {
-    c = parseInt(c*255);
+    c = parseInt(c * 255);
     var hex = c.toString(16);
     return hex.length == 1 ? "0" + hex : hex;
 }
 
-function rgbArrToHex(rgb){
+function rgbArrToHex(rgb) {
     return rgbToHex(rgb[0], rgb[1], rgb[2]);
 }
 
 function rgbToHex(r, g, b) {
     return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+}
+
+function arrayRemoveByValue(arr, value) {
+    let idx = arr.indexOf(value);
+    arr.splice(idx, 1);
+    // return arr.filter(item => item !== value);
 }
