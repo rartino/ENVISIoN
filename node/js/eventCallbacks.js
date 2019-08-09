@@ -1,16 +1,27 @@
 const fs = require('fs')
 
-
+// Stores information about all loaded datasets
+// loadedDatasets[DATASET_ID] = [HDF5_PATH, SIDEBAR_ELEMENT, CONTENT_ELEMENT, [VIS_IDS...]]
 var loadedDatasets = {};
+
+// Stores information about running visualisations
+// runningVisualisations[ID] = [DISPLAY_NAME, DATASET_ID, SIDEBAR_ELEMENT]
+var runningVisualisations = {}
+
+// ID of the dataset that was last clicked on in sidebar
 var activeDatasetName;
+
+// ID of visualisation that was last clicked on in sidebar
 var activeVisId;
-//var loadedHdf5Files = [];
+
+// Paths to all temporary HDF5-files which was created
 var tempHdf5Files = [];
 
+// Variable to store UI data recieved from envision for later use
 var uiData;
 
 // TODO: Validations for most text field inputs.
-//       If they are empty you cant just send null
+//       If they are empty you cant just send null send 0 or something instead.
 
 
 function sidebarLinkClicked() {
@@ -125,7 +136,7 @@ function removeDataset() {
     let datasetInfo = loadedDatasets[name];
     datasetInfo[1].remove();
     datasetInfo[2].remove();
-    // TODO, remove path in dataset[0] if it was in tempHdf5Files
+    // TODO, remove hdf5 at path in dataset[0] if it was in tempHdf5Files
     // TODO, stop running visualisations using dataset
     for (var i = 0; i < datasetInfo[3].length; i++) {
         send_data("envision request", ["stop", datasetInfo[3][i], [false]]);
@@ -147,18 +158,24 @@ function startVisPressed() {
     let visId = activeDatasetName + "_" + visType + "_" + visIndex;
     
 
+    $("#startVisBtn").attr("disabled", true);
     // Start the visualisation
     send_data("envision request", ["start", visId, [
         visType, 
         hdf5Path, 
         visType + "_" + visIndex,
         activeDatasetName]]);
+
+    // UI elements are added on response in visualisationStarted function.
 }
 
 
-function stopVisPressed(sidebarElem, visId) {
+function stopVisPressed() {
+    let visId = $(this).parent().parent().data("vis-id");
     send_data("envision request", ["stop", visId, [false]]);
-    sidebarElem.remove();
+    // UI elements are removed on response in visualisationStopped function.
+    // $(this).parent().parent().remove();
+    // sidebarElem.remove();
 }
 
 function pathInputChanged() {
@@ -451,12 +468,13 @@ function parseClicked() {
 // ----------------------------------
 
 function visualisationStarted(status, id, data) {
-    // If visualisation was started add it to the sidebar
+    $("#startVisBtn").attr("disabled", false);
     if (!status){
         alert("Visualisation failed to start \n" + "Reason: " + data);
         console.log("Visualisation start failed");
         return;
     }
+    // If visualisation was started add it to the sidebar and to running visualisations.
     let visName = data[2];
     let datasetName = data[3]; 
     loadedDatasets[datasetName][3].push(id);
@@ -464,18 +482,26 @@ function visualisationStarted(status, id, data) {
     // Add sidebar element
     let sidebarElem = $(`
         <li data-show="#visControlPanel" data-vis-id="` + id + `" class="subLink">
-        <a href="#">` + visName + `<button class="btn btn-danger navbar-btn btn-sm float-right">Stop</button></a>
+        <a href="#">` + visName + `
+        <button class="btn btn-danger navbar-btn btn-sm float-right">Stop</button>
+        </a>
         </li>`);
     loadedDatasets[datasetName][1].find("ul").append(sidebarElem);
     sidebarElem.on("click", sidebarLinkClicked);
     sidebarElem.on("click", visualisationFocused);
-    sidebarElem.find("button").on("click", function(){stopVisPressed(sidebarElem, id)})
+    sidebarElem.find("button").on("click", stopVisPressed)
+
+    runningVisualisations[id] = [visName, datasetName, sidebarElem];
 }
 
 function visualisationStopped(status, id, data) {
+    // runningVisualisations[ID] = [DISPLAY_NAME, DATASET_ID, SIDEBAR_ELEMENT]
     if (!status){
         console.log("Visualisation stop failed");
     }
+    arrayRemoveByValue(loadedDatasets[runningVisualisations[id][1]][3], id);
+    runningVisualisations[id][2].remove();
+    delete runningVisualisations[id];
 }
 
 

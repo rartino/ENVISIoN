@@ -9,6 +9,10 @@ class HandlerNotFoundError(EnvisionError):
     ''' Error used for non-critical unhandled requests.
         User does not know when raised.'''
     pass
+class HandlerAlreadyExistError(EnvisionError):
+    ''' Used when new visualisation tries to initialize
+        with existing handler id.'''
+    pass
 
 class InvalidRequestError(EnvisionError):
     ''' Error used for invalid requests, such as invalid parameters.

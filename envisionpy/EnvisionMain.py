@@ -180,12 +180,12 @@ class EnvisionMain():
             response_data = self.action_dict[action](handler_id, parameters)
         except HandlerNotFoundError as e:
             return [action, False, handler_id, format_error(e)]
-        # except EnvisionError as e:
-        #     return [action, False, handler_id, format_error(e)]
         except BadHDF5Error as e:
             return [action, False, handler_id, format_error(e)]
-        # except TypeError as e:
-        #     return [action, False, format_error(e)]
+        except HandlerAlreadyExistError as e:
+            return [action, False, handler_id, format_error(e)]
+        # except EnvisionError as e:
+        #     return [action, False, handler_id, format_error(e)]
         else:
             return [action, True, handler_id, response_data]
 
@@ -224,7 +224,7 @@ class EnvisionMain():
 
         # TODO: add exception on file not found and faulty hdf5 file
         if handler_id in self.networkHandlers:
-            raise InvalidRequestError(handler_id + " visualisation is already running")
+            raise HandlerAlreadyExistError("Already starting that visualisation " + handler_id + ". Wait a bit and try again.")
         self.networkHandlers[handler_id] = self.visualisationTypes[vis_type](hdf5_file, self.app)
 
         return [handler_id, vis_type, name, datasetName]
