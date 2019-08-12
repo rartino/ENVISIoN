@@ -13,7 +13,6 @@ import time
 import select
 import json
 path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-# sys.path.append(path_to_current_folder + "/../envision")
 sys.path.append(path_to_current_folder + "/../")
 # from envisionpy import envisionpy
 # from envisionpy import envisionpy

@@ -122,24 +122,15 @@
   <script>
     $("#dataLoaderPanel").load("contentPanels/datasetLoader.html");
     $("#datasetPanel").load("contentPanels/datasetControls.html");
-    // $("#chargePanel").load("visualisationPanels/electronDensity.html")
-    // $("#elfPanel").load("visualisationPanels/elf.html")
-    $("#aboutPanel").load("about.html");
-    $("#parserPanel").load("parserPanel.html");
-
-
-    // Load main page content
-    // $("#content").load("visualisationPanels/electronDensity.html");
+    $("#aboutPanel").load("contentPanels/about.html");
+    $("#parserPanel").load("contentPanels/parserPanel.html");
 
     start_python_process();
 
-    //$("#content").load("contentPanels/datasetLoader.html");
 
     $(document).ready(function () {
       $("li").on("click", sidebarLinkClicked);
       $("#loadalert").hide();
-
-
     });
   </script>
 

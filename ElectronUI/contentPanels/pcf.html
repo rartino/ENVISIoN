@@ -1,0 +1,11 @@
+<!-- Settings panel -->
+<h2 class="border-bottom">Pair correlation function</h2>
+
+<div id="visSettings"></div>
+
+<script>
+  $("#visSettings").load("contentPanels/graph2D.html", function () {
+    loadGraph2DUiData(uiData[1]);
+    console.log("pcf control element loaded");
+  });
+</script>

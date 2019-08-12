@@ -8,8 +8,7 @@
 
 
 <script>
-  $("#visSettings").load("contentPanels/graph2D.html");
-  $(document).ready(function () {
+  $("#visSettings").load("contentPanels/graph2D.html", function () {
     loadGraph2DUiData(uiData[1]);
     console.log("Bandstructure control element loaded")
   });

@@ -197,10 +197,10 @@ function togglePathType() {
     }
 }
 
-function resetCanvasPositions() {
+function resetCanvasPositions(visId) {
     let xPos = window.screenX + window.outerWidth;
     let yPos = window.screenY;
-    send_data("envision request", ["position_canvases", activeVisId, [xPos, yPos]]);
+    send_data("envision request", ["position_canvases", visId, [xPos, yPos]]);
     // send_data("envision request", ["toggle_tf_editor", activeVisId, [true]]);
 }
 
@@ -264,7 +264,7 @@ function removeTfPoint() {
 
 function sliceCanvasToggle() {
     send_data("envision request", ["toggle_slice_canvas", activeVisId, [$("#sliceCanvasCheck").is(":checked")]]);
-    resetCanvasPositions();
+    resetCanvasPositions(activeVisId);
 }
 
 function slicePlaneToggle() {
@@ -492,6 +492,9 @@ function visualisationStarted(status, id, data) {
     sidebarElem.find("button").on("click", stopVisPressed)
 
     runningVisualisations[id] = [visName, datasetName, sidebarElem];
+    // sidebarElem.trigger("click");
+
+    resetCanvasPositions(id);
 }
 
 function visualisationStopped(status, id, data) {
@@ -500,7 +503,10 @@ function visualisationStopped(status, id, data) {
         console.log("Visualisation stop failed");
     }
     arrayRemoveByValue(loadedDatasets[runningVisualisations[id][1]][3], id);
+    runningVisualisations[id][2].parent().parent().find("> li").trigger("click");
     runningVisualisations[id][2].remove();
+
+    // sidebarLinkClicked
     delete runningVisualisations[id];
 }
 
