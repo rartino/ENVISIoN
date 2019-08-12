@@ -1,0 +1,11 @@
+<!-- Settings panel -->
+<h2 class="border-bottom">Density of states</h2>
+
+<div id="visSettings"></div>
+
+<script>
+  $("#visSettings").load("contentPanels/graph2D.html", function () {
+    loadGraph2DUiData(uiData[1]);
+    console.log("dos control element loaded");
+  });
+</script>

@@ -41,10 +41,10 @@ function start_python_process() {
     {
         console.log("Starting python")
         if (window.navigator.platform == "Win32")
-            pythonProcess = spawn('python', ["py_js_networking.py"]);
+            pythonProcess = spawn('python', ["ElectronUI/nodeInterface.py"]);
         else
-            pythonProcess = spawn('python3', ["py_js_networking.py"]);
-        // console.log(pythonProcess)
+            pythonProcess = spawn('python3', ["ElectronUI/nodeInterface.py"]);
+        console.log(pythonProcess)
         pythonProcess.stdout.on('data', on_data_recieve)
         pythonProcess.stderr.on('data', on_python_error)
         // pythonProcess.stdin.setEncoding('utf-8')
@@ -64,6 +64,10 @@ function send_test_packets(n){
 
 function send_data(tag, data) {
 // Put data into json object and send it
+    nRequests += 1;
+    if (LOG_SENT_PACKETS)
+        console.log("Packet sent: \n", packet)
+    responsesBehind(nRequests - nResponses);
     if (pythonCrashed)
         return;
     var json_data = {type: tag, data: data}
@@ -75,10 +79,6 @@ function send_data(tag, data) {
         pythonCrashed = true;
         alert("ENVISIoN crashed!\nThe python process of envision has crashed. You must restart envision to fix this.");
     }
-    nRequests += 1;
-    responsesBehind(nRequests - nResponses);
-    if (LOG_SENT_PACKETS)
-        console.log("Packet sent: \n", packet)
 }
 
 function on_data_recieve(packet) {
@@ -137,10 +137,10 @@ var lastError;
 var pythonCrashed = false;
 function on_python_error(data) {
     lastError = Buffer.from(data, 'hex')
-    setTimeout(function(){
-        nRequests--;
-        send_data("crash test", "");
-        }, 1000);
+    // setTimeout(function(){
+    //     nRequests--;
+    //     send_data("crash test", "");
+    //     }, 1000);
     if (!LOG_PYTHON_ERROR)
         return
     console.log("PYTHON ERROR: ")

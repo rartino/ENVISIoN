@@ -2,7 +2,7 @@
   "name": "envision",
   "version": "0.1.0",
   "description": "visualization tool",
-  "main": "main.js",
+  "main": "ElectronUI/main.js",
   "scripts": {
     "start": "electron ."
   },
