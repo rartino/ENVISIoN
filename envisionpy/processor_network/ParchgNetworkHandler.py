@@ -25,17 +25,6 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 ##############################################################################################
-#
-#  Alterations to this file by Jesper Ericsson
-#  and Andreas Kempe
-#
-#  To the extent possible under law, the person who associated CC0 with
-#  the alterations to this file has waived all copyright and related
-#  or neighboring rights to the alterations made to this file.
-#
-#  You should have received a copy of the CC0 legalcode along with
-#  this work.  If not, see
-#  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import os,sys
 import inspect
@@ -50,21 +39,10 @@ from envisionpy.utils.exceptions import *
 from .VolumeNetworkHandler import VolumeNetworkHandler
 from .UnitcellNetworkHandler import UnitcellNetworkHandler
 
-# TODO: Files parsed for parchg does not seem to work. Inviwo seems to not recognize the datasets as valid volumes.
-#       May have something to do with the different size of the volume data in hdf5 file. 
-#       Parchg is 24x24x24 while charge, which works, is 48x48x48.
-#       Analyze and compare files with "HDFView" tool to see diferences between datasets.
-
 # TODO: merger_list in setup_band_processors function looks a bit funky to me.
 #       How the nestled for loops build the list is not great, some recursion instead?
 #       Current setup will probably not handle if more than 16 bands are used at the same time
 #       Low prio fix as that is a lot of bands and you dont often need that many i think. 
-
-# TODO: Add UnitcellNetworkHandler as parent. Check ChargeNetworkHandler too see how.
-
-# TODO: Add more property controls? Probably no more needed? 
-
-# TODO: Add some way to get available bands.
 
 class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
     """ Class for setting up and handling the inviwo network for partial charge visualization
