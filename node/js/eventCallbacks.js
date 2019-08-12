@@ -531,7 +531,6 @@ function uiDataRecieved(status, id, data) {
     }
 }
 
-
 // ---------------------------------------
 // ----- Interface loading functions -----
 // ---------------------------------------
@@ -565,6 +564,48 @@ function loadVolumeUiData(data){
     loadTFPoints(tfPoints);
 }
 
+function loadGraph2DUiData(data) {
+    let [type, xRange, yRange, 
+        lineActive, lineX, gridActive, gridWidth, 
+        xLabelsActive, yLabelsActive, nLabels,
+        ySelectionInfo, yDatasets] = data;
+
+    console.log(data);
+
+
+    $("#xRangeMin").val(xRange[1]);
+    $("#xRangeMax").val(xRange[0]);
+    $("#yRangeMin").val(yRange[1]);
+    $("#yRangeMax").val(yRange[0]);
+    $("#verticalLineCheck").prop("checked", lineActive);
+    $("#verticalLineXInput").val(lineX);
+
+    
+    $("#gridCheck").prop("checked", gridActive);
+    $("#gridSizeInput").val(gridWidth);
+
+    $("#xLabelCheck").prop("checked", xLabelsActive);
+    $("#yLabelCheck").prop("checked", yLabelsActive);
+    $("#labelCountInput").val(nLabels);
+    
+    // Fill selection lists with options
+    $("#possibleYDatasets").empty();
+    $("#ySingleSelection").empty();
+    for (let i = 0; i < yDatasets.length; i++) {
+        $("#possibleYDatasets").append("<option>[" + i + "]: " + yDatasets[i] + "</option>");
+        $("#ySingleSelection").append("<option>" + yDatasets[i] + "</option>");
+    }
+    $("#ySingleSelection > option")[1].selected = true;
+
+    $("#specificYCheck").prop("checked", ySelectionInfo[0]==0);
+    $("#multipleYCheck").prop("checked", ySelectionInfo[0]==1);
+    $("#allYCheck").prop("checked", ySelectionInfo[0]==2);
+    $("#specificY").css("display", ySelectionInfo[0]==0 ? "block" : "none");
+    $("#multipleY").css("display", ySelectionInfo[0]==1 ? "block" : "none");
+
+    if (ySelectionInfo[0]==0) $("#visTypeSelection")[0][ySelectionInfo[1]].selected = true;
+    if (ySelectionInfo[0]==1) $("#yMultiSelectInput").val(ySelectionInfo[1]);
+}
 
 function loadBands(data) {
     let [bands, activeBand]  = data;
@@ -615,16 +656,6 @@ function loadTFPoints(points) {
     }
 }
 
-function loadAvailableDatasets(options) {
-    $("#possibleYDatasets").empty();
-    $("#ySingleSelection").empty();
-    for (let i = 0; i < options.length; i++) {
-        $("#possibleYDatasets").append("<option>[" + i + "]: " + options[i] + "</option>");
-        $("#ySingleSelection").append("<option>" + options[i] + "</option>");
-    }
-    $("#ySingleSelection > option")[1].selected = true;
-}
-
 function loadAvailablePartials(options) {
     $("#partialBandSelection > option").slice(1).remove();
     $("#partialModeSelection > option").slice(1).remove();
@@ -641,27 +672,11 @@ function loadActivePartials(partials) {
     }
 }
 
-function loadXRange(range) {
-    $("#xRangeMin").val(range[1]);
-    $("#xRangeMax").val(range[0]);
-}
 
-function loadYRange(range) {
-    $("#yRangeMin").val(range[1]);
-    $("#yRangeMax").val(range[0]);
-}
-
-function loadLabelCount(n) {
-    $("#labelCountInput").val(n);
-}
 
 // -----------------------------------
 // ----- Interface value reading -----
 // -----------------------------------
-
-function getXRange() {
-
-}
 
 function getTfPoints() {
     // Return a list containing current tfPonts

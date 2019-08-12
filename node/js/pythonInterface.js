@@ -137,7 +137,10 @@ var lastError;
 var pythonCrashed = false;
 function on_python_error(data) {
     lastError = Buffer.from(data, 'hex')
-    setTimeout(function(){send_data("crash test", "");}, 1000);
+    setTimeout(function(){
+        nRequests--;
+        send_data("crash test", "");
+        }, 1000);
     if (!LOG_PYTHON_ERROR)
         return
     console.log("PYTHON ERROR: ")
@@ -148,15 +151,15 @@ function on_python_error(data) {
 var loadingTimeout = null;
 var dismissTimeout = null;
 function responsesBehind(n){
-    if (n == 0 && dismissTimeout == null){
+    if (n <= 0 && dismissTimeout == null){
         clearTimeout(loadingTimeout)
         loadingTimeout = null;
-        dismissTimeout = setTimeout(function(){$("#loadalert").slideUp(500);}, 500);
+        dismissTimeout = setTimeout(function(){$("#loadalert").slideUp(500);}, 800);
     }
     else if (loadingTimeout == null){
         clearTimeout(dismissTimeout)
         dismissTimeout = null;
-        loadingTimeout = setTimeout(function(){$("#loadalert").slideDown(500);}, 500);
+        loadingTimeout = setTimeout(function(){$("#loadalert").slideDown(500);}, 800);
     }
     $("#loadalert > span").text(" envision is " + n + " requests behind.");
 }

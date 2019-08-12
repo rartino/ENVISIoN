@@ -28,6 +28,22 @@ class LinePlotNetworkHandler(NetworkHandler):
         NetworkHandler.__init__(self, inviwoApp)
         self.setup_plot_network()
 
+
+    def get_ui_data(self):
+        return [
+            "lineplot",
+            self.get_x_range(),
+            self.get_y_range(),
+            self.get_line_enabled(),
+            self.get_line_x(),
+            self.get_grid_enabled(),
+            self.get_grid_width(),
+            self.get_x_labels_enabled(),
+            self.get_y_labels_enabled(),
+            self.get_label_n(),
+            self.get_y_selection_info(),
+            self.get_available_datasets()
+        ]
 # ------------------------------------------
 # ------- Property functions -------
 
@@ -50,14 +66,6 @@ class LinePlotNetworkHandler(NetworkHandler):
         else:
             self.remove_processor('graphCanvas')
 
-    def toggle_all_y(self, enable):
-        plotter = self.get_processor("Line plot")
-        plotter.allYSelection.value = enable
-
-    def toggle_multiple_y(self, enable):
-        plotter = self.get_processor("Line plot")
-        plotter.boolYSelection.value = enable
-
     def set_y_selection_type(self, option):
     # Set the type for date selection for Y datasets
     # 0: single dataset. 1: multiple datasets. 2: all datasets
@@ -65,8 +73,6 @@ class LinePlotNetworkHandler(NetworkHandler):
         plotter.boolYSelection.value = (option == 1)
         plotter.allYSelection.value = (option == 2)
 
-
-    
     def set_y_single_selection_index(self, index):
         plotter = self.get_processor("Line plot")
         plotter.ySelectionProperty.selectedIndex = index
@@ -75,15 +81,9 @@ class LinePlotNetworkHandler(NetworkHandler):
         plotter = self.get_processor("Line plot")
         plotter.ySelectionProperty.value = name
 
-    
     def set_y_multi_selection(self, selection):
         plotter = self.get_processor("Line plot")
         plotter.groupYSelection_.value = selection
-
-
-    def get_available_datasets(self):
-        plotter = self.get_processor("Line plot")
-        return plotter.xSelectionProperty.identifiers
 
     def set_title(self, title):
         title_text = self.get_processor("Title text")
@@ -133,6 +133,9 @@ class LinePlotNetworkHandler(NetworkHandler):
         plotter = self.get_processor("Line plot")
         plotter.label_number.value = n
     
+    # ------------------------------------------------
+    # -------- Value getting functions for UI --------
+    # ------------------------------------------------
     def get_dataset_list(self):
         Plotter = self.get_processor("Line plot")
         return Plotter.ySelectionProperty.identifiers
@@ -145,6 +148,38 @@ class LinePlotNetworkHandler(NetworkHandler):
         value = self.get_processor("Line plot").y_range.value
         return [value[0], value[1]]
 
+    def get_line_enabled(self):
+        return self.get_processor("Line plot").enable_line.value
+
+    def get_line_x(self):
+        return self.get_processor("Line plot").line_x_coordinate.value
+
+    def get_grid_enabled(self):
+        return self.get_processor("Line plot").enable_grid.value
+
+    def get_grid_width(self):
+        return self.get_processor("Line plot").grid_width.value
+
+    def get_x_labels_enabled(self):
+        return self.get_processor("Line plot").show_x_labels.value
+
+    def get_y_labels_enabled(self):
+        return self.get_processor("Line plot").show_y_labels.value
+    
+    def get_label_n(self):
+        return self.get_processor("Line plot").label_number.value
+
+    def get_y_selection_info(self):
+        plotter = self.get_processor("Line plot")
+        if plotter.allYSelection.value:
+            return [2]
+        if plotter.boolYSelection.value:
+            return [1, plotter.groupYSelection_.value]
+        return [0, plotter.ySelectionProperty.selectedIndex]
+
+    def get_available_datasets(self):
+        plotter = self.get_processor("Line plot")
+        return plotter.xSelectionProperty.identifiers   
     # def get_grid_width(self):
     #     pass
 
