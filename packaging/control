@@ -1,0 +1,8 @@
+Architecture: amd64
+Description: Electron structure visualisation tool
+Maintainer: Jesper Ericsson
+Package: envision
+Priority: optional
+Section: devel
+Version: 1.0
+Installed-Size: 1096148
