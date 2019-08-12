@@ -17,9 +17,11 @@ import sys,os,inspect
 # sys.path.append(path_to_current_folder)
 # sys.path.append(path_to_current_folder + "/processor_network")
 # sys.path.append(path_to_current_folder + "/parser")
-#PATH_INVIWO_BIN = "/home/labb/inviwo-latest/build-low-qt/bin"
+# PATH_INVIWO_BIN = "/home/labb/inviwo-latest/build3/bin"
 # PATH_INVIWO_BIN = "/usr/bin"
-PATH_INVIWO_BIN = "C:/Kandidatprojekt/inviwo-latest/build/bin/Debug"
+PATH_INVIWO_BIN = "/opt/envision/inviwo/bin"
+
+# PATH_INVIWO_BIN = "C:/Kandidatprojekt/inviwo-latest/build/bin/Debug"
 sys.path.append(PATH_INVIWO_BIN)
 import inviwopy as ivw
 import inviwopyapp as ivwapp

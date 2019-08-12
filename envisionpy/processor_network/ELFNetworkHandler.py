@@ -75,7 +75,7 @@ class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
 
         # Setup default unitcell settings
         if self.unitcellAvailable:
-            self.toggle_full_mesh(False)
+            self.toggle_full_mesh(True)
             self.toggle_unitcell_canvas(False)
 
     def get_ui_data(self):
