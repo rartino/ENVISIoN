@@ -39,8 +39,8 @@ from .VolumeNetworkHandler import VolumeNetworkHandler
 from .UnitcellNetworkHandler import UnitcellNetworkHandler
 
 class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
-    """ Handler class for elf visualization self.network.
-        Sets up and manages the elf visualization
+    """ Handler class for ELF visualization self.network.
+        Sets up and manages the ELF visualization
     """
     def __init__(self, hdf5_path, inviwoApp):
         self.processors = {}
@@ -57,19 +57,25 @@ class ELFNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         # Check if  hdf5-file is valid
         with h5py.File(hdf5_path, 'r') as file:
             if file.get("ELF") == None:
-                raise BadHDF5Error("No elf data in that file.")
+                self.clear_processors()
+                raise BadHDF5Error("No ELF data in that file.")
         if len(self.get_available_bands(hdf5_path)) == 0:
             raise BadHDF5Error("No valid bands in that file.")
         
         self.hdf5_path = hdf5_path
 
-        # Setup default elf settings
+        # Setup default ELF settings
         self.setup_elf_network(hdf5_path)
-        self.set_active_band('final')
+        # self.set_active_band(self.get_available_bands()[0])
+        try: self.app.update()
+        except: pass
+        self.set_active_band(self.get_available_bands()[-1])
+        # self.app.update()
+        # self.set_active_band('final')
 
         # Setup default unitcell settings
         if self.unitcellAvailable:
-            self.toggle_full_mesh(True)
+            self.toggle_full_mesh(False)
             self.toggle_unitcell_canvas(False)
 
     def get_ui_data(self):

@@ -1,17 +1,32 @@
-#  Created by Jesper Ericsson
+#  ENVISIoN
 #
-#  To the extent possible under law, the person who associated CC0
-#  with the alterations to this file has waived all copyright and related
-#  or neighboring rights to the alterations made to this file.
+#  Copyright (c) 2019 Jesper Ericsson
+#  All rights reserved.
 #
-#  You should have received a copy of the CC0 legalcode along with
-#  this work.  If not, see
-#  <http://creativecommons.org/publicdomain/zero/1.0/>.
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#
+#  1. Redistributions of source code must retain the above copyright notice, this
+#  list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright notice,
+#  this list of conditions and the following disclaimer in the documentation
+#  and/or other materials provided with the distribution.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+#  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+#  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+#  ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+#  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+##############################################################################################
 
 
 import sys,os,inspect
-# path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-# sys.path.insert(0, os.path.expanduser(path_to_current_folder))
 
 import inviwopy
 import numpy as np
@@ -31,11 +46,10 @@ class BandstructureNetworkHandler(LinePlotNetworkHandler):
     def get_ui_data(self):
     # Return data required to fill user interface
         return [
-            self.get_x_range(),
-            self.get_y_range(),
-            self.get_label_count(),
-            self.get_available_datasets()
+            "bandstructure",
+            LinePlotNetworkHandler.get_ui_data(self)
             ]
+
 # ------------------------------------------
 # ------- Network building functions -------
 
@@ -89,7 +103,8 @@ class BandstructureNetworkHandler(LinePlotNetworkHandler):
             # Start modifying properties.
             path_selection.selection.value = '/Bandstructure/Bands'
             # HDF5_to_function.yPathSelectionProperty.value = '/Energy'
-            self.toggle_all_y(True)
+            # self.toggle_all_y(True)
+            self.set_y_selection_type(2)
             # background_processor.bgColor1.value = inviwopy.glm.vec4(1)
             # background_processor.bgColor2.value = inviwopy.glm.vec4(1)
             # canvas_processor.inputSize.dimensions.value = inviwopy.glm.ivec2(900, 700)

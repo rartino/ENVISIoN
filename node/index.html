@@ -95,12 +95,12 @@
 
     <div id="page">
 
-      <!-- <div class="sticky">
+      <div class="sticky">
         <div id="loadalert" class="alert alert-info" >
           <strong>Loading... </strong>
           <span>envision is n requests behind.</span>
         </div>
-      </div> -->
+      </div>
 
 
       <!-- Page Content  -->
@@ -137,14 +137,7 @@
 
     $(document).ready(function () {
       $("li").on("click", sidebarLinkClicked);
-
-
-
-
-      // $("#datasetLoaderLink").on("click", function () { $("#content").load("contentPanels/datasetLoader.html"); });
-      // $("#aboutLink").on("click", function () { $("#content").load("about.html"); });
-      // $("#chargeLink").on("click", function () { $("#content").load("contentPanels/electronDensity.html"); });
-
+      $("#loadalert").hide();
 
 
     });

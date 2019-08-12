@@ -1,4 +1,3 @@
-#
 #  ENVISIoN
 #
 #  Copyright (c) 2019 Jesper Ericsson
@@ -67,7 +66,8 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         # Setup default charge settings
         self.setup_charge_network(hdf5_path)
         # self.set_active_band(self.get_available_bands()[0])
-        self.app.update()
+        try: self.app.update()
+        except: pass
         self.set_active_band(self.get_available_bands()[-1])
         # self.app.update()
         # self.set_active_band('final')

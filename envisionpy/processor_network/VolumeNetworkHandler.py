@@ -252,6 +252,9 @@ class VolumeNetworkHandler(NetworkHandler):
         volumeSlice = self.get_processor('Volume Slice')
         volumeSlice.trafoGroup.imageScale.value = zoom
 
+    # def set_camera_fov(self, fov):
+    #     self.get_processor("Mesh Renderer").
+
     def get_slice_active(self):
         try:
             self.get_processor('SliceCanvas')
