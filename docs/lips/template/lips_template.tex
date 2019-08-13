@@ -11,24 +11,6 @@
 \newcommand{\twodigit}[1]{\ifthenelse{#1<10}{0}{}{#1}}
 \newcommand{\dagensdatum}{\number\year-\twodigit{\number\month}-\twodigit{\number\day}}
 
-%% ------------------------------------------
-% NYBILD
-% Skapar centrerad bild med caption
-%
-% #1: Filens url relativt '/images/'
-% #2: Caption
-% #3: Label
-% #4: Skalning
-%% ------------------------------------------
-\newcommand{\nyBild}[4]{
-    \begin{figure}[H]
-        \centering
-        \includegraphics[angle=0,scale=#4]{images/#1}
-        \caption{#2}
-        \label{fig:#3}
-    \end{figure}
-}
-
 %%  Redefinitions of commands containing @
 \makeatletter
 \makeatother
@@ -39,13 +21,13 @@
         \textbf{\Huge \LIPSdokumenttyp}
     \end{center}
     \begin{center}
-        {\Large Linda Le, Abdullatif Ismail, Anton Hjert, \\Lloyd Kizito, Jesper Ericsson}
+        {\Large \LIPSTitleProjektgrupp}
     \end{center}
     \begin{center}
         {\Large \textbf{Version \LIPSversion}}
     \end{center}
     \begin{center}
-        \emph{Notering: Delvist innehåll under rubriker: Skrivining till HDF5-fil, Inläsning av VASP-filer, Datastrukturer och Properties och widgets har baserats på 2018 års tekniska dokumentation för visualiseringsvertyget ENVISIoN. Mer info finns i kapitel \ref{sec:provenance}.}
+        \emph{\LIPSTitleNote}
     \end{center}
     \vfill
     \begin{center}{
@@ -145,13 +127,13 @@
   {\Large PROJEKTIDENTITET}\\[0.5ex]
   {\small
   \LIPSartaltermin, \LIPSprojektgrupp\\
-  Linköpings Tekniska Högskola, IFM
+  \LIPSUniversityDept
   }
 \end{center}
 \begin{center}
   {\small Gruppdeltagare}\\
 %  \begin{tabular}{|p{30mm}|p{40mm}|p{35mm}|p{45mm}|}
-  \begin{tabular}{|l|p{45mm}|p{25mm}|l|}
+  \begin{tabular}{|l|p{45mm}|p{35mm}|l|}
     \hline
     \textbf{Namn} & \textbf{Ansvar} & \textbf{Telefon} & \textbf{E-post} \\
     \hline
@@ -162,8 +144,7 @@
 \end{center}
 \begin{center}
   {\small
-    \textbf{E-postlista för hela gruppen}: %\LIPSgruppepost
-    se ovan\\
+    \textbf{E-postlista för hela gruppen}: \LIPSgruppepost\\
     \textbf{Hemsida}: \LIPSgrupphemsida\\[1ex]
     \textbf{Kund}: \LIPSkund\\
     \textbf{Kontaktperson hos kund}: \LIPSkundkontakt\\
@@ -192,9 +173,5 @@
     {#5}
 }
 
-\newenvironment{LIPSlicens}{
-    \begin{center}
-    \large{Licens}
-    \end{center}
-}{}
+
 
