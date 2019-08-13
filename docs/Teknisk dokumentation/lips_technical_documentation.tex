@@ -1,0 +1,118 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[swedish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[title]{appendix}
+\usepackage{amsmath}
+\usepackage{epstopdf}
+\usepackage{pdfpages}
+\usepackage{xparse}
+\usepackage{kantlipsum}
+\usepackage{listings}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{titlesec}
+\usepackage{subcaption}
+
+\usepackage{cmap} % fix search and cut-and-paste in Acrobat
+\usepackage{ifthen}
+\usepackage[T1]{fontenc}
+\floatplacement{figure}{H} % place figures here definitely
+\usepackage{textcomp} % text symbol macros
+
+\usepackage{mathptmx} % Times
+\usepackage[scaled=.90]{helvet}
+\usepackage{courier}
+
+% providelength (provide a length variable and set default, if it is new)
+\providecommand*{\DUprovidelength}[2]{
+  \ifthenelse{\isundefined{#1}}{\newlength{#1}\setlength{#1}{#2}}{}
+}
+
+% lineblock environment
+\DUprovidelength{\DUlineblockindent}{2.5em}
+\ifthenelse{\isundefined{\DUlineblock}}{
+  \newenvironment{DUlineblock}[1]{%
+    \list{}{\setlength{\partopsep}{\parskip}
+            \addtolength{\partopsep}{\baselineskip}
+            \setlength{\topsep}{0pt}
+            \setlength{\itemsep}{0.15\baselineskip}
+            \setlength{\parsep}{0pt}
+            \setlength{\leftmargin}{#1}}
+    \raggedright
+  }
+  {\endlist}
+}{}
+
+% titlereference role
+\providecommand*{\DUroletitlereference}[1]{\textsl{#1}}
+
+% hyperlinks:
+\ifthenelse{\isundefined{\hypersetup}}{
+  \usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+  \usepackage{bookmark}
+  \urlstyle{same} % normal text font (alternatives: tt, rm, sf)
+}{}
+\hypersetup{
+  pdftitle={ENVISIoN teknisk dokumentation},
+}
+
+
+%%% Title Data
+\title{%
+  ENVISIoN teknisk dokumentation%
+  \label{envision-teknisk-dokumentation}}
+\author{}
+\date{}
+
+\input{Lips/LIPS.tex}
+\lstset{literate=%
+{å}{{\aa}}1
+{ä}{{\"a}}1
+{ö}{{\"o}}1
+{Å}{{\AA}}1
+{Ä}{{\"A}}1
+{Ö}{{\"O}}1
+}
+
+\newcommand{\LIPSprojektgrupp}{}
+
+\newcommand{\LIPSartaltermin}{2019/VT}
+\newcommand{\LIPSkursnamn}{TFYA75}
+
+\newcommand{\LIPSprojekttitel}{Elektronvisualisering}
+\newcommand{\LIPSdokumenttyp}{Teknisk dokumentation}
+\newcommand{\LIPSversion}{1.1}
+\newcommand{\LIPSdatum}{\dagensdatum}
+
+\newcommand{\LIPSgranskare}{}
+\newcommand{\LIPSgranskatdatum}{}
+\newcommand{\LIPSgodkannare}{}
+\newcommand{\LIPSgodkantdatum}{}
+
+\lhead{}
+\chead{\textbf{\LIPSprojekttitel}}
+\rhead{\textbf{\textsl{LiTH}}\\\textbf{\dagensdatum}}
+\lfoot{\textbf{LIPS Teknisk dokumentation}}
+\cfoot{\textbf{\thepage}}
+\rfoot{\textbf{\LIPSkursnamn}}
+
+\begin{document}
+\pagenumbering{gobble}
+\LIPStitelsida
+\newpage
+\pagenumbering{roman}
+\input{Lips/Lips-front.tex}
+\newpage
+\tableofcontents{}
+\newpage
+\input{Lips/DokumentHistorik.tex}
+\newpage
+\pagenumbering{arabic}
+\input{Lips/Lips-prematter.tex}
+\input{technical_documentation_stripped.tex}
+\newpage 
+\input{Lips/LicensAppendixtext.tex}
+\newpage 
+\input{Lips/Appendix_old_tekniskdok.tex}
+\end{document}
