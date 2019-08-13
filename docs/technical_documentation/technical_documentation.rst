@@ -33,8 +33,6 @@ implementerat att redovisas.
 Definitioner
 ------------
 
-.. [inviwo]  *Inviwo* https://inviwo.org/, (hämtad 2019-05-10)
-
 -  **Inviwo:** Ett forskningsverktyg som utvecklas vid Linköpings
    universitet och ger användaren möjlighet att styra visualisering med
    hjälp av programmering i Python3 eller grafiskt. Det tillhandahåller
@@ -2656,6 +2654,8 @@ Samtliga dessa funktioner är namngivna med stilen `get_[vad som ska hämtas]` t
 
 Referenser
 ==========
+
+.. [inviwo]  *Inviwo* https://inviwo.org/, (hämtad 2019-05-10)
 
 .. [API] https://www.ne.se/uppslagsverk/encyklopedi/lång/api-(data) (hämtad 2019-05-16)
 
