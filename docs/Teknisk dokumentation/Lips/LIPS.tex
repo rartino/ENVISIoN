@@ -1,0 +1,200 @@
+\usepackage[swedish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{times}
+\usepackage{ifthen}
+\usepackage[margin=25mm]{geometry}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+\newcommand{\twodigit}[1]{\ifthenelse{#1<10}{0}{}{#1}}
+\newcommand{\dagensdatum}{\number\year-\twodigit{\number\month}-\twodigit{\number\day}}
+
+%% ------------------------------------------
+% NYBILD
+% Skapar centrerad bild med caption
+%
+% #1: Filens url relativt '/images/'
+% #2: Caption
+% #3: Label
+% #4: Skalning
+%% ------------------------------------------
+\newcommand{\nyBild}[4]{
+    \begin{figure}[H]
+        \centering
+        \includegraphics[angle=0,scale=#4]{images/#1}
+        \caption{#2}
+        \label{fig:#3}
+    \end{figure}
+}
+
+%%  Redefinitions of commands containing @
+\makeatletter
+\makeatother
+
+\newcommand{\LIPStitelsida}{
+    {\ }\vspace{45mm}
+    \begin{center}
+        \textbf{\Huge \LIPSdokumenttyp}
+    \end{center}
+    \begin{center}
+        {\Large Linda Le, Abdullatif Ismail, Anton Hjert, \\Lloyd Kizito, Jesper Ericsson}
+    \end{center}
+    \begin{center}
+        {\Large \textbf{Version \LIPSversion}}
+    \end{center}
+    \begin{center}
+        \emph{Notering: Delvist innehåll under rubriker: Skrivining till HDF5-fil, Inläsning av VASP-filer, Datastrukturer och Properties och widgets har baserats på 2018 års tekniska dokumentation för visualiseringsvertyget ENVISIoN. Mer info finns i kapitel \ref{sec:provenance}.}
+    \end{center}
+    \vfill
+    \begin{center}{
+        \large Status}\\[1.5ex]
+        \begin{tabular}{|*{3}{p{40mm}|}}
+            \hline
+            Granskad & \LIPSgranskare & \LIPSgranskatdatum \\
+            \hline
+            Godkänd & \LIPSgodkannare & \LIPSgodkantdatum \\
+            \hline
+        \end{tabular}
+    \end{center}
+}
+
+
+\newenvironment{LIPSdokumenthistorik}{
+    \begin{center}
+        Dokumenthistorik\\[1ex]
+        \begin{small}
+            \begin{tabular}{|l|l|p{60mm}|l|l|}
+                \hline
+                \textbf{Version} & \textbf{Datum} & \textbf{Utförda förändringar} &
+                \textbf{Utförda av} & \textbf{Granskad} \\
+                }
+                {
+                \hline
+            \end{tabular}
+        \end{small}
+    \end{center}
+}
+
+
+\newcommand{\LIPSversionsinfo}[5]{\hline {#1} & {#2} & {#3} & {#4} & {#5} \\}
+\newcounter{LIPSkravnummer}
+\newcounter{LIPSunderkravnummer}[LIPSkravnummer]
+
+\newenvironment{LIPSkravlista}{
+    \begin{tabular}{|p{25mm}|p{25mm}|p{85mm}|p{5mm}|}
+        }
+        {
+        \hline
+    \end{tabular}
+}
+
+\newenvironment{LIPSleveranslista}{
+    \begin{tabular}{|p{25mm}|p{15mm}|p{70mm}|p{25mm}|p{5mm}|}
+        }
+        {
+        \hline
+    \end{tabular}
+}
+
+\newenvironment{tabellexlista}{
+    \begin{tabular}{|p{25mm}|p{25mm}|p{70mm}|p{20mm}|}
+        }
+        {
+        \hline
+    \end{tabular}
+}
+
+\newenvironment{dokumentlista}{
+    \begin{tabular}{|p{28mm}|p{17mm}|p{39mm}|p{28mm}|p{28mm}|}
+        }
+        {
+        \hline
+    \end{tabular}
+}
+
+\newcommand{\dokumenttext}[5]{
+    \hline 
+    {#1} & {#2} & {#3} & {#4} & {#5} \\
+}
+
+
+\newcommand{\LIPSkrav}[3]{
+    \hline
+    \stepcounter{LIPSkravnummer}
+    \textbf{Krav nr \arabic{LIPSkravnummer}} & \textbf{{#1}} & {#2} & \textbf{{#3}} \\
+}
+
+\newcommand{\tabellex}[3]{
+    \hline
+    Krav nr x & {#1} & {#2} & {#3} \\
+}
+
+\newcommand{\LIPSleverans}[2]{Ericsson
+  {#1} & {#2} & \hline
+}
+
+\newcommand{\LIPSunderkrav}[3]{
+    \hline\stepcounter{LIPSunderkravnummer}\textbf{Krav nr \arabic{LIPSkravnummer}\Alph{LIPSunderkravnummer}} & \textbf{{#1}} & {#2} & \textbf{{#3}} \\
+}
+
+\newenvironment{LIPSprojektidentitet}{%
+{\ }\vspace{45mm}
+\begin{center}
+  {\Large PROJEKTIDENTITET}\\[0.5ex]
+  {\small
+  \LIPSartaltermin, \LIPSprojektgrupp\\
+  Linköpings Tekniska Högskola, IFM
+  }
+\end{center}
+\begin{center}
+  {\small Gruppdeltagare}\\
+%  \begin{tabular}{|p{30mm}|p{40mm}|p{35mm}|p{45mm}|}
+  \begin{tabular}{|l|p{45mm}|p{25mm}|l|}
+    \hline
+    \textbf{Namn} & \textbf{Ansvar} & \textbf{Telefon} & \textbf{E-post} \\
+    \hline
+}%Ericsson
+{%
+    \hline
+  \end{tabular}
+\end{center}
+\begin{center}
+  {\small
+    \textbf{E-postlista för hela gruppen}: %\LIPSgruppepost
+    se ovan\\
+    \textbf{Hemsida}: \LIPSgrupphemsida\\[1ex]
+    \textbf{Kund}: \LIPSkund\\
+    \textbf{Kontaktperson hos kund}: \LIPSkundkontakt\\
+    \textbf{Kursansvarig}: \LIPSkursansvarig\\
+    \textbf{Handledare}: \LIPShandledare\\
+  }
+\end{center}
+\newpage
+}
+\newcommand{\LIPSgruppmedlem}[4]{\hline {#1} & {#2} & {#3} & {#4} \\}
+
+\NewDocumentCommand\secpdf{somO{1}m}{
+  \clearpage
+  \thispagestyle{fancy}
+  \addcontentsline{toc}{section}{#3}
+  \includepdf[
+    pages=#4,
+    pagecommand={
+      \IfBooleanTF{#1}{
+        \section*{#3}}{
+        \IfNoValueTF{#2}{
+          \section{#3}}{
+          \section[#2]{#3}}}},
+    scale=.80
+    ]
+    {#5}
+}
+
+\newenvironment{LIPSlicens}{
+    \begin{center}
+    \large{Licens}
+    \end{center}
+}{}
+
