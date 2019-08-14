@@ -1,8 +1,6 @@
-
-#
 #  ENVISIoN
 #
-#  Copyright (c) 2019 Abdullatif Ismail
+#  Copyright (c) 2018 Jesper Ericsson
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -27,23 +25,26 @@
 #
 ##############################################################################################
 
-import os, sys
+# CONFIGURE FILE PATHS HERE
 
-# Configuration
-PATH_TO_ENVISION=os.path.expanduser("/home/ofaismail/inviwo/ENVISIoN/envision")
-PATH_TO_VASP_CALC=os.path.expanduser("/home/ofaismail/VASP-filer/TiPO4_bandstructure")
-PATH_TO_HDF5=os.path.expanduser("/home/ofaismail/HDF5/BandsWithFermiDone8.hdf5")
+# Path to your envision installation
+PATH_TO_ENVISION = "C:/Kandidatprojekt/ENVISIoN-sommar"
 
-sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION))
+# Path to the vasp output directory you wish to visualise
+PATH_TO_VASP_CALC = "C:/Kandidatprojekt/VASP/bands"
 
+# Path to where you want to save the resulting hdf5 file 
+PATH_TO_HDF5 = "C:/Kandidatprojekt/HDF5-demo/band_demo.hdf5"
+
+import os, sys, inspect, inviwopy
+sys.path.append(PATH_TO_ENVISION)
 import envisionpy
-import envisionpy.inviwo
+import envisionpy.hdf5parser
+from envisionpy.processor_network.BandstructureNetworkHandler import BandstructureNetworkHandler
 
-envision.parser.vasp.bandstructure(PATH_TO_HDF5, PATH_TO_VASP_CALC)
-envision.parser.vasp.fermi_energy(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+# Parse for charge density visualisation.
+envisionpy.hdf5parser.bandstructure(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+envisionpy.hdf5parser.fermi_energy(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
-#To visualise charge as an isosurface change the iso-argument
-#from None to a value between 0 and 1.
-#To add the slice-function change the slice-argument from False to True. 
-#The slice-function is not compatible with isosurface.
-envision.inviwo.bandstructure(PATH_TO_HDF5, xpos = 0, ypos = 0)
+inviwopy.app.network.clear()
+networkHandler = BandstructureNetworkHandler(PATH_TO_HDF5, inviwopy.app)
