@@ -19,7 +19,7 @@ import sys,os,inspect
 # sys.path.append(path_to_current_folder + "/parser")
 # PATH_INVIWO_BIN = "/home/labb/inviwo-latest/build3/bin"
 # PATH_INVIWO_BIN = "/usr/bin"
-PATH_INVIWO_BIN = "/opt/envision/inviwo/bin"
+PATH_INVIWO_BIN = "C:/Kandidatprojekt/inviwo-latest/build/bin/debug"
 
 # PATH_INVIWO_BIN = "C:/Kandidatprojekt/inviwo-latest/build/bin/Debug"
 sys.path.append(PATH_INVIWO_BIN)
@@ -58,8 +58,7 @@ class EnvisionMain():
         self.action_dict["clear_tf"] = lambda id, params: self.networkHandlers[id].clear_tf(*params)
         self.action_dict["set_tf_points"] = lambda id, params: self.networkHandlers[id].set_tf_points(*params)
         self.action_dict["add_tf_point"] = lambda id, params: self.networkHandlers[id].add_tf_point(*params)
-        self.action_dict["remove_tf_point"] = lambda id, params: self.networkHandlers[id].remove_tf_point(*params)
-        self.action_dict["set_tf_point_color"] = lambda id, params: self.networkHandlers[id].set_tf_point_color(*params)
+        # self.action_dict["remove_tf_point"] = lambda id, params: self.networkHandlers[id].remove_tf_point(*params)
         self.action_dict["get_tf_points"] = lambda id, params: self.networkHandlers[id].get_tf_points(*params)
         self.action_dict["set_shading_mode"] = lambda id, params: self.networkHandlers[id].set_shading_mode(*params)
         self.action_dict["set_volume_background"] = lambda id, params: self.networkHandlers[id].set_volume_background(*params)
