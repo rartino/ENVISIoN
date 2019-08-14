@@ -28,8 +28,6 @@
 import sys
 import os
 import inspect
-# path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-# sys.path.insert(0, os.path.expanduser(path_to_current_folder))
 
 import inviwopy
 import numpy as np
@@ -49,6 +47,9 @@ class DOSNetworkHandler(LinePlotNetworkHandler, UnitcellNetworkHandler):
     def __init__(self, hdf5_path, inviwoApp):
         LinePlotNetworkHandler.__init__(self, inviwoApp)
 
+        self.partialEnabled = True
+        self.totalEnabled = True
+
         # Unitcell is not critical to visualization, if it fails, continnue anyway
         self.unitcellAvailable = True
         try: 
@@ -61,18 +62,43 @@ class DOSNetworkHandler(LinePlotNetworkHandler, UnitcellNetworkHandler):
     # Return data required to fill user interface
         return [
             "dos",
-            LinePlotNetworkHandler.get_ui_data(self)
+            LinePlotNetworkHandler.get_ui_data(self),
+            self.get_n_partials(),
+            self.get_partial_selection(),
+            self.totalEnabled,
+            self.partialEnabled
             ]
+
+    def toggle_total(self, enable):
+        self.totalEnabled = enable
+        totalCollector = self.get_processor("Collect total")
+        collector = self.get_processor("Collect")
+        if enable:
+            self.network.addConnection(totalCollector.getOutport("dataframeOutport"), collector.getInport("dataframeMultiInport"))
+        else:
+            self.network.removeConnection(totalCollector.getOutport("dataframeOutport"), collector.getInport("dataframeMultiInport"))
+    
+    def toggle_partial(self, enable):
+        self.partialEnabled = enable
+        partialCollector = self.get_processor("Collect partial")
+        collector = self.get_processor("Collect")
+        if enable:
+            self.network.addConnection(partialCollector.getOutport("dataframeOutport"), collector.getInport("dataframeMultiInport"))
+        else:
+            self.network.removeConnection(partialCollector.getOutport("dataframeOutport"), collector.getInport("dataframeMultiInport"))
+
+    def get_n_partials(self):
+        return self.get_processor("Partial Pick").intProperty.maxValue
+
+    def set_partial_selection(self, n):
+        self.get_processor("Partial Pick").intProperty.value = n
+
+    def get_partial_selection(self):
+        return self.get_processor("Partial Pick").intProperty.value
 # ------------------------------------------
 # ------- Network building functions -------
 
-    # def get_dos_list(self, iter):
-    #     return list(sorted(
-    #         filter(lambda item: item != "Energy", iter),
-    #         key=lambda item: "".join(reversed(item))
-    #     ))
-
-    def setup_PCF_network(self, hdf5_path, atom=0, xpos=0, ypos=0):
+    def setup_PCF_network(self, hdf5_path, atom=0, xpos=0, ypos=-350):
         def get_dos_list(iter):
             return list(sorted(
                 filter(lambda item: item != "Energy", iter),
@@ -87,6 +113,9 @@ class DOSNetworkHandler(LinePlotNetworkHandler, UnitcellNetworkHandler):
             unary_processor_list = []
             nary_processor_list = []
             other_add_list = []
+
+            dataframeOutportsTotal = []
+            dataframeOutportsPartial = []
 
             h5source_processor = self.add_h5source(hdf5_path, xpos, ypos)
             ypos += 75
@@ -155,6 +184,10 @@ class DOSNetworkHandler(LinePlotNetworkHandler, UnitcellNetworkHandler):
 
                     hdf5_to_function_list.append(down_type_processor)
                     unary_processor_list.append(down_negate_processor)
+                    if name=="Total":
+                        dataframeOutportsTotal.append(down_negate_processor.getOutport("dataframeOutport"))
+                    else:
+                        dataframeOutportsPartial.append(down_negate_processor.getOutport("dataframeOutport"))
                     xpos_down += 175
 
                 up_type_list = ['{} {}'.format(dos, atom) for dos in dos_list if dos.endswith("(up)")]
@@ -173,6 +206,10 @@ class DOSNetworkHandler(LinePlotNetworkHandler, UnitcellNetworkHandler):
 
                     hdf5_to_function_list.append(up_type_processor)
                     nary_processor_list.append(up_add_processor)
+                    if name=="Total":
+                        dataframeOutportsTotal.append(up_add_processor.getOutport("dataframeOutport"))
+                    else:
+                        dataframeOutportsPartial.append(up_add_processor.getOutport("dataframeOutport"))
                     xpos_up += 175
 
                 other_type_list = ['{} {}'.format(dos, atom) for dos in dos_list if not dos.endswith("(dwn)") and not dos.endswith("(up)")]
@@ -202,6 +239,10 @@ class DOSNetworkHandler(LinePlotNetworkHandler, UnitcellNetworkHandler):
                         other_outport = other_type_processor.getOutport('functionVectorOutport')
                         self.network.addConnection(other_outport, other_add_inport)
                     other_add_list.append(other_add_processor)
+                    if name=="Total":
+                        other_add_processor.append(up_add_processor.getOutport("dataframeOutport"))
+                    else:
+                        other_add_processor.append(up_add_processor.getOutport("dataframeOutport"))
 
                 return xpos_other, ypos + 225
 
@@ -226,16 +267,26 @@ class DOSNetworkHandler(LinePlotNetworkHandler, UnitcellNetworkHandler):
                     self.network.addConnection(h5source_outport, fermi_energy_inport)
                     ypos += 100"""
 
+            # collector = self.add_processor("org.inviwo.DataFrameCollector", "Collect", xpos, ypos)
+            # for unary_processor in unary_processor_list:
+            #     self.network.addConnection(unary_processor.getOutport("dataframeOutport"), collector.getInport("dataframeMultiInport"))
+            # for nary_processor in nary_processor_list:
+            #     self.network.addConnection(nary_processor.getOutport("dataframeOutport"), collector.getInport("dataframeMultiInport"))
+            # for other_add_processor in other_add_list:
+            #     self.network.addConnection(other_add_processor.getOutport("dataframeOutport"), collector.getInport("dataframeMultiInport"))
+            totalCollector = self.add_processor("org.inviwo.DataFrameCollector", "Collect total", xpos, ypos)
+            partialCollector = self.add_processor("org.inviwo.DataFrameCollector", "Collect partial", xpos + 250, ypos)
+            ypos += 75
             collector = self.add_processor("org.inviwo.DataFrameCollector", "Collect", xpos, ypos)
-            for unary_processor in unary_processor_list:
-                self.network.addConnection(unary_processor.getOutport("dataframeOutport"), collector.getInport("dataframeMultiInport"))
-            for nary_processor in nary_processor_list:
-                self.network.addConnection(nary_processor.getOutport("dataframeOutport"), collector.getInport("dataframeMultiInport"))
-            for other_add_processor in other_add_list:
-                self.network.addConnection(other_add_processor.getOutport("dataframeOutport"), collector.getInport("dataframeMultiInport"))
+            for outport in dataframeOutportsTotal:
+                self.network.addConnection(outport, totalCollector.getInport("dataframeMultiInport"))
+            for outport in dataframeOutportsPartial:
+                self.network.addConnection(outport, partialCollector.getInport("dataframeMultiInport"))
+                
+            self.network.addConnection(totalCollector.getOutport("dataframeOutport"), collector.getInport("dataframeMultiInport"))
+            self.network.addConnection(partialCollector.getOutport("dataframeOutport"), collector.getInport("dataframeMultiInport"))
 
             ypos += 75
-
 
             self.remove_processor("Function to dataframe")
             plotter_processor = self.get_processor("Line plot")
@@ -255,9 +306,6 @@ class DOSNetworkHandler(LinePlotNetworkHandler, UnitcellNetworkHandler):
             # picking of specific atoms if it exists, i.e. connect the two
             # properties describing what atom has been selected/should be
             # shown.
-            # self.app.update()
-            # self.toggle_graph_canvas(False)
-            # self.app.update()
             unit_cell_processor = self.network.getProcessorByIdentifier('Unit Cell Mesh')
             partial_pick_processor = self.network.getProcessorByIdentifier('Partial Pick')
             if has_partial and unit_cell_processor is not None and partial_pick_processor is not None:
@@ -278,7 +326,6 @@ class DOSNetworkHandler(LinePlotNetworkHandler, UnitcellNetworkHandler):
                 hdf5_to_function.getPropertyByIdentifier('yPathSelectionProperty').value = '/{}'.format(hdf5_to_function.identifier.split(' ')[0])
                 hdf5_to_function.getPropertyByIdentifier('xPathFreeze').value = True
                 hdf5_to_function.getPropertyByIdentifier('yPathFreeze').value = True
-            
-            # self.network.addConnection(collector.getOutport("dataframeOutport"), plotter_processor.getInport('dataFrameInport'))
+
             self.set_y_selection_type(2)
             # self.toggle_graph_canvas(True)

@@ -1,6 +1,6 @@
 
 const { app, BrowserWindow } = require('electron')
-
+const CONFIG = require("./config.json")
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win
@@ -8,7 +8,7 @@ let win
 function createWindow () {
   // Create the browser window.
   win = new BrowserWindow({
-    width: 1200,
+    width: 800,
     height: 800,
     webPreferences: {
       nodeIntegration: true
@@ -19,7 +19,11 @@ function createWindow () {
   win.loadFile('ElectronUI/index.html')
 
   // Open the DevTools.
-  win.webContents.openDevTools()
+  if (CONFIG.startWithDevTools){
+    win.webContents.openDevTools()
+    let bounds = win.getBounds();
+    win.setBounds({width: bounds.width + 400});
+  }
 
   // Emitted when the window is closed.
   win.on('closed', () => {

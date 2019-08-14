@@ -1,3 +1,9 @@
+// TODO: Validations for most text field inputs.
+//       If they are empty you cant just send null send 0 or something instead.
+
+// TODO: This file is pretty long and difficult to read. Events callbacks could be moved out to each HTML files <script> tag.
+//       That way functions are at the same place as their html elements.
+
 const fs = require('fs')
 
 // Stores information about all loaded datasets
@@ -19,10 +25,6 @@ var tempHdf5Files = [];
 
 // Variable to store UI data recieved from envision for later use
 var uiData;
-
-// TODO: Validations for most text field inputs.
-//       If they are empty you cant just send null send 0 or something instead.
-
 
 function sidebarLinkClicked() {
     if($(this).hasClass("subLink")){
