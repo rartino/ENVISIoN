@@ -26,16 +26,22 @@
 #
 ##############################################################################################
 
+# CONFIGURE FILE PATHS HERE
+
+# Path to your envision installation
+PATH_TO_ENVISION = "C:/Kandidatprojekt/ENVISIoN-sommar"
+
+# Path to the vasp output directory you wish to visualise
+PATH_TO_VASP_CALC = "C:/Kandidatprojekt/VASP/NaCl_charge_density"
+
+# Path to where you want to save the resulting hdf5 file 
+PATH_TO_HDF5 = "C:/Kandidatprojekt/HDF5-demo/charge_demo.hdf5"
+
 import os, sys, inspect, inviwopy
-path_to_envisionpy = "/home/labb/ENVISIoN"
-sys.path.append(path_to_envisionpy)
+sys.path.append(PATH_TO_ENVISION)
 import envisionpy
 import envisionpy.hdf5parser
 from envisionpy.processor_network.ChargeNetworkHandler import ChargeNetworkHandler
-
-# Set the path to existing VASP directory and to the desired save location for HDF5-file.
-PATH_TO_VASP_CALC=os.path.expanduser("/home/labb/VASP/NaCl_charge_density")
-PATH_TO_HDF5=os.path.expanduser("/home/labb/HDF5/charge_demo.hdf5")
 
 # Parse for charge density visualisation.
 envisionpy.hdf5parser.charge(PATH_TO_HDF5, PATH_TO_VASP_CALC)
@@ -46,14 +52,6 @@ inviwopy.app.network.clear()
 
 # Initialize inviwo network
 networkHandler = ChargeNetworkHandler(PATH_TO_HDF5, inviwopy.app)
-
-# Set some default properties, everything can either be 
-# chaged via networkHandler class or directly in
-# the network editor
-
-# Add some default transfer function points
-networkHandler.add_tf_point(0.45, inviwopy.glm.vec4(1, 1, 1, 0))
-networkHandler.add_tf_point(0.5, inviwopy.glm.vec4(0.1, 1, 0.1, 0.1))
 
 # Configure slice visualisation
 networkHandler.toggle_slice_canvas(True)
