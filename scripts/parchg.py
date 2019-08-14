@@ -1,4 +1,3 @@
-#
 #  ENVISIoN
 #
 #  Copyright (c) 2018 Jesper Ericsson
@@ -26,27 +25,16 @@
 #
 ##############################################################################################
 
-import os, sys, inspect, inviwopy
+# CONFIGURE VISUALISATION HERE
 
-path_to_envisionpy = "/home/labb/ENVISIoN"
-sys.path.append(path_to_envisionpy)
-import envisionpy
-import envisionpy.hdf5parser
-from envisionpy.processor_network.ParchgNetworkHandler import ParchgNetworkHandler
+# Path to your envision installation
+PATH_TO_ENVISION = "C:/Kandidatprojekt/ENVISIoN-sommar"
 
-# Set the path to existing VASP directory and to the desired save location for HDF5-file.
-PATH_TO_VASP_CALC=os.path.expanduser("/home/labb/VASP_files/diamond_partial_charges/partial_charges")
-PATH_TO_HDF5=os.path.expanduser("/home/labb/HDF5_new/pachg_demo.hdf5")
+# Path to the vasp output directory you wish to visualise
+PATH_TO_VASP_CALC = "C:/Kandidatprojekt/VASP/partial_charges"
 
-# Parse for charge density visualisation.
-envisionpy.hdf5parser.parchg(PATH_TO_HDF5, PATH_TO_VASP_CALC)
-envisionpy.hdf5parser.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
-
-# Clear any old network
-inviwopy.app.network.clear()
-
-# Initialize inviwo network
-networkHandler = ParchgNetworkHandler(PATH_TO_HDF5, inviwopy.app)
+# Path to where you want to save the resulting hdf5 file 
+PATH_TO_HDF5 = "C:/Kandidatprojekt/HDF5-demo/parchg_demo.hdf5"
 
 # Set band selections and modes
 # band_list : list of the bands you want to visualize, by number, e.g. [34,55,190] to select band 34, 55 and 190
@@ -57,26 +45,32 @@ networkHandler = ParchgNetworkHandler(PATH_TO_HDF5, inviwopy.app)
 #    3 for 'down'
 # Example: If band_list is [31, 212] and mode_list is [1,3], band 31 will be visualized as 'magnetic' and 212 as 'down'
 band_list = [1, 2, 3, 4]
-mode_list = [0, 0, 0, 0]
+mode_list = [0, 1, 2, 3]
+
+import os, sys, inspect, inviwopy
+sys.path.append(PATH_TO_ENVISION)
+import envisionpy
+import envisionpy.hdf5parser
+from envisionpy.processor_network.ParchgNetworkHandler import ParchgNetworkHandler
+
+# Parse for charge density visualisation.
+envisionpy.hdf5parser.parchg(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+envisionpy.hdf5parser.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+
+# Initialize inviwo network
+inviwopy.app.network.clear()
+networkHandler = ParchgNetworkHandler(PATH_TO_HDF5, inviwopy.app)
 networkHandler.select_bands(band_list, mode_list)
 
-# Set some default properties, everything can either be 
-# chaged via networkHandler class or directly in
-# the network editor
-
-# Add some default transfer function points
-# networkHandler.clear_tf()
-# networkHandler.add_tf_point(0.45, inviwopy.glm.vec4(1, 1, 1, 0))
-# networkHandler.add_tf_point(0.5, inviwopy.glm.vec4(0.1, 1, 0.1, 0.1))
-
 # Configure slice visualisation
-networkHandler.toggle_slice_canvas(False)
-networkHandler.toggle_slice_plane(False)
+networkHandler.toggle_slice_canvas(True)
+networkHandler.toggle_slice_plane(True)
 networkHandler.set_plane_normal(0, 1, 0)
 networkHandler.set_plane_height(0.5)
 
 # Configure unitcell visualisation
 if networkHandler.unitcellAvailable:
+    #networkHandler.hide_atoms()
     networkHandler.toggle_unitcell_canvas(True)
     networkHandler.set_atom_radius(0.2)
 
