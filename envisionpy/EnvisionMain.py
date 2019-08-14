@@ -106,6 +106,12 @@ class EnvisionMain():
         # self.action_dict["set_y_single_selection"] = lambda id, params: self.networkHandlers[id].set_y_single_selection(*params)
         # self.action_dict["set_y_single_selection"] = lambda id, params: self.networkHandlers[id].set_y_single_selection(*params)
 
+        # DoS
+        self.action_dict["toggle_total"] = lambda id, params: self.networkHandlers[id].toggle_total(*params)
+        self.action_dict["toggle_partial"] = lambda id, params: self.networkHandlers[id].toggle_partial(*params)
+        self.action_dict["set_partial_selection"] = lambda id, params: self.networkHandlers[id].set_partial_selection(*params)
+
+
 
         self.visualisationTypes = {
             "charge": ChargeNetworkHandler,

@@ -9,12 +9,7 @@
 //  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 const spawn = require("child_process").spawn;
-
-var LOG_PYTHON_PRINT = false;
-var LOG_PYTHON_ERROR = true;
-var LOG_SENT_PACKETS = true;
-var LOG_RECIEVED_PACKETS = true;
-var LOG_FAILED_REQUESTS = false;
+const CONFIG = require("./config.json");
 
 var pythonProcess = null
 
@@ -33,8 +28,6 @@ var response_callbacks = {
     "start": visualisationStarted,
     "stop": visualisationStopped
 }
-
-
 
 function start_python_process() {
     if (pythonProcess == null)
@@ -61,7 +54,6 @@ function send_test_packets(n){
     } 
 }
 
-
 function send_data(tag, data) {
 // Put data into json object and send it
     nRequests += 1;
@@ -71,7 +63,7 @@ function send_data(tag, data) {
     var json_data = {type: tag, data: data}
     var packet = JSON.stringify(json_data) + "\r\n";
     try{
-        if (LOG_SENT_PACKETS) console.log("Sending packet: \n", packet)
+        if (CONFIG.logSentPackets) console.log("Sending packet: \n", packet)
         pythonProcess.stdin.write(packet) 
     }
     catch {
@@ -91,7 +83,7 @@ function on_data_recieve(packet) {
         try {
             json_data = JSON.parse(data[i])
             if ("type" in json_data){
-                if (LOG_RECIEVED_PACKETS)
+                if (CONFIG.logRecievedPackets)
                 console.log("Packet recieved: \n", JSON.stringify(json_data))
                 if (json_data["type"] == "response"){
                     handle_response_packet(json_data["data"])
@@ -100,13 +92,13 @@ function on_data_recieve(packet) {
                 }
             }
             else{
-                if (LOG_PYTHON_PRINT)
+                if (CONFIG.logPyPrint)
                     console.log("Python print: \n" + data[i])
             }
             
           }
           catch(err) {
-            if (LOG_PYTHON_PRINT)
+            if (CONFIG.logPyPrint)
                 console.log("Python print: \n" + data[i])
           } 
     }
@@ -120,7 +112,7 @@ function handle_response_packet(packet){
     if (action in response_callbacks){
         response_callbacks[action](status, id, data);
     }
-    if (!status && LOG_FAILED_REQUESTS){
+    if (!status && CONFIG.logFailedRequests){
         let errorType = data[0];
         let errorMsg = data[1].replace(/\\n/g, "\n");
         console.log("Requested action failed: \n" + errorType + ": " + errorMsg);
@@ -140,7 +132,7 @@ function on_python_error(data) {
     //     nRequests--;
     //     send_data("crash test", "");
     //     }, 1000);
-    if (!LOG_PYTHON_ERROR)
+    if (!CONFIG.logPyError)
         return
     console.log("PYTHON ERROR: ")
     var output = Buffer.from(data, 'hex')
