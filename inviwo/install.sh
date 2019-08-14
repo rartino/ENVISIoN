@@ -35,11 +35,11 @@ git clone https://github.com/inviwo/inviwo.git "$2"
 cd "$2"
 
 # Checkout correct version.
-git checkout d20199dfd37c80559ce687243d296f6ce3e41c71
+git checkout 400de1a5af6a0400a314241b86982cfa2817dd9b
 
 # Apply 2019 patch.
 git apply < "$1/inviwo/patches/2019/envisionTransferFuncFix2019.patch"
-git apply < "$1/inviwo/patches/2019/paneProperty2019.patch"
+git apply < "$1/inviwo/patches/2019/deb-package.patch"
 
 # Init and update submodules.
 git submodule init
