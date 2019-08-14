@@ -125,7 +125,6 @@ private:
     double normalise(double value, double min, double max) const;
 
     DataFrameInport dataFrameInport_;
-    DataInport<Point, 0, true> pointInport_;
     MeshOutport meshOutport_;
 
     OptionPropertyString xSelectionProperty_;
