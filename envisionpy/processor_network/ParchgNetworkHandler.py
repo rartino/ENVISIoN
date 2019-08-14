@@ -1,7 +1,6 @@
-#
 #  ENVISIoN
 #
-#  Copyright (c) 2018 Jesper Ericsson
+#  Copyright (c) 2019 Jesper Ericsson, Elvis Jakobsson
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without

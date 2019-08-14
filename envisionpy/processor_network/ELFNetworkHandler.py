@@ -1,4 +1,3 @@
-#
 #  ENVISIoN
 #
 #  Copyright (c) 2019 Jesper Ericsson

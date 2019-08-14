@@ -1,7 +1,6 @@
-#
 #  ENVISIoN
 #
-#  Copyright (c) 2019 Jesper Ericsson
+#  Copyright (c) 2019 Jesper Ericsson, Josef Adamsson, Anders Rehult, Marian Brännvall, Andreas Kempe
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -25,16 +24,6 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 ##############################################################################################
-#
-#  Alterations to this file by Jesper Ericsson
-#
-#  To the extent possible under law, the person who associated CC0
-#  with the alterations to this file has waived all copyright and related
-#  or neighboring rights to the alterations made to this file.
-#
-#  You should have received a copy of the CC0 legalcode along with
-#  this work.  If not, see
-#  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import sys,os,inspect
 # path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
