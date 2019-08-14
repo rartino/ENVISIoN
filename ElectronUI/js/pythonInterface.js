@@ -65,14 +65,13 @@ function send_test_packets(n){
 function send_data(tag, data) {
 // Put data into json object and send it
     nRequests += 1;
-    if (LOG_SENT_PACKETS)
-        console.log("Packet sent: \n", packet)
     responsesBehind(nRequests - nResponses);
     if (pythonCrashed)
         return;
     var json_data = {type: tag, data: data}
     var packet = JSON.stringify(json_data) + "\r\n";
     try{
+        if (LOG_SENT_PACKETS) console.log("Sending packet: \n", packet)
         pythonProcess.stdin.write(packet) 
     }
     catch {
