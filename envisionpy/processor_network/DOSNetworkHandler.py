@@ -1,7 +1,4 @@
-#
-#  ENVISIoN
-#
-#  Copyright (c) 2017-2019 Robert Cranston, Anders Rehult, Viktor Bernholtz, Marian Brännvall, Jesper Ericsson
+#  Copyright (c) 2019 Jesper Ericsson, Robert Cranston, Anders Rehult, Viktor Bernholtz, Marian Brännvall
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -23,7 +20,8 @@
 #  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+#
+##############################################################################################
 
 import sys
 import os
@@ -33,11 +31,9 @@ import inviwopy
 import numpy as np
 import h5py
 
-
 from .LinePlotNetworkHandler import LinePlotNetworkHandler
 from .UnitcellNetworkHandler import UnitcellNetworkHandler
 from envisionpy.utils.exceptions import *
-
 
 class DOSNetworkHandler(LinePlotNetworkHandler, UnitcellNetworkHandler):
     """ Handler class for charge visualizationself.network.
