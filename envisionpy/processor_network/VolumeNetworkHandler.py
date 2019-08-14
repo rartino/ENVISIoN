@@ -21,12 +21,8 @@ import h5py
 from .NetworkHandler import NetworkHandler
 from envisionpy.utils.exceptions import *
 
-# TODO: Would probably be better to save important processors as member variables
-#       instead of extracting them from the self.network all the time
-#       Low prio: would not really improve anything but code readability
-
-# NOTE: May not be super safe. If someone manually changes the self.network identifier strings may
-#       be invalid, this can cause errors if processors cannot be found. 
+# TODO: Add support for adding tf points to specific channels if multichannel is activated.
+#       Right now all 4 transferfunctions in multichannel raycaster will always be identical. 
 
 class VolumeNetworkHandler(NetworkHandler):
     """ Base class for setting up and handling a self.network for generic volume rendering for ENVISIoN.
@@ -34,9 +30,9 @@ class VolumeNetworkHandler(NetworkHandler):
     Do not use directly, inherited in other classes for handling specific visualizations.
 
     """
-    def __init__(self, inviwoApp):
+    def __init__(self, inviwoApp, isMultichannel=False):
         NetworkHandler.__init__(self, inviwoApp)
-
+        self.isMultichannel = isMultichannel
         self.volumeInports = []
         self.setup_volume_network()
 
@@ -53,7 +49,7 @@ class VolumeNetworkHandler(NetworkHandler):
         self.add_tf_point(0.45, [0.1, 0.1, 0.8, 0.05])
         self.add_tf_point(0.5, [0.2, 0.8, 0.1, 0.1])
         self.add_tf_point(0.8, [0.9, 0.1, 0.1, 0.5])
-        self.set_mask(self.get_tf_points()[0][0], 1)
+        # self.set_mask(self.get_tf_points()[0][0], 1)
 
     def get_ui_data(self):
         return [
@@ -97,19 +93,30 @@ class VolumeNetworkHandler(NetworkHandler):
     # Set the mask of the transfer function
     # Only volume densities between maskMin and maskMax are visible after this
         
-        Raycaster = self.get_processor('Raycaster')
-        VolumeSlice = self.get_processor('Volume Slice')
-        if Raycaster:
-            Raycaster.isotfComposite.transferFunction.setMask(maskMin, maskMax)
-        if VolumeSlice:
-            VolumeSlice.tfGroup.transferFunction.setMask(maskMin,maskMax)
+        raycaster = self.get_processor('Raycaster')
+        volumeSlice = self.get_processor('Volume Slice')
+        if not self.isMultichannel:
+            raycaster.isotfComposite.transferFunction.setMask(maskMin, maskMax)
+        else:
+            getattr(raycaster, 'transfer-functions').transferFunction1.setMask(maskMin, maskMax)
+            getattr(raycaster, 'transfer-functions').transferFunction2.setMask(maskMin, maskMax)
+            getattr(raycaster, 'transfer-functions').transferFunction3.setMask(maskMin, maskMax)
+            getattr(raycaster, 'transfer-functions').transferFunction4.setMask(maskMin, maskMax)
+        volumeSlice.tfGroup.transferFunction.setMask(maskMin,maskMax)
+
+# ---- Transfer function ----
+
+    # def toggle_tf_editor(self, enable):
+    #     raycaster = self.get_processor('Raycaster')
+    #     raycaster.isotfComposite.widgets[0].editorWidget.visible = enable
+
 
     def toggle_transperancy_before(self, enable):
         self.transperancy_before = enable
         return self.update_transperancy_before()
 
     def update_transperancy_before(self):
-        if self.transperancy_before:
+        if self.transperancy_before and len(self.get_tf_points()) > 0:
             lowestVal = self.get_tf_points()[0][0]
         else:
             lowestVal = 0
@@ -119,79 +126,103 @@ class VolumeNetworkHandler(NetworkHandler):
     def slice_copy_tf(self):
     # Function for copying the volume transferfunction to the slice transferfunction
     # Adds a white point just before the first one aswell
-        VolumeSlice = self.get_processor('Volume Slice')
-        Raycaster = self.get_processor('Raycaster')
-        if VolumeSlice and Raycaster:
-            VolumeSlice.tfGroup.transferFunction.value = Raycaster.isotfComposite.transferFunction.value
-            #VolumeSlice.tfGroup.transferFunction.add(0.0, inviwopy.glm.vec4(0.0, 0.0, 0.0, 1.0))
-            #VolumeSlice.tfGroup.transferFunction.add(1.0, inviwopy.glm.vec4(1.0, 1.0, 1.0, 1.0))
-            tf_points = self.get_tf_points()
-            if len(tf_points) > 0:
-                VolumeSlice.tfGroup.transferFunction.add(0.99*tf_points[0][0], inviwopy.glm.vec4(1.0, 1.0, 1.0, 1.0))
+        volumeSlice = self.get_processor('Volume Slice')
+        raycaster = self.get_processor('Raycaster')
 
-# ---- Transfer function ----
-
-    # def toggle_tf_editor(self, enable):
-    #     raycaster = self.get_processor('Raycaster')
-    #     raycaster.isotfComposite.widgets[0].editorWidget.visible = enable
+        if not self.isMultichannel:
+            volumeSlice.tfGroup.transferFunction.value = raycaster.isotfComposite.transferFunction.value
+        else:
+            volumeSlice.tfGroup.transferFunction.value = getattr(raycaster, 'transfer-functions').transferFunction1.value
+        #VolumeSlice.tfGroup.transferFunction.add(0.0, inviwopy.glm.vec4(0.0, 0.0, 0.0, 1.0))
+        #VolumeSlice.tfGroup.transferFunction.add(1.0, inviwopy.glm.vec4(1.0, 1.0, 1.0, 1.0))
+        tf_points = self.get_tf_points()
+        if len(tf_points) > 0 and tf_points[0][0] != 0:
+            volumeSlice.tfGroup.transferFunction.add(0.99*tf_points[0][0], inviwopy.glm.vec4(1.0, 1.0, 1.0, 1.0))
 
     def clear_tf(self):
     # Clears the transfer function of all points
         Raycaster = self.get_processor('Raycaster')
-        Raycaster.isotfComposite.transferFunction.clear()
+        if not self.isMultichannel:
+            Raycaster.isotfComposite.transferFunction.clear()
+        else:
+            getattr(Raycaster, 'transfer-functions').transferFunction1.clear()
+            getattr(Raycaster, 'transfer-functions').transferFunction2.clear()
+            getattr(Raycaster, 'transfer-functions').transferFunction3.clear()
+            getattr(Raycaster, 'transfer-functions').transferFunction4.clear()
         self.slice_copy_tf()
 
     def set_tf_points(self, points):
     # Sets all transfer function points from an array of tf poitns.
-        Raycaster = self.get_processor('Raycaster')
-        Raycaster.isotfComposite.transferFunction.clear()
+        raycaster = self.get_processor('Raycaster')
+        if not self.isMultichannel:
+            tfProperty = raycaster.isotfComposite.transferFunction
+        else:
+            tfProperty = getattr(raycaster, 'transfer-functions').transferFunction1
+        tfProperty.clear()
+
         for point in points:
             glm_col = inviwopy.glm.vec4(point[1][0], point[1][1], point[1][2], point[1][3])
-            Raycaster.isotfComposite.transferFunction.add(point[0], glm_col)
+            tfProperty.add(point[0], glm_col)
+
+        if self.isMultichannel:
+            getattr(raycaster, 'transfer-functions').transferFunction2.value = tfProperty.value
+            getattr(raycaster, 'transfer-functions').transferFunction3.value = tfProperty.value
+            getattr(raycaster, 'transfer-functions').transferFunction4.value = tfProperty.value
         self.slice_copy_tf()
         self.update_transperancy_before()
+
+    def get_tf_points(self):
+    # Return a list of all the transferfunction points
+        Raycaster = self.get_processor('Raycaster')
+        if not self.isMultichannel:
+            tf_property = Raycaster.isotfComposite.transferFunction
+        else:
+            tf_property = getattr(Raycaster, 'transfer-functions').transferFunction1
+        point_list = [[x.pos, [x.color[0], x.color[1], x.color[2], x.color[3]]] for x in tf_property.getValues()]
+        return point_list
   
     def add_tf_point(self, value, color):
     # Add point to the raycaster transferfunction
     # Color should be an 4-element-array containing RGBA with values in 0-1 interval.
         raycaster = self.get_processor('Raycaster')
         glm_col = inviwopy.glm.vec4(color[0], color[1], color[2], color[3])
-        raycaster.isotfComposite.transferFunction.add(value, glm_col)
-        self.slice_copy_tf()
-        self.update_transperancy_before()
-
-    def remove_tf_point(self, index):
-    # Remove a point by index
-        Raycaster = self.get_processor('Raycaster')
-        tf_property = Raycaster.isotfComposite.transferFunction
-        if len(self.get_tf_points()) <= index:
-            raise EnvisionError("No tf point to remove.")
-        point_to_remove = tf_property.getValueAt(index)
-        tf_property.remove(point_to_remove)
-        self.slice_copy_tf()
-        self.update_transperancy_before()
-
-    def set_tf_point_color(self, value, color):
-    # Changes the color of a tf point at a certain value
-        
-        Raycaster = self.get_processor('Raycaster')
-
-        # Remove the point at the specified value
-        points = Raycaster.isotfComposite.transferFunction.getValues()
-        for i in range(len(points)):
-            if points[i].pos == value:
-                self.remove_tf_point(i)
-                break
+        if not self.isMultichannel:
+            raycaster.isotfComposite.transferFunction.add(value, glm_col)
         else:
-            raise EnvisionError("TF point value not found.")
-        self.add_tf_point(value, color)
+            getattr(raycaster, 'transfer-functions').transferFunction1.add(value, glm_col)
+            getattr(raycaster, 'transfer-functions').transferFunction2.add(value, glm_col)
+            getattr(raycaster, 'transfer-functions').transferFunction3.add(value, glm_col)
+            getattr(raycaster, 'transfer-functions').transferFunction4.add(value, glm_col)
+        self.slice_copy_tf()
+        self.update_transperancy_before()
+            
+    # def remove_tf_point(self, index):
+    # # Remove a point by index
+    #     Raycaster = self.get_processor('Raycaster')
+    #     if not self.isMultichannel:
+    #         tf_property = Raycaster.isotfComposite.transferFunction
+    #         if len(self.get_tf_points()) <= index:
+    #             raise EnvisionError("No tf point to remove.")
+    #         point_to_remove = tf_property.getValueAt(index)
+    #         tf_property.remove(point_to_remove)
+    #         self.slice_copy_tf()
+    #         self.update_transperancy_before()
 
-    def get_tf_points(self):
-    # Return a list of all the transferfunction points
-        Raycaster = self.get_processor('Raycaster')
-        tf_property = Raycaster.isotfComposite.transferFunction
-        point_list = [[x.pos, [x.color[0], x.color[1], x.color[2], x.color[3]]] for x in tf_property.getValues()]
-        return point_list
+    # def set_tf_point_color(self, value, color):
+    # # Changes the color of a tf point at a certain value
+    #     Raycaster = self.get_processor('Raycaster')
+    #     # Remove the point at the specified value
+    #     points = Raycaster.isotfComposite.transferFunction.getValues()
+    #     for i in range(len(points)):
+    #         if points[i].pos == value:
+    #             self.remove_tf_point(i)
+    #             break
+    #     else:
+    #         raise EnvisionError("TF point value not found.")
+    #     self.add_tf_point(value, color)
+
+    
+
 
 # ---- Other Properties ----
 
@@ -327,9 +358,13 @@ class VolumeNetworkHandler(NetworkHandler):
         # Add processor to control the camera during the visualisation
         EntryExitPoints = self.add_processor('org.inviwo.EntryExitPoints', 'EntryExitPoints', xpos+30, ypos+225)
 
-        Raycaster = self.add_processor('org.inviwo.VolumeRaycaster', "Raycaster", xpos, ypos+300)
+
+        if not self.isMultichannel:
+            Raycaster = self.add_processor('org.inviwo.VolumeRaycaster', "Raycaster", xpos, ypos+300)
+            Raycaster.raycaster.renderingType.selectedIndex = 1
+        else:
+            Raycaster = self.add_processor('org.inviwo.MultichannelRaycaster', "Raycaster", xpos, ypos+300)
         # Raycaster.isotfComposite.initializeWidget()
-        Raycaster.raycaster.renderingType.selectedIndex = 1
         Raycaster.raycaster.samplingRate.value = 4
 
         # Setup Slice rendering part

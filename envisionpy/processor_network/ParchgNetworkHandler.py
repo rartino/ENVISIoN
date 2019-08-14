@@ -64,7 +64,7 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         """
         self.processors = {}
         self.hdf5_path = hdf5_path
-        VolumeNetworkHandler.__init__(self, inviwoApp)
+        VolumeNetworkHandler.__init__(self, inviwoApp, True)
 
         # Unitcell is not critical to visualization, if it fails, continnue anyway
         self.unitcellAvailable = True
@@ -116,6 +116,7 @@ class ParchgNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         self.setup_band_processors(band_list, mode_list)
         self.current_bands = band_list
         self.current_modes = mode_list
+        self.set_tf_points(self.get_tf_points())
 
     def get_partial_selections(self):
         return [self.current_bands, self.current_modes]
