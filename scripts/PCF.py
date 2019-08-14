@@ -1,8 +1,6 @@
-
-#
 #  ENVISIoN
 #
-#  Copyright (c) 2019 Lloyd Kizito, Linda Le 
+#  Copyright (c) 2018 Jesper Ericsson
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -26,33 +24,27 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 ##############################################################################################
-#
-#  Alterations to this file by Linda Le
-#
-#  To the extent possible under law, the person who associated CC0
-#  with the alterations to this file has waived all copyright and related
-#  or neighboring rights to the alterations made to this file.
-#
-#  You should have received a copy of the CC0 legalcode along with
-#  this work.  If not, see
-#  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
-import os, sys
+# CONFIGURE FILE PATHS HERE
 
-# Configuration
-PATH_TO_ENVISION=os.path.expanduser("~/ENVISIoN/envision")
-PATH_TO_VASP_CALC=os.path.expanduser("~/ENVISIoN/data/VASP-files2019/LiC")
-PATH_TO_HDF5=os.path.expanduser("~/ENVISIoN/HDF5/PCF_LiC300KRealx1.hdf5")
+# Path to your envision installation
+PATH_TO_ENVISION = "C:/Kandidatprojekt/ENVISIoN-sommar"
 
+# Path to the vasp output directory you wish to visualise
+PATH_TO_VASP_CALC = "C:/Kandidatprojekt/VASP/LiC_pair_corr_func"
 
-sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION))
+# Path to where you want to save the resulting hdf5 file 
+PATH_TO_HDF5 = "C:/Kandidatprojekt/HDF5-demo/pcf_demo.hdf5"
 
+import os, sys, inspect, inviwopy
+sys.path.append(PATH_TO_ENVISION)
 import envisionpy
-import envisionpy.inviwo
+import envisionpy.hdf5parser
+from envisionpy.processor_network.PCFNetworkHandler import PCFNetworkHandler
 
-envision.parser.vasp.paircorrelation(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+# Parse for charge density visualisation.
+envisionpy.hdf5parser.paircorrelation(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
-envision.inviwo.paircorrelation(PATH_TO_HDF5, xpos = 0, ypos = 0)
-
-
+inviwopy.app.network.clear()
+networkHandler = PCFNetworkHandler(PATH_TO_HDF5, inviwopy.app)
 
