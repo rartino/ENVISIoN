@@ -1,0 +1,162 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[swedish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[title]{appendix}
+\usepackage{amsmath}
+\usepackage{epstopdf}
+\usepackage{pdfpages}
+\usepackage{xparse}
+\usepackage{kantlipsum}
+\usepackage{listings}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{titlesec}
+\usepackage{subcaption}
+
+\usepackage{cmap} % fix search and cut-and-paste in Acrobat
+\usepackage{ifthen}
+\usepackage[T1]{fontenc}
+\floatplacement{figure}{H} % place figures here definitely
+\usepackage{textcomp} % text symbol macros
+
+\usepackage{mathptmx} % Times
+\usepackage[scaled=.90]{helvet}
+\usepackage{courier}
+
+% providelength (provide a length variable and set default, if it is new)
+\providecommand*{\DUprovidelength}[2]{
+  \ifthenelse{\isundefined{#1}}{\newlength{#1}\setlength{#1}{#2}}{}
+}
+
+% lineblock environment
+\DUprovidelength{\DUlineblockindent}{2.5em}
+\ifthenelse{\isundefined{\DUlineblock}}{
+  \newenvironment{DUlineblock}[1]{%
+    \list{}{\setlength{\partopsep}{\parskip}
+            \addtolength{\partopsep}{\baselineskip}
+            \setlength{\topsep}{0pt}
+            \setlength{\itemsep}{0.15\baselineskip}
+            \setlength{\parsep}{0pt}
+            \setlength{\leftmargin}{#1}}
+    \raggedright
+  }
+  {\endlist}
+}{}
+
+% titlereference role
+\providecommand*{\DUroletitlereference}[1]{\textsl{#1}}
+
+% hyperlinks:
+\ifthenelse{\isundefined{\hypersetup}}{
+  \usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+  \usepackage{bookmark}
+  \urlstyle{same} % normal text font (alternatives: tt, rm, sf)
+}{}
+\hypersetup{
+  pdftitle={ENVISIoN teknisk dokumentation},
+}
+
+\graphicspath{{../technical_documentation/}}
+
+%%% Title Data
+\title{%
+  ENVISIoN teknisk dokumentation%
+  \label{envision-teknisk-dokumentation}}
+\author{}
+\date{}
+
+\input{template/lips_template.tex}
+
+\input{lips_data.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\LIPSdokumenttyp}{Teknisk dokumentation}
+\newcommand{\LIPSversion}{1.1}
+\newcommand{\LIPSdatum}{\dagensdatum}
+
+\newcommand{\LIPSgranskare}{}
+\newcommand{\LIPSgranskatdatum}{}
+\newcommand{\LIPSgodkannare}{}
+\newcommand{\LIPSgodkantdatum}{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\lhead{}
+\chead{\textbf{\LIPSprojekttitel}}
+\rhead{\textbf{\textsl{LiTH}}\\\textbf{\dagensdatum}}
+\lfoot{\textbf{LIPS Teknisk dokumentation}}
+\cfoot{\textbf{\thepage}}
+\rfoot{\textbf{\LIPSkursnamn}}
+
+\begin{document}
+\pagenumbering{gobble}
+\LIPStitelsida
+\newpage
+\pagenumbering{roman}
+\begin{LIPSprojektidentitet}
+\LIPSprojektroller
+\end{LIPSprojektidentitet}
+\newpage
+\tableofcontents{}
+\newpage
+\addcontentsline{toc}{section}{Dokumenthistorik}
+\begin{LIPSdokumenthistorik}
+\LIPSversionsinfo{0.1}{2019-05-21}{Första utkast.}{Projektgruppen}{Projektgruppen}
+\LIPSversionsinfo{1.0}{2019-05-25}{Andra utkast. Kompletterade enligt kommentarer från beställare.}{Projektgruppen}{Projektgruppen}
+\LIPSversionsinfo{1.1}{2019-05-27}{Tredje utkast med korrekturer.}{PL}{Projektgruppen}
+\end{LIPSdokumenthistorik}
+\newpage
+\pagenumbering{arabic}
+
+\section{Inledning}
+
+\subsection{Parter}
+ENVISIoN är en produkt som beställts av beställaren Rickard Armiento. Produkten har skapats av projektgruppen, redovisade under projektidentiteten, under handledning av handledare Johan Jönsson. Se projektidentitet för mer genomgående information om beställare och handledare.
+
+\subsection{Projektets bakgrund} 
+Projektet skapades i samband med kandidatarbetet, kursen TFYA75. Som ett väsentligt examinerade moment ska projektet genomförande återspegla alla förutsättningar, krav och ansvarstaganden som råder under en formell anställning. Utveckling av ENVISIoN är en av flera projekt som kan väljas inom kursen. Produktens slutgiltiga syfte är att användas som ett forskningsverktyg for visualisering av kvantmekaniska beräkningar.      
+
+\subsection{Syfte och mål}
+Projektet syftar till att utveckla kreativiteten samt att ge färdigheter i fysikalisk tänkande och analys av teoretiska resultat. Projektet bedrivs realistiskt som en träning inför det kommande yrkeslivet. Resultatet av projektarbetet ska hålla hög vetenskaplig och teknisk kvalité och baseras på moderna kunskaper, dokumenteras i form av projekt-och tidsplan, krav-och designspecification samt i en teknisk/vetenskaplig rapport, presenteras muntligt, demonstreras och följas upp i en efterstudie. Målet är att i visualiseringsverktyget Inviwo utveckla ett system för visualisering av resultatet av elektronstrukturberäkningar. Att demonstrera systemetsfunktionalitet genom att använda det till att illustrera några befintliga beräkningsresultat.
+
+\subsection{Användning}
+Denna produkt kommer huvudsakligen användas vid Linköpings universitet för att analysera data från elektronstruktursberäkningar.
+
+\subsection{Begränsningar}
+I projektet kommer visualiseringsverktyget Inviwo och programmeringspråken Python och C++ användas. Det kommer inte utredas om det är bättre att använda andra verktyg.
+
+\input{technical_documentation_main.tex}
+\newpage 
+\section{Licens}
+\label{ref:licens}
+Copyright (c) 2017: Josef Adamsson, Robert Cranston, David Hartman, Denise Härnström, Fredrik Segerhammar. \textit{(Teknisk dokumentation - release 1)}\newline
+Copyright (c) 2018: Anders Rehult, Andreas Kempe, Marian Brännvall, Viktor Bernholtz. \textit{(Teknisk dokumentation - release 2)}\newline
+Copyright (c) 2019: Linda Le, Abdullatif Ismail, Anton Hjert, Lloyd Kizito and Jesper Ericsson. \textit{(Teknisk dokumentation - release 3)}\newline
+Copyright (c) 2017: 2019 - Rickard Armiento, Johan Jönsson
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.\newline
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+\newpage 
+\section{Dokumentets proveniens}
+\label{sec:provenance}
+
+\begin{itemize}
+\item 2019: Teknisk dokumentation - release 3: skrevs av: Linda Le, Abdullatif Ismail, Anton Hjert, Lloyd Kizito and Jesper Ericsson.
+\item 2018: Teknisk dokumentation - release 2: skrevs av: Anders Rehult, Andreas Kempe, Marian Brännvall, Viktor Bernholtz.
+\item 2017: Teknisk dokumentation - release 1: skrevs av: Josef Adamsson, Robert Cranston, David Hartman, Denise Härnström, Fredrik Segerhammar.
+\item Vissa ändringar har genom åren införts av: Rickard Armiento, Johan Jönsson
+\end{itemize}
+
+\end{document}
