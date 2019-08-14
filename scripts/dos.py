@@ -26,19 +26,33 @@
 #
 ##############################################################################################
 
+# CONFIGURE FILE PATHS HERE
+
+# Path to your envision installation
+PATH_TO_ENVISION = "C:/Kandidatprojekt/ENVISIoN-sommar"
+
+# Path to the vasp output directory you wish to visualise
+PATH_TO_VASP_CALC = "C:/Kandidatprojekt/VASP/TiPO4_DoS"
+
+# Path to where you want to save the resulting hdf5 file 
+PATH_TO_HDF5 = "C:/Kandidatprojekt/HDF5-demo/dos_demo.hdf5"
+
 import os, sys, inspect, inviwopy
-path_to_envisionpy = "/home/labb/ENVISIoN"
-sys.path.append(path_to_envisionpy)
+sys.path.append(PATH_TO_ENVISION)
 import envisionpy
 import envisionpy.hdf5parser
 from envisionpy.processor_network.DOSNetworkHandler import DOSNetworkHandler
 
-#envision.parser.vasp.dos(PATH_TO_HDF5, PATH_TO_VASP_CALC)
-HDF5_PATH = "/home/labb/HDF5/dostestNew.hdf5"
-VASP_PATH = "/home/labb/VASP/TiPO4_DoS"
+# Parse for charge density visualisation.
+envisionpy.hdf5parser.dos(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+envisionpy.hdf5parser.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
-envisionpy.hdf5parser.dos(HDF5_PATH, VASP_PATH)
-envisionpy.hdf5parser.unitcell(HDF5_PATH, VASP_PATH)
-
+# Initialize inviwo network
 inviwopy.app.network.clear()
-networkHandler = DOSNetworkHandler(HDF5_PATH, inviwopy.app)
+networkHandler = DOSNetworkHandler(PATH_TO_HDF5, inviwopy.app)
+
+# Configure unitcell visualisation
+if networkHandler.unitcellAvailable:
+    networkHandler.toggle_unitcell_canvas(True)
+    networkHandler.set_atom_radius(0.2)
+
