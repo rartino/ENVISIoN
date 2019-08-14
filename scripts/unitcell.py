@@ -1,7 +1,6 @@
-#
 #  ENVISIoN
 #
-#  Copyright (c) 2018 Viktor Bernholtz
+#  Copyright (c) 2018 Jesper Ericsson
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -25,29 +24,29 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 ##############################################################################################
-#
-#  Alterations to this file by Viktor Bernholtz
-#
-#  To the extent possible under law, the person who associated CC0
-#  with the alterations to this file has waived all copyright and related
-#  or neighboring rights to the alterations made to this file.
-#
-#  You should have received a copy of the CC0 legalcode along with
-#  this work.  If not, see
-#  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
-import os, sys
+# CONFIGURE FILE PATHS HERE
 
-# Configuration
-PATH_TO_ENVISION=os.path.expanduser("~/PROJLAB/ENVISIoN/envision")
-PATH_TO_VASP_CALC=os.path.expanduser("~/PROJLAB/ENVISIoN/data/parV")
-PATH_TO_HDF5=os.path.expanduser("/tmp/envision_demo_unitcell.hdf5")
+# Path to your envision installation
+PATH_TO_ENVISION = "C:/Kandidatprojekt/ENVISIoN-sommar"
 
-sys.path.insert(0, os.path.expanduser(PATH_TO_ENVISION))
+# Path to the vasp output directory you wish to visualise
+PATH_TO_VASP_CALC = "C:/Kandidatprojekt/VASP/NaCl_charge_density"
 
+# Path to where you want to save the resulting hdf5 file 
+PATH_TO_HDF5 = "C:/Kandidatprojekt/HDF5-demo/unitcell_demo.hdf5"
+
+import os, sys, inspect, inviwopy
+sys.path.append(PATH_TO_ENVISION)
 import envisionpy
-import envisionpy.inviwo
+import envisionpy.hdf5parser
+from envisionpy.processor_network.UnitcellNetworkHandler import UnitcellNetworkHandler
 
-envision.parser.vasp.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+# Parse for charge density visualisation.
+envisionpy.hdf5parser.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
-envision.inviwo.unitcell(PATH_TO_HDF5, xpos = 0, ypos = 0)
+# Initialize inviwo network
+inviwopy.app.network.clear()
+networkHandler = UnitcellNetworkHandler(PATH_TO_HDF5, inviwopy.app)
+
+networkHandler.set_atom_radius(1)
