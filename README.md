@@ -11,7 +11,9 @@ ENVISIoN can be used to visualise the following.
 * Density of states and partial density of states
 * Pair correlation function
 
-ENVISIoN is implemented using (a modified version of) the Inviwo visualization framework, developed at the Scientific Visualization Group at Linköping University (LiU).
+ENVISIoN is developed at Linköping University (LiU) for IFM. ENVISIoN is implemented using (a modified version of) the Inviwo visualization framework, developed at the Scientific Visualization Group at LiU.
+
+ENVISIoN is licenced under [BSD 2-Clause "Simplified" License](LICENCE).
 
 ## Contents
 
@@ -26,8 +28,6 @@ ENVISIoN is implemented using (a modified version of) the Inviwo visualization f
   * [Starting ENVISIoN with electron user interface](#starting-envision-with-electron-user-interface)
   * [Using ENVISIoN from Inviwo editor](#using-envision-from-inviwo-editor)
 * [Building ENVISIoN as package](#building-envision-as-package)
-
-
 
 ## Contributors
 
