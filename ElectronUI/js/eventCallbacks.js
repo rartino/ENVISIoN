@@ -630,7 +630,6 @@ function loadGraph2DUiData(data) {
         $("#possibleYDatasets").append("<option>[" + i + "]: " + yDatasets[i] + "</option>");
         $("#ySingleSelection").append("<option>" + yDatasets[i] + "</option>");
     }
-    $("#ySingleSelection > option")[1].selected = true;
 
     $("#specificYCheck").prop("checked", ySelectionInfo[0]==0);
     $("#multipleYCheck").prop("checked", ySelectionInfo[0]==1);
@@ -638,7 +637,7 @@ function loadGraph2DUiData(data) {
     $("#specificY").css("display", ySelectionInfo[0]==0 ? "block" : "none");
     $("#multipleY").css("display", ySelectionInfo[0]==1 ? "block" : "none");
 
-    if (ySelectionInfo[0]==0) $("#visTypeSelection")[0][ySelectionInfo[1]].selected = true;
+    if (ySelectionInfo[0]==0) $("#ySingleSelection")[0][ySelectionInfo[1]].selected = true;
     if (ySelectionInfo[0]==1) $("#yMultiSelectInput").val(ySelectionInfo[1]);
 }
 
