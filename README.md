@@ -58,8 +58,6 @@ Add the installed binary link to /usr/local/bin/cmake by running this:
 sudo ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
 ```
 
-Verify that Qt was installed  by running `qmake -version`
-
 Install Qt5. ENVISIoN is tested using version Qt 5.12.2 but should work on any Qt after 5.6.1.
 ```
 wget http://download.qt.io/official_releases/qt/5.12/5.12.2/qt-opensource-linux-x64-5.12.2.run
@@ -67,6 +65,8 @@ chmod +x qt-opensource-linux-x64-5.12.2.run
 sudo ./qt-opensource-linux-x64-5.12.2.run
 qtchooser -install Qt5.12.2 /opt/Qt5.12.2/12.2/gcc_64/bin/qmake
 ```
+
+Verify that Qt was installed  by running `qmake -version`
 
 Install required python modules:
 ```
@@ -79,7 +79,7 @@ git clone https://github.com/rartino/ENVISIoN
 ```
 
 ### Build Inviwo
-Start by cloning the Inviwo source code. Also check out a compatible version. Later versions may work but are not tested.
+Start by cloning the Inviwo source code. Checkout a compatible version. Later versions of Inviwo may work but are not tested.
 ```
 git clone https://github.com/inviwo/inviwo.git
 cd inviwo
@@ -124,7 +124,7 @@ make -j5
 Verify that inviwo was build by running `./bin/inviwo`. The Inviwo editor should start.
 
 ### Configure ENVISIoN
-This can either be done by running the setup script `setup.sh`
+This can either be done by running the setup script `setup.sh` or done manually as described below.
 ```
 cd ENVISIoN/
 ./setup.sh
@@ -155,6 +155,20 @@ You should now see the main window from where ENVISIoN can be controlled.
 
 ### Using ENVISIoN from Inviwo editor
 ENVISIoN provides a set of scripts that can be run to start visualisations from the Inviwo application. This can be useful for developing and debuging visualisation networks or if ENVISIoNs own interface does not provide some feature you need.
+
+Start inviwo.
+```
+cd /home/inviwo-build/
+./bin/inviwo
+```
+To setup a ENVISIoN visualisation take the following steps:
+1. Open up the Inviwo python editor.
+2. Click button to open a python file.
+3. A dialog prompts you to pick a file. Scripts for visualisations are located in `/ENVISIoN/scripts`. Pick the script for what you want to visualise.
+4. Configure the paths in the python file to correspond to where you have installed ENVISIoN, where your VASP output data is, and where you wish to save the resulting HDF5 file.
+
+<img src="/docs/READMEimages/inviwo_envision_startup.png" width="600">
+
 
 
 
