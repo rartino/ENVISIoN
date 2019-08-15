@@ -171,20 +171,42 @@ starta och göra ändringar i visualiseringen ges. Målet är att kunna
 styra hela systemet från GUI:t som en fristående del från de två första
 delsystemen.
 
-Ingående delsystem avacnerad nivå
+Ingående delsystem, mer avancerat
 ---------------------------------
-Detta kapitel beskriver mer ingående delsystemen och dess relationer och kommunikation med varandra.
-För att läsa detta rekomenderas en allafall grundläggande kunskap om hur inviwo fungerar.
+Detta kapitel beskriver översiktligt delsystemens relationer och kommunikation med varandra.
+För att läsa detta rekomenderas en allafall grundläggande kunskap om hur inviwo de olika delsystemen fungerar.
+
+.. figure:: figures/Envision_system_advanced.png
+   :name: fig:oversikt
+   :align: center
+   :width: 100 %
+   :figwidth: 80 %
+   :alt: oversikt
+
+   Skiss över delsystemens relationer till varandra.
 
 Parsersystemet och visualiseringssystemet ingår i en pythonmodul kallad *envisionpy*. 
-Envisonpy har också en klass *EnvisionMain*. EnvitionMain har som uppgift att vara ett gränssnitt där
-envisionpy kan styras från ett utomliggande pythonskript. EnvisionMain initierar en instans av Inviwo som 
-den kör i bakggrunden. Detta gör att Inviwos funktioner kan användas utan att Inviwos gränssnitt visas.
-
-EnvisionMain-klassen har funktioner för att köra parsning (se [Parsersystemet]_ `Parsersystemet`_) och starta visualiseringar
-genom att initiera och styra *NetworkHandler*-klasser (se [#NetworkHandlers], [#visualiseringssystemet]).
-
 Denna modul kan importeras från pythonskript för att få tillgång till ENVISIoNs funktionalitet.
+Envisonpy har också en klass *EnvisionMain* (se [EnvisionMain]_ för mer ingående). EnvitionMain har som uppgift att vara ett gränssnitt där
+envisionpy kan styras från ett utomliggande pythonskript. EnvisionMain initierar en instans av Inviwo, genom 
+pythonmodulerna inviwopyapp och inviwopy, som den kör i bakggrunden. 
+Detta gör att Inviwos funktioner kan användas utan att Inviwos gränssnitt visas.
+
+EnvisionMain-klassen har funktioner för att starta parsning genom att köra funktioner från *envisionpy.hdf5parser* 
+(parsning beskrivet i [Parsersystemet]_), och starta visualiseringar
+genom att initiera och styra *NetworkHandler*-klasser (se [Visualiseringssystemet]_, [NetworkHandlers]_).
+
+Grässnittet är inte en del av envisionpy, utan är ett eget relativt isolerat system. Gränssnittet bygger
+på electron och nodejs och är skrivet med HTML, CSS, och JavaScript. När systemet startas så laddas först 
+den websida som är gränssnittet som användaren ser.
+
+Från JavaScript-koden startas sedan, med hjälp av node-modulen child_process, en pythonprocess som kör skriptet *nodeInterface.py*. Detta skript 
+initerar ett *EnvisionMain*-objekt. Det tar också hand om kommunikation mellan javascript och python-processerna.
+Javascript- och pythonprocesserna kommunicerar med varandra genom att läsa och skriva 
+JSON-object i pythonprocessens *stdin* och *stdout*. 
+
+Gränssnittet kan alltså nu begära att *EnvisionMain* ska utföra olika funktioner genom att skicka JSON-paket
+till den pythonprocess som startats.
 
 
 Parsersystemet
