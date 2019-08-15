@@ -185,7 +185,7 @@ För att läsa detta rekomenderas en allafall grundläggande kunskap om hur invi
 
    Skiss över delsystemens relationer till varandra.
 
-Parsersystemet och visualiseringssystemet ingår i en pythonmodul kallad *envisionpy*. 
+Parsersystemet och visualiseringssystemet ingår i en pythonmodul kallad *envisionpy*. Se [Envisionpy]_ för mer detaljerad beskrivning.
 Denna modul kan importeras från pythonskript för att få tillgång till ENVISIoNs funktionalitet.
 Envisonpy har också en klass *EnvisionMain* (se [EnvisionMain]_ för mer ingående). EnvitionMain har som uppgift att vara ett gränssnitt där
 envisionpy kan styras från ett utomliggande pythonskript. EnvisionMain initierar en instans av Inviwo, genom 
@@ -197,9 +197,9 @@ EnvisionMain-klassen har funktioner för att starta parsning genom att köra fun
 genom att initiera och styra *NetworkHandler*-klasser (se [Visualiseringssystemet]_, [NetworkHandlers]_).
 
 Grässnittet är inte en del av envisionpy, utan är ett eget relativt isolerat system. Gränssnittet bygger
-på electron och nodejs och är skrivet med HTML, CSS, och JavaScript. När systemet startas så laddas först 
-den websida som är gränssnittet som användaren ser.
+på electron och nodejs och är skrivet med HTML, CSS, och JavaScript. Se [GUI systemet]_ för mer detaljerad information.
 
+När systemet startas så laddas först den websida som är gränssnittet som användaren ser. 
 Från JavaScript-koden startas sedan, med hjälp av node-modulen child_process, en pythonprocess som kör skriptet *nodeInterface.py*. Detta skript 
 initerar ett *EnvisionMain*-objekt. Det tar också hand om kommunikation mellan javascript och python-processerna.
 Javascript- och pythonprocesserna kommunicerar med varandra genom att läsa och skriva 
@@ -1245,12 +1245,12 @@ UnitcellNetworkHandler och sätter upp den specifika delen för
 tillståndstäthets visualiseringen. Styr HDF5-källan och val
 av tillstånd.
 
-DOSNetworkHandler
+PCFNetworkHandler
 ~~~~~~~~~~~~~~~~~
 
 Ärver LinePlotNetworkHandler och sätter upp
 den specifika delen för parkorrelationsfunktions
-visualiseringen. Skulle styra HDF5-källan och val av tidssteg.
+visualiseringen. Styr HDF5-källan och val av tidssteg.
 
 .. _sec:datastrukturer:
 
@@ -1730,10 +1730,47 @@ En widget för IntVectorProperty. ”Textbox”, satt till endast läsning
 (read only), som innehåller de värden som finns i tillhörande
 IntVectorProperty.
 
-envisionpy python-modul 
+Envisionpy 
 =======================
 ENVISIoNs pythonkod ligger i en modul kallad envisionpy. Det är i denna som all pythonfunktionalitet som disskuteras 
-i andra kapitel ligger. 
+i andra kapitel ligger.  Modulen har skapats för att man relativt enkelt ska kunna importera ENVISIoNs
+funktionalitet från ett annat godtyckligt pythonskript (exempelvis som det används i det senare bekrivna GUI-systemet [GUI]_).
+
+Envisionpy har två undermappar, *processor_network* och *hdf5parser*. I dessa ligger de pythonfiler som beskrivs i 
+[NetworkHandlers]_ respektive [Parsersystemet]_. Den har även en undermapp *utils* där speciella Exception-klasser och fil med atomdata ligger.
+
+EnvisionMain
+~~~~~~~~~~~~~~~~
+Envisionpy har en klass kallad *EnvisionMain*. Denna klass har som uppgift att bilda ett gränssnitt som 
+annan pythonkod kan styra all ENVISIoNs visualiserings- och parsningsfunktionalitet från.
+När ett *EnvisionMain*-objekt initieras så startar denna sin egen instans av Inviwo, med hjälp utav *inviwopyapp*, som den kör i bakgrunden. 
+Detta tillåter att Inviwos visualiseringsfunktionalitet används utan att dess gränssnitt visas.
+ 
+*EnvisionMain* kan genom funktionsanrom köra parsning och starta ett godtyckligt antal visualiseringar genom att initera *NetworkHandler*-klasser.
+
+Alla *NetworkHandler*-objekt sparas i en dictionary, *networkHandlers*, under en speciell identifikations-sträng som specificeras då objektet initieras.
+
+handle_request
+^^^^^^^^^^^^^^
+För att påverka visualiseringarna så används *handle_vis_request*-funktionen. Denna tar ett 
+argument kallat *request*. *request* en lista på följande form :
+
+[ACTION, HANDLER_ID, [PARAMETERS...]]. 
+
+ACTION är en sträng som beskriver vilken 
+funktion som ska köras. En dictionary, *action_dict*, finns som översätter olika strängar till funktioner. 
+
+HANDLER_ID ska innehålla en identifikationssträng för det *NetworkHandler*-objekt
+som funktionen ska köras på. Om en ny visualisering ska startas så specificerar den id för det 
+nya *NetworkHandler*-objekt som kommer att skapas.
+
+[PARAMETERS...] är en lista av parametrar som den specificerade funktionen ska kallas med.
+
+Motsvarande finns en funktion för att köra parsningsfunktioner, *handle_parse_request*. Denna tar också ett argument som ska vara en lista på följande form:
+[[PARSE_TYPES...], HDF5_PATH, VASP_PATH]
+
+
+
 
 GUI
 ===
