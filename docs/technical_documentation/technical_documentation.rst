@@ -131,7 +131,7 @@ Definitioner
 ====================
 
 
-.. figure:: figures/oversikt.png
+.. figure:: figures/Envision_system_simple.png
    :name: fig:oversikt
    :align: center
    :width: 100 %
@@ -148,7 +148,7 @@ skall konverteras och visualiseras.
 
 I figur fig:oversikt_ visas en grov systemskiss med
 de olika delsystem som ingår. Systemet kan grovt delas upp i tre olika
-delar. Ett system för parsning av datafiler från exempelvis VASP, ett
+delar. Ett system för parsning av datafiler från VASP, ett
 system för att visualisera det som parsas i tidigare nämnt system, och
 ett GUI-system vilket användaren interagerar med visualiseringen via.
 
@@ -171,6 +171,20 @@ starta och göra ändringar i visualiseringen ges. Målet är att kunna
 styra hela systemet från GUI:t som en fristående del från de två första
 delsystemen.
 
+Ingående delsystem avacnerad nivå
+---------------------------------
+Detta kapitel beskriver mer ingående delsystemen och dess relationer och kommunikation med varandra.
+För att läsa detta rekomenderas en allafall grundläggande kunskap om hur inviwo fungerar.
+
+Parsersystemet och visualiseringssystemet ingår i en pythonmodul kallad *envisionpy*. 
+Envisonpy har också en klass *EnvisionMain*. EnvitionMain har som uppgift att vara ett gränssnitt där
+envisionpy kan styras från ett utomliggande pythonskript. EnvisionMain initierar en instans av Inviwo som 
+den kör i bakggrunden. Detta gör att Inviwos funktioner kan användas utan att Inviwos gränssnitt visas.
+
+
+Denna modul kan importeras från pythonskript för att få tillgång till ENVISIoNs funktionalitet.
+
+
 Parsersystemet
 ==============
 
@@ -180,6 +194,9 @@ Parsersystemet är det delsystem i ENVISIoN som ser till att avläsa
 korrekt data från VASP-filer och spara denna data i en lämplig
 HDF5-filstruktur. Följande kapitel beskriver hur parsersystmet har
 implementerats, samt redogör bakgrundskunskaper om HDF5 och VASP.
+
+Parsersystemet är implementerat i pythonkod och ligger under envisionpy-modulen
+i envitionpy.hdf5parser.
 
 Bakgrundskunskap
 ----------------
@@ -944,6 +961,10 @@ funktioner för att ändra speciella properties i de processorer de har
 ansvar över. *NetworkHandlers* finns för nuvarande inte för alla
 visualiseringar utan bara för de relaterade till volymrendering.
 
+Alla dessa klasser ärver en basklass kallad *NetworkHandler*. Denna har i uppgift att ta hand om ett set av processorer som hör till en speciell visualisering.
+
+NetworkHandler-klasserna tillhör envitionpy-modulen och ligger under envisionpy.processor_network.
+
 VolumeNetworkHandler
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -993,26 +1014,7 @@ plan ritas i volymen på samma position som planet *Volume Slice*
 använder sig av för att hämta sin data. Tvärsnittsrenderingen kan
 aktiveras och inaktiveras genom att dess *Canvas*-processor raderas
 eller läggs till, och att planrenderingen i *Raycaster*-processorn
-aktiveras eller inaktiveras. Viktiga funktioner i
-*VolumeNetworkHandler*:
-
--  **setup\_volume\_network:** Bygger upp nätverket som visat i figur
-   fig:VolumeNetworkHandler_. Notera
-   att volyminportarna ej är anslutna.
-
--  **connect\_volume:** Ansluter alla volym-inportarna till en
-   specificerad volym-outport. Detta måste göras innan en visualisering
-   ska köras, annars har nätverket ingen volymdata att visualisera.
-
--  **show\_volume\_dist:** Ritar upp ett nytt fönster med ett histogram
-   över volymdistributionen i en specificerad HDF5-fil.
-
--  **toggle\_slice\_canvas:** Tar bort eller lägger till *Slice
-   Canvas*-processorn. För att aktivera eller inaktivera
-   tvärsnittsrenderingen.
-
-Förutom dessa funktioner har *VolumeNetworkHandler* funktioner för att
-ändra properties hos de processorer den initierat.
+aktiveras eller inaktiveras.
 
 UnitcellNetworkHandler
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -1058,14 +1060,6 @@ ENVISIoN processor som konverterar koordinaterna till en *mesh*. Meshen
 skickas till *Sphere Renderer* där den konverteras till bilddata med en
 sfär vid varje tidigare koordinat. Bilddatan ritas sedan ut på en
 *Canvas*.
-
-Viktiga funktioner i *UnitcellNetworkHandler*:
-
--  **setup\_unitcell\_network:** Bygger upp nätverket som visat i figur
-   fig:unitcell_network_.
-
-Förutom dessa funktioner har *UnitcellNetworkHandler* funktioner för att
-ändra properties hos de processorer den initierat.
 
 ChargeNetworkHandler
 ~~~~~~~~~~~~~~~~~~~~
@@ -1130,17 +1124,6 @@ Om HDF5-filen inte innehåller unitcell-data så kan
 *UnitcellNetworkHandler* inte initieras och kastar ett exception. Endast
 volymrenderingsdelen av visualiseringen initieras då och
 atompositionsvisualiseringen ignoreras.
-
-Viktiga funktioner i *ChargeNetworkHandler*:
-
--  **setup\_charge\_network:** Bygger upp nätverket som visat i figur
-   fig:charge_network_.
-
--  **get\_available\_bands:** Returnerar en lista med de möjliga bandvalen
-   som är möjliga i HDF5-filen.
-
-Förutom dessa funktioner har *ChargeNetworkHandler* funktioner för att
-ändra properties hos de processorer den initierat.
 
 ELFNetworkHandler
 ~~~~~~~~~~~~~~~~~
@@ -1216,47 +1199,34 @@ till en. Om mer än fyra bandval har gjorts så används flera lager av
 Volymdatan från den sista *Volume Merger* skickas sedan till
 volymrenderingsnätverket.
 
-Viktiga funktioner i *ParchgNetworkHandler*:
+LinePlotNetworkHandler
+~~~~~~~~~~~~~~~~~~~~~~
 
--  **setup\_hdf5\_source:** Initierar *HDF Source*-processorn
+Hanterar den generella delen av en
+2D-graf visualisering. Styr allt som har med 2D-grafen att göras, som
+skalning, axlar på grafen, med mera.
 
--  **setup\_band\_processors:** Sätter upp nätverket som hämtar ut och
-   kombinerar volymdata baserat på bandval och lägen. Funktionen kan
-   kallas flera gånger efter att nätverket har startats för att byta
-   bandval och lägen.
+BandstructureNetworkHandler
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Ärver LinePlotNetworkHandler och
+sätter upp den specifika delen för bandstructure visualiseringen.
+Styr HDF5-källan och bandval.
 
- 
+DOSNetworkHandler
+~~~~~~~~~~~~~~~~~
 
-Plannerade NetworkHandlers
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Ärver LinePlotNetworkHandler och
+UnitcellNetworkHandler och sätter upp den specifika delen för
+tillståndstäthets visualiseringen. Styr HDF5-källan och val
+av tillstånd.
 
-NetworkHandler-klasser har inte skrivits för alla visualiseringar, de
-gamla visualiseringsskripten används fortfarande för att starta de
-tvådimensionella visualiseringarna. För att underlätta underhåll av
-systemet så bör dessa färdigställas i framtiden. I nuläget finns
-funktionaliteten för att starta och styra dessa visualiseringar utspridd
-mellan flera olika filer på olika platser.
+DOSNetworkHandler
+~~~~~~~~~~~~~~~~~
 
--  **LinePlotNetworkHandler:** Skulle hantera den generella delen av en
-   2D-graf visualisering. Styr allt som har med 2D-grafen att göras, som
-   skalning, axlar på grafen, med mera.
-
--  **BandstructureNetworkHandler:** Ärver LinePlotNetworkHandler och
-   sätter upp den specifika delen för bandstructure visualiseringen.
-   Skulle styra HDF5-källan och bandval.
-
--  **DOSNetworkHandler:** Ärver LinePlotNetworkHandler och
-   UnitcellNetworkHandler och sätter upp den specifika delen för
-   tillståndstäthets visualiseringen. Skulle styra HDF5-källan och val
-   av tillstånd.
-
--  **PCFNetworkHandler:** Ärver LinePlotNetworkHandler och sätter upp
-   den specifika delen för parkorrelationsfunktions
-   visualiseringen.Skulle styra HDF5-källan och val av tidssteg.
-
-
- 
+Ärver LinePlotNetworkHandler och sätter upp
+den specifika delen för parkorrelationsfunktions
+visualiseringen. Skulle styra HDF5-källan och val av tidssteg.
 
 .. _sec:datastrukturer:
 
@@ -1736,144 +1706,17 @@ En widget för IntVectorProperty. ”Textbox”, satt till endast läsning
 (read only), som innehåller de värden som finns i tillhörande
 IntVectorProperty.
 
+envisionpy python-modul 
+=======================
+ENVISIoNs pythonkod ligger i en modul kallad envisionpy. Det är i denna som all pythonfunktionalitet som disskuteras 
+i andra kapitel ligger. 
+
 GUI
 ===
 
 Det grafiska användargränssnittet har skapats för att underlätta
 användandet av ENVISIoN. Detta möjliggör att ENVISIoN kan köras utan att
 öppna Inviwos användarfönster.
-
-Utseende
---------
-
-Det grafiska användargränsnittet skall byggas upp av en grupperingsmeny
-med möjlighet att fälla ut undermenyer. Fönstret öppnas med menyerna
-infällda. För att fälla ut en meny skall pilen till vänster om rubriken
-klickas på. Exemplet nedan visar hur parser-menyn hålls infälld medan
-visualiserings-menyn är utfälld.
-
-Pythonberoenden
----------------
-
-Då Pythons standardbibliotek inte innefattar all, till GUI:t, önskad
-funktionalitet krävs installation och importering av andra bibliotek och
-moduler. De bibliotek som använts vid utvecklandet är:
-
--  H5py
-
--  Matplotlib
-
--  Numpy
-
--  wxPython
-
-H5py är det bibliotek som används för läsning och skrivning till
-hdf5-filer. Det är framförallt parser-systemet som har användning av
-detta bibliotek. Under utvecklingen av parameterstyrning hos
-visualiseringar lades styrning av överföringsfunktions-punkter till. I
-Inviwo kan ett histogram, en widget, åskådliggöras för att se hur
-volymdatan är distribuerad för att kunna placera dessa punkter relevant.
-Då denna widget ligger gömd i Inviwo, vilket gör det svårt att utnyttja
-denna funktionalitet, underlättade ett externt bibliotek visningen av
-histogram. Matplotlib möjliggör histogram-funktionen genom modulen
-pyplot. Numpy-biblioteket innehåller bland annat vetenskapliga
-beräkningar samt behållare för lagring och behandling av data. Det
-bibliotek som utgör den stora delen av det utvecklade
-användargränssnittet är wxPython.
-
-wxPython definitioner
-~~~~~~~~~~~~~~~~~~~~~
-
-GUI-biblioteket wxPython innehåller ett stort antal klasser och
-funktioner. Beroende på vilket funktionalitet som vill uppnås
-implementeras användning av vissa delar av wxPython. De klasser som
-använts under utvecklingen av ENVISIoN listas
-nedan [wxPythonDoc]_.
-
--  **wx.App:** Klass som möjliggör applikationskörning.
-
--  **wx.Frame:** Klassen för fönstret som det grafiska
-   användargränssnittet finns i.
-
--  **wx.Panel:** Klass som etablerar en del av fönstret där kontroller
-   och element kan placeras.
-
--  **wx.lib.scrolledpanel.ScrolledPanel:** En panelklass som möjliggör
-   skrollning och automatisk skroll-uppdatering.
-
--  **wx.Sizers:** En abstrakt klass som används för att placera
-   underfönster i huvudfönstret.
-
-   -  **wx.BoxSizer:** En underklass till wx.Sizer somhar en enkel
-      geometrisk form.
-
--  **wx.CollapsiblePane:** Detta är en klass för kollapsbara menyer, som
-   expanderar och kollapsar vid musklick.
-
--  **wx.MessageDialog:** Klass för att visa meddelanden för användaren.
-
--  **wx.StaticText:** Klass för att visa fast text i gränssnittet.
-
--  **wx.Button:** Klass för att skapa kanppar och ge dessa funktion vid
-   klick.
-
--  **wx.TextCtrl:** Klass för inmatning och läsning av text.
-
--  **wx.Choice:** Klass för skapande och visande av lista samt
-   möjligheten av välja objekt i lista.
-
--  **wx.ComboBox:** Klass som kombinerar funktioner för wx.Choice och
-   wx.TextCtrl
-
--  **wx.DirDialog:** Klass för att öppna filhanterare och i den välja en
-   mapp.
-
--  **wx.FileDialog:** Klass för att öppna filhanterare och i den välja
-   en fil av viss filtyp.
-
--  **wx.Slider:** Klass för att skapa skjutreglage.
-
--  **wx.CheckBox:** Klass för att skapa kryssrutor med på/av alternativ.
-
--  **wx.ColourPickerCtrl:** Klass för att välja färg genom ett separat
-   fönster med färgskalor.
-
--  **wx.Colour:** Färgklass med RGB-värde som innehåll.
-
--  **wx.Size:** Storleksklass med pixelstorlek i höjdled och bredd.
-
--  **wx.LogError:** Inbyggd felhantering i wxPython.
-
--  **Event-hantering:** Hantering av händelser i GUI:t, såsom
-   knapptryck, reglageändringar och textändringar.
-
-   -  **Bind-funktionen:**
-
-   -  **wx.EVT\_COLLAPSIBLEPANE\_CHANGED:** Signal som skickas av
-      wx.CollapsiblePane vid kollaps eller expansion.
-
-   -  **wx.EVT\_BUTTON:** Signal som skickas av wx.Button vid knapptryck.
-
-   -  **wx.EVT\_TEXT\_ENTER:** Signal som skickas av textfälten då
-      enter-knappen trycks på tangentbordet.
-
-   -  **wx.EVT\_COMBOBOX:** Signal som skickas av wx.ComboBox när objekt
-      i lista väljs.
-
-   -  **wx.EVT\_TEXT:** Signal som skickas av wx.TextCtrl när texten
-      ändras i rutan.
-
-   -  **wx.EVT\_SLIDER:** Signal som skickas av wx.Slider när reglaget
-      flyttas.
-
-   -  **wx.EVT\_CHOICE:** Signal som skickas av wx.Choice när ett objekt
-      väljs i listan.
-
-   -  **wx.EVT\_KILL\_FOCUS:** Signal som skickas när ett objekt tappar
-      fokus.
-
-   -  **wx.EVT\_COLOURPICKER\_CHANGED:** Signal som skickas när en färg
-      har valts i färgnateringsfönstret.
 
 Översikt över gränssnittet
 --------------------------
@@ -1888,769 +1731,17 @@ och i Linux vid start.
    :name: fig:GUIBasWin.ong
    :width: 29 %
    :alt: GUIBasWin
-	 
-.. image:: figures/GUI/GUIBasLinux.png
-   :name: fig:GUIBasLinux.ong
-   :width: 29 %
-   :alt: GUIBasLinux
 
-*Startläge för ENVISIoN, Windows och Linux.*
+*GUI utseende vid start*
 
-GUI-t är utvecklat som en wx.App. Denna klass har en wx.Frame, vilket är
-hela det fönstret som visas. Detta fönster har i sin tur en
-wx.lib.scrolledpanel.ScrolledPanel vilket är en panel som möjiggör
-skrollning och att placera objekt och lägga till underfönster i GUI:t. I
-fönsterklassen finns även två kollapsbara menyer för parsning och
-visualisering. Det är dessa två som är synliga i figur
-fig:Startup_.
+GUI:t är utvecklat som en websida och körs med häljp utav Electron. 
 
-I appendix A illustreras sökvägarna, utgående från toppmappen
-*ENVISIoN* till de filer som är relevanta för GUI:t.
 
-Hjälpklasser
-------------
 
-Det finns många likheter mellan vad som ska styras från gränssnittet
-mellan de olika visualiseringarna. För att abstrahera koden och för att
-minska kodupprepning så har vissa klasser skrivits som kan användas till
-olika visualiseringsmenyer.
 
-GeneralCollapsible
-~~~~~~~~~~~~~~~~~~
+Kommunikation med ENVISIoN backend
+----------------------------------
 
-För att skapa de kollapserbara menyerna som gränssnittet i stor del
-bygger på så har en klass skapats för det kallad *GeneralCollapsible*.
-Klassen ärver wxPythons *wx.CollapsiblePane* och får mycket av sin
-funktionalitet därifrån, men funktioner har lagts till för att kunna
-bygga strukturer där kollapserbara menyerna har egna kollapserbara
-menyerna under sig.
-
-Klassen används aldrig direkt utan ärvs istället av andra klasser som
-använder sig av den för att bygga upp sin del av gränssnittet.
-
-
- 
-
-Viktiga funktioner:
-
--  **add\_item:** Funktionen används för att lägga till en godtycklig
-   wxPython-widget under menyns sizer. Notera att denna funktion inte
-   ska användas för att lägga till *GeneralCollapsible*-element.
-
--  **add\_sub\_collapsible:** Används för att lägga till ett annan instans
-   av en *GeneralCollapsible* klass under menyn.
-
--  **on\_collapse:** Funktionen som kallas då man fäller ut eller in
-   menyn. Det enda funktionen gör är att kalla på
-   *update\_collapse*-funktionen. Funktionen kan overridas i subklasser
-   men det är då viktigt att även de kallar på *update\_collapse*, annars
-   så uppdateras inte layouten korrekt.
-
--  **update\_collapse:** Denna funktion ser till att alla element fyttas
-   och ändrar storlek korrekt efter att en meny har fällts ut eller in.
-
-
-.. figure:: figures/GUI/general_collapse_ex.PNG
-   :name: fig:GeneralCollapsible_sizers
-   :align: center
-   :width: 100 %
-   :figwidth: 50 %
-   :alt: GeneralCollapsible_sizers
-
-   GeneralCollapsibles sizer struktur.
-
-
-Ett *GenralCollapsible*-objekts form då den är tillagd på ett fönster
-byggs upp av tre sizer-objekt, som visat i figur
-fig:GeneralCollapsible_sizers_.
-*hBox* är en horisontell sizer som sätts till *wx.CollapsiblePane*\ s
-huvudsizer. På denna läggs *fillSizer* och *sizer* till. *fillSizer*
-Fungerar bara för att fylla ut vänsterkanten så att underobjekt till
-menyn förskjuts en bit åt höger. *sizer* är den sizer som underobjekt
-sedan kommer att läggas till på.
-
-VolumeCollapsible
-~~~~~~~~~~~~~~~~~
-
-En kollapserbar meny för att styra en volymrenderingsaspekten av en
-visualisering. Denna används i både laddningstäthets- och i ELF-menyn
-(och bör även användas till partiell laddningstäthet då den läggs till i
-gränssnittet).
-
-Klassen interagerar med ett *VolumeNetworkHandler*-objekt för att styra
-den del av inviwonätverket som är relevant. *VolumeCollapsible*
-initierar inte sin egen *VolumeNetworkHandler* utan variabeln
-*networkHandler* måste sättas utifrån klassen innan den kan användas.
-
-
- 
-
-*VolumeCollapsible* låter en användare göra följande:
-
--  Välja *shading mode* för volymrenderingen.
-
--  Lägga till och ta bort transferfunktionspunkter med godtyckligt
-   värde, transparens, och färg.
-
--  Välja fullständig transparens före den lägsta
-   transferfunktionspunkten.
-
--  Visa ett histogram över volymdensitetsdistributionen i den aktiva
-   volymdatan.
-
--  Ladda och spara aktiv transferfunktion.
- 
-.. figure:: figures/GUI/volume_collapse.PNG
-   :alt: volume_collapse
-   :width: 100%
-   :figwidth: 25%
-   :align: center
-	      
-   VolumeCollapsible, sizer-struktur.
-
-.. figure:: figures/GUI/volume_collapse_sizers.PNG
-   :alt: volume_collapse_sizers
-   :width: 100%
-   :figwidth: 25%
-   :align: center
-	   
-   VolumeCollapsible, sizer-struktur.
-
-**TFPointWidget:** För att förenkla och abstrahera GUI-strukturen så har
-en klass TFPointWidget definerats. Widgeten har två *wx.TextCtrl*
-textfält för att välja värde och transparens för punkten, en
-*wx.ColourPicker* för att välja färg och en knapp för att ta bort eller
-lägga till punkter. Klassen interagerar inte direkt med inviwonätverket
-utan är bara till för att abstrahera GUI-strukturen. Funktioner finns
-för att hämta ut värden från textfält och färg.
-
-
-.. figure:: figures/GUI/tf_widget.PNG
-   :name: fig:tf_widget
-   :align: center
-   :width: 100 %
-   :figwidth: 25 %
-   :alt: tf_widget
-
-   Utseense för en TFPointWidget.
-
-
-Viktiga funktioner i *VolumeCollapsible*:
-
--  **add\_tf\_point:** Lägger till en transferfunktionspunkt i
-   inviwonätverkets raycasterprocessor. Lägger också till ett nytt
-   wx.TextCtrl-element under *tfPointsVBox*-sizern. Binder också
-   callbacks för *TFPointWidget*-objektets events.
-
--  **remove\_tf\_point:** Tar bort en transferfunktionspunkt i
-   inviwonätverkets raycasterprocessor. Tar bort motsvarande
-   *TFPointWidget*-objektet.
-
--  **update\_tf\_point:** Ändrar en redan existerande
-   transferfunltionspunkt. Detta görs genom att punkten först tas bort
-   och en ny sedan läggs till med uppdaterade värden. Kallas då
-   information i textfälten i någon av de tillagda
-   *TFPointWidget*-objekten ändras.
-
--  **set\_tf\_point\_color** Ändrar färgen för en transferfunltionspunkt.
-   Kallas då färgen ändras i någon av de tillagda
-   *TFPointWidget*-objekten.
-
--  **update\_mask:** Sätter en så kallad *mask* på transferfunktionen så
-   att bara värden över den första transferfunktionspunktetn är synliga.
-
--  **load\_transfer\_function:** Öppnar ett dialogfönster för att välja en
-   fil. Försöker sedan att transferfunktionsdata från den filen.
-
--  **save\_transfer\_function:** Öppnar ett dialogfönster för att välja en
-   fil. Skriver sedan transferfunktionsdata till den filen.
-
-Övriga funktioner i klassen är callbacks för olika events som endast kör
-motsvarante funktion i *VolumeNetworkHandler*-objektet efter
-användarinteraktion.
-
-SliceControlCollapsible
-~~~~~~~~~~~~~~~~~~~~~~~
-
-En kollapserbar meny för att styra en tvärsnittsaspekten av en
-visualisering. Denna används i både laddningstäthets- och i ELF-menyn
-(och bör även användas till partiell laddningstäthet då den läggs till i
-gränssnittet).
-
-Klassen interagerar med ett *VolumeNetworkHandler*-objekt för att styra
-den del av inviwonätverket som är relevant. *SliceControlCollapsible*
-initierar inte sin egen *VolumeNetworkHandler* utan variabeln
-*networkHandler* måste sättas utifrån klassen innan den kan användas.
-
-*SliceControlCollapsible* låter en användare göra följande:
-
--  Välja normal för tvärnittsplanet.
-
--  Välja tvärsnittsplanets höjd.
-
-.. figure:: figures/GUI/slice_collapsible.PNG
-   :alt: slice_collapsible
-   :width: 100%
-   :figwidth: 25%
-   :align: center
-	   
-   SliceControlCollapsible, sizer-struktur.
-
-.. figure:: figures/GUI/slice_collapsible_sizers.PNG
-   :alt: slice_collapsible_sizers
-   :width: 100%
-   :figwidth: 25%
-   :align: center
-	   
-   SliceControlCollapsible, sizer-struktur.
-
-Funktioner i klassen är callbacks för olika events som endast kör
-motsvarante funktion i *VolumeNetworkHandler*-objektet efter
-användarinteraktion.
-
-BackgroundCollapsible
-~~~~~~~~~~~~~~~~~~~~~
-
-En kollapserbar meny för att styra en bakgrund i ett inviwonätverk.
-Används i både *VolumeControlCollapsible* och *SliceControlCollapsible*
-för att styra olika bakgrunder.
-
-Klassen interagerar med ett *VolumeNetworkHandler*-objekt för att kalla
-på funktioner för att ändra bakgrunder i de olika bilderna.
-
-*BackgroundCollapsible* låter en användare göra följande:
-
--  Välja bakgrundsstil.
-
--  Välja de två färgerna för bakgrundern.
-
--  Byta plats på färgerna.
-
--  Välja *blend mode* för bakgrunden.
-
-
-.. figure:: figures/GUI/background_collapsible.PNG
-   :name: fig:BackgroundCollapsible
-   :align: center
-   :width: 50 %
-   :figwidth: 50 %
-   :alt: BackgroundCollapsible
-
-   BackgroundCollapsible-objekt i fönster.
-
-
-**BgColourWidget:** För att förenkla och abstrahera GUI-strukturen så
-har en klass BgColourWidget definerats. Widgeten en *wx.ColourPicker*
-där en färg kan väljas. Den har även fyra textfält där en färg manuellt
-kan väljas från ett RGBA-värde. Klassen har även funktioner för att
-hämta ut och sätta värden i textfälten. Två *BgColourWidget* används i
-*BackgroundCollapsible* för att hantera de två färgerna i bakgrunden.
-
-
-.. figure:: figures/GUI/background_color.PNG
-   :name: fig:BgColourWidget
-   :align: center
-   :width: 50 %
-   :figwidth: 50 %
-   :alt: BgColourWidget
-
-   BgColourWidget-objekt i fönster.
-
-
-UnitcellCollapsible
-~~~~~~~~~~~~~~~~~~~
-
-En kollapserbar meny för att styra en atompositionsaspekten av en
-visualisering. Denna används i både laddningstäthets- och i ELF-menyn
-(och bör även användas till partiell laddningstäthet då den läggs till i
-gränssnittet).
-
-Klassen interagerar med ett *UnitcellNetworkHandler*-objekt för att
-styra den del av inviwonätverket som är relevant. *UnitcellCollapsible*
-initierar inte sin egen *UnitcellNetworkHandler* utan variabeln
-*networkHandler* måste sättas utifrån klassen innan den kan användas.
-
-
- 
-
-*UnitcellCollapsible* låter en användare göra följande:
-
--  Välja radie för enskilda atomtyper.
-
-
-.. figure:: figures/GUI/unitcell_collapsible.PNG
-   :name: fig:UnitcellCollapsible
-   :align: center
-   :width: 50 %
-   :figwidth: 50 %
-   :alt: UnitcellCollapsible
-
-   UnitcellCollapsible-objekt i fönster.
-
-
-**UnitcellControlWidget:** För att förenkla och abstrahera
-GUI-strukturen så har en klass UnitcellControlWidget definerats.
-Widgeten består av en *wx.StaticText* för att skriva atomnamnet och en
-*wx.Slider* för att välja atomradie. Klassen interagerar med
-inviwonätverket via samma *UnitcellNetworkHandler* som den
-*UnitcellCollapsible* den är tillagd på.
-
-
-.. figure:: figures/GUI/unitcell_widget.PNG
-   :name: fig:UnitcellControlWidget
-   :align: center
-   :width: 50 %
-   :figwidth: 50 %
-   :alt: UnitcellControlWidget
-
-   UnitcellControlWidget-objekt i fönster.
-
-
-Då gränssnittet, och därmed *UnitcellCollapible*-objektet, först
-initieras är inte en HDF5-fil än vald och ingen information om vilka
-atomslag som ska ingå i menyn finns. Funktionen *add\_atom\_control*
-används därför. Funktionen lägger till ett
-*UnitcellControlWidget*-objekt under menyn med ett definerat namn och
-index. Efter att en visualisering startas så kallas denna funktion för
-att lägga till alla atomer som visualiseringen innehåller.
-
-Parsningsmenyn
---------------
-
-Parser-systemet i ENVISIoN har inkorporerats i det grafiska
-gränssnittet. Detta förenklar användning av parsern då tillgång ges till
-alla parsning-skript genom kommandon på hög nivå. Filen där det grafiska
-gränssnittet har utvecklats heter `ParserPane.py`
-När parsnings-menyn fälls ut, från start-fönstret, öppnas ett segment
-enligt figur fig:GUIParser_.
-
-.. _fig:GUIParser:	
-
-.. image:: figures/GUI/GUIParserWin.png
-   :name: fig:GUIParserWin.ong
-   :width: 29 %
-   :alt: GUIParserWin
-
-.. image:: figures/GUI/GUIParserLinux.png
-   :name: fig:GUIParserLinux.ong
-   :width: 29 %
-   :alt: GUIParserLinux
-
-*Parsermenyn i ENVISIoN, Linux och Windows.*
-	 
-Överst i menyn väljs en mapp, innehållande relevanta beräkningsfiler,
-som önskas parsas. Detta går att välja genom att skriva sökvägen i
-textfältet, wx.TextCtrl, eller genom att trycka på `..or select dir`.
-Det senare alternativet öppnar en filhanterare som
-tillåter val av mapp. På samma sätt väljs i nästa del en mapp att spara
-en ny hdf5-fil där parsningsresultatet lagras. För att spara en ny fil
-måste ett filnamn anges under rubriken `Enter new filename:`.
-Ett alternativ till detta är om det redan
-existerar en hdf5-fil där resultatet önskas sparas. För detta väljs
-antingen den filen med filhanteraren, under `..or select file`,
-eller genom att skriva sökvägen till filen i rutan
-tillhörande knappen. En wx.ComboBox är tillagd som innehåller de
-parsningsval som är tillhandahållna av ENVISIoN. Dessa val innefattar:
-
--  All
-
--  Bandstructure
-
--  Charge
-
--  DoS - Density of States
-
--  ELF - Electron Localization Function
-
--  Fermi Energy
-
--  MD - Molecular Dynamics
-
--  Parchg - Partial Charge
-
--  PCF - Pair Correlation Function
-
--  Unitcell
-
-När användaren är nöjd med sina val trycks parse-knappen längst ned och
-ett meddelande dyker upp på skärmen. Detta meddelande innehåller
-information om parsningen lyckades eller inte, och för vilken
-visualiserings-data parsningen lyckades, om den gjorde det.
-
-
- 
-
-Det finns huvudsakligen en viktig funktion i parser-skriptet:
-
--  **parse\_pressed:** Den funktion där parsern aktiveras. Val av typ och
-   lagringsval undersöks här. Här sker även felkontroll om parsningen
-   lyckats eller inte.
-
-Samtliga fält i parser-menyn som kan ändras har en kopplad funktion för
-händelse-hantering.
-
-De filer som GUI:t kommunicerar med i parser-skriptet är:
-
--  bandstructure.py
-
--  doscar.py
-
--  md.py
-
--  unitcell.py
-
--  volume.py
-
--  fermi.py
-
--  parchg.py
-
--  PCF.py
-
--  fermiEnergy.py
-
--  main.py
-
-Samtliga dessa filer, förutom `main.py`, finns i
-mappen `ENVISIoN/envision/envision/parser/vasp`,
-`main.py` finns i `ENVISIoN/envision/envision`. Se appendix
-sec:GUIAppendix_ för sökvägar relevanta för
-GUI:t.
-
-Visualiseringsmenyer
---------------------
-
-Här beskriv de olika visuliseringsmenyernas uppbygnad och funktion.
-
-ChargeFrame
-~~~~~~~~~~~
-
-En kollapserbar meny för att starta och styra en
-laddningstäthetsvisualisering. Har en *VolumeControlCollapsible*,
-*UnitcellCollapsible*, *BackgroundCollapsible*, och
-*SliceControlCollapsible* under sig tillsamans med kontroller för att
-välja band och aktivera slice och atomrendering.
-
-Klassen tillgängliggör ett gränssnitt för användaren att interagera med
-ett *ChargeNetworkHandler*-objekt.
-
-*ChargeFrame* låter en användare göra följande, utöver det som tillåts i
-dess underklasser:
-
--  Starta och avsluta en visualisering (genom att fälla in och ut
-   menyn).
-
--  Välja aktivt atomband som ska visualiseras.
-
--  Välja om atompositioner ska renderas eller inte.
-
--  Välja om tvärsnitt ska visualiseras eller inte.
-
-
-.. figure:: figures/GUI/charge_collapsible_ex.PNG
-   :name: fig:ChargeFrame
-   :align: center
-   :width: 100 %
-   :figwidth: 50 %
-   :alt: ChargeFrame
-
-   ChargeFrame i fönster.
-
-
-Speciella funktioner i *ChargeFrame*:
-
--  **on\_collapse:** Körs då ChargeFrame fälls ut eller ihop.
-
-   -  Om menyn fälls ut så försöker den att starta en visualisering
-      genom att initiera ett *ChargeNetworkHandler*-objekt och att
-      initiera dess undermenyer med detta.
-
-      Om visualiseringen misslyckas att startas så fälls menyn ihop igen
-      och nätverket rensas.
-
-   -  Om menyn fälls ihop så avslutas visualiseringen och nätverket
-      rensas.
-
--  **reset\_canvas\_positions** Sätter visualiseringens canvas-position
-   baserat på fönstrets position.
-
-ELFFrame
-~~~~~~~~
-
-ELFFrame är identisk jämfört med ChargeFrame med undantaget att en
-ELFNetworkHandler används istället för ChargeNetworkHandler samt titeln
-på menyn.
-
-ParchgFrame
-~~~~~~~~~~~
-
-En kollapserbar meny för att starta och styra visualiseringen av
-partiell laddningstäthet. Har en *VolumeControlCollapsible*,
-*UnitcellCollapsible*, *BackgroundCollapsible*, och
-*SliceControlCollapsible* under sig tillsamans med kontroller för att
-välja aktiva band och lägen.
-
-Klassen tillgängliggör ett gränssnitt för användaren att interagera med
-ett *ParchgNetworkHandler*-objekt.
-
-*ParchgFrame* låter en användare göra följande, utöver det som tillåts i
-dess underklasser:
-
--  Starta och avsluta en visualisering (genom att fälla in och ut
-   menyn).
-
--  Välja ett godtyckligt antal band som ska visualiseras.
-
--  Välja om atompositioner ska renderas eller inte.
-
--  Välja om tvärsnitt ska visualiseras eller inte.
-
-
-.. figure:: figures/GUI/parchg_collapsible_ex.png
-   :name: fig:ParchgFrame
-   :align: center
-   :width: 100 %
-   :figwidth: 50 %
-   :alt: ParchgFrame
-
-   ParchgFrame i fönster.
-
-
-Speciella funktioner i *ParchgFrame*:
-
--  **on\_collapse:** Körs då ParchgFrame fälls ut eller ihop.
-
-   -  Om menyn fälls ut så försöker den att starta en visualisering
-      genom att initiera ett *ParchgNetworkHandler*-objekt och att
-      initiera dess undermenyer med detta.
-
-      Om visualiseringen misslyckas att startas så fälls menyn ihop igen
-      och nätverket rensas.
-
-   -  Om menyn fälls ihop så avslutas visualiseringen och nätverket
-      rensas.
-
--  **reset\_canvas\_positions** Sätter visualiseringens canvas-position
-   baserat på fönstrets position.
-
--  **reload\_band\_processors** Läser valt band och läge i alla valda
-   *BandSelectorWidget* och sätter dessa som aktiva.
-
-2D-visualiseringar i grafer
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Visualiseringar i tvådimensionella grafer i ENVISIoN har många saker
-gemensamt. Detta har gjort att gränssnitten för dessa tre
-visualiseringar, bandstruktur, parkorrelationsfunktionen och
-tillståndstäthet, utvecklades på nästan identiskt vis. Det finns dock
-några skillnader.
-
-BandstructureFrame
-^^^^^^^^^^^^^^^^^^
-
-är klassen till den kollapsbara menyn för bandstrukturvisualiseringen.
-Figur fig:GUIBand_ visar hur denna meny ser ut för
-både Windows och Linux. Under denna meny gömmer sig ett antal textfält
-och reglage.
-
-.. _fig:GUIBand:
-
-.. image:: figures/GUI/GUIBandWin.png
-   :name: fig:GUIBandWin.ong
-   :width: 29 %
-   :alt: GUIBandWin
-
-.. image:: figures/GUI/GUIDoSLinux.png
-   :name: fig:GUIBandLinux.ong
-   :width: 29 %
-   :alt: GUIBandLinux
-
-*Visualiseringsmenyn för bandstruktur, Linux och Windows.*
-
-PCFFrame
-^^^^^^^^
-
-är klassen till den kollapsbara menyn för
-parkorrelationsfunktions-visualiseringen. Även figur
-fig:GUIPCF_ visar hur denna meny ser ut för både
-Windows och Linux. Här syns tydligt hur lika menyerna för
-graf-visualiseringarna är vid jämförelse med bandstruktur-menyn.
-
-.. _fig:GUIPCF:	
-
-.. image:: figures/GUI/GUIPCFWin.png
-   :name: fig:GUIPCFWin.ong
-   :width: 29 %
-   :alt: GUIPCWin
-
-.. image:: figures/GUI/GUIPCFLinux.png
-   :name: fig:GUIPCFLinux.ong
-   :width: 29 %
-   :alt: GUIPCFLinux
-
-*Visualiseringsmenyn för parkorrelationsfunktionen, Windows och Linux.*
-
-DosFrame
-^^^^^^^^
-
-är klassen till den kollapsbara menyn för
-tillståndstäthetvisualiseringen. Figur fig:GUIDoS_
-visar hur denna meny ser ut för Windows och Linux.
-
-.. _fig:GUIDoS:
-
-.. image:: figures/GUI/GUIDoSWin.png
-   :name: fig:GUIDoSWin.ong
-   :width: 29 %
-   :alt: GUIDoSWin
-
-.. image:: figures/GUI/GUIDoSLinux.png
-   :name: fig:GUIDoSLinux.ong
-   :width: 29 %
-   :alt: GUIDoSLinux
- 
-*Visualiseringsmenyn för tillståndstäthet, Windows och Linux.*
-
-Gemensamt för 2D-visualiseringar i graf
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-är uppbyggnad och till största del dess funktion, se figur
-fig:GUIBand_, fig:GUIPCF_ och fig:GUIDoS_. Alla dessa meny-klasser är av typen
-GeneralCollapsible och ärver därför de funktioner som tillhör denna
-generella klass. Utöver detta har varje visualiseringsklass egna
-egenskaper. Det som är möjligt att ändra i dessa visualiserngar är:
-
--  Ändra synligt intervall för båda axlarna genom att sätta minsta och
-   största synliga värde i textboxarna, vänster respektive höger, vid
-   `X Range` och `Y Range`.
-
--  Ändra skalningen för hela grafen genom att skriva ett decimaltal
-   mindre än ett i rutan för `Scale`
-
--  Aktivera eller inaktivera en hjälplinje. Denna hjälplinje kan flytta
-   antingen med hjälp av manuell inmatning av x-värde i textrutan eller
-   genom att dra i skjutreglaget. Vid flytt av skjutreglage uppdateras
-   textrutan med det nya x-värdet där linjen placerats.
-
--  Aktivera eller inaktivera ett rutnät. Detta rutnät är till för att,
-   lättare, snabbt kunna läsa av värden på kurvan. Rutnätslinjernas
-   tjocklek kan ändras genom att manuellt mata in ett värde mellan
-   0.0001 och 0.01 i textfältet under kryssrutan för `Grid`.
-
--  Hantera etiketter utskrivna längs axlarna i grafen. Dels finns
-   möjligheten av visa grafen både utan och med värden längs axlarna.
-   Sedan finns även möjligheten att välja hur många sådan etiketter som
-   skall finnas längs axlarna. Dessa placeras med jämna intervall från
-   minsta synliga värde till största.
-
--  Välja vilka linjer som skall visas i grafen. Det sista segmentet i
-   visualiseringsfönstret för dessa visualiseringar handlar om val av
-   data. Det visas för samtliga graf-visualiseringar, en lista med de
-   data frames innehållande y-data som finns tillgängliga. Det finns två
-   kryssrutor, en för att visa alla linjer och en för att välja en eller
-   flera linjer. För att välja flera linjer kan intervall eller enstaka
-   linjer väljas genom att skriva dess index i textrutan som öppnas när
-   `Enable Y selection` kryssas i.
-
-
- 
-
-Skillnader mellan 2D-visualiseringar i graf
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-är att tillståndstäthetsvisualiseringen har en möjlighet att välja
-vilken partiell tillståndstäthet som önskas visualiseras. Detta genom
-att skriva in ett heltal i textrutan för `Partial pick`. För både
-tillståndstäthet och parkorrelationsfunktionen kan enstaka linjer väljas
-i listan av data frames, för bandstruktur är denna lista enbart en
-visuell lista. För visualisering av tillståndstäthet, i fallet att
-enhetscell-data finns tillgänglig hdf5-filen, öppnas ett extra fönster
-med enhetscellens visualisering.
-
-Samtliga dessa funktioner kommunicerar med visualiseringsnätverket via
-funktioner från hjälpfilen paramterer\_utils.py, se kapitel
-sec:paramUtils_. Viktiga funktioner som är speciella för
-graf-visualiseringar är:
-
--  **on\_collapse(self, event = None):** Aktiveras vid kollaps eller
-   expansion av varje meny. Startar visualisering eller rensar
-   nätverket.
-
--  **start\_vis(self):** Kollar om rätt data finns i given hdf5-fil.
-   Kallar på visuaiseringsskriptet eller skickar felmeddelande
-
--  **init\_DoS(self), init\_bandstructure(self) och init\_PCF(self):**
-   Sätter alla parametrar i GUI:t till de som visualiseringen startas
-   med.
-
-Utöver dessa finns det funktioner som är kopplade till de element som är
-synliga i GUI:t och har en funktion att styra en egenskap hos
-visualiseringen.
-
-Inviwointeraktion
------------------
-
-För att interagera med inviwonätverket och påverka visualiseringarna så
-används två olika tilvägagångssätt. För de visualiseringar där
-*NetworkHandler*-klasser finns definerade så används dessa. Se kapitel
-sec:NetworkHandlers_. För återstående
-visualiseringar, PCF, DOS, och Bandstruktur, så används funktioner i en
-fil ”parameter\_utils.py” för att interagera med inviwonätverket.
-
-.. _sec:paramUtils:
-
-parameter\_utils.py
-~~~~~~~~~~~~~~~~~~~
-
-Filen parameter\_utils.py innehåller funktioner som sköter kommunikaton
-med olika processorer i nätverket. Det generella strukturen på dessa
-funktioner är att de tar en processoridentitet i form av en sträng. I de
-fall att ett värde skall sättas är även detta värde en parameter. De
-funktioner som finns i denna fil hanterar till exempel fönsterposition
-för det fönster visualiseringarna öppnas i. I denna fil finns även
-funktinerna till styrning av parameterar i lineplotprocessorn som är
-relevanta för de, i GUI:t, existerande visualiseringarna. Viktiga
-funktioner som finns i parameter\_utils är:
-
--  **clear\_processor\_network():** Rensar arbetsytan från processorer.
-
--  **change\_scale(scaleValue,processor=’Line plot’):** Ändrar skalningen
-   av grafen i lineplotprocessorn
-
--  **set\_all\_data(processor=”,setAll=True):** Sätter om alla linjer
-   skall visas i grafen.
-
--  **set\_yline\_range(option=1,processor=’Line plot’):** Sätter vilka
-   linjer, en eller flera, som skall ritas ut i grafen.
-
--  **choose\_line(index=1,processor=’Line plot’):** Sätter vilken linje,
-   endast en, som skall visas i grafen.
-
--  **set\_x\_range(value, type, processor=’Line plot’):** Sätter vilket
-   intervall som skall vara synligt på x-axeln.
-
--  **set\_y\_range(value, type, processor=’Line plot’):** Sätter vilket
-   intervall som skall vara synligt på y-axeln.
-
--  **set\_help\_line(value, processor=’Line plot’):** Sätter var
-   hjälp-linjen skall vara.
-
--  **set\_grid(value=None,processor=’Line plot’):** Sätter tjockleken på
-   rutnätets linjer.
-
--  **set\_canvas\_position(position = None, processor=’Canvas’):** Sätter
-   visualiseringsfönstrets position.
-
--  **set\_label(value=None,processor=’Line plot’):** Sätter hur många
-   värden som ska skrivas ut på axlarna, borträknat minsta värdet.
-
--  **set\_partial\_value(option=1,processor=’Line plot’):** För
-   tillståndstäthet sätter denna funktion vilken partiell täthet som
-   skall visas.
-
-Samtliga funktioner i parameter\_utils.py som sätter ett värde har en
-motsvarande funktion som hämtar det värdet som vid tillfället är satt.
-Samtliga dessa funktioner är namngivna med stilen `get_[vad som ska hämtas]` till exempel `get_scale`.
 
 Referenser
 ==========
