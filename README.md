@@ -1,7 +1,5 @@
 # ENVISIoN: Electronic Structure Visualization Studio
 
-.. sectnum::
-
 ENVISIoN is an open source tool/toolkit for electron structure visualization. ENVISIoN provides a graphical user interface and a set of Python scripts that allow the user to visualise output data from VASP.
 
 ENVISIoN can be used to visualise the following.
@@ -15,14 +13,21 @@ ENVISIoN can be used to visualise the following.
 
 ENVISIoN is implemented using (a modified version of) the Inviwo visualization framework, developed at the Scientific Visualization Group at Linköping University (LiU).
 
+## Contents
 
-| © 2017 - Josef Adamsson, Robert Cranston, David Hartman, Denise Härnström, Fredrik Segerhammar. *(Teknisk dokumentation - release 1)*
-| © 2018 - Anders Rehult, Andreas Kempe, Marian Brännvall, Viktor Bernholtz. *(Teknisk dokumentation - release 2)*
-| © 2019 - Linda Le, Abdullatif Ismail, Anton Hjert, Lloyd Kizito and Jesper Ericsson. *(Teknisk dokumentation - release 3)*
-| © 2017 – 2019 - Rickard Armiento, Johan Jönsson
+* [Contributors](#contributors)
+* [Installing ENVISIoN from .deb package](#installing-envision-from-.deb-package)
+* [Installing ENVISIoN source](#installing-envision-from-source)
+  * [Install dependencies](#install-dependencies)
+  * [Clone ENVISIoN](#clone-envision)
+  * [Build Inviwo](#build-inviwo)
+  * [Configure ENVISIoN](#configure-envision)
+* [Using ENVISIoN](#using-envision)
+  * [Starting ENVISIoN with electron user interface](#starting-envision-with-electron-user-interface)
+  * [Using ENVISIoN from Inviwo editor](#using-envision-from-inviwo-editor)
+* [Building ENVISIoN as package](#building-envision-as-package)
 
-.. contents:: Innehåll
-   :depth: 3
+
 
 ## Contributors
 
@@ -164,6 +169,8 @@ npm install
 Set correct path to Inviwo binaries in `envisionpy/EnvisionMain.py`. Change the variable `PATH_INVIWO_BIN` to where your Inviwo binaries were built.
 
 ENVISIoN should now be installed and ready to run.
+
+## Using ENVISIoN
 
 ### Starting ENVISIoN with electron user interface
 The ENVISIoN interface can be started with npm.
