@@ -1,6 +1,14 @@
 # ENVISIoN: Electronic Structure Visualization Studio
 
-ENVISIoN is an open source tool/toolkit for electron visualization.
+ENVISIoN is an open source tool/toolkit for electron visualization. 
+ENVISIoN can be used to visualise the following.
+* Electron density
+* Electron localisation function
+* Partial charge density
+* Unitcell
+* Bandstructure
+* Density of states
+* Pair correlation function
 
 ENVISIoN is implemented using (a modified version of) the Inviwo visualization framework, developed at the Scientific Visualization Group at Linköping University (LiU).
 
@@ -51,14 +59,14 @@ sudo mkdir /opt/cmake
 sudo sh cmake-$version.$build-Linux-x86_64.sh --prefix=/opt/cmake
 ```
 
-Verify that installation was sucessful by running `cmake -version` 
+Verify that cmake was installed by running `cmake -version` 
 
 Add the installed binary link to /usr/local/bin/cmake by running this:
 ```
 sudo ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
 ```
 
-Verify that installation was sucessful by running `qmake -version`
+Verify that Qt was installed  by running `qmake -version`
 
 Install Qt5. ENVISIoN is tested using version Qt 5.12.2 but should work on any Qt after 5.6.1.
 ```
@@ -68,12 +76,60 @@ sudo ./qt-opensource-linux-x64-5.12.2.run
 qtchooser -install Qt5.12.2 /opt/Qt5.12.2/12.2/gcc_64/bin/qmake
 ```
 
-Install python and required modules:
+Install required python modules:
 ```
-sudo apt install python3-dev python3-pip python-wxgtk4.0
 pip3 install numpy scipy h5py regex matplotlib pybind11
 ```
 
+###Clone ENVISIoN
+```
+git clone https://github.com/rartino/ENVISIoN
+```
+
+###Build Inviwo
+Start by cloning the Inviwo source code. Also check out a compatible version. Later versions may work but are not tested.
+```
+git clone https://github.com/inviwo/inviwo.git
+cd inviwo
+git checkout 400de1a5af6a0400a314241b86982cfa2817dd9b
+git submodule update --init --recursive
+```
+
+Apply ENVISIoN patches to inviwo (paths may vary depending on where you cloned ENVISIoN).
+```
+cd inviwo
+git apply /home/ENVISIoN/inviwo/patches/2019/transferfunctionFix.patch
+git apply /home/ENVISIoN/inviwo/patches/2019/deb-package.patch
+```
+
+Setup build directory.
+```
+mkdir inviwo-build
+cd inviwo-build
+```
+
+Generate makefiles with cmake. Again specific paths may vary depending on where things were installed.
+```
+cmake -G "Unix Makefiles" \
+  -DCMAKE_PREFIX_PATH="/opt/Qt5.12.2/12.2/gcc_64/bin/qmake" \
+  -DIVW_EXTERNAL_MODULES="/home/ENVISIoN/inviwo/modules" \
+  -DIVW_MODULE_CRYSTALVISUALIZATION=ON \
+  -DIVW_MODULE_FERMI=OFF \
+  -DIVW_MODULE_GRAPH2D=ON \
+  -DIVW_MODULE_PYTHON3=ON \
+  -DIVW_MODULE_PYTHON3QT=ON \
+  -DIVW_MODULE_QTWIDGETS=ON \
+  -DIVW_MODULE_HDF5=ON \ 
+  -DIVW_PACKAGE_PROJECT=ON \ 
+  -DIVW_PACKAGE_INSTALLER=ON
+```
+
+Inviwo can now be build.
+```
+make -j5
+```
+
+Verify that inviwo was build by running `./bin/inviwo`. The Inviwo editor should start.
 
 
 
