@@ -16,7 +16,7 @@ ENVISIoN is implemented using (a modified version of) the Inviwo visualization f
 ## Contents
 
 * [Contributors](#contributors)
-* [Installing ENVISIoN from .deb package](#installing-envision-from-.deb-package)
+* [Installing ENVISIoN from deb package](#installing-envision-from-deb-package)
 * [Installing ENVISIoN source](#installing-envision-from-source)
   * [Install dependencies](#install-dependencies)
   * [Clone ENVISIoN](#clone-envision)
@@ -39,7 +39,7 @@ Subsequent contributions have been made during the spring term of 2018 by Anders
 
 The initial version was developed as part of the course TFYA75: Applied Physics - Bachelor Project, given at Linköping University, Sweden (LiU) spring term 2017. The title of the final report was: "Design och implementing av en interakiv visualisering av elektronstrukturdata". Authors: Josef Adamsson, Robert Cranston, David Hartman, Denise Härnström, Fredrik Segerhammar. The project was supervised by Johan Jönsson (main supervisor), Rickard Armiento (expert and client), and Peter Steneteg (expert). The course examinator was Per Sandström.
 
-## Installing ENVISIoN from .deb package
+## Installing ENVISIoN from deb package
 Download the packaged version from the [releases page](https://pages.github.com/).
 
 Install the deb package using your package manager.
