@@ -67,10 +67,10 @@ class BandstructureNetworkHandler(LinePlotNetworkHandler):
             self.network.addConnection(h5source.getOutport("outport"),
                                   path_selection.getInport("inport"))
 
-            if has_fermi_energy:
-                fermi_point = self.add_processor("org.inviwo.HDF5ToPoint", "Fermi energy", xpos + 175, ypos)
-                self.network.addConnection(h5source.getOutport("outport"),
-                                    fermi_point.getInport("hdf5HandleFlatMultiInport"))
+            # if has_fermi_energy:
+            #     fermi_point = self.add_processor("org.inviwo.HDF5ToPoint", "Fermi energy", xpos + 175, ypos)
+            #     self.network.addConnection(h5source.getOutport("outport"),
+            #                         fermi_point.getInport("hdf5HandleFlatMultiInport"))
 
             ypos += 75
 
@@ -88,9 +88,9 @@ class BandstructureNetworkHandler(LinePlotNetworkHandler):
             self.network.addConnection(HDF5_to_function.getOutport("functionVectorOutport"),
                                         function_to_dataframe.getInport("functionFlatMultiInport"))
                                         
-            if has_fermi_energy:
-                self.network.addConnection(fermi_point.getOutport("pointVectorOutport"),
-                                    self.get_processor("Line plot").getInport("pointInport"))
+            # if has_fermi_energy:
+            #     self.network.addConnection(fermi_point.getOutport("pointVectorOutport"),
+            #                         self.get_processor("Line plot").getInport("pointInport"))
 
             
             if has_fermi_energy:
@@ -109,5 +109,5 @@ class BandstructureNetworkHandler(LinePlotNetworkHandler):
             # background_processor.bgColor1.value = inviwopy.glm.vec4(1)
             # background_processor.bgColor2.value = inviwopy.glm.vec4(1)
             # canvas_processor.inputSize.dimensions.value = inviwopy.glm.ivec2(900, 700)
-            if has_fermi_energy:
-                fermi_point.pathSelectionProperty.value = '/FermiEnergy'
+            # if has_fermi_energy:
+            #     fermi_point.pathSelectionProperty.value = '/FermiEnergy'
