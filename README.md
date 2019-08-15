@@ -1,5 +1,7 @@
 # ENVISIoN: Electronic Structure Visualization Studio
 
+.. sectnum::
+
 ENVISIoN is an open source tool/toolkit for electron structure visualization. ENVISIoN provides a graphical user interface and a set of Python scripts that allow the user to visualise output data from VASP.
 
 ENVISIoN can be used to visualise the following.
@@ -13,9 +15,15 @@ ENVISIoN can be used to visualise the following.
 
 ENVISIoN is implemented using (a modified version of) the Inviwo visualization framework, developed at the Scientific Visualization Group at Linköping University (LiU).
 
+
+| © 2017 - Josef Adamsson, Robert Cranston, David Hartman, Denise Härnström, Fredrik Segerhammar. *(Teknisk dokumentation - release 1)*
+| © 2018 - Anders Rehult, Andreas Kempe, Marian Brännvall, Viktor Bernholtz. *(Teknisk dokumentation - release 2)*
+| © 2019 - Linda Le, Abdullatif Ismail, Anton Hjert, Lloyd Kizito and Jesper Ericsson. *(Teknisk dokumentation - release 3)*
+| © 2017 – 2019 - Rickard Armiento, Johan Jönsson
+
 .. contents:: Innehåll
    :depth: 3
-   
+
 ## Contributors
 
 Summer 2019 development was continued by Jesper Ericsson.
