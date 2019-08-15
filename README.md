@@ -13,18 +13,21 @@ ENVISIoN can be used to visualise the following.
 
 ENVISIoN is implemented using (a modified version of) the Inviwo visualization framework, developed at the Scientific Visualization Group at Linköping University (LiU).
 
-The present version was developed during the spring term of 2019 by a project group consisting of: Linda Le, Abdullatif Ismail, Anton Hjert, Lloyd Kizito and Jesper Ericsson. Supervisor: Johan Jönsson; Requisitioner and co-supervisor: Rickard Armiento; Visualization expert: Peter Steneteg; and Course examiner: Per Sandström.
+## Contributors
 
-The initial version was developed as part of the course TFYA75: Applied Physics - Bachelor Project, given at Linköping University, Sweden (LiU) spring term 2017. The title of the final report was: "Design och implementing av en interakiv visualisering av elektronstrukturdata". Authors: Josef Adamsson, Robert Cranston, David Hartman, Denise Härnström, Fredrik Segerhammar. The project was supervised by Johan Jönsson (main supervisor), Rickard Armiento (expert and client), and Peter Steneteg (expert). The course examinator was Per Sandström.
+Summer 2019 development was continued by Jesper Ericsson.
+
+Spring term 2019 ENVISIoN was developed by a project group consisting of: Linda Le, Abdullatif Ismail, Anton Hjert, Lloyd Kizito and Jesper Ericsson. Supervisor: Johan Jönsson; Requisitioner and co-supervisor: Rickard Armiento; Visualization expert: Peter Steneteg; and Course examiner: Per Sandström.
 
 Subsequent contributions have been made during the spring term of 2018 by Anders Rehult, Andreas Kempe, Marian Brännvall, and Viktor Bernholtz, as part of the same course. The title of the final report was: "Design och implementering av system för interaktiv visualisering av elektronstrukturdata". The project was supervised by Johan Jönsson (main supervisor) and Rickard Armiento (client and expert). The course examinator was Per Sandström.
+
+The initial version was developed as part of the course TFYA75: Applied Physics - Bachelor Project, given at Linköping University, Sweden (LiU) spring term 2017. The title of the final report was: "Design och implementing av en interakiv visualisering av elektronstrukturdata". Authors: Josef Adamsson, Robert Cranston, David Hartman, Denise Härnström, Fredrik Segerhammar. The project was supervised by Johan Jönsson (main supervisor), Rickard Armiento (expert and client), and Peter Steneteg (expert). The course examinator was Per Sandström.
 
 ## Installing ENVISIoN from .deb package
 Download the packaged version from the [releases page](https://pages.github.com/).
 
 Install the deb package using your package manager.
 You should now be able to start ENVISIoN using `envision` and Inviwo using `inviwo` in your terminal.
-
 
 ## Installing ENVISIoN from source
 
@@ -41,7 +44,6 @@ sudo apt install \
   libpng-dev libglu1-mesa-dev libxrandr-dev \
   libhdf5-dev libxinerama-dev libxcursor-dev
 ```
-
 
 Install cmake, version 14 or later required. As of writing this the version supplied by Ubuntu apt-get is not compatible with Inviwo, install latest version of cmake manually.
 Uninstall package managed cmake:
@@ -179,6 +181,11 @@ To setup a ENVISIoN visualisation take the following steps:
 A visualisation should now start. The visualisation can now be configured using the Inviwo network editor.
 <img src="/docs/READMEimages/inviwo_envision_startup.png" width="700">
 
+
+## Building ENVISIoN as package
+ENVISIoN can be build as an installable .deb package with the following steps:
+
+Start by building Inviwo and installing ENVISIoN following the steps in [Installing ENVISIoN from source](#Installing-ENVISIoN-from-source)
 
 
 
