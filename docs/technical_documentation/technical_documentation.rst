@@ -181,7 +181,7 @@ Envisonpy har också en klass *EnvisionMain*. EnvitionMain har som uppgift att v
 envisionpy kan styras från ett utomliggande pythonskript. EnvisionMain initierar en instans av Inviwo som 
 den kör i bakggrunden. Detta gör att Inviwos funktioner kan användas utan att Inviwos gränssnitt visas.
 
-EnvisionMain-klassen har funktioner för att köra parsning (se [Parsersystemet](#parsersystemet)) och starta visualiseringar
+EnvisionMain-klassen har funktioner för att köra parsning (se [Parsersystemet]_ `Parsersystemet`_) och starta visualiseringar
 genom att initiera och styra *NetworkHandler*-klasser (se [#NetworkHandlers], [#visualiseringssystemet]).
 
 Denna modul kan importeras från pythonskript för att få tillgång till ENVISIoNs funktionalitet.
