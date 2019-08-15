@@ -13,7 +13,7 @@ ENVISIoN can be used to visualise the following.
 
 ENVISIoN is developed at Linköping University (LiU) for IFM. ENVISIoN is implemented using (a modified version of) the Inviwo visualization framework, developed at the Scientific Visualization Group at LiU.
 
-ENVISIoN is licenced under [BSD 2-Clause "Simplified" License](/LICENCE).
+ENVISIoN is licenced under [BSD 2-Clause "Simplified" License](/LICENSE).
 
 ## Contents
 
