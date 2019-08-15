@@ -33,7 +33,7 @@ path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect
 sys.path.append(path_to_current_folder + "/../")
 # from envisionpy import envisionpy
 # from envisionpy import envisionpy
-from envisionpy import EnvisionMain
+from envisionpy.EnvisionMain import EnvisionMain
 
 
 import threading
