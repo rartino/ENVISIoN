@@ -13,6 +13,9 @@ ENVISIoN can be used to visualise the following.
 
 ENVISIoN is implemented using (a modified version of) the Inviwo visualization framework, developed at the Scientific Visualization Group at Linköping University (LiU).
 
+.. contents:: Innehåll
+   :depth: 3
+   
 ## Contributors
 
 Summer 2019 development was continued by Jesper Ericsson.
