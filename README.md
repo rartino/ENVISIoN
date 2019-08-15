@@ -1,13 +1,14 @@
 # ENVISIoN: Electronic Structure Visualization Studio
 
-ENVISIoN is an open source tool/toolkit for electron visualization. 
+ENVISIoN is an open source tool/toolkit for electron structure visualization. ENVISIoN provides a graphical user interface and a set of Python scripts that allow the user to visualise output data from VASP.
+
 ENVISIoN can be used to visualise the following.
 * Electron density
 * Electron localisation function
 * Partial charge density
 * Unitcell
 * Bandstructure
-* Density of states
+* Density of states and partial density of states
 * Pair correlation function
 
 ENVISIoN is implemented using (a modified version of) the Inviwo visualization framework, developed at the Scientific Visualization Group at Linköping University (LiU).
@@ -17,15 +18,6 @@ The present version was developed during the spring term of 2019 by a project gr
 The initial version was developed as part of the course TFYA75: Applied Physics - Bachelor Project, given at Linköping University, Sweden (LiU) spring term 2017. The title of the final report was: "Design och implementing av en interakiv visualisering av elektronstrukturdata". Authors: Josef Adamsson, Robert Cranston, David Hartman, Denise Härnström, Fredrik Segerhammar. The project was supervised by Johan Jönsson (main supervisor), Rickard Armiento (expert and client), and Peter Steneteg (expert). The course examinator was Per Sandström.
 
 Subsequent contributions have been made during the spring term of 2018 by Anders Rehult, Andreas Kempe, Marian Brännvall, and Viktor Bernholtz, as part of the same course. The title of the final report was: "Design och implementering av system för interaktiv visualisering av elektronstrukturdata". The project was supervised by Johan Jönsson (main supervisor) and Rickard Armiento (client and expert). The course examinator was Per Sandström.
-
-ENVISIoN provides a graphical user interface and a set of Python scripts that allow the user to:
-
-- Read and parse output from electronic structure codes (presently VASP, and some support for Elk is implemented), storing the result in a structured HDF5 file.
-- Generate interactive Inviwo visualization networks for
-  tasks common when analyzing electronic structure calculations.
-  Presently there is (to varying degree) support for crystal structures,
-  ab-inito molecular dynamics, charge density, ELF, DOS/pDOS and
-  band structure visualization.
 
 ## Installing ENVISIoN from source
 
@@ -130,6 +122,45 @@ make -j5
 ```
 
 Verify that inviwo was build by running `./bin/inviwo`. The Inviwo editor should start.
+
+###Configure ENVISIoN
+This can either be done by running the setup script `setup.sh`
+```
+cd ENVISIoN/
+./setup.sh
+```
+
+If the setup script does not work or you wish to do it manually do the following:
+Start by entering the ENVISIoN directory.
+```
+cd /home/ENVISIoN/
+```
+
+Install node modules with `npm`.
+```
+npm install
+```
+
+Set correct path to Inviwo binaries in `envisionpy/EnvisionMain.py`. Change the variable `PATH_INVIWO_BIN` to where your Inviwo binaries were built.
+
+ENVISIoN should now be installed and ready to run.
+
+###Starting ENVISIoN with electron user interface
+The ENVISIoN interface can be started with npm.
+```
+npm start
+```
+
+You should now see the main window from where ENVISIoN can be controlled.
+
+###Using ENVISIoN from Inviwo editor
+ENVISIoN provides a set of scripts that can be run to start visualisations from the Inviwo application. This can be useful for developing and debuging visualisation networks or if ENVISIoNs own interface does not provide some feature you need.
+
+
+
+
+
+
 
 
 
