@@ -177,17 +177,17 @@ Detta kapitel beskriver översiktligt delsystemens relationer och kommunikation 
 För att läsa detta rekomenderas en allafall grundläggande kunskap om hur inviwo de olika delsystemen fungerar.
 
 .. figure:: figures/Envision_system_advanced.png
-   :name: fig:oversikt
+   :name: fig:oversikt2
    :align: center
    :width: 100 %
    :figwidth: 80 %
-   :alt: oversikt
+   :alt: oversikt2
 
    Skiss över delsystemens relationer till varandra.
 
 Parsersystemet och visualiseringssystemet ingår i en pythonmodul kallad *envisionpy*. Se [Envisionpy]_ för mer detaljerad beskrivning.
 Denna modul kan importeras från pythonskript för att få tillgång till ENVISIoNs funktionalitet.
-Envisonpy har också en klass *EnvisionMain* (se [EnvisionMain]_ för mer ingående). EnvitionMain har som uppgift att vara ett gränssnitt där
+Envisonpy har också en klass *EnvisionMain* (se [EnvisionMain]_ för mer ingående). EnvisionMain har som uppgift att vara ett gränssnitt där
 envisionpy kan styras från ett utomliggande pythonskript. EnvisionMain initierar en instans av Inviwo, genom 
 pythonmodulerna inviwopyapp och inviwopy, som den kör i bakggrunden. 
 Detta gör att Inviwos funktioner kan användas utan att Inviwos gränssnitt visas.
@@ -197,7 +197,7 @@ EnvisionMain-klassen har funktioner för att starta parsning genom att köra fun
 genom att initiera och styra *NetworkHandler*-klasser (se [Visualiseringssystemet]_, [NetworkHandlers]_).
 
 Grässnittet är inte en del av envisionpy, utan är ett eget relativt isolerat system. Gränssnittet bygger
-på electron och nodejs och är skrivet med HTML, CSS, och JavaScript. Se [GUI systemet]_ för mer detaljerad information.
+på electron och nodejs och är skrivet med HTML, CSS, och JavaScript. Se [GUI-systemet]_ för mer detaljerad information.
 
 När systemet startas så laddas först den websida som är gränssnittet som användaren ser. 
 Från JavaScript-koden startas sedan, med hjälp av node-modulen child_process, en pythonprocess som kör skriptet *nodeInterface.py*. Detta skript 
@@ -1731,7 +1731,7 @@ En widget för IntVectorProperty. ”Textbox”, satt till endast läsning
 IntVectorProperty.
 
 Envisionpy 
-=======================
+==========
 ENVISIoNs pythonkod ligger i en modul kallad envisionpy. Det är i denna som all pythonfunktionalitet som disskuteras 
 i andra kapitel ligger.  Modulen har skapats för att man relativt enkelt ska kunna importera ENVISIoNs
 funktionalitet från ett annat godtyckligt pythonskript (exempelvis som det används i det senare bekrivna GUI-systemet [GUI]_).
@@ -1740,7 +1740,8 @@ Envisionpy har två undermappar, *processor_network* och *hdf5parser*. I dessa l
 [NetworkHandlers]_ respektive [Parsersystemet]_. Den har även en undermapp *utils* där speciella Exception-klasser och fil med atomdata ligger.
 
 EnvisionMain
-~~~~~~~~~~~~~~~~
+------------
+
 Envisionpy har en klass kallad *EnvisionMain*. Denna klass har som uppgift att bilda ett gränssnitt som 
 annan pythonkod kan styra all ENVISIoNs visualiserings- och parsningsfunktionalitet från.
 När ett *EnvisionMain*-objekt initieras så startar denna sin egen instans av Inviwo, med hjälp utav *inviwopyapp*, som den kör i bakgrunden. 
@@ -1750,8 +1751,11 @@ Detta tillåter att Inviwos visualiseringsfunktionalitet används utan att dess 
 
 Alla *NetworkHandler*-objekt sparas i en dictionary, *networkHandlers*, under en speciell identifikations-sträng som specificeras då objektet initieras.
 
-handle_request
-^^^^^^^^^^^^^^
+De funktioner som primärt används i EnvisionMain är *handle_vis_request* och *handle_parse_request*.
+Det är via dessa funktioner som parsnings- och visualiseringssystemen styrs.
+
+handle_vis_request
+~~~~~~~~~~~~~~~~~~
 För att påverka visualiseringarna så används *handle_vis_request*-funktionen. Denna tar ett 
 argument kallat *request*. *request* en lista på följande form :
 
@@ -1766,36 +1770,51 @@ nya *NetworkHandler*-objekt som kommer att skapas.
 
 [PARAMETERS...] är en lista av parametrar som den specificerade funktionen ska kallas med.
 
+Funktionen returnerar en lista på följande form: 
+
+[ACTION, STATUS, HANDLER_ID, RESPONSE_DATA] där:
+
+ACTION och HANDLER_ID är samma strängar som funktionen tog emot.
+
+STATUS är en bool som signalerar om funktionen lyckades eller misslyckades.
+
+RESPONSE_DATA är någon godtycklig data som funktionen som körts har returnerat, sätts till 
+*None* om ingen data returneras.
+
+handle_parse_request
+~~~~~~~~~~~~~~~~~~~~
 Motsvarande finns en funktion för att köra parsningsfunktioner, *handle_parse_request*. Denna tar också ett argument som ska vara en lista på följande form:
-[[PARSE_TYPES...], HDF5_PATH, VASP_PATH]
+[[PARSE_TYPES...], HDF5_PATH, VASP_PATH] där:
 
+[[PARSE_TYPES...] är en lista med strängar som signalerar vilka parsningstyper som ska utföras.
 
+HDF5_PATH är en sträng som specificerar var hdf5 filen ska sparas.
 
+VASP_PATH är en sträng som signalerar var data ska läsas ifrån.
 
-GUI
-===
-
+GUI-systemet
+============
 Det grafiska användargränssnittet har skapats för att underlätta
-användandet av ENVISIoN. Detta möjliggör att ENVISIoN kan köras utan att
+användandet av ENVISIoN. GUI:t möjliggör att ENVISIoN kan köras utan att
 öppna Inviwos användarfönster.
 
-Översikt över gränssnittet
---------------------------
+GUI:t är utvecklat som en websida och körs med häljp utav Electron. Gränssnittet är skrivet med
+HTML, CSS, och JavaScript.
 
-När ENVISIoN-applikationen körs öppnas det grafiska gränssnittet. I
-figur fig:Startup_ visas hur GUI:t ser ut i Windows
-och i Linux vid start.
+Utseende
+--------------------------
+När ENVISIoN-applikationen körs öppnas det grafiska gränssnittet. 
 
 .. _fig:Startup:	
 
-.. image:: figures/GUI/GUIBasWin.png
+.. image:: figures/envision_gui_startup.png
    :name: fig:GUIBasWin.ong
-   :width: 29 %
+   :width: 60 %
    :alt: GUIBasWin
 
 *GUI utseende vid start*
 
-GUI:t är utvecklat som en websida och körs med häljp utav Electron. 
+
 
 
 
@@ -1861,10 +1880,4 @@ Appendix A - ENVISIoNs HDF5-filstruktur
    :width: 100%
 
 .. _sec:GUIAppendix:
-
-Appendix B - Sökvägar till filer relevanta för GUI:t
-====================================================
-
-.. image:: figures/DirTree.png
-   :width: 100%
 
