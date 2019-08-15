@@ -73,12 +73,12 @@ Install required python modules:
 pip3 install numpy scipy h5py regex matplotlib pybind11
 ```
 
-###Clone ENVISIoN
+### Clone ENVISIoN
 ```
 git clone https://github.com/rartino/ENVISIoN
 ```
 
-###Build Inviwo
+### Build Inviwo
 Start by cloning the Inviwo source code. Also check out a compatible version. Later versions may work but are not tested.
 ```
 git clone https://github.com/inviwo/inviwo.git
@@ -123,7 +123,7 @@ make -j5
 
 Verify that inviwo was build by running `./bin/inviwo`. The Inviwo editor should start.
 
-###Configure ENVISIoN
+### Configure ENVISIoN
 This can either be done by running the setup script `setup.sh`
 ```
 cd ENVISIoN/
@@ -145,7 +145,7 @@ Set correct path to Inviwo binaries in `envisionpy/EnvisionMain.py`. Change the 
 
 ENVISIoN should now be installed and ready to run.
 
-###Starting ENVISIoN with electron user interface
+### Starting ENVISIoN with electron user interface
 The ENVISIoN interface can be started with npm.
 ```
 npm start
@@ -153,7 +153,7 @@ npm start
 
 You should now see the main window from where ENVISIoN can be controlled.
 
-###Using ENVISIoN from Inviwo editor
+### Using ENVISIoN from Inviwo editor
 ENVISIoN provides a set of scripts that can be run to start visualisations from the Inviwo application. This can be useful for developing and debuging visualisation networks or if ENVISIoNs own interface does not provide some feature you need.
 
 
