@@ -19,6 +19,13 @@ The initial version was developed as part of the course TFYA75: Applied Physics 
 
 Subsequent contributions have been made during the spring term of 2018 by Anders Rehult, Andreas Kempe, Marian Brännvall, and Viktor Bernholtz, as part of the same course. The title of the final report was: "Design och implementering av system för interaktiv visualisering av elektronstrukturdata". The project was supervised by Johan Jönsson (main supervisor) and Rickard Armiento (client and expert). The course examinator was Per Sandström.
 
+## Installing ENVISIoN from .deb package
+Download the packaged version from the [releases page](https://pages.github.com/).
+
+Install the deb package using your package manager.
+You should now be able to start ENVISIoN using `envision` and Inviwo using `inviwo` in your terminal.
+
+
 ## Installing ENVISIoN from source
 
 This guide will step by step show how to build Inviwo and thereafter install ENVISIoN from source using Ubuntu 18.04. Installing and building on other platforms should be simmilar but dependencies and specific commands may vary.
@@ -32,11 +39,11 @@ sudo apt install \
   python3-dev python3-pip python-wxgtk4.0
   nodejs npm
   libpng-dev libglu1-mesa-dev libxrandr-dev \
-  libhdf5-dev libxinerama-dev libxcursor-dev                 
+  libhdf5-dev libxinerama-dev libxcursor-dev
 ```
 
 
-Install cmake. As of writing this the version supplied by Ubuntu apt-get is not compatible with Inviwo, install latest version of cmake manually.
+Install cmake, version 14 or later required. As of writing this the version supplied by Ubuntu apt-get is not compatible with Inviwo, install latest version of cmake manually.
 Uninstall package managed cmake:
 ```
 sudo apt purge --auto-remove cmake
@@ -51,14 +58,14 @@ sudo mkdir /opt/cmake
 sudo sh cmake-$version.$build-Linux-x86_64.sh --prefix=/opt/cmake
 ```
 
-Verify that cmake was installed by running `cmake -version` 
-
 Add the installed binary link to /usr/local/bin/cmake by running this:
 ```
 sudo ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
 ```
 
-Install Qt5. ENVISIoN is tested using version Qt 5.12.2 but should work on any Qt after 5.6.1.
+Verify that cmake was installed by running `cmake -version` 
+
+Install Qt5. ENVISIoN is tested using version Qt 5.12.2 but should work on any Qt after 5.6.1. If a Qt version after 5.6.1 is available 
 ```
 wget http://download.qt.io/official_releases/qt/5.12/5.12.2/qt-opensource-linux-x64-5.12.2.run
 chmod +x qt-opensource-linux-x64-5.12.2.run
@@ -154,6 +161,8 @@ npm start
 You should now see the main window from where ENVISIoN can be controlled.
 
 ### Using ENVISIoN from Inviwo editor
+Note that this is not very user friendly and is not reccomended for most users.
+
 ENVISIoN provides a set of scripts that can be run to start visualisations from the Inviwo application. This can be useful for developing and debuging visualisation networks or if ENVISIoNs own interface does not provide some feature you need.
 
 Start inviwo.
@@ -167,7 +176,8 @@ To setup a ENVISIoN visualisation take the following steps:
 3. A dialog prompts you to pick a file. Scripts for visualisations are located in `/ENVISIoN/scripts`. Pick the script for what you want to visualise.
 4. Configure the paths in the python file to correspond to where you have installed ENVISIoN, where your VASP output data is, and where you wish to save the resulting HDF5 file.
 
-<img src="/docs/READMEimages/inviwo_envision_startup.png" width="600">
+A visualisation should now start. The visualisation can now be configured using the Inviwo network editor.
+<img src="/docs/READMEimages/inviwo_envision_startup.png" width="700">
 
 
 
