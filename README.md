@@ -25,11 +25,6 @@ This guide will step by step show how to build Inviwo and thereafter install ENV
 
 ### Install dependencies
 
-Git:
-```
-  sudo apt-get install git
-```
-
 Inviwo dependencies via package manager:
 ```
 sudo apt install \ 
@@ -56,28 +51,28 @@ sudo mkdir /opt/cmake
 sudo sh cmake-$version.$build-Linux-x86_64.sh --prefix=/opt/cmake
 ```
 
-Verify that installation was sucessful by running ´´´cmake -version´´´ 
+Verify that installation was sucessful by running `cmake -version` 
 
 Add the installed binary link to /usr/local/bin/cmake by running this:
-´´´
+```
 sudo ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
-´´´
+```
 
-Verify that installation was sucessful by running ´´´qmake -version´´´ 
+Verify that installation was sucessful by running `qmake -version`
 
 Install Qt5. ENVISIoN is tested using version Qt 5.12.2 but should work on any Qt after 5.6.1.
-´´´
+```
 wget http://download.qt.io/official_releases/qt/5.12/5.12.2/qt-opensource-linux-x64-5.12.2.run
 chmod +x qt-opensource-linux-x64-5.12.2.run
 sudo ./qt-opensource-linux-x64-5.12.2.run
 qtchooser -install Qt5.12.2 /opt/Qt5.12.2/12.2/gcc_64/bin/qmake
-´´´
+```
 
 Install python and required modules:
-´´´
+```
 sudo apt install python3-dev python3-pip python-wxgtk4.0
 pip3 install numpy scipy h5py regex matplotlib pybind11
-´´´
+```
 
 
 
