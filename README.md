@@ -30,14 +30,16 @@ Git:
   sudo apt-get install git
 ```
 
-Inviwo dependencies:
+Inviwo dependencies via package manager:
 ```
-sudo apt install build-essential \
-    libpython3-dev libpython3-dbg \
-    mesa-common-dev libglu1-mesa-dev \
-    libxcursor-dev libxinerama-dev libxrandr-dev \
-    qtchooser libzma-dev python3-distutils gcc-8 g++-8 gfortran-8
+sudo apt install \ 
+  git build-essential gcc \
+  python3-dev python3-pip python-wxgtk4.0
+  nodejs npm
+  libpng-dev libglu1-mesa-dev libxrandr-dev \
+  libhdf5-dev libxinerama-dev libxcursor-dev                 
 ```
+
 
 Install cmake. As of writing this the version supplied by Ubuntu apt-get is not compatible with Inviwo, install latest version of cmake manually.
 Uninstall package managed cmake:
@@ -46,18 +48,37 @@ sudo apt purge --auto-remove cmake
 ```
 
 Download and install latest cmake version into /opt/cmake/:
-
 ```
-version=3.15
-build=2
 mkdir ~/temp
 cd ~/temp
-wget https://cmake.org/files/v$version/cmake-$version.$build-Linux-x86_64.sh 
+wget https://cmake.org/files/v3.15/cmake-3.15.2-Linux-x86_64.sh 
 sudo mkdir /opt/cmake
 sudo sh cmake-$version.$build-Linux-x86_64.sh --prefix=/opt/cmake
 ```
+
+Verify that installation was sucessful by running ´´´cmake -version´´´ 
 
 Add the installed binary link to /usr/local/bin/cmake by running this:
 ´´´
 sudo ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
 ´´´
+
+Verify that installation was sucessful by running ´´´qmake -version´´´ 
+
+Install Qt5. ENVISIoN is tested using version Qt 5.12.2 but should work on any Qt after 5.6.1.
+´´´
+wget http://download.qt.io/official_releases/qt/5.12/5.12.2/qt-opensource-linux-x64-5.12.2.run
+chmod +x qt-opensource-linux-x64-5.12.2.run
+sudo ./qt-opensource-linux-x64-5.12.2.run
+qtchooser -install Qt5.12.2 /opt/Qt5.12.2/12.2/gcc_64/bin/qmake
+´´´
+
+Install python and required modules:
+´´´
+sudo apt install python3-dev python3-pip python-wxgtk4.0
+pip3 install numpy scipy h5py regex matplotlib pybind11
+´´´
+
+
+
+
