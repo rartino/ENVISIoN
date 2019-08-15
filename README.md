@@ -205,6 +205,21 @@ ENVISIoN can be build as an installable .deb package with the following steps:
 
 Start by building Inviwo and installing ENVISIoN following the steps in [Installing ENVISIoN from source](#Installing-ENVISIoN-from-source)
 
+Build inviwo as package:
+```
+cd /inviwo-build/
+sudo make package -j5
+```
+
+This will create a .deb file containing Inviwo. Unfortunately this file is not valid by default and must be repacked. 
+
+The script `deb-repack.sh` unpack the inviwo .deb with ENVISIoN included. Building the new package may take a few minutes. Run the following (again paths may vary):
+```
+cd /inviwo-build/
+./home/ENVISIoN/packaging/deb-repack.sh /home/user/ENVISIoN /home/user/inviwo-build
+```
+
+A new folder will be generated called envision_package. In this the .deb file containing Inviwo and ENVISIoN will be placed.
 
 
 
