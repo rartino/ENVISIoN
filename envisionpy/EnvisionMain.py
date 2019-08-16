@@ -25,18 +25,9 @@
 #
 ##############################################################################################
 
-# TODO: Create some kind of dictionary that maps 
-#       request strings onto functions.
-
+PATH_INVIWO_BIN = "C:/Kandidatprojekt/inviwo-clean-ish/build/bin/Release"
 
 import sys,os,inspect
-# path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-# sys.path.append(path_to_current_folder)
-# sys.path.append(path_to_current_folder + "/processor_network")
-# sys.path.append(path_to_current_folder + "/parser")
-# PATH_INVIWO_BIN = "/home/labb/inviwo-latest/build3/bin"
-# PATH_INVIWO_BIN = "/usr/bin"
-PATH_INVIWO_BIN = "C:/Kandidatprojekt/inviwo-latest/build/bin/debug"
 
 # PATH_INVIWO_BIN = "C:/Kandidatprojekt/inviwo-latest/build/bin/Debug"
 sys.path.append(PATH_INVIWO_BIN)
@@ -47,7 +38,6 @@ import time
 from envisionpy.processor_network import *
 from envisionpy.utils.exceptions import *
 import envisionpy.hdf5parser
-
 
 class EnvisionMain():
     """ Class for managing a inviwo instance 
@@ -181,9 +171,8 @@ class EnvisionMain():
         self.app.update()
         self.app.network.clear()
 
-    def handle_request(self, request):
+    def handle_vis_request(self, request):
         # Recieve a request, acts on it, then returns a response
-        # See XXX.txt for request and response specifications.
         # Requests are on form [ACTION, HANDLER_ID, [PARAMETERS]]'
         action, handler_id, parameters = request
 
@@ -221,7 +210,8 @@ class EnvisionMain():
         #     return [request[0], False, "Bad parameters."]
 
 
-    def handler_parse_request(self, request):
+    def handle_parse_request(self, request):
+        # Requests are on form [[PARSE_TYPES...], HDF5_PATH, VASP_PATH]
         parse_types, hdf5_path, vasp_path = request
 
         if parse_types == "All":
