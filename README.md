@@ -43,7 +43,7 @@ The initial version was developed as part of the course TFYA75: Applied Physics 
 Download the packaged version from the [releases page](https://pages.github.com/).
 
 Install the deb package using your package manager.
-You should now be able to start ENVISIoN using `envision` and Inviwo using `inviwo` in your terminal.
+You should now be able to start ENVISIoN using `envision` and Inviwo using `envision-inviwo` in your terminal.
 
 ## Installing ENVISIoN from source
 
