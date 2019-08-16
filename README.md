@@ -64,10 +64,10 @@ This guide will step by step show how to build Inviwo and thereafter install ENV
 
 Inviwo dependencies via package manager:
 ```
-sudo apt install \ 
+sudo apt install \
   git build-essential gcc \
-  python3-dev python3-pip python-wxgtk4.0
-  nodejs npm
+  python3-dev python3-pip python-wxgtk4.0 \
+  nodejs npm \
   libpng-dev libglu1-mesa-dev libxrandr-dev \
   libhdf5-dev libxinerama-dev libxcursor-dev
 ```
