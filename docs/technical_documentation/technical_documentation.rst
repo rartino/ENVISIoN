@@ -1801,6 +1801,9 @@ användandet av ENVISIoN. GUI:t möjliggör att ENVISIoN kan köras utan att
 GUI:t är utvecklat som en websida och körs med häljp utav Electron. Gränssnittet är skrivet med
 HTML, CSS, och JavaScript.
 
+pythonInterface.js and nodeInterface.py, child_process, stdin, stdout, JSON-objects
+
+
 Utseende
 --------------------------
 När ENVISIoN-applikationen körs öppnas det grafiska gränssnittet. 

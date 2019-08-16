@@ -68,10 +68,10 @@ def main():
             request = decode_packet(input_queue.get())
             # send_packet("echo", request)
             if request["type"] == "envision request":
-                response = envisionMain.handle_request(request["data"])
+                response = envisionMain.handle_vis_request(request["data"])
                 send_packet("response", response)
             elif request["type"] == "parser request":
-                response = envisionMain.handler_parse_request(request["data"])
+                response = envisionMain.handle_parse_request(request["data"])
                 send_packet("response", response)
             
         
