@@ -41,11 +41,6 @@ The initial version was developed as part of the course TFYA75: Applied Physics 
 
 ## Installing ENVISIoN from deb package
 
-Download the packaged version from the [releases page](https://github.com/rartino/ENVISIoN/releases).
-
-Install the deb package using your package manager.
-You should now be able to start ENVISIoN using `envision` and Inviwo using `envision-inviwo` in your terminal.
-
 ### Dependencies
 
 Envision requres that Python3 and some python modules are installed. To install those run:
@@ -53,6 +48,13 @@ Envision requres that Python3 and some python modules are installed. To install 
 sudo apt install python3 python3-pip
 sudo pip3 numpy scipy h5py regex matplotlib pybind11
 ```
+
+### Download and install ENVISIoN
+
+Download the packaged version from the [releases page](https://github.com/rartino/ENVISIoN/releases).
+
+Install the deb package using your package manager.
+You should now be able to start ENVISIoN using `envision` and Inviwo using `envision-inviwo` in your terminal.
 
 ## Installing ENVISIoN from source
 
