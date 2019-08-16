@@ -3,5 +3,5 @@ Description: Electron structure visualisation tool
 Maintainer: Jesper Ericsson
 Package: envision
 Priority: optional
-Section: devel
-Version: 3.0
+Section: science
+Version: 2.0.0
