@@ -174,6 +174,7 @@ delsystemen.
 Ingående delsystem, mer avancerat
 ---------------------------------
 Detta kapitel beskriver översiktligt delsystemens relationer och kommunikation med varandra.
+Det är menat som en sammanfattning av det som kan läsas mer utförligt i kapitlen om de specifika systemen. 
 För att läsa detta rekomenderas en allafall grundläggande kunskap om hur inviwo de olika delsystemen fungerar.
 
 .. figure:: figures/Envision_system_advanced.png
@@ -1801,8 +1802,41 @@ användandet av ENVISIoN. GUI:t möjliggör att ENVISIoN kan köras utan att
 GUI:t är utvecklat som en websida och körs med häljp utav Electron. Gränssnittet är skrivet med
 HTML, CSS, och JavaScript.
 
-pythonInterface.js and nodeInterface.py, child_process, stdin, stdout, JSON-objects
+Kommunukation med envisionpy
+----------------------------
 
+.. image:: figures/gui-system-structure.png
+   :name: fig:gui-system-structure
+   :width: 30 %
+   :alt: gui-system-structure
+
+*Skiss över GUI-systemet*
+
+För att GUI-systemet ska kunna använda sig av envisionpy så används nodemodulen *child_process*.
+*child_process* tillåter att man från JavaScript startar en pythonprocess som kör ett specificerat skript.
+
+
+För att kommunicera mellan processerna så kan python-processens stdin och stdout användas.  
+JavaScript- och Python-processerna skickar JSON-objekt kodade som strängar på detta sätt. 
+När ett JSON-paket tas emot så parsas det och funktioner körs beroende på innehållet. 
+
+Detta görs i filerna *pythonInterface.js* och *nodeInterface.py*.
+
+Från JavaScript så startas en *child_process* som kör pythonskriptet *nodeInterface.py*. Detta skript sätter upp
+kommunikationen med JavaScript och initerar en instans av envisionpy.EnvisionMain.
+
+JSON-paket specifikation
+~~~~~~~~~~~~~~~~~~~~~~~~
+JSON-objekten som skickas via stdin och stdout från och till python är på följande form:
+
+{tag: TAG_STRING, data: DATA} där
+
+TAG_STRING: Är en sträng som specificerar vad datapaketet har att göra med. I nuläget så används följande taggar. 
+*"envision request"* då en visualisering ska påverkas. 
+*"parse request"* då parsning ska utföras. 
+*"response"* då paketet innehåller svarsinformation om en utförd funktion.
+
+DATA är någon godtycklig data. Exakt vad den innehåller varierar stort.
 
 Utseende
 --------------------------
@@ -1817,13 +1851,6 @@ När ENVISIoN-applikationen körs öppnas det grafiska gränssnittet.
 
 *GUI utseende vid start*
 
-
-
-
-
-
-Kommunikation med ENVISIoN backend
-----------------------------------
 
 
 Referenser
