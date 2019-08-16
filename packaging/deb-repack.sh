@@ -34,6 +34,8 @@ mv usr/licenses opt/envision/inviwo/data
 mv usr/local opt/envision/inviwo/data
 mv usr/tests opt/envision/inviwo/data
 
+# TODO remove unneccicary files
+
 # Add qt libs
 echo "Copying qt library..."
 mkdir opt/envision/qt 
@@ -50,6 +52,8 @@ echo "Fixing and cleaning up envision files..."
 cd envision-linux-x64/resources/app/
 # This relative path will not work anymore
 sed -i 's/ElectronUI\/nodeInterface.py/\/opt\/envision\/envision-linux-x64\/resources\/app\/ElectronUI\/nodeInterface.py/g' ElectronUI/js/pythonInterface.js
+sed -i "s+^PATH_INVIWO_BIN.*+PATH_INVIWO_BIN='/opt/envision/inviwo/bin'+g" envisionpy/EnvisionMain.py
+sed -i "s+true+false+g" ElectronUI/config.json
 # sed -i 
 rm -r inviwo/
 rm -r docs/
@@ -58,11 +62,12 @@ rm -r docs/
 # Add start script executables to bin
 echo "Copying start scripts..."
 cd $2/unpack
-cp $1/packaging/inviwo usr/bin/
+cp $1/packaging/envision-inviwo usr/bin/
 cp $1/packaging/envision usr/bin/
 
-
 # Update deb package info
+rm DEBIAN/control
+cp $1/packaging/control DEBIAN/
 
 # Create package
 echo "Building package (can take a few minutes)..."

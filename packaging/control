@@ -4,5 +4,4 @@ Maintainer: Jesper Ericsson
 Package: envision
 Priority: optional
 Section: devel
-Version: 1.0
-Installed-Size: 1096148
+Version: 3.0
