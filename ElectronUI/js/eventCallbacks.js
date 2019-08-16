@@ -477,8 +477,8 @@ function atomRadiusChanged() {
 // ------------------------
 
 function parseClicked() {
-    let vaspDir = $("#vaspDirInput")[0].files[0].path;
-    let hdf5Dir = $("#hdf5DirInput")[0].files[0].path;
+    let hdf5Dir = $("#parseHdf5DirInput")[0].files[0].path;
+    let vaspDir = $("#parseVaspDirInput")[0].files[0].path;
     let hdf5FileName = $("#hdf5FileNameInput").val();
     let parseType = $("#parseTypeSelect").val();
 
