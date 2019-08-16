@@ -40,7 +40,7 @@ Subsequent contributions have been made during the spring term of 2018 by Anders
 The initial version was developed as part of the course TFYA75: Applied Physics - Bachelor Project, given at Linköping University, Sweden (LiU) spring term 2017. The title of the final report was: "Design och implementing av en interakiv visualisering av elektronstrukturdata". Authors: Josef Adamsson, Robert Cranston, David Hartman, Denise Härnström, Fredrik Segerhammar. The project was supervised by Johan Jönsson (main supervisor), Rickard Armiento (expert and client), and Peter Steneteg (expert). The course examinator was Per Sandström.
 
 ## Installing ENVISIoN from deb package
-Download the packaged version from the [releases page](https://pages.github.com/).
+Download the packaged version from the [releases page](releases).
 
 Install the deb package using your package manager.
 You should now be able to start ENVISIoN using `envision` and Inviwo using `envision-inviwo` in your terminal.
@@ -203,7 +203,8 @@ A visualisation should now start. The visualisation can now be configured using 
 ## Building ENVISIoN as package
 ENVISIoN can be build as an installable .deb package with the following steps:
 
-Start by building Inviwo and installing ENVISIoN following the steps in [Installing ENVISIoN from source](#Installing-ENVISIoN-from-source)
+Start by building Inviwo and installing ENVISIoN following the steps in [Installing ENVISIoN from source](#Installing-ENVISIoN-from-source). You may want to change `CMAKE_BUILD_TYPE` to `Release` in the cmake configuration
+as it will make the package size smaller and remove unneccicary debug flags.
 
 Build inviwo as package:
 ```
