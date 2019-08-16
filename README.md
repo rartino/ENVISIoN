@@ -40,10 +40,19 @@ Subsequent contributions have been made during the spring term of 2018 by Anders
 The initial version was developed as part of the course TFYA75: Applied Physics - Bachelor Project, given at Linköping University, Sweden (LiU) spring term 2017. The title of the final report was: "Design och implementing av en interakiv visualisering av elektronstrukturdata". Authors: Josef Adamsson, Robert Cranston, David Hartman, Denise Härnström, Fredrik Segerhammar. The project was supervised by Johan Jönsson (main supervisor), Rickard Armiento (expert and client), and Peter Steneteg (expert). The course examinator was Per Sandström.
 
 ## Installing ENVISIoN from deb package
+
 Download the packaged version from the [releases page](https://github.com/rartino/ENVISIoN/releases).
 
 Install the deb package using your package manager.
 You should now be able to start ENVISIoN using `envision` and Inviwo using `envision-inviwo` in your terminal.
+
+### Dependencies
+
+Envision requres that Python3 and some python modules are installed. To install those run:
+```
+sudo apt install python3 python3-pip
+sudo pip3 numpy scipy h5py regex matplotlib pybind11
+```
 
 ## Installing ENVISIoN from source
 

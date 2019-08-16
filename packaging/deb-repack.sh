@@ -54,6 +54,7 @@ cd envision-linux-x64/resources/app/
 sed -i 's/ElectronUI\/nodeInterface.py/\/opt\/envision\/envision-linux-x64\/resources\/app\/ElectronUI\/nodeInterface.py/g' ElectronUI/js/pythonInterface.js
 sed -i "s+^PATH_INVIWO_BIN.*+PATH_INVIWO_BIN='/opt/envision/inviwo/bin'+g" envisionpy/EnvisionMain.py
 sed -i "s+true+false+g" ElectronUI/config.json
+sed -i "s+^PATH_TO_ENVISION.*+PATH_TO_ENVISION='/opt/envision/envision-linux-x64/resources/app/'+g" scripts/*.py
 # sed -i 
 rm -r inviwo/
 rm -r docs/
@@ -66,6 +67,8 @@ cp $1/packaging/envision-inviwo usr/bin/
 cp $1/packaging/envision usr/bin/
 
 # Update deb package info
+echo "Updating deb package info..."
+cd $2/unpack
 rm DEBIAN/control
 cp $1/packaging/control DEBIAN/
 
