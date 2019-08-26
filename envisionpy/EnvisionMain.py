@@ -25,16 +25,25 @@
 #
 ##############################################################################################
 
-PATH_INVIWO_BIN = "C:/Kandidatprojekt/inviwo-clean-ish/build/bin/Release"
+import sys,os, time
 
-import sys,os,inspect
-
-# PATH_INVIWO_BIN = "C:/Kandidatprojekt/inviwo-latest/build/bin/Debug"
-sys.path.append(PATH_INVIWO_BIN)
-import inviwopy as ivw
-import inviwopyapp as ivwapp
-import time
-
+if 'INVIWO_HOME' in os.environ and sys.path.exists(os.environ['INVIWO_HOME']):
+    sys.path.insert(0,os.environ['INVIWO_HOME'])
+        
+try:
+    import inviwopy as ivw
+    import inviwopyapp as ivwapp
+except ModuleNotFoundError as e:
+    path_canidates = [os.path.realpath(os.path.join(__file__,"..","..","..","inviwo-build","bin")), "/opt/envision/inviwo/bin" ]
+    for path_candidate in path_canidates:
+        if os.path.exists(path_candidate):
+            sys.path.append(path_candidate)        
+            import inviwopy as ivw
+            import inviwopyapp as ivwapp
+            break
+    else:
+        raise Exception("Cannot find inviwo directory. Please set environment variable INVIWO_HOME to point at the directory to use.")
+        
 from envisionpy.processor_network import *
 from envisionpy.utils.exceptions import *
 import envisionpy.hdf5parser
