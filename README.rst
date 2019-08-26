@@ -418,14 +418,14 @@ Contributors
 ============
 
 2017
-~~~~
+----
 
 The initial version of ENVISIoN was developed the spring term 2017 as part of the course *TFYA75: Applied Physics - Bachelor Project*, given at Linköping University, Sweden (LiU) by Josef Adamsson, Robert Cranston, David Hartman, Denise Härnström, Fredrik Segerhammar.
 The project was supervised by Rickard Armiento (requisitioner and expert), Johan Jönsson (head supervisor), and Peter Steneteg (expert).
 The course examinator was Per Sandström.
 
 2018
-~~~~
+----
 
 ENVISIoN was further developed during the spring term of 2018 as part of the same course by Anders Rehult, Andreas Kempe, Marian Brännvall, and Viktor Bernholtz.
 The project was supervised by Rickard Armiento (requisitioner and expert), Johan Jönsson (head supervisor).
@@ -434,7 +434,8 @@ The course examinator was Per Sandström.
 Work on implementing visualization of partial electronic charge was done as a project work by Elvis Jacobson during the fall term of 2018.
 
 2019
-~~~~
+----
+
 ENVISIoN was further developed during the spring term of 2019 as part of the same course by: Linda Le, Abdullatif Ismail, Anton Hjert, Lloyd Kizito and Jesper Ericsson.
 The project was supervised by Rickard Armiento (requisitioner and expert), Johan Jönsson (head supervisor), and Peter Steneteg (expert). The course examiner was Per Sandström.
 Requisitioner and co-supervisor: 
