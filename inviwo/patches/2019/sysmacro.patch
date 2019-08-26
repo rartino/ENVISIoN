@@ -1,0 +1,13 @@
+index 0e4283fac..d9a78baa6 100644
+--- a/ext/sigar/src/os/linux/linux_sigar.c
++++ b/ext/sigar/src/os/linux/linux_sigar.c
+@@ -16,6 +16,8 @@
+  * limitations under the License.
+  */
+ 
++#include <sys/sysmacros.h>
++
+ #include <dirent.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ 

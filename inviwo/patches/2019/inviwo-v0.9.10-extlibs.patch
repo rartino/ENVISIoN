@@ -1,0 +1,95 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 8a3a85317..c8a3db7a9 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -144,10 +144,29 @@ add_custom_target(uninstall COMMENT "Dummy target to prevent other uninstalls")
+ # since it does not necessarily give you the dll for packaging.
+ # It also ensures that we are in control of the used version
+ # and is built using the same, Inviwo, settings.
+-add_subdirectory(ext/zlib-1.2.11) # Defines target ZLIB::ZLIB
+-add_subdirectory(ext/libpng)      # Defines target inviwo::libpng and libpng
+-add_subdirectory(ext/libjpeg)     # Defines target inviwo::libjpeg and libjpeg
+-add_subdirectory(ext/tiff)        # Defines target inviwo::tiff and tiff
++
++option (IVW_IMG_USE_EXTERNAL "Link with external image libraries instead of building them." OFF)
++if (NOT IVW_IMG_USE_EXTERNAL)
++  add_subdirectory(ext/zlib-1.2.11) # Defines target ZLIB::ZLIB
++  add_subdirectory(ext/libpng)      # Defines target inviwo::libpng and libpng
++  add_subdirectory(ext/libjpeg)     # Defines target inviwo::libjpeg and libjpeg
++  add_subdirectory(ext/tiff)        # Defines target inviwo::tiff and tiff
++else()
++  find_package(ZLIB REQUIRED)
++
++  find_package(PNG REQUIRED)
++  set_target_properties(PNG::PNG PROPERTIES IMPORTED_GLOBAL TRUE)
++  add_library(inviwo::libpng ALIAS PNG::PNG)
++
++  find_package(JPEG REQUIRED)
++  set_target_properties(JPEG::JPEG PROPERTIES IMPORTED_GLOBAL TRUE)
++  add_library(inviwo::libjpeg ALIAS JPEG::JPEG)
++
++  find_package(TIFF REQUIRED)
++  set_target_properties(TIFF::TIFF PROPERTIES IMPORTED_GLOBAL TRUE)
++  add_library(inviwo::tiff ALIAS TIFF::TIFF)
++endif()
++
+ add_subdirectory(ext/flags)
+ add_subdirectory(ext/glm)
+ add_subdirectory(ext/ticpp)
+diff --git a/modules/cimg/src/cimgutils.cpp b/modules/cimg/src/cimgutils.cpp
+index cbeebc5af..ba120f7a2 100644
+--- a/modules/cimg/src/cimgutils.cpp
++++ b/modules/cimg/src/cimgutils.cpp
+@@ -575,7 +575,11 @@ bool rescaleLayerRamToLayerRam(const LayerRAM* source, LayerRAM* target) {
+ std::string getLibJPGVersion() {
+ #ifdef cimg_use_jpeg
+     std::ostringstream oss;
++#if defined(JPEG_LIB_VERSION_MAJOR) && defined(JPEG_LIB_VERSION_MINOR)
+     oss << JPEG_LIB_VERSION_MAJOR << "." << JPEG_LIB_VERSION_MINOR;
++#else
++    oss << JPEG_LIB_VERSION;
++#endif    
+     return oss.str();
+ #else
+     return "LibJPG not available";
+diff --git a/modules/hdf5/CMakeLists.txt b/modules/hdf5/CMakeLists.txt
+index 754e093ab..1f1f2af4d 100644
+--- a/modules/hdf5/CMakeLists.txt
++++ b/modules/hdf5/CMakeLists.txt
+@@ -59,6 +59,10 @@ else()
+     set(HDF5_INSTALL_LIB_DIR lib)
+ endif()
+ 
++option (IVW_HDF5_USE_EXTERNAL "Link with external HDF5 library instead of building one." OFF)
++
++if (NOT IVW_HDF5_USE_EXTERNAL)
++
+ set(HDF5_ENABLE_Z_LIB_SUPPORT   ON)
+ 
+ get_target_property(ZLIB_INCLUDE_DIRS ZLIB::ZLIB INTERFACE_INCLUDE_DIRECTORIES)
+@@ -119,4 +123,25 @@ ivw_register_license_file(NAME HDF5 VERSION 1.10.0.1 MODULE HDF5
+     TYPE "BSD-style"
+     FILES ${CMAKE_CURRENT_SOURCE_DIR}/ext/hdf5/COPYING
+ )
++
++else (IVW_HDF5_USE_EXTERNAL)
++
++if(NOT BUILD_SHARED_LIBS)
++  set(HDF5_USE_STATIC_LIBRARIES ON)
++endif()
++
++find_package(HDF5 COMPONENTS C HL CXX REQUIRED)
++
++if(HDF5_FOUND)
++  target_include_directories(inviwo-module-hdf5 PUBLIC ${HDF5_INCLUDE_DIR})
++
++  if(${BUILD_SHARED_LIBS})
++    target_link_libraries(inviwo-module-hdf5 PUBLIC ${HDF5_LIBRARIES})
++  else()
++    target_link_libraries(inviwo-module-hdf5 PUBLIC ${HDF5_LIBRARIES})
++  endif()
++endif (HDF5_FOUND)
++
++endif (NOT IVW_HDF5_USE_EXTERNAL)
++
+ ivw_make_package(InviwoHDF5Module inviwo-module-hdf5)
