@@ -27,7 +27,19 @@
 
 import sys,os, time
 
-if 'INVIWO_HOME' in os.environ and sys.path.exists(os.environ['INVIWO_HOME']):
+
+if 'INVIWO_HOME' in os.environ and os.environ['INVIWO_HOME'] not in sys.path:
+    sys.path.append(os.environ['INVIWO_HOME'])
+
+try:
+    import inviwopy as ivw
+    import inviwopyapp as ivwapp
+except ModuleNotFoundError as e:
+    sys.stderr.write("Module error: " + str(e) + "\n" + "Can not find module. Please check that the environment variable INVIWO_HOME is set to the correct value in the computers system settings.")
+    #raise Exception("Can not find module. Please set the environment variable INVIWO_HOME to the correct value.")
+
+"""
+if 'INVIWO_HOME' in os.environ and os.environ['INVIWO_HOME'] not in sys.path:
     sys.path.insert(0,os.environ['INVIWO_HOME'])
         
 try:
@@ -43,10 +55,11 @@ except ModuleNotFoundError as e:
             break
     else:
         raise Exception("Cannot find inviwo directory. Please set environment variable INVIWO_HOME to point at the directory to use.")
-        
+     """   
 from envisionpy.processor_network import *
 from envisionpy.utils.exceptions import *
 import envisionpy.hdf5parser
+
 
 class EnvisionMain():
     """ Class for managing a inviwo instance 
@@ -209,7 +222,7 @@ class EnvisionMain():
         # except EnvisionError as e:
         #     return [action, False, handler_id, format_error(e)]
         else:
-            return [action, True, handler_id, response_data]
+            return [action, True, handler_id, response_data] #returns -> "response" in nodeInterface.py
 
         # return [action] + self.action_dict[action](handler_id, parameters)
         # except AttributeError as error:
