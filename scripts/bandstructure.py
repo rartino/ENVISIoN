@@ -28,15 +28,19 @@
 # CONFIGURE FILE PATHS HERE
 
 # Path to your envision installation
-PATH_TO_ENVISION = "C:/Kandidatprojekt/ENVISIoN-sommar"
+PATH_TO_ENVISION = "C:/Users/Lina/ENVISIoN2/envision"
 
 # Path to the vasp output directory you wish to visualise
-PATH_TO_VASP_CALC = "C:/Kandidatprojekt/VASP/bands"
+PATH_TO_VASP_CALC = "C:/Users/Lina/ENVISIoN2/data/VASP-files/NaCl_band_FCC"
 
 # Path to where you want to save the resulting hdf5 file 
-PATH_TO_HDF5 = "C:/Kandidatprojekt/HDF5-demo/band_demo.hdf5"
+PATH_TO_HDF5 = "C:/Users/Lina/ENVISIoN2/data/HDF5-files/banddemo.hdf5"
 
-import os, sys, inspect, inviwopy
+import os, sys, inspect
+if 'INVIWO_HOME' in os.environ and os.environ['INVIWO_HOME'] not in sys.path:
+    sys.path.append(os.environ['INVIWO_HOME'])
+    
+import inviwopy
 sys.path.append(PATH_TO_ENVISION)
 import envisionpy
 import envisionpy.hdf5parser

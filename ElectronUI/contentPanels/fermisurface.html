@@ -25,36 +25,8 @@
 
  ############################################################################################## -->
 
-<h2 id="datasetTitle" class="border-top">DATASET NAME HERE</h2>
+<!-- Settings panel -->
+<h2 class="border-bottom">Fermi Surface</h2>
 
-<div class="row row-margin">
-  <div class="input-group col-sm-10">
-    <div class="input-group-prepend">
-      <label class="input-group-text" for="visTypeSelection">Start visualisation</label>
-    </div>
-    <select class="custom-select" id="visTypeSelection">
-      <option selected>Electron density</option>
-      <option>Electron localisation function</option>
-      <option>Partial charge density</option>
-      <option>Unitcell</option>
-      <option>Pair correlation function</option>
-      <option>Bandstructure</option>
-      <option>Density of states</option>
-	  <option>Fermi surface</option>
-    </select>
-    <div class="input-group-append">
-      <button class="btn btn-primary" id="startVisBtn">Start</button>
-    </div>
-  </div>
+<div id="visSettings">
 </div>
-
-<h5 class="border-top">Active visualisations</h5>
-<p>Active visualisations are shown under each dataset in the sidebar. 
-  Click the link there to show visualisation specific settings.</p>
-<script>
-  $(document).ready(function () {
-    $("#startVisBtn").on("click", startVisPressed);
-
-    console.log("Dataset controls loaded")
-  });
-</script>
