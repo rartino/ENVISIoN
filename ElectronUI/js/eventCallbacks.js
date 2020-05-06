@@ -109,7 +109,8 @@ function loadDataset() {
         try {
             fs.unlinkSync(hdf5Path);
             console.log("Old temp file removed")
-        } catch (err) {}
+		}
+		catch (err) {}
         send_data("parser request", ["All", hdf5Path, vaspPath]);
 
         if (datasetName == ""){
@@ -177,16 +178,16 @@ function removeDataset() {
 
 function startVisPressed() {
     let datasetInfo = loadedDatasets[activeDatasetName];
-    let visTypes = ["charge","elf","parchg","unitcell","pcf","bandstructure","dos"];
-    let selectionIndex = $("#visTypeSelection")[0].selectedIndex;
+    let visTypes = ["charge","elf","parchg","unitcell","pcf","bandstructure","dos","fermisurface"];
+    let selectionIndex = $("#visTypeSelection")[0].selectedIndex; // Index of list selection, starting at 0 
     let visType = visTypes[selectionIndex];
+	console.log("Selected visualisation type: " + visType);
     let hdf5Path = datasetInfo[0];
     
     let visIndex = 0;
     while (datasetInfo[3].includes(activeDatasetName + "_" + visType + "_" + visIndex)) visIndex += 1;
     let visId = activeDatasetName + "_" + visType + "_" + visIndex;
     
-
     $("#startVisBtn").attr("disabled", true);
     // Start the visualisation
     send_data("envision request", ["start", visId, [
@@ -478,7 +479,7 @@ function atomRadiusChanged() {
 
 function parseClicked() {
     let hdf5Dir = $("#parseHdf5DirInput")[0].files[0].path;
-    let vaspDir = $("#parseVaspDirInput")[0].files[0].path;
+	let vaspDir = $("#parseVaspDirInput")[0].files[0].path; //this.files[0] returns fileobjet at index 0
     let hdf5FileName = $("#hdf5FileNameInput").val();
     let parseType = $("#parseTypeSelect").val();
 
@@ -553,17 +554,25 @@ function uiDataRecieved(status, id, data) {
     uiData = data;
     if (data[0] == "charge") {
         $("#visControlPanel").load("contentPanels/charge.html");
-    }else if (data[0] == "elf") {
+    }
+	else if (data[0] == "elf") {
         $("#visControlPanel").load("contentPanels/elf.html");
-    }else if (data[0] == "parchg"){
+    }
+	else if (data[0] == "parchg"){
         $("#visControlPanel").load("contentPanels/parchg.html");
-    }else if (data[0] == "bandstructure"){
+    }
+	else if (data[0] == "bandstructure"){
         $("#visControlPanel").load("contentPanels/bandstructure.html");
-    }else if (data[0] == "pcf"){
+    }
+	else if (data[0] == "pcf"){
         $("#visControlPanel").load("contentPanels/pcf.html");
-    }else if (data[0] == "dos"){
+    }
+	else if (data[0] == "dos"){
         $("#visControlPanel").load("contentPanels/dos.html");
     }
+	else if (data[0] == "fermisurface"){
+		$("#visControlPanel").load("contentPanels/fermisurface.html");
+	}
 }
 
 // ---------------------------------------
