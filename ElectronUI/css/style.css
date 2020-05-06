@@ -74,7 +74,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 @import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
 body {
     font-family: 'Poppins', sans-serif;
-    background: #fafafa;
+    background: #f7f7f7;
 }
 
 p {
@@ -115,6 +115,17 @@ a:focus {
     margin: 40px 0;
 }
 
+.btn-primary {
+	color: #fff;
+	background-color: #007FFF;
+	border-color: #007FFF;
+}
+
+.btn-primary:hover {
+	color: #fff;
+	background: #0066CC;
+}
+
 /* ---------------------------------------------------
     TOPBAR STYLE
 ----------------------------------------------------- */
@@ -141,7 +152,7 @@ div.sticky {
 #sidebar {
     min-width: 250px;
     max-width: 250px;
-    background: #7386D5;
+    background: #1E1669;
     color: #fff;
     transition: all 0.3s;
 }
@@ -152,12 +163,14 @@ div.sticky {
 
 #sidebar .sidebar-header {
     padding: 10px;
-    background: #6d7fcc;
+    background: #1E1669;
+	text-align: center;
 }
 
 #sidebar ul.components {
     padding: 20px 0;
-    border-bottom: 1px solid #47748b;
+	border-top: 1px solid #191257;
+    border-bottom: 1px solid #191257;
 }
 
 #sidebar ul p {
@@ -172,8 +185,8 @@ div.sticky {
 }
 
 #sidebar ul li a:hover {
-    color: #7386D5;
-    background: #fff;
+	color: #fff;
+    background: linear-gradient(rgba(202, 230, 255, 0.3), rgba(110, 170, 250, 0.3));
 }
 
 /* #sidebar ul li.active>a,
@@ -202,8 +215,8 @@ ul ul a {
 
 
 #sidebar ul a.active{
-    color: #fff;
-    background: #3b4679;
+	color: #fff;
+    background: linear-gradient(rgba(22, 16, 79, 0.8), rgba(49, 37, 171, 0.8));
 }
 
 ul.CTAs {
