@@ -36,8 +36,6 @@ PATH_TO_VASP_CALC = "/home/labb/VASP_files/Cu-FCC"
 # Path to where you want to save the resulting hdf5 file 
 PATH_TO_HDF5 = "/home/labb/ENVISIoN/Cu_FCC.hdf5"
 
-# Path to where the hdf5 data are
-HDF5_FILE_PATH = "/home/labb/ENVISIoN/Cu_FCC.hdf5"
 
 import os, sys, inspect, inviwopy
 sys.path.append(PATH_TO_ENVISION)
@@ -52,4 +50,4 @@ envisionpy.hdf5parser.bandstructure(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 envisionpy.hdf5parser.fermi_energy(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
 inviwopy.app.network.clear()
-networkHandler = Bandstructure3DNetworkHandler(HDF5_FILE_PATH, inviwopy.app)
+networkHandler = Bandstructure3DNetworkHandler(PATH_TO_HDF5, inviwopy.app)

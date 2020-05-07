@@ -10,8 +10,6 @@ network = app.network
 
 factory = app.processorFactory
 
-HDF5_FILE_PATH = "/home/labb/ENVISIoN/Cu_FCC.hdf5"
-
 from envisionpy.processor_network.NetworkHandler import NetworkHandler
 
 class Bandstructure3DNetworkHandler(NetworkHandler):
@@ -37,7 +35,7 @@ class Bandstructure3DNetworkHandler(NetworkHandler):
 
     def setup_bandstructure_network(self, h5file):
         #Extractiong network metadata
-        with h5py.File(HDF5_FILE_PATH, 'r') as f:
+        with h5py.File(h5file, 'r') as f:
             KPoints = f.get('BandStructure').get('KPoints').value
             Symbols = f.get('Highcoordinates')
             length_iteration = len(KPoints)#number of iterations
@@ -61,7 +59,7 @@ class Bandstructure3DNetworkHandler(NetworkHandler):
         #HDF5Source
         hdf5_source = factory.create('org.inviwo.hdf5.Source', glm.ivec2(0, 0))
         hdf5_source.identifier = 'hdf5 source'
-        hdf5_source.filename.value = HDF5_FILE_PATH
+        hdf5_source.filename.value = h5file
         network.addProcessor(hdf5_source)
 
 
