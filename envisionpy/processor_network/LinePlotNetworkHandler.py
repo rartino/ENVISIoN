@@ -251,7 +251,7 @@ class LinePlotNetworkHandler(NetworkHandler):
 
         canvas = self.add_processor("org.inviwo.CanvasGL", "graphCanvas", xpos, ypos)
         self.network.addConnection(title_text.getOutport('outport'), canvas.getInport('inport'))
-
+        
         # Start modifying properties.
         # path_selection_processor.selection.value = '/Bandstructure/Bands'
         # HDF5_to_function_processor.yPathSelectionProperty.value = '/Energy'
@@ -259,5 +259,7 @@ class LinePlotNetworkHandler(NetworkHandler):
         background.bgColor1.value = inviwopy.glm.vec4(1)
         background.bgColor2.value = inviwopy.glm.vec4(1)
         canvas.inputSize.dimensions.value = inviwopy.glm.ivec2(900, 700)
+        canvas.widget.show()
+
         # if has_fermi_energy:
         #     fermi_point_processor.pathSelectionProperty.value = '/FermiEnergy'
