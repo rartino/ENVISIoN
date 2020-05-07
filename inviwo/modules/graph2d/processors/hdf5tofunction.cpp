@@ -297,7 +297,7 @@ void HDF5ToFunction::process() {
     clock_t end = std::clock();
     double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
     total_time += elapsed_secs;
-    LogError("HDF to func total time: " + std::to_string(total_time));
+    //LogError("HDF to func total time: " + std::to_string(total_time));
 }
 
 } // namespace

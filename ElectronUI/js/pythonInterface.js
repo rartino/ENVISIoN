@@ -27,6 +27,11 @@
 
 const spawn = require("child_process").spawn;
 const CONFIG = require("./config.json");
+const {remote} = require('electron');
+dialog = remote.dialog;
+const win = remote.getCurrentWindow();
+//const {getCurrentWindow} = require('electron').remote;
+
 
 var pythonProcess = null
 
@@ -51,10 +56,11 @@ function start_python_process() {
     {
         console.log("Starting python")
         if (window.navigator.platform == "Win32")
+			// Argument: spawn(type_of_script, [path_of_script])
             pythonProcess = spawn('python', ["ElectronUI/nodeInterface.py"]);
         else
             pythonProcess = spawn('python3', ["ElectronUI/nodeInterface.py"]);
-        console.log(pythonProcess)
+        console.log(pythonProcess) // Writes out child_process data in log
         pythonProcess.stdout.on('data', on_data_recieve)
         pythonProcess.stderr.on('data', on_python_error)
         // pythonProcess.stdin.setEncoding('utf-8')
@@ -78,15 +84,32 @@ function send_data(tag, data) {
     if (pythonCrashed)
         return;
     var json_data = {type: tag, data: data}
-    var packet = JSON.stringify(json_data) + "\r\n";
+    var packet = JSON.stringify(json_data) + "\r\n"; 
+	// JSON.strignify(json_data): {"type":"tag","data":"data"}
+	// ex: {"type":"parser request","data":["All","temp_0.hdf5","C:\\Users\\Lina\\ENVISIoN2\\data\\BCC-Cu"]}
     try{
-        if (CONFIG.logSentPackets) console.log("Sending packet: \n", packet)
-        pythonProcess.stdin.write(packet) 
-    }
+		if (CONFIG.logSentPackets) 
+		console.log("Sending packet: \n", packet)
+	pythonProcess.stdin.write(packet) 
+	}
     catch {
         pythonCrashed = true;
-        alert("ENVISIoN crashed!\nThe python process of envision has crashed. You must restart envision to fix this.");
-    }
+		const options = {
+			type: "warning", title: "ENVISIoN has stopped working!", 
+			message: "The python process has crashed. You must reload ENVISIoN or close and restart the program.", 
+			buttons: ["Reload", "Close"]
+			}
+		dialog.showMessageBox(win, options, 
+		(response) => 
+		{if (response === 0)
+			console.log("Reload");
+		else if (response === 1){
+			console.log("Close");
+		}
+		})
+		//dialog.showErrorBox("ENVISIoN has crashed!", "The python process of envision has crashed. You must restart envision to fix this.")
+        //alert("ENVISIoN crashed!\nThe python process of envision has crashed. You must restart envision to fix this.");
+	}
 }
 
 function on_data_recieve(packet) {
@@ -101,7 +124,7 @@ function on_data_recieve(packet) {
             json_data = JSON.parse(data[i])
             if ("type" in json_data){
                 if (CONFIG.logRecievedPackets)
-                console.log("Packet recieved: \n", JSON.stringify(json_data))
+                console.log("Packet recieved:\n", JSON.stringify(json_data))
                 if (json_data["type"] == "response"){
                     handle_response_packet(json_data["data"])
                     nResponses += 1;
@@ -144,7 +167,7 @@ function handle_response_packet(packet){
 var lastError;
 var pythonCrashed = false;
 function on_python_error(data) {
-    lastError = Buffer.from(data, 'hex')
+    //lastError = Buffer.from(data, 'hex')
     // setTimeout(function(){
     //     nRequests--;
     //     send_data("crash test", "");
@@ -152,8 +175,10 @@ function on_python_error(data) {
     if (!CONFIG.logPyError)
         return
     console.log("PYTHON ERROR: ")
-    var output = Buffer.from(data, 'hex')
-    console.log(data.toString());
+    // var output = Buffer.from(data, 'hex')
+    console.log(data.toString())
+	dialog.showErrorBox("Error in ENVISIoN: ", data.toString())
+	//alert("Python error:" + "\n" + data.toString());
 }
 
 var loadingTimeout = null;
