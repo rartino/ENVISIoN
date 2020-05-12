@@ -31,23 +31,27 @@
 PATH_TO_ENVISION = "/home/labb/ENVISIoN/ENVISIoN"
 
 # Path to the vasp output directory you wish to visualise
-PATH_TO_VASP_CALC = "/home/labb/VASP_files/Cu-FCC"
+PATH_TO_VASP_CALC = "/home/labb/VASP_files/BaSO4_band_ORC"
 
 # Path to where you want to save the resulting hdf5 file 
-PATH_TO_HDF5 = "/home/labb/ENVISIoN/Cu_FCC.hdf5"
+PATH_TO_HDF5 = "/home/labb/ENVISIoN/test.hdf5"
+
+HDF5_PATH = "/home/labb/ENVISIoN/Cu_FCC.hdf5"
 
 
 import os, sys, inspect, inviwopy
+if 'INVIWO_HOME' in os.environ and os.environ['INVIWO_HOME'] not in sys.path:
+    sys.path.append(os.environ['INVIWO_HOME'])
 sys.path.append(PATH_TO_ENVISION)
 import envisionpy
 import envisionpy.hdf5parser
 from envisionpy.processor_network.Bandstructure3DNetworkHandler import Bandstructure3DNetworkHandler
 
-
-
+import inviwopy.glm as glm
+help(glm)
 # Parse for charge density visualisation.
-envisionpy.hdf5parser.bandstructure(PATH_TO_HDF5, PATH_TO_VASP_CALC)
-envisionpy.hdf5parser.fermi_energy(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+#envisionpy.hdf5parser.bandstructure(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+#envisionpy.hdf5parser.fermi_energy(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
 inviwopy.app.network.clear()
-networkHandler = Bandstructure3DNetworkHandler(PATH_TO_HDF5, inviwopy.app)
+networkHandler = Bandstructure3DNetworkHandler(HDF5_PATH, inviwopy.app)
