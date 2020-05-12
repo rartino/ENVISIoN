@@ -2,7 +2,7 @@
  *
  * Inviwo - Interactive Visualization Workshop
  *
- * Copyright (c) 2017 Inviwo Foundation
+ * Copyright (c) 2019 Inviwo Foundation
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,23 +26,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *********************************************************************************/
-/*
- *   Alterations to this file by Andreas Kempe
- *
- *   To the extent possible under law, the person who associated CC0
- *   with the alterations to this file has waived all copyright and
- *   related or neighboring rights to the alterations made to this file.
- *
- *   You should have received a copy of the CC0 legalcode along with
- *   this work.  If not, see
- *   <http://creativecommons.org/publicdomain/zero/1.0/>.
- */
 
 #ifndef IVW_FERMIMODULE_H
 #define IVW_FERMIMODULE_H
 
 #include <modules/fermi/fermimoduledefine.h>
 #include <inviwo/core/common/inviwomodule.h>
+#include <modules/python3/pythonprocessorfolderobserver.h>
+#include <modules/python3/pyutils.h>
 
 namespace inviwo {
 
@@ -50,8 +41,11 @@ class IVW_MODULE_FERMI_API fermiModule : public InviwoModule {
 public:
     fermiModule(InviwoApplication* app);
     virtual ~fermiModule() = default;
+
+    pyutil::ModulePath scripts_;
+    PythonProcessorFolderObserver pythonFolderObserver_;
 };
 
-} // namespace
+}  // namespace inviwo
 
-#endif // IVW_FERMIMODULE_H
+#endif  // IVW_FERMIMODULE_H
