@@ -386,7 +386,7 @@ class VolumeNetworkHandler(NetworkHandler):
         # Setup Slice rendering part
         VolumeSlice = self.add_processor('org.inviwo.VolumeSliceGL', 'Volume Slice', xpos-25*7, ypos+300)   
         SliceCanvas = self.add_processor('org.inviwo.CanvasGL', 'SliceCanvas', xpos-25*7, ypos+525)
-        SliceCanvas.inputSize.dimensions.value = inviwopy.glm.ivec2(500, 500)       
+        SliceCanvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)       
         SliceBackground = self.add_processor('org.inviwo.Background', 'SliceBackground', xpos-25*7, ypos+450)
         
         # self.network.addConnection(HDFvolume.getOutport('outport'), VolumeSlice.getInport('volume'))
@@ -395,7 +395,7 @@ class VolumeNetworkHandler(NetworkHandler):
 
         # Setup volume rendering part
         Canvas = self.add_processor('org.inviwo.CanvasGL', 'Canvas', xpos, ypos+525)
-        Canvas.inputSize.dimensions.value = inviwopy.glm.ivec2(500, 500)
+        Canvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)
         VolumeBackground = self.add_processor('org.inviwo.Background', 'VolumeBackground', xpos, ypos+450)
         
         self.network.addConnection(Raycaster.getOutport('outport'), VolumeBackground.getInport('inport'))
