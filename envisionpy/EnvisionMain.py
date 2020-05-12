@@ -102,7 +102,7 @@ class EnvisionMain():
         self.action_dict["toggle_transperancy_before"] = lambda id, params: self.networkHandlers[id].toggle_transperancy_before(*params)
         # self.action_dict["toggle_tf_editor"] = lambda id, params: self.networkHandlers[id].toggle_tf_editor(*params)
 
-        # Unicell visalisation actions
+        # Unitcell visalisation actions
         self.action_dict["set_atom_radius"] = lambda id, params: self.networkHandlers[id].set_atom_radius(*params)
         self.action_dict["hide_atoms"] = lambda id, params: self.networkHandlers[id].hide_atoms(*params)
         self.action_dict["get_atom_name"] = lambda id, params: self.networkHandlers[id].get_atom_name(*params)
@@ -149,7 +149,8 @@ class EnvisionMain():
             "unitcell": UnitcellNetworkHandler,
             "pcf": PCFNetworkHandler,
             "bandstructure": BandstructureNetworkHandler,
-            "dos": DOSNetworkHandler
+            "dos": DOSNetworkHandler,
+            "bandstructure3d": Bandstructure3DNetworkHandler
             }
 
         # print(dir(hdf5parser.vasp))
@@ -160,13 +161,14 @@ class EnvisionMain():
             "Electron localisation function": envisionpy.hdf5parser.elf,
             "Partial charge density": envisionpy.hdf5parser.parchg,
             "parchg": envisionpy.hdf5parser.parchg,
+            "unitcell": envisionpy.hdf5parser.unitcell,
+            "Unitcell": envisionpy.hdf5parser.unitcell,
             "bandstructure": envisionpy.hdf5parser.bandstructure,
             "Bandstructure": envisionpy.hdf5parser.bandstructure,
             "pcf": envisionpy.hdf5parser.paircorrelation,
             "Pair correlation function": envisionpy.hdf5parser.paircorrelation,
             "dos": envisionpy.hdf5parser.dos,
-            "Density of states": envisionpy.hdf5parser.dos,
-            "Unitcell": envisionpy.hdf5parser.unitcell
+            "Density of states": envisionpy.hdf5parser.dos
         }
 
     def update(self):
@@ -241,10 +243,10 @@ class EnvisionMain():
                 "Electron density", 
                 "Electron localisation function",
                 "Partial charge density",
+                "Unitcell",
                 "Bandstructure", 
                 "Pair correlation function",
-                "Density of states",
-                "Unitcell"]
+                "Density of states"]
 
         parse_statuses = {}
         for parse_type in parse_types:

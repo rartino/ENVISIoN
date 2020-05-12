@@ -28,13 +28,13 @@
 # CONFIGURE FILE PATHS HERE
 
 # Path to your envision installation
-PATH_TO_ENVISION = "/home/labb/ENVISIoN/ENVISIoN"
+PATH_TO_ENVISION = "C:/Users/Lina/ENVISIoN2/envision"
 
 # Path to the vasp output directory you wish to visualise
-PATH_TO_VASP_CALC = "/home/labb/VASP_files/Cu-FCC"
+PATH_TO_VASP_CALC = "C:/Users/Lina/ENVISIoN2/data/VASP-files/BaSO4_band_ORC"
 
 # Path to where you want to save the resulting hdf5 file 
-PATH_TO_HDF5 = "/home/labb/ENVISIoN/Cu_FCC.hdf5"
+PATH_TO_HDF5 = "C:/Users/Lina/ENVISIoN2/data/HDF5-files/BaSO4_banddemo.hdf5"
 
 
 import os, sys, inspect, inviwopy

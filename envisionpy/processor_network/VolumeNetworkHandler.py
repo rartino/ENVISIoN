@@ -397,6 +397,7 @@ class VolumeNetworkHandler(NetworkHandler):
         Canvas = self.add_processor('org.inviwo.CanvasGL', 'Canvas', xpos, ypos+525)
         Canvas.inputSize.dimensions.value = inviwopy.glm.ivec2(500, 500)
         VolumeBackground = self.add_processor('org.inviwo.Background', 'VolumeBackground', xpos, ypos+450)
+        Canvas.widget.show()
         
         self.network.addConnection(Raycaster.getOutport('outport'), VolumeBackground.getInport('inport'))
         self.network.addConnection(VolumeBackground.getOutport('outport'), Canvas.getInport('inport'))

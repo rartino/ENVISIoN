@@ -178,7 +178,7 @@ function removeDataset() {
 
 function startVisPressed() {
     let datasetInfo = loadedDatasets[activeDatasetName];
-    let visTypes = ["charge","elf","parchg","unitcell","pcf","bandstructure","dos","fermisurface"];
+    let visTypes = ["charge","elf","parchg","unitcell","pcf","bandstructure","dos", "bandstructure3d", "fermisurface"];
     let selectionIndex = $("#visTypeSelection")[0].selectedIndex; // Index of list selection, starting at 0 
     let visType = visTypes[selectionIndex];
 	console.log("Selected visualisation type: " + visType);
@@ -552,10 +552,10 @@ function uiDataRecieved(status, id, data) {
         return;
     }
     uiData = data;
-    if (data[0] == "charge") {
+    if (data[0] == "charge"){
         $("#visControlPanel").load("contentPanels/charge.html");
     }
-	else if (data[0] == "elf") {
+	else if (data[0] == "elf"){
         $("#visControlPanel").load("contentPanels/elf.html");
     }
 	else if (data[0] == "parchg"){
@@ -570,6 +570,12 @@ function uiDataRecieved(status, id, data) {
 	else if (data[0] == "dos"){
         $("#visControlPanel").load("contentPanels/dos.html");
     }
+	else if (data[0] == "unitcell"){
+		$("#visControlPanel").load("contentPanels/unitcell.html");
+	}
+	else if (data[0] == "bandstructure3d"){
+		$("#visControlPanel").load("contentPanels/bandstructure.html");
+	}
 	else if (data[0] == "fermisurface"){
 		$("#visControlPanel").load("contentPanels/fermisurface.html");
 	}

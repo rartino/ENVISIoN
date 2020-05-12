@@ -139,7 +139,9 @@ class UnitcellNetworkHandler(NetworkHandler):
         self.network.addConnection(strucMesh.getOutport('mesh'), meshRenderer.getInport('geometry'))
 
         canvas = self.add_processor('org.inviwo.CanvasGL', 'Unit Cell Canvas', xpos, ypos+400)
+        canvas.inputSize.dimensions.value = inviwopy.glm.ivec2(500, 500)
         self.network.addConnection(meshRenderer.getPort('image'), canvas.getInport('inport'))
+        canvas.widget.show()
 
         with h5py.File(h5file,"r") as h5:
             basis_matrix = np.array(h5["/basis"], dtype='d')
@@ -148,8 +150,8 @@ class UnitcellNetworkHandler(NetworkHandler):
             strucMesh_basis_property.maxValue = inviwopy.glm.mat3(1000,1000,1000,1000,1000,1000,1000,1000,1000)
             strucMesh_basis_property.value = inviwopy.glm.mat3(basis_matrix[0,0],basis_matrix[0,1],basis_matrix[0,2],basis_matrix[1,0],basis_matrix[1,1],basis_matrix[1,2],basis_matrix[2,0],basis_matrix[2,1],basis_matrix[2,2])
             strucMesh_scaling_factor_property = strucMesh.getPropertyByIdentifier('scalingFactor')
-            strucMesh_scaling_factor_property.maxValue = h5['/scaling_factor'].value
-            strucMesh_scaling_factor_property.value = h5['/scaling_factor'].value
+            strucMesh_scaling_factor_property.maxValue = h5['/scaling_factor'][()]
+            strucMesh_scaling_factor_property.value = h5['/scaling_factor'][()]
             strucMesh_timestep_property = strucMesh.getPropertyByIdentifier('timestep')
             strucMesh_timestep_property.value = 0
             strucMesh_timestep_property.minValue = 0
