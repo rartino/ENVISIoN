@@ -102,7 +102,7 @@ class UnitcellNetworkHandler(NetworkHandler):
 
         if enable_unitcell:
             unitcellCanvas = self.add_processor('org.inviwo.CanvasGL', 'Unit Cell Canvas', -600, 400)
-            unitcellCanvas.inputSize.dimensions.value = inviwopy.glm.ivec2(500, 500)
+            unitcellCanvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)
             self.network.addConnection(unitcellRenderer.getOutport('image'), unitcellCanvas.getInport('inport'))
         else:
             self.remove_processor('Unit Cell Canvas')
@@ -133,7 +133,7 @@ class UnitcellNetworkHandler(NetworkHandler):
 
         strucMesh = self.add_processor('envision.StructureMesh', 'Unit Cell Mesh', xpos, ypos+200)
         # Activate fullMesh, this allows individual resizing of atoms and centers the unitcell around same origin as volume
-        strucMesh.fullMesh.value = True
+        strucMesh.fullMesh.value = False
 
         meshRenderer = self.add_processor('org.inviwo.SphereRenderer', 'Unit Cell Renderer', xpos, ypos+300)
         self.network.addConnection(strucMesh.getOutport('mesh'), meshRenderer.getInport('geometry'))
@@ -175,7 +175,8 @@ class UnitcellNetworkHandler(NetworkHandler):
                 # The atoms in a crystal don't actually look like spheres, as the valence electrons are shared across the crystal.
                 # The different radii of the elements in data.py are just to differentiate between different elements.
                 strucMesh_radius_property.maxValue = 10
-                strucMesh_radius_property.value = radius
+                #strucMesh_radius_property.value = radius
+                #strucMesh_radius_property.value = 0.3
                 self.atomRadii.append(radius)
                 strucMesh_color_property = strucMesh.getPropertyByIdentifier('color{0}'.format(i))
                 strucMesh_color_property.value = inviwopy.glm.vec4(color[0],color[1],color[2],color[3])
