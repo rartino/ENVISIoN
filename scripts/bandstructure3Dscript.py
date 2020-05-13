@@ -50,8 +50,8 @@ from envisionpy.processor_network.Bandstructure3DNetworkHandler import Bandstruc
 import inviwopy.glm as glm
 help(glm)
 # Parse for charge density visualisation.
-#envisionpy.hdf5parser.bandstructure(PATH_TO_HDF5, PATH_TO_VASP_CALC)
-#envisionpy.hdf5parser.fermi_energy(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+envisionpy.hdf5parser.bandstructure(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+envisionpy.hdf5parser.fermi_energy(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
 inviwopy.app.network.clear()
-networkHandler = Bandstructure3DNetworkHandler(HDF5_PATH, inviwopy.app)
+networkHandler = Bandstructure3DNetworkHandler(PATH_TO_HDF5, inviwopy.app)
