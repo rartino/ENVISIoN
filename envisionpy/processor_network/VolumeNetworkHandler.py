@@ -112,7 +112,7 @@ class VolumeNetworkHandler(NetworkHandler):
         raycaster = self.get_processor('Raycaster')
         volumeSlice = self.get_processor('Volume Slice')
         if not self.isMultichannel:
-            raycaster.isotfComposite.transferFunction.setMask(maskMin, maskMax)
+            raycaster.isotfComposite.tf.setMask(maskMin, maskMax)
         else:
             getattr(raycaster, 'transfer-functions').transferFunction1.setMask(maskMin, maskMax)
             getattr(raycaster, 'transfer-functions').transferFunction2.setMask(maskMin, maskMax)
@@ -146,7 +146,7 @@ class VolumeNetworkHandler(NetworkHandler):
         raycaster = self.get_processor('Raycaster')
 
         if not self.isMultichannel:
-            volumeSlice.tfGroup.transferFunction.value = raycaster.isotfComposite.transferFunction.value
+            volumeSlice.tfGroup.transferFunction.value = raycaster.isotfComposite.tf.value
         else:
             volumeSlice.tfGroup.transferFunction.value = getattr(raycaster, 'transfer-functions').transferFunction1.value
         #VolumeSlice.tfGroup.transferFunction.add(0.0, inviwopy.glm.vec4(0.0, 0.0, 0.0, 1.0))
@@ -159,7 +159,7 @@ class VolumeNetworkHandler(NetworkHandler):
     # Clears the transfer function of all points
         Raycaster = self.get_processor('Raycaster')
         if not self.isMultichannel:
-            Raycaster.isotfComposite.transferFunction.clear()
+            Raycaster.isotfComposite.tf.clear()
         else:
             getattr(Raycaster, 'transfer-functions').transferFunction1.clear()
             getattr(Raycaster, 'transfer-functions').transferFunction2.clear()
@@ -191,7 +191,7 @@ class VolumeNetworkHandler(NetworkHandler):
     # Return a list of all the transferfunction points
         Raycaster = self.get_processor('Raycaster')
         if not self.isMultichannel:
-            tf_property = Raycaster.isotfComposite.transferFunction
+            tf_property = Raycaster.isotfComposite.tf
         else:
             tf_property = getattr(Raycaster, 'transfer-functions').transferFunction1
         point_list = [[x.pos, [x.color[0], x.color[1], x.color[2], x.color[3]]] for x in tf_property.getValues()]
@@ -203,7 +203,7 @@ class VolumeNetworkHandler(NetworkHandler):
         raycaster = self.get_processor('Raycaster')
         glm_col = inviwopy.glm.vec4(color[0], color[1], color[2], color[3])
         if not self.isMultichannel:
-            raycaster.isotfComposite.transferFunction.add(value, glm_col)
+            raycaster.isotfComposite.tf.add(value, glm_col)
         else:
             getattr(raycaster, 'transfer-functions').transferFunction1.add(value, glm_col)
             getattr(raycaster, 'transfer-functions').transferFunction2.add(value, glm_col)
