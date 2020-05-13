@@ -102,7 +102,7 @@ class UnitcellNetworkHandler(NetworkHandler):
 
         if enable_unitcell:
             unitcellCanvas = self.add_processor('org.inviwo.CanvasGL', 'Unit Cell Canvas', -600, 400)
-            unitcellCanvas.inputSize.dimensions.value = inviwopy.glm.ivec2(500, 500)
+            unitcellCanvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)
             self.network.addConnection(unitcellRenderer.getOutport('image'), unitcellCanvas.getInport('inport'))
         else:
             self.remove_processor('Unit Cell Canvas')
