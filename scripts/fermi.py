@@ -1,6 +1,6 @@
 #  ENVISIoN
 #
-#  Copyright (c) 2018 Jesper Ericsson
+#  Copyright (c) 2020 Alexander Vevstad
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -28,30 +28,27 @@
 # CONFIGURE FILE PATHS HERE
 
 # Path to your envision installation
-PATH_TO_ENVISION = "C:/Users/Lina/ENVISIoN2/envision"
+PATH_TO_ENVISION = "/home/docker/ENVISIoN/ENVISIoN"
 
 # Path to the vasp output directory you wish to visualise
+PATH_TO_VASP_CALC = "/home/docker/ENVISIoN/data/FCC-Cu"
 
-PATH_TO_VASP_CALC = "C:/Users/Lina/ENVISIoN2/data/VASP-files/BaSO4_band_ORC"
+# Path to where you want to save the resulting hdf5 file
+PATH_TO_HDF5 = "/home/docker/ENVISIoN/demo.h5"
 
-# Path to where you want to save the resulting hdf5 file 
-PATH_TO_HDF5 = "C:/Users/Lina/ENVISIoN2/data/HDF5-files/BaSO4_banddemo.hdf5"
+import os, sys, inspect
 
-
-
-import os, sys, inspect, inviwopy
-if 'INVIWO_HOME' in os.environ and os.environ['INVIWO_HOME'] not in sys.path:
-    sys.path.append(os.environ['INVIWO_HOME'])
 sys.path.append(PATH_TO_ENVISION)
+
+import inviwopy
+import inviwopy.glm as glm
+
 import envisionpy
 import envisionpy.hdf5parser
-from envisionpy.processor_network.Bandstructure3DNetworkHandler import Bandstructure3DNetworkHandler
+from envisionpy.processor_network.FermiSurfaceNetworkHandler import FermiSurfaceNetworkHandler
 
-import inviwopy.glm as glm
-help(glm)
-# Parse for charge density visualisation.
-envisionpy.hdf5parser.bandstructure(PATH_TO_HDF5, PATH_TO_VASP_CALC)
-envisionpy.hdf5parser.fermi_energy(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+envisionpy.hdf5parser.fermi_parser(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
-inviwopy.app.network.clear()
-networkHandler = Bandstructure3DNetworkHandler(PATH_TO_HDF5, inviwopy.app)
+app = inviwopy.app
+app.network.clear()
+networkHandler = FermiSurfaceNetworkHandler(PATH_TO_HDF5, app)
