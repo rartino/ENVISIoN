@@ -188,3 +188,5 @@ class UnitcellNetworkHandler(NetworkHandler):
                 strucMesh_atom_property.maxValue = atoms
 
                 self.nAtomTypes += 1
+
+        self.set_atom_radius(1)
