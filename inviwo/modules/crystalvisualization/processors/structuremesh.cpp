@@ -193,9 +193,9 @@ void StructureMesh::process() {
                 colors[idx].w = 0.5;
             }
         }
-        colorRAM_->getOwner()->invalidateAllOther(colorRAM_.get());
-        vertexRAM_->getOwner()->invalidateAllOther(vertexRAM_.get());
-        radiiRAM_->getOwner()->invalidateAllOther(radiiRAM_.get());
+        //colorRAM_->getOwner()->invalidateAllOther(colorRAM_.get());
+        //vertexRAM_->getOwner()->invalidateAllOther(vertexRAM_.get());
+        //radiiRAM_->getOwner()->invalidateAllOther(radiiRAM_.get());
         invalidate(InvalidationLevel::InvalidOutput);
     }
 
@@ -221,7 +221,7 @@ void StructureMesh::handlePicking(PickingEvent* p) {
                     color[picked].w = 0.5;
                     pickedIndex_.set(picked);
 
-                    colorRAM_->getOwner()->invalidateAllOther(colorRAM_.get());
+                    ////colorRAM_->getOwner()->invalidateAllOther(colorRAM_.get());
                     invalidate(InvalidationLevel::InvalidOutput);
                 }
 

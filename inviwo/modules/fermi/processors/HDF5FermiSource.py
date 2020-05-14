@@ -35,6 +35,16 @@ class HDF5FermiSource(ivw.Processor):
     def initializeResources(self):
         pass
 
+    def brillouin_zone(self, matrix):
+        print(matrix.shape[0]/2)
+
+        matrix = matrix[0:int(matrix.shape[0]/2),
+                        0:int(matrix.shape[1]/2),
+                        0:int(matrix.shape[2]/2)]
+
+
+        return matrix
+
     def process(self):
         if len(self.filename.value) == 0 or not Path(self.filename.value).exists():
             return
@@ -49,6 +59,7 @@ class HDF5FermiSource(ivw.Processor):
             self.energy_band.minValue = 0
             self.energy_band.maxValue = len(f.get('bands')) - 1
 
+
         # normalize all data points
         emax = evalues.max()
         emin = evalues.min()
@@ -58,9 +69,9 @@ class HDF5FermiSource(ivw.Processor):
 
         normalize_vector = np.vectorize(normalize)
         normalize_evalues = normalize_vector(evalues)
+        print(normalize_evalues.shape)
 
         volumes = ivw.data.Volume(normalize_evalues)
-        volumes.data = normalize_evalues
         volumes.dataMap.dataRange = ivw.glm.dvec2(0, 1)
         volumes.dataMap.valueRange = ivw.glm.dvec2(0, 1)
 
