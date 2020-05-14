@@ -52,9 +52,9 @@ class HDF5FermiSource(ivw.Processor):
         band_index = self.energy_band.value
         with h5py.File(self.filename.value, 'r') as f:
             basis = f.get('basis').value
-            fermi_energy = f.get('fermi_energy').value
+            fermi_energy = f.get('fermi_energy')[()]
 
-            evalues = f.get('bands').get(str(band_index)).get('composition').value
+            evalues = f.get('bands').get(str(band_index)).get('composition')[()]
 
             self.energy_band.minValue = 0
             self.energy_band.maxValue = len(f.get('bands')) - 1
