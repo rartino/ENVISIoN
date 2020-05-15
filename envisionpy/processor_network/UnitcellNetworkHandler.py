@@ -139,7 +139,7 @@ class UnitcellNetworkHandler(NetworkHandler):
         self.network.addConnection(strucMesh.getOutport('mesh'), meshRenderer.getInport('geometry'))
 
         canvas = self.add_processor('org.inviwo.CanvasGL', 'Unit Cell Canvas', xpos, ypos+400)
-        canvas.inputSize.dimensions.value = inviwopy.glm.ivec2(500, 500)
+        canvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)
         self.network.addConnection(meshRenderer.getPort('image'), canvas.getInport('inport'))
         canvas.widget.show()
 
@@ -188,3 +188,5 @@ class UnitcellNetworkHandler(NetworkHandler):
                 strucMesh_atom_property.maxValue = atoms
 
                 self.nAtomTypes += 1
+
+        self.set_atom_radius(1)

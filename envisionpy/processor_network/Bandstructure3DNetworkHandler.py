@@ -22,6 +22,9 @@ class Bandstructure3DNetworkHandler(NetworkHandler):
             tags = ivw.Tags.PY
         )
 
+    def get_ui_data(self):
+        return []
+
     def getProcessorInfo(self):
         return Bandstructure3DNetworkHandler.processorInfo()
     
@@ -258,7 +261,7 @@ class Bandstructure3DNetworkHandler(NetworkHandler):
 #Canvas
         canvas = self.factory.create('org.inviwo.CanvasGL', glm.ivec2(0,825))
         canvas.identifier = 'Canvas'
-        canvas.inputSize.dimensions.value = ivw.glm.size2_t(900,825)
+
         self.network.addProcessor(canvas)
 
         self.network.addConnection(
@@ -266,9 +269,13 @@ class Bandstructure3DNetworkHandler(NetworkHandler):
             canvas.getInport('inport')
         )
 
+
+
+        canvas.inputSize.dimensions.value = ivw.glm.size2_t(900,825)
+
+        canvas.widget.show()
+
         hdf5_path_selection.selection.value = '/Bandstructure/Bands'
-
-
 
 
 
