@@ -28,14 +28,14 @@
 # CONFIGURE FILE PATHS HERE
 
 # Path to your envision installation
-PATH_TO_ENVISION = "C:/Users/Lina/ENVISIoN2/envision"
+PATH_TO_ENVISION = "/home/labb/ENVISIoN/ENVISIoN"
 
 # Path to the vasp output directory you wish to visualise
 
-PATH_TO_VASP_CALC = "C:/Users/Lina/ENVISIoN2/data/VASP-files/BaSO4_band_ORC"
+PATH_TO_VASP_CALC = "/home/labb/ENVISIoN/"
 
 # Path to where you want to save the resulting hdf5 file 
-PATH_TO_HDF5 = "C:/Users/Lina/ENVISIoN2/data/HDF5-files/BaSO4_banddemo.hdf5"
+PATH_TO_HDF5 = "/home/labb/ENVISIoN/Cu_FCC.hdf5"
 
 
 
@@ -48,7 +48,7 @@ import envisionpy.hdf5parser
 from envisionpy.processor_network.Bandstructure3DNetworkHandler import Bandstructure3DNetworkHandler
 
 import inviwopy.glm as glm
-help(glm)
+
 # Parse for charge density visualisation.
 envisionpy.hdf5parser.bandstructure(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 envisionpy.hdf5parser.fermi_energy(PATH_TO_HDF5, PATH_TO_VASP_CALC)
