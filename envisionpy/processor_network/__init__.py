@@ -9,3 +9,4 @@ from .PCFNetworkHandler import PCFNetworkHandler
 from .BandstructureNetworkHandler import BandstructureNetworkHandler
 from .DOSNetworkHandler import DOSNetworkHandler
 from .Bandstructure3DNetworkHandler import Bandstructure3DNetworkHandler
+from .FermiSurfaceNetworkHandler import FermiSurfaceNetworkHandler

@@ -27,25 +27,28 @@
 import inviwopy.glm as glm
 
 from .NetworkHandler import NetworkHandler
+from inviwo.modules.fermi.processors.HDF5FermiSource import HDF5FermiSource
 
 
 class FermiSurfaceNetworkHandler(NetworkHandler):
     def __init__(self, hdf_file_path, inviwoApp):
-        self.app = inviwoApp
-        self.setup_network()
-        self.filepath = hdf_file_path
+        super().__init__(inviwoApp)
+        self.setup_network(hdf_file_path)
 
-    def setup_network(self):
+    def get_ui_data(self):
+        return []
+
+    def setup_network(self, filepath):
         app = self.app
         network = app.network
         factory = app.processorFactory
-        app.registerModules()
 
         # start with a clean network
         network.clear()
 
-        hdf_fermi_source = factory.create('org.inviwo.HDF5FermiSource', glm.ivec2(0,0))
-        hdf_fermi_source.filename.value = self.filepath
+        #hdf_fermi_source = factory.create('org.inviwo.HDF5FermiSource', glm.ivec2(0,0))
+        hdf_fermi_source = HDF5FermiSource('fermi', 'fermi source')
+        hdf_fermi_source.filename.value = filepath
         network.addProcessor(hdf_fermi_source)
 
         cube_proxy_geometry = factory.create('org.inviwo.CubeProxyGeometry', glm.ivec2(50,100))
@@ -129,3 +132,5 @@ class FermiSurfaceNetworkHandler(NetworkHandler):
             entry_exit_points.getPropertyByIdentifier('camera'),
             iso_raycaster.getPropertyByIdentifier('camera')
         )
+
+        canvas.widget.show()
