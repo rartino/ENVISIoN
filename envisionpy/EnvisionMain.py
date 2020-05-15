@@ -150,7 +150,8 @@ class EnvisionMain():
             "pcf": PCFNetworkHandler,
             "bandstructure": BandstructureNetworkHandler,
             "dos": DOSNetworkHandler,
-            "bandstructure3d": Bandstructure3DNetworkHandler
+            "bandstructure3d": Bandstructure3DNetworkHandler,
+            "fermisurface": FermiSurfaceNetworkHandler
             }
 
         # print(dir(hdf5parser.vasp))
