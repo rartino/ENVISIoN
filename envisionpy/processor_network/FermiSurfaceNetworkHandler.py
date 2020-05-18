@@ -25,6 +25,7 @@
 #
 ##############################################################################################
 import inviwopy.glm as glm
+import h5py
 
 from .NetworkHandler import NetworkHandler
 from inviwo.modules.fermi.processors.HDF5FermiSource import HDF5FermiSource
@@ -36,7 +37,39 @@ class FermiSurfaceNetworkHandler(NetworkHandler):
         self.setup_network(hdf_file_path)
 
     def get_ui_data(self):
-        return []
+        return [
+        "fermisurface",
+        [
+        self.get_available_bands(),
+        self.get_active_band()
+        ]
+        ]
+    
+    def get_active_band(self):
+        source = self.hdf_fermi_source
+        band_index = str(source.energy_band.value)
+        index = self.get_available_bands().index(band_index)
+        return index
+
+    def get_available_bands(self):
+        source = self.hdf_fermi_source
+        path = source.filename.value
+        with h5py.File(path, 'r') as f:
+            band_keys = []
+            for key in f.get('bands').keys():
+                band_keys.append(key)
+            return band_keys
+
+# ------------------------------------------
+# ------- Property control functions -------
+    
+    def set_active_band(self, key):
+    # Sets the dataset (band) which HDF5 Fermi Source processor will read
+        source = self.hdf_fermi_source
+        source.energy_band.value = key
+
+# ------------------------------------------
+# ------- Network building functions -------
 
     def setup_network(self, filepath):
         app = self.app
@@ -47,15 +80,15 @@ class FermiSurfaceNetworkHandler(NetworkHandler):
         network.clear()
 
         #hdf_fermi_source = factory.create('org.inviwo.HDF5FermiSource', glm.ivec2(0,0))
-        hdf_fermi_source = HDF5FermiSource('fermi', 'fermi source')
-        hdf_fermi_source.filename.value = filepath
-        network.addProcessor(hdf_fermi_source)
+        self.hdf_fermi_source = HDF5FermiSource('fermi', 'fermi source')
+        self.hdf_fermi_source.filename.value = filepath
+        network.addProcessor(self.hdf_fermi_source)
 
         cube_proxy_geometry = factory.create('org.inviwo.CubeProxyGeometry', glm.ivec2(50,100))
         network.addProcessor(cube_proxy_geometry)
 
         network.addConnection(
-            hdf_fermi_source.getOutport('outport'),
+            self.hdf_fermi_source.getOutport('outport'),
             cube_proxy_geometry.getInport('volume')
         )
 
@@ -63,7 +96,7 @@ class FermiSurfaceNetworkHandler(NetworkHandler):
         network.addProcessor(volume_bounding_box)
 
         network.addConnection(
-            hdf_fermi_source.getOutport('outport'),
+            self.hdf_fermi_source.getOutport('outport'),
             volume_bounding_box.getInport('volume')
         )
 
@@ -101,7 +134,7 @@ class FermiSurfaceNetworkHandler(NetworkHandler):
         network.addProcessor(iso_raycaster)
 
         network.addConnection(
-            hdf_fermi_source.getOutport('outport'),
+            self.hdf_fermi_source.getOutport('outport'),
             iso_raycaster.getInport('volume')
         )
 

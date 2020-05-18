@@ -574,7 +574,7 @@ function uiDataRecieved(status, id, data) {
 		$("#visControlPanel").load("contentPanels/unitcell.html");
 	}
 	else if (data[0] == "bandstructure3d"){
-		$("#visControlPanel").load("contentPanels/bandstructure.html");
+		$("#visControlPanel").load("contentPanels/bandstructure3d.html");
 	}
 	else if (data[0] == "fermisurface"){
 		$("#visControlPanel").load("contentPanels/fermisurface.html");
