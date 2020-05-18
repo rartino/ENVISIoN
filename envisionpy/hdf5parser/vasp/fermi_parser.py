@@ -50,16 +50,16 @@ def fermi_parser(hdf_file_path, vasp_dir_path):
 
         for i, line in enumerate(lines):
             if 'E-fermi' in line:
-                fermi_energy = float(re.findall('-?[\d.]+', line)[0])
+                fermi_energy = float(re.findall(r'-?[\d.]+', line)[0])
 
             if 'reciprocal lattice vectors' in line:
-                base_x = re.findall('-?[\d.]+', lines[i + 1])[3:]
+                base_x = re.findall(r'-?[\d.]+', lines[i + 1])[3:]
                 base_x = [float(x) for x in base_x]
 
-                base_y = re.findall('-?[\d.]+', lines[i + 2])[3:]
+                base_y = re.findall(r'-?[\d.]+', lines[i + 2])[3:]
                 base_y = [float(x) for x in base_y]
 
-                base_z = re.findall('-?[\d.]+', lines[i + 3])[3:]
+                base_z = re.findall(r'-?[\d.]+', lines[i + 3])[3:]
                 base_z = [float(x) for x in base_z]
 
     basis = np.array([base_x, base_y, base_z])
@@ -71,15 +71,15 @@ def fermi_parser(hdf_file_path, vasp_dir_path):
         lines = f.readlines()
 
         # collect meta data
-        [_, _, _, nspin] = [int(v) for v in re.findall('[\d]+', lines[0])]
-        nelectrons, nkpoints, nbands = [int(v) for v in re.findall('[\d]+', lines[5])]
+        [_, _, _, nspin] = [int(v) for v in re.findall(r'[\d]+', lines[0])]
+        nelectrons, nkpoints, nbands = [int(v) for v in re.findall(r'[\d]+', lines[5])]
 
         kpoints = np.zeros(shape=(nkpoints, 4))
         evalues = np.zeros(shape=(nkpoints, nbands, nspin), dtype=np.float32)
 
         kpoint_index = 0
         for i, line in enumerate(lines[7:]):
-            regex = re.findall('[-\d.E+]+', line)
+            regex = re.findall(r'[-\d.E+]+', line)
 
             # kpoint
             if len(regex) == 4:
