@@ -23,7 +23,9 @@ class Bandstructure3DNetworkHandler(NetworkHandler):
         )
 
     def get_ui_data(self):
-        return []
+        return [
+            "bandstructure3d"
+            ]
 
     def getProcessorInfo(self):
         return Bandstructure3DNetworkHandler.processorInfo()
