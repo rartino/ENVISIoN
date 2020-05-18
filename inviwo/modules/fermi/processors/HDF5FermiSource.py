@@ -97,7 +97,7 @@ class HDF5FermiSource(ivw.Processor):
 
         band_index = self.energy_band.value
         with h5py.File(self.filename.value, 'r') as f:
-            basis = f.get('basis').value
+            basis = f.get('basis')[()]
             fermi_energy = f.get('fermi_energy')[()]
 
             matrix = f.get('bands').get(str(band_index)).get('composition')[()]
