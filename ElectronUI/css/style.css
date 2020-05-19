@@ -70,6 +70,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     width: 200px;
 }
 
+#page{
+	width: 100%;
+}
 
 @import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
 body {
@@ -252,6 +255,9 @@ a.article:hover {
     min-height: 100vh;
     /* transition: all 0.3s; */
 }
+
+.form-check-label {
+    margin-bottom: 8px;
 
 /* ---------------------------------------------------
     MEDIAQUERIES

@@ -111,9 +111,14 @@ class EnvisionMain():
         self.action_dict["toggle_full_mesh"] = lambda id, params: self.networkHandlers[id].toggle_full_mesh(*params)
         self.action_dict["set_canvas_position"] = lambda id, params: self.networkHandlers[id].set_canvas_position(*params)
 
-        # Charge and ELF visualisation actions
+        # Charge, ELF and Fermi surface visualisation actions
         self.action_dict["get_bands"] = lambda id, params: self.networkHandlers[id].get_available_bands(*params)
         self.action_dict["set_active_band"] = lambda id, params: self.networkHandlers[id].set_active_band(*params)
+        
+        # Fermi surface visualisation actions
+        self.action_dict["toggle_brillouinzone"] = lambda id, params: self.networkHandlers[id].toggle_brillouin_zone(*params)
+        self.action_dict["toggle_expandedzone"] = lambda id, params: self.networkHandlers[id].toggle_expanded_zone(*params)
+        self.action_dict["set_fermi_level"] = lambda id, params: self.networkHandlers[id].set_fermi_level(*params)
 
         # Parchg visualisation actions
         self.action_dict["select_bands"] = lambda id, params: self.networkHandlers[id].select_bands(*params)
