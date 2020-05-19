@@ -34,6 +34,20 @@ import sys
 
 
 def fermi_parser(hdf_file_path, vasp_dir_path):
+    """
+    Reads OUTCAR and EIGNVAL to create datastructure for visualization of fermi surfaces
+
+    Parameters
+    ----------
+    hdf_file_path: str
+        Path where hdf file will be written to
+    vasp_dir_path: str
+        Path of direcotry containing OUTCAR and EIGENVAL files
+
+    Returns
+    -------
+    None
+    """
     # Check for files
     # ---------------
     outcar_file_path = Path(vasp_dir_path).joinpath('OUTCAR')
