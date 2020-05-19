@@ -29,6 +29,7 @@
 <h2 class="border-bottom">Fermi Surface</h2>
 
 <div id="visSettings">
+<!-- Band controls -->
   <h5 class="border-top">Band selection</h5>
   <div class="row row-margin">
     <div class="input-group col-sm-10">
@@ -41,13 +42,47 @@
       </select>
     </div>
   </div>
+
+<!-- Brillouin zone controls -->
+	<h5 class="border-top">Brillouin zone</h5>
+	<div class="form-check">
+		<label class="form-check-label">
+			<input type="checkbox" class="form-check-input" id="brillouinZoneCheck" >
+			Enable Brillouin zone
+		</label>
+	</div>
+	
+<!-- Expanded zone controls -->
+	<h5 class="border-top">Expanded zone</h5>
+	<div class="form-check">
+		<label class="form-check-label">
+			<input type="checkbox" class="form-check-input" id="expandedZoneCheck" >
+			Enable expanded zone
+		</label>
+	</div>
+
+<!-- Fermi surface controls -->
+<h5 class="border-top">Fermi level</h5>
+<div class="form-group form-row align-items-center">
+  <label class="col-sm-2" for="sliceHeightRange">Fermi level:</label>
+  <div class="col-sm-4" style="display:flex"> 
+	0
+    <input type="range" min="0" max="1" step="0.001" class="form-control-range" id="fermiLevelRange" style="margin: 5px 0;"> 
+	1
+  </div>
+</div>
+
 </div>
 
 <script>
   $(document).ready(function () {
 	loadBands(uiData[1]);
+	loadFermiLevel(uiData[2]);
 	
     $("#bandSelection").on("change", bandChanged);
+	$("#brillouinZoneCheck").on("change", brillouinChecked);
+	$("#expandedZoneCheck").on("change", expandedChecked);
+	$("#fermiLevelRange").on("change", fermiLevelChanged);
 	
 	console.log("Fermi control element loaded");
   });

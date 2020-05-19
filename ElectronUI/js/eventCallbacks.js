@@ -364,6 +364,24 @@ function partialBandRemoved() {
     return false;
 }
 
+// -------------------------------
+// ----- Fermi surface panel -----
+// -------------------------------
+
+function brillouinChecked(){
+	let enable = $("#BrillouinZoneCheck").is(":checked");
+    send_data("envision request", ["toggle_brillouinzone", activeVisId, [enable]]);
+}
+
+function expandedChecked(){
+	let enable = $("#ExpandedZoneCheck").is(":checked");
+    send_data("envision request", ["toggle_expandedzone", activeVisId, [enable]]);
+}
+
+function fermiLevelChanged(){
+	let value = $("#fermiLevelRange").val();
+	send_data("envision request", ["set_fermi_level", activeVisId, [value]]);
+}
 
 // ---------------------------
 // ----- 2-D graph panel -----
@@ -667,6 +685,13 @@ function loadBands(data) {
             $("#bandSelection").append("<option>" + bands[i] + "</option>")
     }
     $("#bandSelection")[0][activeBand].selected = true;
+}
+
+function loadFermiLevel(data){
+	let activeFermiLevel = data;
+	
+	$("#fermiLevelRange").empty();
+	$("#fermiLevelRange").val(activeFermiLevel);
 }
 
 function loadAtoms(data) {
