@@ -1,6 +1,6 @@
 #  ENVISIoN
 #
-#  Copyright (c) 2018 Jesper Ericsson
+#  Copyright (c) 2020 Amanda Aasa & Amanda Svennblad
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
