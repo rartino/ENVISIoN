@@ -156,8 +156,8 @@ class EnvisionMain():
             "Pair correlation function": envisionpy.hdf5parser.paircorrelation,
             "dos": envisionpy.hdf5parser.dos,
             "Density of states": envisionpy.hdf5parser.dos,
-            #"fermisurface": envisionpy.hdf5parser.fermi_parser,
-            #"Fermi surface": envisionpy.hdf5parser.fermi_parser
+            "fermisurface": envisionpy.hdf5parser.fermi_parser,
+            "Fermi surface": envisionpy.hdf5parser.fermi_parser
         }
 
     def update(self):
@@ -233,8 +233,8 @@ class EnvisionMain():
                 "Unitcell",
                 "Bandstructure", 
                 "Pair correlation function",
-                "Density of states"
-                ]
+                "Density of states",
+                "Fermi surface"]
 
         parse_statuses = {}
         for parse_type in parse_types:
