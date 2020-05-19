@@ -50,7 +50,8 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         try: 
             UnitcellNetworkHandler.__init__(self, hdf5_path, inviwoApp)
         except BadHDF5Error as error:
-            self.unitcellAvailable = False
+            #self.unitcellAvailable = False
+            pass
 
 
         # Check if  hdf5-file is valid
@@ -75,7 +76,7 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         # Setup default unitcell settings
         if self.unitcellAvailable:
             self.toggle_full_mesh(False)
-            self.toggle_unitcell_canvas(False)
+            #self.toggle_unitcell_canvas(False)
 
     def get_ui_data(self):
     # Return data required to fill user interface
@@ -165,3 +166,13 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
             self.network.addLink(unitcellRenderer.getPropertyByIdentifier('camera'), volumeBoxRenderer.getPropertyByIdentifier('camera'))
             self.network.addLink(volumeBoxRenderer.getPropertyByIdentifier('camera'), unitcellRenderer.getPropertyByIdentifier('camera'))
                 
+        # Configure slice visualisation
+        self.toggle_slice_canvas(True)
+        self.toggle_slice_plane(True)
+        self.set_plane_normal(0, 1, 0)
+        self.set_plane_height(0.5)
+
+        # Configure unitcell visualisation
+        if self.unitcellAvailable:
+            self.toggle_unitcell_canvas(True)
+            self.set_atom_radius(0.2)
