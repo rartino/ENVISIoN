@@ -687,13 +687,6 @@ function loadBands(data) {
     $("#bandSelection")[0][activeBand].selected = true;
 }
 
-function loadFermiLevel(data){
-	let activeFermiLevel = data;
-	
-	$("#fermiLevelRange").empty();
-	$("#fermiLevelRange").val(activeFermiLevel);
-}
-
 function loadAtoms(data) {
     let [atoms, atomRadii] = data;
     $("#atomControls").empty();

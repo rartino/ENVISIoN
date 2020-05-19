@@ -42,8 +42,7 @@ class FermiSurfaceNetworkHandler(NetworkHandler):
         [
         self.get_available_bands(),
         self.get_active_band()
-        ],
-        self.get_active_fermi_level()
+        ]
         ]
     
     def get_active_band(self):
@@ -60,10 +59,6 @@ class FermiSurfaceNetworkHandler(NetworkHandler):
             for key in f.get('bands').keys():
                 band_keys.append(key)
             return band_keys
-
-    def get_active_fermi_level(self):
-        active_fermi_level = self.iso_raycaster.raycasting.isoValue.value
-        return active_fermi_level
 
 # ------------------------------------------
 # ------- Property control functions -------

@@ -37,25 +37,7 @@ try:
 except ModuleNotFoundError as e:
     sys.stderr.write("Module error: " + str(e) + "\n" + "Can not find module. Please check that the environment variable INVIWO_HOME is set to the correct value in the computers system settings.")
     #raise Exception("Can not find module. Please set the environment variable INVIWO_HOME to the correct value.")
-
-"""
-if 'INVIWO_HOME' in os.environ and os.environ['INVIWO_HOME'] not in sys.path:
-    sys.path.insert(0,os.environ['INVIWO_HOME'])
-        
-try:
-    import inviwopy as ivw
-    import inviwopyapp as ivwapp
-except ModuleNotFoundError as e:
-    path_canidates = [os.path.realpath(os.path.join(__file__,"..","..","..","inviwo-build","bin")), "/opt/envision/inviwo/bin" ]
-    for path_candidate in path_canidates:
-        if os.path.exists(path_candidate):
-            sys.path.append(path_candidate)        
-            import inviwopy as ivw
-            import inviwopyapp as ivwapp
-            break
-    else:
-        raise Exception("Cannot find inviwo directory. Please set environment variable INVIWO_HOME to point at the directory to use.")
-     """   
+  
 from envisionpy.processor_network import *
 from envisionpy.utils.exceptions import *
 import envisionpy.hdf5parser
@@ -159,7 +141,6 @@ class EnvisionMain():
             "fermisurface": FermiSurfaceNetworkHandler
             }
 
-        # print(dir(hdf5parser.vasp))
         self.parseFunctions = {
             "charge": envisionpy.hdf5parser.charge,
             "Electron density": envisionpy.hdf5parser.charge,
@@ -174,7 +155,9 @@ class EnvisionMain():
             "pcf": envisionpy.hdf5parser.paircorrelation,
             "Pair correlation function": envisionpy.hdf5parser.paircorrelation,
             "dos": envisionpy.hdf5parser.dos,
-            "Density of states": envisionpy.hdf5parser.dos
+            "Density of states": envisionpy.hdf5parser.dos,
+            #"fermisurface": envisionpy.hdf5parser.fermi_parser,
+            #"Fermi surface": envisionpy.hdf5parser.fermi_parser
         }
 
     def update(self):
@@ -214,8 +197,6 @@ class EnvisionMain():
         if not handler_id in self.networkHandlers and (action != "start" and action != "stop"):
             return [action, False, handler_id, format_error(HandlerNotFoundError('Non-existant network handler instance "' + handler_id + '".'))]
 
-        # if action!="start":
-        #     return [action, parameters]
 
         # try:
         # Runs the funtion with networkhandler id and request data as arguments.
@@ -230,7 +211,7 @@ class EnvisionMain():
         # except EnvisionError as e:
         #     return [action, False, handler_id, format_error(e)]
         else:
-            return [action, True, handler_id, response_data] #returns -> "response" in nodeInterface.py
+            return [action, True, handler_id, response_data]
 
         # return [action] + self.action_dict[action](handler_id, parameters)
         # except AttributeError as error:
@@ -252,7 +233,8 @@ class EnvisionMain():
                 "Unitcell",
                 "Bandstructure", 
                 "Pair correlation function",
-                "Density of states"]
+                "Density of states"
+                ]
 
         parse_statuses = {}
         for parse_type in parse_types:
