@@ -29,9 +29,6 @@ const spawn = require("child_process").spawn;
 const CONFIG = require("./config.json");
 const {remote} = require('electron');
 dialog = remote.dialog;
-const win = remote.getCurrentWindow();
-//const {getCurrentWindow} = require('electron').remote;
-
 
 var pythonProcess = null
 
@@ -41,7 +38,6 @@ var nResponses = 0;
 //TODO: not sure if encoding will always be the same on platforms
 
 var response_callbacks = {
-    // "start": visualisationStarted,
     // "get_bands": loadBands,
     // "get_atom_names": loadAtoms,
     // "get_tf_points": loadTFPoints,
@@ -56,11 +52,10 @@ function start_python_process() {
     {
         console.log("Starting python")
         if (window.navigator.platform == "Win32")
-			// Argument: spawn(type_of_script, [path_of_script])
             pythonProcess = spawn('python', ["ElectronUI/nodeInterface.py"]);
         else
             pythonProcess = spawn('python3', ["ElectronUI/nodeInterface.py"]);
-        console.log(pythonProcess) // Writes out child_process data in log
+        console.log(pythonProcess)
         pythonProcess.stdout.on('data', on_data_recieve)
         pythonProcess.stderr.on('data', on_python_error)
         // pythonProcess.stdin.setEncoding('utf-8')
@@ -85,8 +80,6 @@ function send_data(tag, data) {
         return;
     var json_data = {type: tag, data: data}
     var packet = JSON.stringify(json_data) + "\r\n"; 
-	// JSON.strignify(json_data): {"type":"tag","data":"data"}
-	// ex: {"type":"parser request","data":["All","temp_0.hdf5","C:\\Users\\Lina\\ENVISIoN2\\data\\BCC-Cu"]}
     try{
 		if (CONFIG.logSentPackets) 
 		console.log("Sending packet: \n", packet)
@@ -96,19 +89,9 @@ function send_data(tag, data) {
         pythonCrashed = true;
 		const options = {
 			type: "warning", title: "ENVISIoN has stopped working!", 
-			message: "The python process has crashed. You must reload ENVISIoN or close and restart the program.", 
-			buttons: ["Reload", "Close"]
+			message: "The python process has crashed. You must reload ENVISIoN or close and restart the program."
 			}
-		dialog.showMessageBox(win, options, 
-		(response) => 
-		{if (response === 0)
-			console.log("Reload");
-		else if (response === 1){
-			console.log("Close");
-		}
-		})
-		//dialog.showErrorBox("ENVISIoN has crashed!", "The python process of envision has crashed. You must restart envision to fix this.")
-        //alert("ENVISIoN crashed!\nThe python process of envision has crashed. You must restart envision to fix this.");
+		dialog.showMessageBox(options)
 	}
 }
 
@@ -178,7 +161,6 @@ function on_python_error(data) {
     // var output = Buffer.from(data, 'hex')
     console.log(data.toString())
 	dialog.showErrorBox("Error in ENVISIoN: ", data.toString())
-	//alert("Python error:" + "\n" + data.toString());
 }
 
 var loadingTimeout = null;
