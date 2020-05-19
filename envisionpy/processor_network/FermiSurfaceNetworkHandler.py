@@ -42,7 +42,8 @@ class FermiSurfaceNetworkHandler(NetworkHandler):
         [
         self.get_available_bands(),
         self.get_active_band()
-        ]
+        ],
+        self.get_active_fermi_level()
         ]
     
     def get_active_band(self):
@@ -60,13 +61,28 @@ class FermiSurfaceNetworkHandler(NetworkHandler):
                 band_keys.append(key)
             return band_keys
 
+    def get_active_fermi_level(self):
+        active_fermi_level = self.iso_raycaster.raycasting.isoValue.value
+        return active_fermi_level
+
 # ------------------------------------------
 # ------- Property control functions -------
     
     def set_active_band(self, key):
     # Sets the dataset (band) which HDF5 Fermi Source processor will read
         source = self.hdf_fermi_source
-        source.energy_band.value = key
+        source.energy_band.value = int(key)
+        
+    def toggle_brillouin_zone(self, enable):
+        source = self.hdf_fermi_source
+        source.is_brillouin_zone.value = not source.is_brillouin_zone.value
+
+    def toggle_expanded_zone(self, enable):
+        source = self.hdf_fermi_source
+        source.is_expanded_zone.value = not source.is_expanded_zone.value
+
+    def set_fermi_level(self, value):
+        self.iso_raycaster.raycasting.isoValue.value = float(value)
 
 # ------------------------------------------
 # ------- Network building functions -------
@@ -130,40 +146,41 @@ class FermiSurfaceNetworkHandler(NetworkHandler):
             entry_exit_points.getPropertyByIdentifier('camera')
         )
 
-        iso_raycaster = factory.create('org.inviwo.ISORaycaster', glm.ivec2(0, 300))
-        network.addProcessor(iso_raycaster)
+        self.iso_raycaster = factory.create('org.inviwo.ISORaycaster', glm.ivec2(0, 300))
+        network.addProcessor(self.iso_raycaster)
 
         network.addConnection(
             self.hdf_fermi_source.getOutport('outport'),
-            iso_raycaster.getInport('volume')
+            self.iso_raycaster.getInport('volume')
         )
 
         network.addConnection(
             entry_exit_points.getOutport('entry'),
-            iso_raycaster.getInport('entry')
+            self.iso_raycaster.getInport('entry')
         )
 
         network.addConnection(
             entry_exit_points.getOutport('exit'),
-            iso_raycaster.getInport('exit')
+            self.iso_raycaster.getInport('exit')
         )
 
         network.addConnection(
             mesh_renderer.getOutport('image'),
-            iso_raycaster.getInport('bg')
+            self.iso_raycaster.getInport('bg')
         )
 
         canvas = factory.create('org.inviwo.CanvasGL', glm.ivec2(0, 400))
         network.addProcessor(canvas)
 
         network.addConnection(
-            iso_raycaster.getOutport('outport'),
+            self.iso_raycaster.getOutport('outport'),
             canvas.getInport('inport')
         )
 
         network.addLink(
             entry_exit_points.getPropertyByIdentifier('camera'),
-            iso_raycaster.getPropertyByIdentifier('camera')
+            self.iso_raycaster.getPropertyByIdentifier('camera')
         )
-
+        
+        canvas.inputSize.dimensions.value = glm.size2_t(500,500)
         canvas.widget.show()
