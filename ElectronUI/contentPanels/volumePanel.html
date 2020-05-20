@@ -155,6 +155,7 @@
 </div>
 
 <!-- Atom rendering controls -->
+<!--
 <h5 class="border-top">Atom rendering</h5>
 <div class="form-check">
   <label class="form-check-label">
@@ -165,7 +166,7 @@
 
 <div id="atomControls">
 </div>
-
+-->
 
 <script>
   $(document).ready(function () {
@@ -204,7 +205,7 @@
     $("#sliceHeightText").on("input keydown keyup mousedown mouseup select contextmenu drop", sliceHeightChanged);
     $("#sliceZoomText").on("input keydown keyup mousedown mouseup select contextmenu drop", sliceZoomChanged);
     $("#sliceNormalForm").on("submit", sliceNormalChanged)
-    $("#hideAllAtomsCheck").on("change", hideAtomsChanged)
+    //$("#hideAllAtomsCheck").on("change", hideAtomsChanged)
 
     console.log("Volume settings element loaded")
   });

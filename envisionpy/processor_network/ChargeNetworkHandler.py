@@ -82,14 +82,15 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
 
     def get_ui_data(self):
     # Return data required to fill user interface
+        """
         if self.unitcellAvailable: 
             unitcellData = UnitcellNetworkHandler.get_ui_data(self)
         else: 
             unitcellData = [[], []]
+        """
         return [
             "charge", 
             VolumeNetworkHandler.get_ui_data(self),
-            unitcellData,
             [
                 self.get_available_bands(), 
                 self.get_active_band()
