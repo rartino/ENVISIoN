@@ -47,13 +47,22 @@ PATH_TO_VASP_CALC = os.path.join(TEST_DIR, "resources/CuFeS2_band_CBT2")
 # Path to the resulting hdf5 file
 PATH_TO_HDF5 = os.path.join(TEST_DIR, "dos_demo.hdf5")
 
-# Parse
-envisionpy.hdf5parser.dos(PATH_TO_HDF5, PATH_TO_VASP_CALC)
-envisionpy.hdf5parser.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+def test_parse_DOS():
+    """Testing if correct DOS parsing of a VASP-directory.
+    Parameters
+    ----------
+    None
+    
+    Returns
+    -------
+    None
+    """
+    # Parse
+    envisionpy.hdf5parser.dos(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+    envisionpy.hdf5parser.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
-# Test if the generated HDF5-file contains correct information
+    # Test if the generated HDF5-file contains correct information
 
-def test_parse_1():
     if os.path.isfile(PATH_TO_HDF5):
             with h5py.File(PATH_TO_HDF5, 'r') as h5:
                 assert '/DOS' in h5
@@ -62,6 +71,5 @@ def test_parse_1():
                 assert '/basis' in h5
                 assert '/incar' in h5
                 assert '/scaling_factor' in h5
-
-# cleanup
-os.remove(PATH_TO_HDF5)
+    # cleanup
+    os.remove(PATH_TO_HDF5)
