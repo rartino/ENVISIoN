@@ -47,19 +47,30 @@ PATH_TO_VASP_CALC = os.path.join(TEST_DIR, "resources/Cu_band_CUB")
 # Path to the resulting hdf5 file
 PATH_TO_HDF5 = os.path.join(TEST_DIR, "band_demo.hdf5")
 
-# Parse
-envisionpy.hdf5parser.bandstructure(PATH_TO_HDF5, PATH_TO_VASP_CALC)
-envisionpy.hdf5parser.fermi_energy(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+def test_parse_first():
+    """Testing if correct bandstructure parsing of a compatible VASP-directory.
+    Parameters
+    ----------
+    None
+    
+    Returns
+    -------
+    None
+    """
+    # Parse
+    envisionpy.hdf5parser.bandstructure(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+    envisionpy.hdf5parser.fermi_energy(PATH_TO_HDF5, PATH_TO_VASP_CALC)
 
-# Test if the generated HDF5-file contains correct information
+    # Test if the generated HDF5-file contains correct information
 
-def test_parse_1():
     if os.path.isfile(PATH_TO_HDF5):
             with h5py.File(PATH_TO_HDF5, 'r') as h5:
                 assert '/Bandstructure' in h5
                 assert '/BandStructure' in h5
                 assert '/FermiEnergy' in h5
                 assert '/Highcoordinates' in h5
+    # cleanup
+    os.remove(PATH_TO_HDF5)
 
 ########################################################################################
 # Second test of a VASP-directory which is incompatible with the bandstructure parser.
@@ -70,20 +81,27 @@ PATH_TO_VASP_CALC_1 = os.path.join(TEST_DIR, "resources/CuFeS2_band_CBT2")
 # Path to the resulting hdf5 file
 PATH_TO_HDF5_1 = os.path.join(TEST_DIR, "band_demo1.hdf5")
 
-# Parse
-envisionpy.hdf5parser.bandstructure(PATH_TO_HDF5_1, PATH_TO_VASP_CALC_1)
-envisionpy.hdf5parser.fermi_energy(PATH_TO_HDF5_1, PATH_TO_VASP_CALC_1)
+def test_parse_second():
+    """Testing if correct bandstructure parsing of a incompatible VASP-directory.
+    Parameters
+    ----------
+    None
+    
+    Returns
+    -------
+    None
+    """
+    # Parse
+    envisionpy.hdf5parser.bandstructure(PATH_TO_HDF5_1, PATH_TO_VASP_CALC_1)
+    envisionpy.hdf5parser.fermi_energy(PATH_TO_HDF5_1, PATH_TO_VASP_CALC_1)
 
-# Test if the generated HDF5-file contains incorrect information
+    # Test if the generated HDF5-file contains incorrect information
 
-def test_parse_2():
     if os.path.isfile(PATH_TO_HDF5_1):
             with h5py.File(PATH_TO_HDF5_1, 'r') as h5:
                 assert '/Bandstructure'  not in h5
                 assert '/BandStructure' not in h5
                 assert '/FermiEnergy' in h5
                 assert '/Highcoordinates' not in h5
-
-# cleanup
-os.remove(PATH_TO_HDF5)
-os.remove(PATH_TO_HDF5_1)
+    # cleanup
+    os.remove(PATH_TO_HDF5_1)
