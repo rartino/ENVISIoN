@@ -241,7 +241,7 @@ class EnvisionMain():
             try:
                 parse_statuses[parse_type] = self.parseFunctions[parse_type](hdf5_path, vasp_path)
             except Exception:
-                raise BadHDF5Error("Parser {} could not be parsed some functions may not work.".fromat(parse_type))
+                print("Parser {} could not be parsed some functions may not work.".format(parse_type))
 
 
         # TODO: Return status of
