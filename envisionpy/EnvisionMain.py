@@ -37,14 +37,14 @@ try:
 except ModuleNotFoundError as e:
     sys.stderr.write("Module error: " + str(e) + "\n" + "Can not find module. Please check that the environment variable INVIWO_HOME is set to the correct value in the computers system settings.")
     #raise Exception("Can not find module. Please set the environment variable INVIWO_HOME to the correct value.")
-  
+
 from envisionpy.processor_network import *
 from envisionpy.utils.exceptions import *
 import envisionpy.hdf5parser
 
 
 class EnvisionMain():
-    """ Class for managing a inviwo instance 
+    """ Class for managing a inviwo instance
         and running ENVISIoN visualizations with it.
 
         Acts as an interface to control all aspects of envision.
@@ -96,7 +96,7 @@ class EnvisionMain():
         # Charge, ELF and Fermi surface visualisation actions
         self.action_dict["get_bands"] = lambda id, params: self.networkHandlers[id].get_available_bands(*params)
         self.action_dict["set_active_band"] = lambda id, params: self.networkHandlers[id].set_active_band(*params)
-        
+
         # Fermi surface visualisation actions
         self.action_dict["toggle_brillouinzone"] = lambda id, params: self.networkHandlers[id].toggle_brillouin_zone(*params)
         self.action_dict["toggle_expandedzone"] = lambda id, params: self.networkHandlers[id].toggle_expanded_zone(*params)
@@ -144,7 +144,7 @@ class EnvisionMain():
         self.parseFunctions = {
             "charge": envisionpy.hdf5parser.charge,
             "Electron density": envisionpy.hdf5parser.charge,
-            "elf": envisionpy.hdf5parser.elf, 
+            "elf": envisionpy.hdf5parser.elf,
             "Electron localisation function": envisionpy.hdf5parser.elf,
             "Partial charge density": envisionpy.hdf5parser.parchg,
             "parchg": envisionpy.hdf5parser.parchg,
@@ -166,7 +166,7 @@ class EnvisionMain():
     def initialize_inviwo_app(self):
         # Inviwo requires that a logcentral is created.
         self.lc = ivw.LogCentral()
-        
+
         # Create and register a console logger
         self.cl = ivw.ConsoleLogger()
         self.lc.registerLogger(self.cl)
@@ -227,20 +227,24 @@ class EnvisionMain():
 
         if parse_types == "All":
             parse_types = [
-                "Electron density", 
+                "Electron density",
                 "Electron localisation function",
                 "Partial charge density",
                 "Unitcell",
-                "Bandstructure", 
+                "Bandstructure",
                 "Pair correlation function",
                 "Density of states",
                 "Fermi surface"]
 
         parse_statuses = {}
         for parse_type in parse_types:
-            parse_statuses[parse_type] = self.parseFunctions[parse_type](hdf5_path, vasp_path)
+            try:
+                parse_statuses[parse_type] = self.parseFunctions[parse_type](hdf5_path, vasp_path)
+            except Exception:
+                raise BadHDF5Error("Parser {} could not be parsed some functions may not work.".fromat(parse_type))
 
-        # TODO: Return status of 
+
+        # TODO: Return status of
         return [parse_statuses, "*Error message*"]
 
 
@@ -274,4 +278,3 @@ class EnvisionMain():
         #     return [True, handler_id + " stopped."]
         # else:
         raise HandlerNotFoundError("That visualisation is not running.")
-
