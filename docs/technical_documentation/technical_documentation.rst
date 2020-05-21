@@ -122,7 +122,7 @@ Definitioner
 -  **Mesh** - Beskriver ett geometriskt objekt som en uppsättning av
    ändliga element.
 
--  **array** - Ett dataobjekt som fungerar som behållare för element av
+-  **Array** - Ett dataobjekt som fungerar som behållare för element av
    samma typ  [WhatIsArray]_.
 
 -  **UNIX** - Benämning av en grupp operativsystem som härstammar från
@@ -349,7 +349,7 @@ exempelvist är dataset sparade kontinuerligt. Slutligen återfinns
 HDF5-objektet *attributes*, som kan valbart skapas. Typiskt sätt skapas
 *attributes* som ett sätt för att ytterligare beskriva några egenskaper
 hos ett dataset. En *attribute* innehåller ett namn och ett värde, och
-skapas i samband med att ett dataset öppnas [HDF group2]_.
+skapas i samband med att ett dataset öppnas [HDFgroup2]_.
 
 
 .. figure:: figures/Dataset_Metadata_HDF5.png
@@ -433,7 +433,7 @@ attributen
 -  Unit är storhetens fysikaliska enhet.
 
 Notera också att *float[x]* avser en lista med längd x, samt att alla
-grupper som är märkta med n är en metod att ange att det kan finns flera
+grupper som är märkta med n är en metod att ange att det kan finnas flera
 grupper på den nivån. Lådor vars rubrik är angivet inom parentes anger
 ett villkor för att den resterande sökvägen ska kunna skapas. Viktig
 anmärkning här är därför att dessa villkor inte ingår i HDF5-strukturen,
@@ -444,7 +444,7 @@ förekommer en låda med angivelsen *(ISPIN=0)*. Båda *ISPIN* och *LORBIT*
 är flaggor som kan sättas i INCAR-filen. I detta fall anger lådorna
 villkoren att *(LORBIT=0)* och *(ISPIN=0)* för att den fortsatta
 respektive grupperna under ska kunna skapas. Lådan under
-*PairCorrelationFunc* anger dock ingen sådan flaggan. Det den anger är
+*PairCorrelationFunc* anger dock ingen sådan flagga. Det den anger är
 villkoret som har med huruvida *\_write\_pcdat\_onecol* eller
 *\_write\_pcdat\_multicol* används.
 
@@ -462,10 +462,10 @@ följande fall:
 
 För fall 2 och 3 används *\_write\_pcdat\_multicol* medan fall 1 använder
 *\_write\_pcdat\_onecol*, se under rubrik
-sec:skrivning till HDF5_. Villkoren är därmed enbart ett sätt
+sec:skrivningtillHDF5_. Villkoren är därmed enbart ett sätt
 att ange vad för fall parsern behandlar.
 
-.. _sec:skrivning till HDF5:
+.. _sec:skrivningtillHDF5:
 
 Skrivning till HDF5-fil
 -----------------------
