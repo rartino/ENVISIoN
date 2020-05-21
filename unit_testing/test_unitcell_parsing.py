@@ -33,9 +33,7 @@ import pytest
 
 # path to current directory
 TEST_DIR = os.path.dirname(os.path.realpath(__file__))
-
-# check if INVIWO_HOME is set if not assume this unit test is one directory below envision root
-sys.path.append(os.environ.get('INVIWO_HOME', os.path.join(TEST_DIR, os.pardir)))
+sys.path.append(os.path.join(TEST_DIR, os.pardir))
 import envisionpy.hdf5parser
 
 ########################################################################################

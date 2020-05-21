@@ -3,7 +3,7 @@ import pytest
 import h5py
 
 TEST_DIR = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.environ.get('INVIWO_HOME', os.path.join(TEST_DIR, os.pardir)))
+sys.path.append(os.path.join(TEST_DIR, os.pardir))
 
 
 from envisionpy.hdf5parser import fermi_parser
