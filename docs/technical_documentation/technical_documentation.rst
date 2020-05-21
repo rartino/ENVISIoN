@@ -510,6 +510,32 @@ Returnerar:
 
 -  None
 
+**\_write\_scaling\_factor** Denna funktion skriver skalfaktorn för gittret i ett dataset
+med namn scaling\_factor.
+
+Parametrar:
+
+-  h5file: Sökväg till HDF5-fil, anges som en sträng.
+
+-  scaling\_factor: Skalfaktorn för gittret.
+
+Returnerar:
+
+-  None
+
+**\_write\_fermi\_energy** Denna funktion skriver fermi-energin i ett dataset
+med namn FermiEnergy.
+
+Parametrar:
+
+-  h5file: Sökväg till HDF5-fil, anges som en sträng.
+
+-  fermi\_energy: Fermi-energin för den aktuella uträkningen.
+
+Returnerar:
+
+-  None
+
 **\_write\_bandstruct** Denna funktion skriver ut data för bandstruktur i
 en grupp med namn Bandstructure. Inom denna grupp tilldelas specifika
 K-punkter, energier samt bandstrukturer egna dataset. Högsymmetripunkter och deras
