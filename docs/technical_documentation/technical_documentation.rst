@@ -939,22 +939,11 @@ nätverken visas i figur fig:PCF_.
 Bandstruktur
 ~~~~~~~~~~~~
 
-Nätverket startar med att öppna en HDF5-fil. Därefter kontrolleras om
-det finns en sökväg med namnet *Fermienergy* i filen, skulle sökvägen
-existera läggs en processor till som extraherar det värdet sparat i ett
-dataset. Sedan navigeras det genom HDF5-filen till platsen där alla band
-är sparade. Alla dessa band sparas i en DataFrame där varje kolumn
-innehåller alla värden för ett band. Skulle Fermienegin finnas i
-HDF5-filen kommer det värdet att subtraheras från alla värden i
-DataFrame. Sedan ritas alla band upp i en graf med samma värden på
-x-axeln. y-axeln får en rubrik med lämplig text, antigen *Energy* eller
-*Energy - Fermi energy*, för att sedan visualiseras i ett fönster.
+Nätverket startar med att öppna en HDF5-fil. Därefter läggs en process till som läser in data från HDF5-filen. Det som läses in från HDF5-filen är platsen där alla band, högkarakteristiska punkter (symboler) och de högkarakteristiska punkternas koordinater. Alla band sparas i en DataFrame där varje kolumn
+innehåller alla värden för ett band. De högkarakteristiska punkterna och tillhörande koordinater. Sedan ritas alla band upp i en graf ihop med symbolerna och linjer som är kopplade till var symbolerna är placerade. X-axeln är baserad på iterationer av k-punkter från VASP-filerna. Längs x-axeln ses symbolerna med tillhörande linjer. På y-axeln ses energierna angivna i eV. 
 
-Med den kunskapen gruppmedlemmarna besitter idag skulle inte samma
-tillvägagångssätt för visualiseringen tagits. Kontrollen av fermienergi
-skulle ske redan i parsern för bandstrukturen. Skulle Fermienergin
-hittas, subtraheras värdet redan innan all data för de olika banden
-lagras i ett dataset.
+
+Med den kunskapen gruppmedlemmarna besitter idag skulle x-axeln ändras så den itället baseras på längden mellan de högkarakteristiska punkterna i Brillouin-zonen. 
 
 .. figure:: figures/BandsNetwork.PNG
    :alt: BandsNetwork
