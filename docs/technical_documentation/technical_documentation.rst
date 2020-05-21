@@ -470,10 +470,10 @@ att ange vad för fall parsern behandlar.
 Skrivning till HDF5-fil
 -----------------------
 
-Det som skapar strukturen i HDF5-filen är skrivningsmodulen *h5writer* I
+Det som skapar strukturen i HDF5-filen är skrivningsmodulen *h5writer* i
 ENVISIoN. *h5writer.py* är ett skript som innehåller alla
 skrivningsfunktioner som ingår i parsersystemet. Funktionernas uppgift
-är att skapa *datasets* (rådata) i rätt plats i HDF5-fil objektet. Nedan
+är att skapa *datasets* (rådata) på rätt plats i HDF5-fil objektet. Nedan
 listas alla funktioner som ingår i modulen.
 
 **\_write\_coordinates** Denna funktion skriver koordinater för
@@ -978,6 +978,25 @@ i figur fig:DoS_. Användaren kan även välja att visa en
 
 .. _sec:NetworkHandlers:
 
+Fermi-yta
+~~~~~~~~~~~~~~~~
+Här kan du skriva om fermi-ytan ALEX!
+
+
+
+Enehtscell
+~~~~~~~~~~~~~~~~
+Här kan du skriva om enehtscellen OLAV!
+
+
+
+Elektrontäthet
+~~~~~~~~~~~~~~~~
+Här kan du skriva om elektrontätheten OLAV!
+
+
+
+
 NetworkHandlers
 ---------------
 
@@ -1233,12 +1252,10 @@ Hanterar den generella delen av en
 2D-graf visualisering. Styr allt som har med 2D-grafen att göras, som
 skalning, axlar på grafen, med mera.
 
-BandstructureNetworkHandler
+Bandstructure3DNetworkHandler
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Ärver LinePlotNetworkHandler och
-sätter upp den specifika delen för bandstructure visualiseringen.
-Styr HDF5-källan och bandval.
+Fixas av AMANDA x2
 
 DOSNetworkHandler
 ~~~~~~~~~~~~~~~~~
@@ -1254,6 +1271,12 @@ PCFNetworkHandler
 Ärver LinePlotNetworkHandler och sätter upp
 den specifika delen för parkorrelationsfunktions
 visualiseringen. Styr HDF5-källan och val av tidssteg.
+
+FermiNetworkHandler
+~~~~~~~~~~~~~~~~~
+Här kan du skirva om networkhandlern ALEX
+
+
 
 .. _sec:datastrukturer:
 
@@ -1539,6 +1562,9 @@ Utport:
 Properties:
 
 -  OptionPropertyString operationProperty\_
+
+**HDFfermiSource** Vet inte vad den heter helt, du får ändra själv! 
+
 
 **FunctionOperationNary** Denna processor implementerar en operator med
 variabel aritet (engelska n-ary), antingen addition/summa
