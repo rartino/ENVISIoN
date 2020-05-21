@@ -1039,7 +1039,7 @@ visualiseringar utan bara för de relaterade till volymrendering.
 
 Alla dessa klasser ärver en basklass kallad *NetworkHandler*. Denna har i uppgift att ta hand om ett set av processorer som hör till en speciell visualisering.
 
-NetworkHandler-klasserna tillhör envitionpy-modulen och ligger under envisionpy.processor_network.
+NetworkHandler-klasserna tillhör envisionpy-modulen och ligger under envisionpy.processor_network.
 
 VolumeNetworkHandler
 ~~~~~~~~~~~~~~~~~~~~
