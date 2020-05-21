@@ -1148,11 +1148,11 @@ och *VolumeNetworkHandler* för att hantera atompositions- respektive
 volymrenderingsaspekten av visualiseringen.
 
 
-.. figure:: figures/VolumeHandler/charge_network_ex.PNG
+.. figure:: figures/Visualization/NetworkHandlers/ChargeNetworkHandler/ChargeNetworkHandler.png
    :name: fig:charge_network
    :align: center
    :width: 100 %
-   :figwidth: 40 %
+   :figwidth: 50 %
    :alt: charge_network
 
    Nätverket som byggs upp då en ChargeNetworkHandler-instans initieras och HDF5-filen innehåller unitcell-data.
