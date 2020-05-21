@@ -955,11 +955,7 @@ Med den kunskapen gruppmedlemmarna besitter idag skulle x-axeln ändras så den 
 .. image:: figures/new_bandstructure.jpg
    :alt: BandsAll
    :width: 49%
-	 
 
-*Visualisering av bandstruktur för TiPO4.
-(vänster) Visualisering av hela bandstrukturen som skapas när nätverket evalueras.
-(höger) En förstoring där endast energin mellan -4 eV och 5 eV visas.*
 
 Tillståndstäthet
 ~~~~~~~~~~~~~~~~
