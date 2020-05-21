@@ -263,7 +263,7 @@ def unitcell(h5file, vasp_dir, elements=None, poscar_equiv='POSCAR'):
         with h5py.File(h5file, 'r') as h5:
             if "/UnitCell" in h5:
                 print("Already parsed. Skipping.")
-                return False
+                return True
         
     try:
         # Parses lattice vectors and atom positions from POSCAR
