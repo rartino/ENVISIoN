@@ -914,7 +914,7 @@ lagras i ett dataset.
 
    Nätverk för visualisering av bandstruktur.
 	   
-.. image:: figures/BandsAll.png
+.. image:: figures/new_bandstructure.jpg
    :alt: BandsAll
    :width: 49%
 	 
