@@ -945,22 +945,17 @@ innehåller alla värden för ett band. De högkarakteristiska punkterna och til
 
 Med den kunskapen gruppmedlemmarna besitter idag skulle x-axeln ändras så den itället baseras på längden mellan de högkarakteristiska punkterna i Brillouin-zonen. 
 
-.. figure:: figures/BandsNetwork.PNG
+.. figure:: figures/network_bandstructure.png
    :alt: BandsNetwork
    :width: 25%
    :align: center
 
    Nätverk för visualisering av bandstruktur.
 	   
-.. image:: figures/BandsAll.png
+.. image:: figures/new_bandstructure.jpg
    :alt: BandsAll
    :width: 49%
 	 
-.. image:: figures/ZoomedBands.png
-   :alt: ZoomedBands
-   :width: 49%
-	      
-.. _fig:bands_tipo4:
 
 *Visualisering av bandstruktur för TiPO4.
 (vänster) Visualisering av hela bandstrukturen som skapas när nätverket evalueras.
