@@ -1028,6 +1028,8 @@ i figur fig:DoS_. Användaren kan även välja att visa en
 Enhetscell
 ~~~~~~~~~~~~~~~~
 
+Hos nätverket för visualisering av enhetscellen hämtar först en *HDFSource*-processor HDF5-filen. Under *HDFSource*-processorn ligger ett antal *CoordinateReader*-processorer, en för varje atomslag i enhetscellen. Från HDF5-filen hämtar var och en av *CoordinateReader*-processorerna koordinaterna för dess atomslags alla enhetscellsatomer. En *StructureMesh*-processor skapar sedan en mesh utifrån koordinaterna. Efter det skapar en *SphereRenderer*-processor en bild utifrån meshen, där en sfär ritas ut för varje atom i enhetscellen. Bilden skickas till slut till en *Canvas*-processor, som skapar ett fönster där bilden visas. Figuren nedan visar hur nätverket ser ut för bariumsulfat (BaSO4) och figuren under den visar den resulterande bilden.
+
 .. figure:: figures/Visualization/Networks/Unitcell/unitcell_network.png
    :name: fig:unitcell_network
    :align: center
