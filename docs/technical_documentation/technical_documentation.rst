@@ -1025,6 +1025,9 @@ i figur fig:DoS_. Användaren kan även välja att visa en
 (vänster) Visualisering av den totala tillståndstätheten med en blå hjälplinje för avläsning.
 (höger) Förstoring av visualiseringen av den totala tillståndstätheten.*
 
+Tillståndstäthet
+~~~~~~~~~~~~~~~~
+
 .. _sec:NetworkHandlers:
 
 NetworkHandlers
