@@ -140,7 +140,7 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
             basis_4x4=np.identity(4)
             basis_array=np.array(h5["/basis/"], dtype='d')
             basis_4x4[:3,:3]=basis_array
-            scaling_factor = h5['/scaling_factor'].value
+            scaling_factor = h5['/scaling_factor'][()]
 
         HDFvolume_basis_property = HDFvolume.getPropertyByIdentifier('basisGroup').getPropertyByIdentifier('basis')
         HDFvolume_basis_property.minValue = inviwopy.glm.mat4(-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
