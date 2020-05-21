@@ -56,7 +56,7 @@ class FermiSurfaceNetworkHandler(NetworkHandler):
         path = source.filename.value
         with h5py.File(path, 'r') as f:
             band_keys = []
-            for key in f.get('bands').keys():
+            for key in f.get('fermi_bands').keys():
                 band_keys.append(key)
             return band_keys
 
