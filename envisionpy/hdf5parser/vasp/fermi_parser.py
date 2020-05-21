@@ -115,9 +115,9 @@ def fermi_parser(hdf_file_path, vasp_dir_path):
     # ------------------
     hdf_file = h5py.File(hdf_file_path, 'a')
     hdf_file.create_dataset('fermi_energy', data=np.array(fermi_energy))
-    hdf_file.create_dataset('basis', data=basis)
+    hdf_file.create_dataset('reciprocal_basis', data=basis)
 
-    hdf_group = hdf_file.create_group('bands')
+    hdf_group = hdf_file.create_group('fermi_bands')
     for band_index in range(nbands):
         band = np.reshape(evalues[:, band_index, 0], (nkpoints_x, nkpoints_y, nkpoints_z))
 
