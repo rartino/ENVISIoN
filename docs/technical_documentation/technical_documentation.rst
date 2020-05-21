@@ -264,6 +264,9 @@ VASP-filer.
 
 **Indatafiler:**
 
+-  KPOINTS innehåller information om k-parametrarnas koordinater och vikter, 
+   alternativt instruktioner om hur en k-punkts mesh genereras av VASP.
+
 -  INCAR innehåller information, i form av flaggor över hur beräkningar
    ska ske.
 
@@ -296,7 +299,7 @@ utseende:
 
    En demonstrativ bild över utseendet för PCDAT från VASP. Notera att värdena inte riktigt stämmer.
 	 
-Bilden fig:PCDAT_utseende_ beskriver
+Bilden ovan beskriver
 utseendet hos en del av PCDAT-filen för PKF för systemet Si i 300K, med
 40 olika tidsteg. Viktigaste är den långa kolumnen av siffror som utgör
 definitionsmängden till funktionen.
@@ -470,10 +473,10 @@ att ange vad för fall parsern behandlar.
 Skrivning till HDF5-fil
 -----------------------
 
-Det som skapar strukturen i HDF5-filen är skrivningsmodulen *h5writer* i
+Det som skapar strukturen i HDF5-filen är skrivningsmodulen *h5writer* I
 ENVISIoN. *h5writer.py* är ett skript som innehåller alla
 skrivningsfunktioner som ingår i parsersystemet. Funktionernas uppgift
-är att skapa *datasets* (rådata) på rätt plats i HDF5-fil objektet. Nedan
+är att skapa *datasets* (rådata) i rätt plats i HDF5-fil objektet. Nedan
 listas alla funktioner som ingår i modulen.
 
 **\_write\_coordinates** Denna funktion skriver koordinater för
@@ -509,8 +512,8 @@ Returnerar:
 
 **\_write\_bandstruct** Denna funktion skriver ut data för bandstruktur i
 en grupp med namn Bandstructure. Inom denna grupp tilldelas specifika
-K-punkter, energier samt bandstrukturer egna dataset. Diverse attribut
-sätts även för bl.a. specifika energier.
+K-punkter, energier samt bandstrukturer egna dataset. Högsymmetripunkter och deras
+symboler tilldelas egna dataset. Diverse attribut sätts även för bl.a. specifika energier. 
 
 Parametrar:
 
@@ -650,6 +653,29 @@ olika läsningsfunktionerna i parsersystemet gör. Typiskt återfinns en
 pythonmodul för varje egenskap hos ett system som ska parsas. Nedan
 listas alla sådana moduler.
 
+Bandstrukturparser
+~~~~~~~~~~~
+
+Bandstrukturparsern läser in alla energier för k-parametrar från EIGENVAL-filen 
+i användarens VASP-mapp, som skrivs till /Bandstructure i HDF5-filen och 
+dessutom skrivs de inlästa k-parametrarnas koordinater från EIGENVAL-filen 
+in i /BandStructure i HDF5-filen. Högsymmetripunkteroch dess symboler 
+läses av från KPOINTS-filen och Bravais-gittrets typ läses av 
+från OUTCAR-filen i användarens VASP-mapp och dessa punkter och tillhörande 
+symboler skrivs in i egna datasets under /Highcoordinates i HDF5-filen.
+
+Funktionsanrop: envisionpy.hdf5parser.bandstructure(h5file, vasp\_dir)
+
+Parameterar:
+
+-  h5file: Sökväg till HDF5-fil, anges som en sträng.
+
+-  vasp\_dir: Sökväg till VASP-katalog, anges som en sträng.
+
+Returnerar:
+
+-  Bool: True om parsning skett felfritt, False annars.
+
 Incarparser
 ~~~~~~~~~~~
 
@@ -665,7 +691,7 @@ parse\_incar som då sparar ett dataset för varje datatyp och namnger
 dataseten därefter. Funktionen incar anropar sedan pythonmodulen som
 skriver HDF5-filen där varje enskilt *dataset* tilldelas en egen grupp.
 
-Funktionsanrop: envision.parser.vasp.incar(h5file, vasp\_dir)
+Funktionsanrop: envisionpy.hdf5parser.incar(h5file, vasp\_dir)
 
 Parameterar:
 
@@ -692,10 +718,10 @@ också en länk till den sista iterationen i HDF5-filen för att data av
 högst kvalitet lätt ska kunna plockas ut.
 
 Funktionsanrop vid parsning av CHG-data:
-envision.parser.vasp.charge(h5file, vasp\_dir)
+envisionpy.hdf5parser.charge(h5file, vasp\_dir)
 
 Funktionsanrop vid parsning av ELFCAR-data:
-envision.parser.vasp.elf(h5file, vasp\_dir)
+envisionpy.hdf5parser.elf(h5file, vasp\_dir)
 
 Parameterar:
 
@@ -726,7 +752,7 @@ total och partiell. I gruppen partiell finns det en grupp för varje
 atom. Ett dataset för varje undersökt fenomen skrivs sedan ut för varje
 atom under partiell, och för total tillståndstäthet under total.
 
-Funktionsanrop: envision.parser.vasp.dos(h5file, vasp\_dir)
+Funktionsanrop: envisionpy.hdf5parser.dos(h5file, vasp\_dir)
 
 Parameterar:
 
@@ -749,7 +775,7 @@ till HDF5-filen uppdelade efter atomslag och attribut sätts med
 respektive grundämnesbeteckning. Om dessa inte ges med parametern
 elements letar parsern i första hand i POTCAR och i andra hand i POSCAR.
 
-Funktionsanrop: envision.parser.vasp.unitcell(h5file, vasp\_dir, elements
+Funktionsanrop: envisionpy.hdf5parser.unitcell(h5file, vasp\_dir, elements
 = None)
 
 Parameterar:
@@ -774,7 +800,7 @@ PCDAT-filen, samt inläsning av flaggor som NPACO och APACO. Parsen letar
 efter dessa flaggor i INCAR eller POTCAR för att se om de är satta. I
 fallet de inte är det antas deras defaultvärden.
 
-Funktionsanrop: envision.parser.vasp.paircorrelation(h5file, vasp\_dir)
+Funktionsanrop: envisionpy.hdf5parser.paircorrelation(h5file, vasp\_dir)
 
 Parameterar:
 
@@ -814,21 +840,18 @@ Testning
 För att varje års projekt ska kunna kontrollera att alla parsersystem
 fungerar är det viktigt med testfiler. Detta kan också ge inblick i hur
 parsern är tänkt att fungera. En generell testmapp i ENVISIONs
-filstruktur för parsersystemet finns. Mappen innehåller för tillfället
-enbart tester för parsersystemet för PKF (det är både skrivning och
-läsningsfunktioner som testas). Testfiler för PKF parsern skapades med
-hjälp av pythonmodulen *unittest*  [Unittest]_. Detta
-test testar bland annat undantagshanteringen och viktiga returvärden hos
-olika funktioner hos parsersystemet för PKF. Testet kontrollerar
-exempelvis att parsersystemet kan hantera PCDAT-filer av olika
-utseenden.
+filstruktur för parsersystemet finns vid namn /unit_testing. Mappen innehåller 
+tester för parsning av bandstrukturer, tillståndstätheter, elektrontäthet, enhetscell
+och fermi-ytor. Testerna är skapade att testa om HDF5-filer genereras ur parsersystemen 
+och om de genererade HDF5-filerna har korrekt datastruktur.
 
-Test för parsersystemet för PKF har implementerats med en testfil med
-namnet *test\_paircorrelation.py* samt en mapp vid namn *testdata*. I
-*testdata* finns det olika mappar med VASP-filer för olika system, som
-därmed testar att parsern fungerar korrekt för olika filer. Det är
-tanken att framtida utvecklare använder sig av denna mapp för att lägga
-in tester för nyskapade funktioner för parsning av någon ny egenskap.
+Test för exempelvis parsersystemet för bandstrukturer har implementerats 
+med en testfil med namnet *test\_bandstructure_parsing.py* samt en mapp 
+vid namn *resources*. I *resources* finns det olika mappar med VASP-filer 
+för olika kristaller, som därmed testar att parsern fungerar korrekt för 
+olika filer. Det är tanken att framtida utvecklare använder sig av denna 
+mapp för att lägga in tester för nyskapade funktioner för parsning av 
+någon ny egenskap.
 
 Visualiseringssystemet
 ======================
@@ -914,7 +937,7 @@ lagras i ett dataset.
 
    Nätverk för visualisering av bandstruktur.
 	   
-.. image:: figures/new_bandstructure.jpg
+.. image:: figures/BandsAll.png
    :alt: BandsAll
    :width: 49%
 	 
@@ -977,25 +1000,6 @@ i figur fig:DoS_. Användaren kan även välja att visa en
 (höger) Förstoring av visualiseringen av den totala tillståndstätheten.*
 
 .. _sec:NetworkHandlers:
-
-Fermi-yta
-~~~~~~~~~~~~~~~~
-Här kan du skriva om fermi-ytan ALEX!
-
-
-
-Enehtscell
-~~~~~~~~~~~~~~~~
-Här kan du skriva om enehtscellen OLAV!
-
-
-
-Elektrontäthet
-~~~~~~~~~~~~~~~~
-Här kan du skriva om elektrontätheten OLAV!
-
-
-
 
 NetworkHandlers
 ---------------
@@ -1252,10 +1256,12 @@ Hanterar den generella delen av en
 2D-graf visualisering. Styr allt som har med 2D-grafen att göras, som
 skalning, axlar på grafen, med mera.
 
-Bandstructure3DNetworkHandler
+BandstructureNetworkHandler
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Fixas av AMANDA x2
+Ärver LinePlotNetworkHandler och
+sätter upp den specifika delen för bandstructure visualiseringen.
+Styr HDF5-källan och bandval.
 
 DOSNetworkHandler
 ~~~~~~~~~~~~~~~~~
@@ -1271,12 +1277,6 @@ PCFNetworkHandler
 Ärver LinePlotNetworkHandler och sätter upp
 den specifika delen för parkorrelationsfunktions
 visualiseringen. Styr HDF5-källan och val av tidssteg.
-
-FermiNetworkHandler
-~~~~~~~~~~~~~~~~~
-Här kan du skirva om networkhandlern ALEX
-
-
 
 .. _sec:datastrukturer:
 
@@ -1537,10 +1537,6 @@ Properties:
 
 -  IntSizeTProperty yNamePrependParentsProperty\_
 
-
-**HDFfermiSource** Vet inte vad den heter helt, du får ändra själv! 
-
-
 .. _ch:2d-processorer:
 
 2D
@@ -1566,7 +1562,6 @@ Utport:
 Properties:
 
 -  OptionPropertyString operationProperty\_
-
 
 **FunctionOperationNary** Denna processor implementerar en operator med
 variabel aritet (engelska n-ary), antingen addition/summa
