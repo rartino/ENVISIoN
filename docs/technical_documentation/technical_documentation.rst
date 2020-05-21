@@ -7,7 +7,9 @@ ENVISIoN teknisk dokumentation
 | © 2017 - Josef Adamsson, Robert Cranston, David Hartman, Denise Härnström, Fredrik Segerhammar. *(Teknisk dokumentation - release 1)*
 | © 2018 - Anders Rehult, Andreas Kempe, Marian Brännvall, Viktor Bernholtz. *(Teknisk dokumentation - release 2)*
 | © 2019 - Linda Le, Abdullatif Ismail, Anton Hjert, Lloyd Kizito and Jesper Ericsson. *(Teknisk dokumentation - release 3)*
+| © 2020 - Alexander Vevstad, Amanda Aasa, Amanda Svennblad, Daniel Thomas, Lina Larsson and Olav Berg. *(Teknisk dokumentation - release 3)*
 | © 2017 – 2019 - Rickard Armiento, Johan Jönsson
+| © 2020 - Rickard Armiento, Joel Davidsson
 
 .. contents:: Innehåll
    :depth: 3
