@@ -1102,7 +1102,7 @@ kombineras med andra nätverk genom att denna ärvs i mer specificerade
 *NetworkHandler*-klasser.
 
 
-.. figure:: figures/VolumeHandler/unitcell_network.PNG
+.. figure:: figures/Visualization/NetworkHandlers/UnitcellNetworkHandler/unitcell_network.png
    :name: fig:unitcell_network
    :align: center
    :width: 100 %
@@ -1113,7 +1113,7 @@ kombineras med andra nätverk genom att denna ärvs i mer specificerade
 
 
 
-.. figure:: figures/VolumeHandler/unitcell_vis.PNG
+.. figure:: figures/Visualization/NetworkHandlers/UnitcellNetworkHandler/unitcell.png
    :name: fig:unitcell_vis
    :align: center
    :width: 100 %
