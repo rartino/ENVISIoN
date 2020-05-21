@@ -1028,6 +1028,20 @@ i figur fig:DoS_. Användaren kan även välja att visa en
 Enhetscell
 ~~~~~~~~~~~~~~~~
 
+.. figure:: figures/Visualization/Networks/Unitcell/unitcell_network.png
+   :name: fig:unitcell_network
+   :align: center
+   :width: 100 %
+   :figwidth: 50 %
+   :alt: unitcell_network
+
+.. figure:: figures/Visualization/Networks/Unitcell/unitcell.png
+   :name: fig:unitcell_vis
+   :align: center
+   :width: 100 %
+   :figwidth: 50 %
+   :alt: unitcell_vis
+
 .. _sec:NetworkHandlers:
 
 NetworkHandlers
