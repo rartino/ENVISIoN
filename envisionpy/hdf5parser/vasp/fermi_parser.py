@@ -113,7 +113,7 @@ def fermi_parser(hdf_file_path, vasp_dir_path):
 
     # Write data to HDF5
     # ------------------
-    hdf_file = h5py.File(hdf_file_path, 'w')
+    hdf_file = h5py.File(hdf_file_path, 'a')
     hdf_file.create_dataset('fermi_energy', data=np.array(fermi_energy))
     hdf_file.create_dataset('basis', data=basis)
 
