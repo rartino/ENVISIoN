@@ -133,7 +133,7 @@ Definitioner
 ====================
 
 
-.. figure:: figures/Envision_system_simple.png
+.. figure:: figures/system_overview.png
    :name: fig:oversikt
    :align: center
    :width: 100 %
