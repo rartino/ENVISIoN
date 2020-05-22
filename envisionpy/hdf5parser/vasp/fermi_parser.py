@@ -126,6 +126,8 @@ def fermi_parser(hdf_file_path, vasp_dir_path):
 
     hdf_file.close()
 
+    return True
+
 
 if __name__ == '__main__':
     fermi_parser(sys.argv[1], sys.argv[2])
