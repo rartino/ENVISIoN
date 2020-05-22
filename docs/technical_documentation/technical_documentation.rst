@@ -1032,12 +1032,19 @@ Hos nätverket för visualisering av enhetscellen hämtar först en *HDFSource*-
    :figwidth: 50 %
    :alt: unitcell_network
 
+   Nätverk för visualisering av enhetscellen.
+
+
+
 .. figure:: figures/Visualization/Networks/Unitcell/unitcell.png
    :name: fig:unitcell_vis
    :align: center
    :width: 100 %
    :figwidth: 50 %
    :alt: unitcell_vis
+
+   Den resulterande bilden.
+
 
 
 Fermi-yta
@@ -1064,8 +1071,29 @@ Volymen skickas till två mesh renderare som omvandlare meshen till en bild.
 Elektrontäthet
 ~~~~~~~~~~~~~~~~
 
-text
+Figuren nedan visar nätverket för visualisering av elektrontäthet. Först hämtar en *HDFSource*-processor HDF5-filen. En *HDF5ToVolume*-processor hämtar sedan elektrontätheten från HDF5-filen och genererar en volym för den. Processorerna *CubeProxyGeometry*, *EntryExitPoints* och *VolumeRayCasyer* skapar en bild utifrån volymen. Denna bild är en 3D-bild av elektrontätheten hos materialets enhetscell. Processorerna *VolumeBoundingBox* och *MeshRenderer* skapar en parallellepiped som omsluter volymen. Parallellepipeden skickas sedan vidare till *VolumeRayCaster*-processorn, där den sammanfogas med elektrontäthetsbilden. Till den resulterande bilden läggs det sedan på en bakgrund med hjälp av en *Background*-processor. Slutligen skickas bilden till en *Canvas*-processor, som gör att bilden visas upp. 
 
+Volymen som skapas av *HDF5ToVolume*-processor skickas även parallellt till en *VolumeSlice*-procssor, som genererar ett tvådimensionellt tvärsnitt av elektrontätheten. Till den läggs det sedan till en bakgrund med hjälp av en *Background*-processor och slutligen skickas tvärsnittsbilden till en egen *Canvas*-processor, där den visas upp.
+
+.. figure:: figures/Visualization/Networks/Charge/charge_network.png
+   :name: fig:charge_network
+   :align: center
+   :width: 100 %
+   :figwidth: 50 %
+   :alt: charge_network
+
+   Nätverket för visualisering av elektrontäthet.
+
+
+
+.. figure:: figures/Visualization/Networks/Charge/charge.png
+   :name: fig:charge_vis
+   :align: center
+   :width: 100 %
+   :figwidth: 50 %
+   :alt: charge_vis
+
+   De resulterande bilderna.
 
 
 
