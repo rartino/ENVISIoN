@@ -150,7 +150,7 @@ skall konverteras och visualiseras.
 
 I figur fig:oversikt_ visas en grov systemskiss med
 de olika delsystem som ingår. Systemet kan grovt delas upp i tre olika
-delar. Ett system för dataearbetning som parsar filer från VASP, ett
+delar. Ett system för databearbetning som parsar filer från VASP, ett
 system för att visualisera det som parsas i tidigare nämnt system, och
 ett GUI-system vilket användaren interagerar med visualiseringen via.
 
