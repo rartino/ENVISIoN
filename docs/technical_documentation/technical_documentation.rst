@@ -961,14 +961,14 @@ Med den kunskapen gruppmedlemmarna besitter idag skulle inte x-axeln vara basera
 
 .. figure:: figures/network_bandstructure.png
    :alt: BandsNetwork
-   :width: 25%
+   :width: 60%
    :align: center
 
    Nätverk för visualisering av bandstruktur.
 
 .. image:: figures/new_bandstructure.jpg
    :alt: BandsAll
-   :width: 49%
+   :width: 60%
 
 Plott över bandstrukturen med inmarkerade högkarakteristiska punkter (symboler) och linjer för att markera symbolernas läge i plotten.
 
