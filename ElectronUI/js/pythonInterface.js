@@ -69,7 +69,7 @@ function start_python_process() {
 function send_test_packets(n){
     for (i = 0; i < n; i++) {
         send_data("Message", "Here be packets.")
-    } 
+    }
 }
 
 function send_data(tag, data) {
@@ -79,16 +79,16 @@ function send_data(tag, data) {
     if (pythonCrashed)
         return;
     var json_data = {type: tag, data: data}
-    var packet = JSON.stringify(json_data) + "\r\n"; 
+    var packet = JSON.stringify(json_data) + "\r\n";
     try{
-		if (CONFIG.logSentPackets) 
+		if (CONFIG.logSentPackets)
 		console.log("Sending packet: \n", packet)
-	pythonProcess.stdin.write(packet) 
+	pythonProcess.stdin.write(packet)
 	}
     catch {
         pythonCrashed = true;
 		const options = {
-			type: "warning", title: "ENVISIoN has stopped working!", 
+			type: "warning", title: "ENVISIoN has stopped working!",
 			message: "The python process has crashed. You must reload ENVISIoN or close and restart the program."
 			}
 		dialog.showMessageBox(options)
@@ -96,7 +96,7 @@ function send_data(tag, data) {
 }
 
 function on_data_recieve(packet) {
-    // Print data recieved from python process  
+    // Print data recieved from python process
 
     // Decode data
     data = Buffer.from(packet, 'hex')
@@ -118,12 +118,12 @@ function on_data_recieve(packet) {
                 if (CONFIG.logPyPrint)
                     console.log("Python print: \n" + data[i])
             }
-            
+
           }
           catch(err) {
             if (CONFIG.logPyPrint)
                 console.log("Python print: \n" + data[i])
-          } 
+          }
     }
 }
 
@@ -160,7 +160,7 @@ function on_python_error(data) {
     console.log("PYTHON ERROR: ")
     // var output = Buffer.from(data, 'hex')
     console.log(data.toString())
-	dialog.showErrorBox("Error in ENVISIoN: ", data.toString())
+    //dialog.showErrorBox("Error in ENVISIoN: ", data.toString())
 }
 
 var loadingTimeout = null;
@@ -178,7 +178,3 @@ function responsesBehind(n){
     }
     $("#loadalert > span").text(" envision is " + n + " requests behind.");
 }
-
-
-
-

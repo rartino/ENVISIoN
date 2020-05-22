@@ -133,14 +133,14 @@ Definitioner
 ====================
 
 
-.. figure:: figures/Envision_system_simple.png
+.. figure:: figures/system_overview.png
    :name: fig:oversikt
    :align: center
    :width: 100 %
    :figwidth: 80 %
    :alt: oversikt
 
-   Enkel skiss över ENVISIoN systemet
+   Enkel skiss över systemet
 
 
 Den produkt som utvecklas är ett verktyg för att visualisera viktiga
@@ -150,7 +150,7 @@ skall konverteras och visualiseras.
 
 I figur fig:oversikt_ visas en grov systemskiss med
 de olika delsystem som ingår. Systemet kan grovt delas upp i tre olika
-delar. Ett system för parsning av datafiler från VASP, ett
+delar. Ett system för databearbetning som parsar filer från VASP, ett
 system för att visualisera det som parsas i tidigare nämnt system, och
 ett GUI-system vilket användaren interagerar med visualiseringen via.
 
@@ -158,7 +158,7 @@ Ingående delsystem
 ------------------
 
 Systemet för elektronvisualisering består i huvudsak av tre delar. Dels
-består systemet av en parsing-del där textfiler genererade från
+består systemet av en databearbetningsdel där parsning av textfiler genererade från
 beräkningsprogrammet VASP skall översättas till det, med vår mjukvara,
 kompatibla filformatet HDF5.
 
@@ -895,7 +895,7 @@ HDF5-strukturen som parsersystemet genererar kommer utseendet hos
 nätverken att se olika ut för varje visualisering. Nedan återfinns olika
 nätverk som olika skript genererar för olika visualiseringar.
 
-Nätverk för visualisering av parkorrelationsfunktionen
+Parkorrelationsfunktionen
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Ett nytt skript med processorer för visualisering av
@@ -939,43 +939,22 @@ nätverken visas i figur fig:PCF_.
 Bandstruktur
 ~~~~~~~~~~~~
 
-Nätverket startar med att öppna en HDF5-fil. Därefter kontrolleras om
-det finns en sökväg med namnet *Fermienergy* i filen, skulle sökvägen
-existera läggs en processor till som extraherar det värdet sparat i ett
-dataset. Sedan navigeras det genom HDF5-filen till platsen där alla band
-är sparade. Alla dessa band sparas i en DataFrame där varje kolumn
-innehåller alla värden för ett band. Skulle Fermienegin finnas i
-HDF5-filen kommer det värdet att subtraheras från alla värden i
-DataFrame. Sedan ritas alla band upp i en graf med samma värden på
-x-axeln. y-axeln får en rubrik med lämplig text, antigen *Energy* eller
-*Energy - Fermi energy*, för att sedan visualiseras i ett fönster.
+Nätverket startar med att öppna en HDF5-fil. Därefter skapas en process som extraherar data. Sedan navigeras det genom HDF5-filen till platsen där alla band, högkarakteristiska punkter (symboler) i Brillouin-zonen och högkarakteristiska punkternas koordinater är sparade. Alla band sparas i en DataFrame där varje kolumn innehåller alla värden för ett band. Alla högkarakteristiska punkter med tillhörande koordinat sparas i varsina DataFrames. Därefter ritas alla band och symboler upp. Det ritas även upp linjer som ligger i lod med symbolerna för att enklare se var i plotten symbolerna är. X-axeln visar symbolerna och y-axeln visar energierna i eV. X-axeln är även baserad på antalet iterationer av k-punkterna ur VASP-filerna. 
 
-Med den kunskapen gruppmedlemmarna besitter idag skulle inte samma
-tillvägagångssätt för visualiseringen tagits. Kontrollen av fermienergi
-skulle ske redan i parsern för bandstrukturen. Skulle Fermienergin
-hittas, subtraheras värdet redan innan all data för de olika banden
-lagras i ett dataset.
+Med den kunskapen gruppmedlemmarna besitter idag skulle inte x-axeln vara baserad på iterationer av k-punkter utan på avståndet mellan två symboler i Brillouin-zonen. 
 
-.. figure:: figures/BandsNetwork.PNG
+.. figure:: figures/network_bandstructure.png
    :alt: BandsNetwork
    :width: 25%
    :align: center
 
    Nätverk för visualisering av bandstruktur.
 	   
-.. image:: figures/BandsAll.png
+.. image:: figures/new_bandstructure.jpg
    :alt: BandsAll
    :width: 49%
-	 
-.. image:: figures/ZoomedBands.png
-   :alt: ZoomedBands
-   :width: 49%
-	      
-.. _fig:bands_tipo4:
 
-*Visualisering av bandstruktur för TiPO4.
-(vänster) Visualisering av hela bandstrukturen som skapas när nätverket evalueras.
-(höger) En förstoring där endast energin mellan -4 eV och 5 eV visas.*
+Plott över bandstrukturen med inmarkerade högkarakteristiska punkter (symboler) och linjer för att markera symbolernas läge i plotten. 
 
 Tillståndstäthet
 ~~~~~~~~~~~~~~~~
@@ -1028,7 +1007,7 @@ i figur fig:DoS_. Användaren kan även välja att visa en
 Enhetscell
 ~~~~~~~~~~~~~~~~
 
-Hos nätverket för visualisering av enhetscellen hämtar först en *HDFSource*-processor HDF5-filen. Under *HDFSource*-processorn ligger ett antal *CoordinateReader*-processorer, en för varje atomslag i enhetscellen. Från HDF5-filen hämtar var och en av *CoordinateReader*-processorerna koordinaterna för dess atomslags alla enhetscellsatomer. En *StructureMesh*-processor skapar sedan en mesh utifrån koordinaterna. Efter det skapar en *SphereRenderer*-processor en bild utifrån meshen, där en sfär ritas ut för varje atom i enhetscellen. Bilden skickas till slut till en *Canvas*-processor, som skapar ett fönster där bilden visas. Figuren nedan visar hur nätverket ser ut för bariumsulfat (BaSO4) och figuren under den visar den resulterande bilden.
+Hos nätverket för visualisering av enhetscellen hämtar först en *HDFSource*-processor HDF5-filen. Under *HDFSource*-processorn ligger ett antal *CoordinateReader*-processorer, en för varje atomslag i enhetscellen. Från HDF5-filen hämtar var och en av *CoordinateReader*-processorerna koordinaterna för atomslagens alla enhetscellsatomer. En *StructureMesh*-processor skapar sedan en mesh utifrån koordinaterna. Efter det skapar en *SphereRenderer*-processor en bild utifrån meshen, där en sfär ritas ut för varje atom i enhetscellen. Bilden skickas sedan till en *Canvas*-processor, som skapar ett fönster där bilden visas. Figuren nedan visar hur nätverket ser ut för bariumsulfat (BaSO4) och figuren under den visar den resulterande bilden.
 
 .. figure:: figures/Visualization/Networks/Unitcell/unitcell_network.png
    :name: fig:unitcell_network
@@ -1043,6 +1022,21 @@ Hos nätverket för visualisering av enhetscellen hämtar först en *HDFSource*-
    :width: 100 %
    :figwidth: 50 %
    :alt: unitcell_vis
+   
+
+Fermi-yta
+~~~~~~~~~~~~~~~~
+text
+
+
+
+Elektrontäthet
+~~~~~~~~~~~~~~~~
+text
+
+
+
+
 
 .. _sec:NetworkHandlers:
 
