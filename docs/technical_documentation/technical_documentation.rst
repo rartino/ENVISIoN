@@ -1007,7 +1007,7 @@ i figur fig:DoS_. Användaren kan även välja att visa en
 Enhetscell
 ~~~~~~~~~~~~~~~~
 
-Hos nätverket för visualisering av enhetscellen hämtar först en *HDFSource*-processor HDF5-filen. Under *HDFSource*-processorn ligger ett antal *CoordinateReader*-processorer, en för varje atomslag i enhetscellen. Från HDF5-filen hämtar var och en av *CoordinateReader*-processorerna koordinaterna för dess atomslags alla enhetscellsatomer. En *StructureMesh*-processor skapar sedan en mesh utifrån koordinaterna. Efter det skapar en *SphereRenderer*-processor en bild utifrån meshen, där en sfär ritas ut för varje atom i enhetscellen. Bilden skickas till slut till en *Canvas*-processor, som skapar ett fönster där bilden visas. Figuren nedan visar hur nätverket ser ut för bariumsulfat (BaSO4) och figuren under den visar den resulterande bilden.
+Hos nätverket för visualisering av enhetscellen hämtar först en *HDFSource*-processor HDF5-filen. Under *HDFSource*-processorn ligger ett antal *CoordinateReader*-processorer, en för varje atomslag i enhetscellen. Från HDF5-filen hämtar var och en av *CoordinateReader*-processorerna koordinaterna för atomslagens alla enhetscellsatomer. En *StructureMesh*-processor skapar sedan en mesh utifrån koordinaterna. Efter det skapar en *SphereRenderer*-processor en bild utifrån meshen, där en sfär ritas ut för varje atom i enhetscellen. Bilden skickas sedan till en *Canvas*-processor, som skapar ett fönster där bilden visas. Figuren nedan visar hur nätverket ser ut för bariumsulfat (BaSO4) och figuren under den visar den resulterande bilden.
 
 .. figure:: figures/Visualization/Networks/Unitcell/unitcell_network.png
    :name: fig:unitcell_network
@@ -1022,6 +1022,21 @@ Hos nätverket för visualisering av enhetscellen hämtar först en *HDFSource*-
    :width: 100 %
    :figwidth: 50 %
    :alt: unitcell_vis
+   
+
+Fermi-yta
+~~~~~~~~~~~~~~~~
+text
+
+
+
+Elektrontäthet
+~~~~~~~~~~~~~~~~
+text
+
+
+
+
 
 .. _sec:NetworkHandlers:
 
