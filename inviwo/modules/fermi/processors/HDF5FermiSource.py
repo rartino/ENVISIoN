@@ -7,7 +7,39 @@ import numpy as np
 
 
 class HDF5FermiSource(ivw.Processor):
+    '''
+    Process used for reading HDF5 data pertaining to fermi surface data
+
+    Outport
+    -------
+
+    volumeOutport: ivw.data.VolumeOutport
+        Final processed data
+
+    Properties
+    ----------
+
+    energy_band: ivw.properties.IntProperty
+        Specifiees the band that should be read from the HDF5 file
+
+    is_brillouin_zone: ivw.propertiesBoolProperty
+        Specifies if the data should be translated to birllouin zone
+
+    is_expanded_zone: ivw.propertiesBoolProperty
+        Specifies if the data should be translated to expanded zone.
+        Note if is_brillouin_zone is set this property will be overriden
+    '''
     def __init__(self, id, name):
+        '''
+        Parameters
+        ----------
+
+        id: str
+            id given to the process
+
+        name: str
+            name given to the process
+        '''
         ivw.Processor.__init__(self, id, name)
 
         self.volumeOutport = ivw.data.VolumeOutport('outport')
@@ -42,7 +74,23 @@ class HDF5FermiSource(ivw.Processor):
         pass
 
     def brillouin_zone(self, matrix, basis):
+        '''
+        Transforms reciprocal lattice to brillouin zone
 
+        Parameters
+        ------
+
+        matrix: numpy.array
+            3D Matrix should represent reciprocal lattice
+
+        basis:
+            Reciprocal basis vectors
+
+        Return
+        ------
+
+            Matrix representing the brillouin zone
+        '''
         base_x = basis[0]
         base_y = basis[1]
         base_z = basis[2]
@@ -72,6 +120,20 @@ class HDF5FermiSource(ivw.Processor):
         return matrix
 
     def expand(self, matrix):
+        '''
+        Expands given matrix 4 quadrents
+
+        Parameters
+        ------
+
+        matrix: numpy.array
+            3D Matrix should represent reciprocal lattice
+
+        Return
+        ------
+
+            Expanded matrix
+        '''
         lenx = matrix.shape[0]
         leny = matrix.shape[1]
         lenz = matrix.shape[2]
@@ -92,6 +154,18 @@ class HDF5FermiSource(ivw.Processor):
         return new
 
     def process(self):
+        '''
+        Reads hdf_file set in self.filename,
+        normalises the data and translates it to an *Inviwo-Volum*
+
+        Additional options to expand the data and to translate the data to
+        brillouin zone are possible through the *Inviwo-properties*
+
+        Returns
+        -------
+
+        None
+        '''
         if len(self.filename.value) == 0 or not Path(self.filename.value).exists():
             return
 
@@ -104,7 +178,6 @@ class HDF5FermiSource(ivw.Processor):
 
             self.energy_band.minValue = 0
             self.energy_band.maxValue = len(f.get('fermi_bands')) - 1
-
 
         # normalize all data points
         emax = matrix.max()
@@ -124,7 +197,6 @@ class HDF5FermiSource(ivw.Processor):
         volumes = ivw.data.Volume(matrix)
         volumes.dataMap.dataRange = ivw.glm.dvec2(0, 1)
         volumes.dataMap.valueRange = ivw.glm.dvec2(0, 1)
-
 
         # expand basis vector into a 4x4 matrix
         matrix = np.identity(4)
