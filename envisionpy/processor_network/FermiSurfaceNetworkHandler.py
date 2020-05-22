@@ -38,13 +38,12 @@ class FermiSurfaceNetworkHandler(NetworkHandler):
 
     def get_ui_data(self):
         return [
-        "fermisurface",
-        [
-        self.get_available_bands(),
-        self.get_active_band()
+            "fermisurface", [
+                self.get_available_bands(),
+                self.get_active_band()
+            ]
         ]
-        ]
-    
+
     def get_active_band(self):
         source = self.hdf_fermi_source
         band_index = str(source.energy_band.value)
@@ -60,14 +59,12 @@ class FermiSurfaceNetworkHandler(NetworkHandler):
                 band_keys.append(key)
             return band_keys
 
-# ------------------------------------------
-# ------- Property control functions -------
-    
+
     def set_active_band(self, key):
-    # Sets the dataset (band) which HDF5 Fermi Source processor will read
+        # Sets the dataset (band) which HDF5 Fermi Source processor will read
         source = self.hdf_fermi_source
         source.energy_band.value = int(key)
-        
+
     def toggle_brillouin_zone(self, enable):
         source = self.hdf_fermi_source
         source.is_brillouin_zone.value = not source.is_brillouin_zone.value
@@ -78,9 +75,6 @@ class FermiSurfaceNetworkHandler(NetworkHandler):
 
     def set_fermi_level(self, value):
         self.iso_raycaster.raycasting.isoValue.value = float(value)
-
-# ------------------------------------------
-# ------- Network building functions -------
 
     def setup_network(self, filepath):
         app = self.app
@@ -176,6 +170,6 @@ class FermiSurfaceNetworkHandler(NetworkHandler):
             entry_exit_points.getPropertyByIdentifier('camera'),
             self.iso_raycaster.getPropertyByIdentifier('camera')
         )
-        
+
         canvas.inputSize.dimensions.value = glm.size2_t(500,500)
         canvas.widget.show()
