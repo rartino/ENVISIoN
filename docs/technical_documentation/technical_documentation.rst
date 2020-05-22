@@ -1016,13 +1016,18 @@ Hos nätverket för visualisering av enhetscellen hämtar först en *HDFSource*-
    :figwidth: 50 %
    :alt: unitcell_network
 
+   Nätverk för visualisering av enhetscellen.
+
+
+
 .. figure:: figures/Visualization/Networks/Unitcell/unitcell.png
    :name: fig:unitcell_vis
    :align: center
    :width: 100 %
    :figwidth: 50 %
    :alt: unitcell_vis
-   
+
+   Den resulterande bilden.
 
 Fermi-yta
 ~~~~~~~~~~~~~~~~
@@ -1032,8 +1037,26 @@ text
 
 Elektrontäthet
 ~~~~~~~~~~~~~~~~
-text
 
+.. figure:: figures/Visualization/NetworkHandlers/ChargeNetworkHandler/ChargeNetworkHandler.png
+   :name: fig:charge_network
+   :align: center
+   :width: 100 %
+   :figwidth: 50 %
+   :alt: charge_network
+
+   Nätverket som byggs upp då en ChargeNetworkHandler-instans initieras.
+
+
+
+.. figure:: figures/Visualization/NetworkHandlers/ChargeNetworkHandler/charge.png
+   :name: fig:charge_vis
+   :align: center
+   :width: 100 %
+   :figwidth: 50 %
+   :alt: charge_vis
+
+   Resulterande bild från nätverk i figur fig:charge_network_.
 
 
 
