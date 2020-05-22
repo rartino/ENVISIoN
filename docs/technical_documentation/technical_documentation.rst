@@ -140,7 +140,7 @@ Definitioner
    :figwidth: 80 %
    :alt: oversikt
 
-   Enkel skiss över ENVISIoN systemet
+   Enkel skiss över systemet
 
 
 Den produkt som utvecklas är ett verktyg för att visualisera viktiga
@@ -150,7 +150,7 @@ skall konverteras och visualiseras.
 
 I figur fig:oversikt_ visas en grov systemskiss med
 de olika delsystem som ingår. Systemet kan grovt delas upp i tre olika
-delar. Ett system för parsning av datafiler från VASP, ett
+delar. Ett system för dataearbetning som parsar filer från VASP, ett
 system för att visualisera det som parsas i tidigare nämnt system, och
 ett GUI-system vilket användaren interagerar med visualiseringen via.
 
@@ -158,7 +158,7 @@ Ingående delsystem
 ------------------
 
 Systemet för elektronvisualisering består i huvudsak av tre delar. Dels
-består systemet av en parsing-del där textfiler genererade från
+består systemet av en databearbetningsdel där parsning av textfiler genererade från
 beräkningsprogrammet VASP skall översättas till det, med vår mjukvara,
 kompatibla filformatet HDF5.
 
