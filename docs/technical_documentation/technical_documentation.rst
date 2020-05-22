@@ -1042,7 +1042,7 @@ Figuren nedan visar nätverket för visualisering av elektrontäthet. Först hä
 
 Volymen som skapas av *HDF5ToVolume*-processor skickas även parallellt till en *VolumeSlice*-procssor, som genererar ett tvådimensionellt tvärsnitt av elektrontätheten. Till den läggs det sedan till en bakgrund med hjälp av en *Background*-processor och slutligen skickas tvärsnittsbilden till en egen *Canvas*-processor, där den visas upp.
 
-.. figure:: figures/Visualization/NetworkHandlers/ChargeNetworkHandler/ChargeNetworkHandler.png
+.. figure:: figures/Visualization/Networks/Charge/charge_network.png
    :name: fig:charge_network
    :align: center
    :width: 100 %
@@ -1053,7 +1053,7 @@ Volymen som skapas av *HDF5ToVolume*-processor skickas även parallellt till en 
 
 
 
-.. figure:: figures/Visualization/NetworkHandlers/ChargeNetworkHandler/charge.png
+.. figure:: figures/Visualization/Networks/Charge/charge.png
    :name: fig:charge_vis
    :align: center
    :width: 100 %
