@@ -62,7 +62,7 @@ function sidebarLinkClicked() {
         $("#sidebar a").removeClass("active");
     }
     $(this).find("> a").addClass("active");
-    
+
     var div = $($(this).data("show")).show();
     div.siblings("div").hide();
     console.log("sidebar link clicked")
@@ -178,21 +178,21 @@ function removeDataset() {
 
 function startVisPressed() {
     let datasetInfo = loadedDatasets[activeDatasetName];
-    let visTypes = ["charge","elf","parchg","unitcell","pcf","bandstructure","dos", "bandstructure3d", "fermisurface"];
-    let selectionIndex = $("#visTypeSelection")[0].selectedIndex; // Index of list selection, starting at 0 
+    let visTypes = ["charge","unitcell","bandstructure3d", "fermisurface"];
+    let selectionIndex = $("#visTypeSelection")[0].selectedIndex; // Index of list selection, starting at 0
     let visType = visTypes[selectionIndex];
 	console.log("Selected visualisation type: " + visType);
     let hdf5Path = datasetInfo[0];
-    
+
     let visIndex = 0;
     while (datasetInfo[3].includes(activeDatasetName + "_" + visType + "_" + visIndex)) visIndex += 1;
     let visId = activeDatasetName + "_" + visType + "_" + visIndex;
-    
+
     $("#startVisBtn").attr("disabled", true);
     // Start the visualisation
     send_data("envision request", ["start", visId, [
-        visType, 
-        hdf5Path, 
+        visType,
+        hdf5Path,
         visType + "_" + visIndex,
         activeDatasetName]]);
 
@@ -265,8 +265,8 @@ function volumeBackgroundChanged() {
 
 function transperancyChecked() {
     send_data("envision request", [
-        "toggle_transperancy_before", 
-        activeVisId, 
+        "toggle_transperancy_before",
+        activeVisId,
         [$("#transperancyCheckbox").is(':checked')]]);
 }
 
@@ -524,9 +524,9 @@ function visualisationStarted(status, id, data) {
     }
     // If visualisation was started add it to the sidebar and to running visualisations.
     let visName = data[2];
-    let datasetName = data[3]; 
+    let datasetName = data[3];
     loadedDatasets[datasetName][3].push(id);
-    
+
     // Add sidebar element
     let sidebarElem = $(`
         <li data-show="#visControlPanel" data-vis-id="` + id + `" class="subLink">
@@ -604,9 +604,9 @@ function uiDataRecieved(status, id, data) {
 // ---------------------------------------
 
 function loadVolumeUiData(data){
-    // Load state of all volume controls from envision data. 
-    let [type, shadingMode, bgInfo, tfPoints, transperancyMode, 
-        sliceActive, planeActive, planeHeight, wrapMode, 
+    // Load state of all volume controls from envision data.
+    let [type, shadingMode, bgInfo, tfPoints, transperancyMode,
+        sliceActive, planeActive, planeHeight, wrapMode,
         sliceZoom, planeNormal] = data;
     if (type != "volume") console.log("Something is very wrong here");
     $("#shadingModeSelection")[0][shadingMode].selected = true;
@@ -628,13 +628,13 @@ function loadVolumeUiData(data){
     $("#backgroundColor1").val(rgbArrToHex(bgInfo[0]));
     $("#backgroundColor2").val(rgbArrToHex(bgInfo[1]));
     $("#backgroundStyleSelection")[0][bgInfo[2]].selected = true;
-    
+
     loadTFPoints(tfPoints);
 }
 
 function loadGraph2DUiData(data) {
-    let [type, xRange, yRange, 
-        lineActive, lineX, gridActive, gridWidth, 
+    let [type, xRange, yRange,
+        lineActive, lineX, gridActive, gridWidth,
         xLabelsActive, yLabelsActive, nLabels,
         ySelectionInfo, yDatasets] = data;
 
@@ -648,14 +648,14 @@ function loadGraph2DUiData(data) {
     $("#verticalLineCheck").prop("checked", lineActive);
     $("#verticalLineXInput").val(lineX);
 
-    
+
     $("#gridCheck").prop("checked", gridActive);
     $("#gridSizeInput").val(gridWidth);
 
     $("#xLabelCheck").prop("checked", xLabelsActive);
     $("#yLabelCheck").prop("checked", yLabelsActive);
     $("#labelCountInput").val(nLabels);
-    
+
     // Fill selection lists with options
     $("#possibleYDatasets").empty();
     $("#ySingleSelection").empty();
