@@ -954,7 +954,7 @@ Med den kunskapen gruppmedlemmarna besitter idag skulle inte x-axeln vara basera
    :alt: BandsAll
    :width: 49%
 
-   Plott över bandstrukturen med inmarkerade högkarakteristiska punkter (symboler) och linjer för att markera symbolernas läge i plotten. 
+Plott över bandstrukturen med inmarkerade högkarakteristiska punkter (symboler) och linjer för att markera symbolernas läge i plotten. 
 
 Tillståndstäthet
 ~~~~~~~~~~~~~~~~
