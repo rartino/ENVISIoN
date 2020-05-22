@@ -1038,6 +1038,8 @@ text
 Elektrontäthet
 ~~~~~~~~~~~~~~~~
 
+Figuren nedan visar nätverket för visualisering av elektrontäthet. Först hämtar en *HDFSource*-processor HDF5-filen. En *HDF5ToVolume*-processor hämtar sedan elektrontätheten från HDF5-filen och genererar en volym för den. Processorerna *CubeProxyGeometry*, *EntryExitPoints* och *VolumeRayCasyer* skapar en bild utifrån volymen. Denna bild är en 3D-bild av elektrontätheten hos materialets enhetscell. Processorerna *VolumeBoundingBox* och *MeshRenderer* skapar en parallellepiped som omsluter volymen. Parallellepipeden skickas sedan vidare till *VolumeRayCaster*-processorn, där den sammanfogas med elektrontäthetsbilden. Till den resulterande bilden läggs det sedan på en bakgrund med hjälp av en *Background*-processor. Slutligen skickas bilden till en *Canvas*-processor, som gör att bilden visas upp. Volymen som skapas av *HDF5ToVolume*-processor skickas även parallellt till en *VolumeSlice*-procssor, som genererar ett tvådimensionellt tvärsnitt av elektrontätheten. Till den läggs det sedan till en bakgrund med hjälp av en *Background*-processor och slutligen skickas tvärsnittsbilden till en egen *Canvas*-processor, där den visas upp.
+
 .. figure:: figures/Visualization/NetworkHandlers/ChargeNetworkHandler/ChargeNetworkHandler.png
    :name: fig:charge_network
    :align: center
@@ -1045,7 +1047,7 @@ Elektrontäthet
    :figwidth: 50 %
    :alt: charge_network
 
-   Nätverket som byggs upp då en ChargeNetworkHandler-instans initieras.
+   Nätverket för visualisering av elektrontäthet.
 
 
 
@@ -1056,7 +1058,7 @@ Elektrontäthet
    :figwidth: 50 %
    :alt: charge_vis
 
-   Resulterande bild från nätverk i figur fig:charge_network_.
+   De resulterande bilderna.
 
 
 
