@@ -104,9 +104,6 @@ class HDF5FermiSource(ivw.Processor):
         base_zx = base_z - base_x
         base_zx = np.ceil(base_zx)
 
-        base_yx = base_y - base_x
-        base_yx = np.ceil(base_yx)
-
         base_x = np.ceil(base_x)
         base_y = np.ceil(base_y)
         base_z = np.ceil(base_z)
@@ -148,11 +145,6 @@ class HDF5FermiSource(ivw.Processor):
                     if np.dot(base_zx, np.array([x - lenx*base_zx[0]*3/2, y - leny*base_zx[1]*3/2, z - lenz*base_zx[2]*3/2])) >= 0:
                         matrix[x, y, z] = 1
                     if np.dot(-base_zx, np.array([x - lenx*base_zx[0]*1/2, y - leny*base_zx[1]*1/2, z - lenz*base_zx[2]*1/2])) >= 0:
-                        matrix[x, y, z] = 1
-
-                    if np.dot(base_yx, np.array([x - lenx*base_yx[0]*3/2, y - leny*base_yx[1]*3/2, z - lenz*base_yx[2]*3/2])) >= 0:
-                        matrix[x, y, z] = 1
-                    if np.dot(-base_yx, np.array([x - lenx*base_yx[0]*1/2, y - leny*base_yx[1]*1/2, z - lenz*base_yx[2]*1/2])) >= 0:
                         matrix[x, y, z] = 1
 
         return matrix
