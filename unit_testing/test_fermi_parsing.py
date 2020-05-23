@@ -54,6 +54,6 @@ def test_fermi_parsing(h5file):
     assert os.path.isfile(h5file)
 
     with h5py.File(h5file, 'r') as h5:
-        assert 'bands' in h5
+        assert 'fermi_bands' in h5
         assert 'fermi_energy' in h5
-        assert 'basis' in h5
+        assert 'reciprocal_basis' in h5
