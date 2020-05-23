@@ -94,28 +94,66 @@ class HDF5FermiSource(ivw.Processor):
         base_x = basis[0]
         base_y = basis[1]
         base_z = basis[2]
+
+        base_xy = base_x - base_y
+        base_xy = np.ceil(base_xy)
+
+        base_xz = base_x - base_z
+        base_xz = np.ceil(base_xz)
+
+        base_zx = base_z - base_x
+        base_zx = np.ceil(base_zx)
+
+        base_yx = base_y - base_x
+        base_yx = np.ceil(base_yx)
+
+        base_x = np.ceil(base_x)
+        base_y = np.ceil(base_y)
+        base_z = np.ceil(base_z)
+
+        lenx = matrix.shape[0]
+        leny = matrix.shape[1]
+        lenz = matrix.shape[2]
+
         matrix = self.expand(matrix)
 
         for x in range(matrix.shape[0]):
             for y in range(matrix.shape[1]):
                 for z in range(matrix.shape[2]):
-                    if np.dot(base_x, np.array([x-base_x[0],y-base_x[1],z-base_x[2]])) < 0:
-                        matrix[x,y,z] = None
+                    if np.dot(base_x, np.array([x - lenx*base_x[0]*3/2, y - leny*base_x[1]*3/2, z - lenz*base_x[2]*3/2])) >= 0:
+                        matrix[x, y, z] = 1
+                    if np.dot(-base_x, np.array([x - lenx*base_x[0]*1/2, y - leny*base_x[1]*1/2, z - lenz*base_x[2]*1/2])) >= 0:
+                        matrix[x, y, z] = 1
 
-                    if np.dot(base_y, np.array([x-base_y[0],y-base_y[1],z-base_y[2]])) < 0:
-                        matrix[x,y,z] = None
+                    if np.dot(base_y, np.array([x - lenx*base_y[0]*3/2, y - leny*base_y[1]*3/2, z - lenz*base_y[2]*3/2])) >= 0:
+                        matrix[x, y, z] = 1
+                    if np.dot(-base_y, np.array([x - lenx*base_y[0]*1/2, y - leny*base_y[1]*1/2, z - lenz*base_y[2]*1/2])) >= 0:
+                        matrix[x, y, z] = 1
 
-                    if np.dot(base_z, np.array([x-base_z[0],y-base_z[1],z-base_z[2]])) < 0:
-                        matrix[x,y,z] = None
+                    if np.dot(base_z, np.array([x - lenx*base_z[0]*3/2, y - leny*base_z[1]*3/2, z - lenz*base_z[2]*3/2])) >= 0:
+                        matrix[x, y, z] = 1
+                    if np.dot(-base_z, np.array([x - lenx*base_z[0]*1/2, y - leny*base_z[1]*1/2, z - lenz*base_z[2]*1/2])) >= 0:
+                        matrix[x, y, z] = 1
 
-                    if np.dot(base_x, np.array([x-50*base_x[0],y-50*base_x[1],z-50*base_x[2]])) > 0:
-                        matrix[x,y,z] = None
+                    if np.dot(base_xy, np.array([x - lenx*base_xy[0]*3/2, y - leny*base_xy[1]*3/2, z - lenz*base_xy[2]*3/2])) >= 0:
+                        matrix[x, y, z] = 1
+                    if np.dot(-base_xy, np.array([x - lenx*base_xy[0]*1/2, y - leny*base_xy[1]*1/2, z - lenz*base_xy[2]*1/2])) >= 0:
+                        matrix[x, y, z] = 1
 
-                    if np.dot(base_y, np.array([x-50*base_y[0],y-50*base_y[1],z-50*base_y[2]])) > 0:
-                        matrix[x,y,z] = None
+                    if np.dot(base_xz, np.array([x - lenx*base_xz[0]*3/2, y - leny*base_xz[1]*3/2, z - lenz*base_xz[2]*3/2])) >= 0:
+                        matrix[x, y, z] = 1
+                    if np.dot(-base_xz, np.array([x - lenx*base_xz[0]*1/2, y - leny*base_xz[1]*1/2, z - lenz*base_xz[2]*1/2])) >= 0:
+                        matrix[x, y, z] = 1
 
-                    if np.dot(base_z, np.array([x-50*base_z[0],y-50*base_z[1],z-50*base_z[2]])) > 0:
-                        matrix[x,y,z] = None
+                    if np.dot(base_zx, np.array([x - lenx*base_zx[0]*3/2, y - leny*base_zx[1]*3/2, z - lenz*base_zx[2]*3/2])) >= 0:
+                        matrix[x, y, z] = 1
+                    if np.dot(-base_zx, np.array([x - lenx*base_zx[0]*1/2, y - leny*base_zx[1]*1/2, z - lenz*base_zx[2]*1/2])) >= 0:
+                        matrix[x, y, z] = 1
+
+                    if np.dot(base_yx, np.array([x - lenx*base_yx[0]*3/2, y - leny*base_yx[1]*3/2, z - lenz*base_yx[2]*3/2])) >= 0:
+                        matrix[x, y, z] = 1
+                    if np.dot(-base_yx, np.array([x - lenx*base_yx[0]*1/2, y - leny*base_yx[1]*1/2, z - lenz*base_yx[2]*1/2])) >= 0:
+                        matrix[x, y, z] = 1
 
         return matrix
 
