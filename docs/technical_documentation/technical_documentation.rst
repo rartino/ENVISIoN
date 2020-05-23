@@ -13,7 +13,7 @@ ENVISIoN teknisk dokumentation
 
 .. contents:: Innehåll
    :depth: 3
-	   
+
 Bakgrund
 ========
 
@@ -127,7 +127,7 @@ Definitioner
 
 -  **UNIX** - Benämning av en grupp operativsystem som härstammar från
    UNIX System from Bell Labs  [WhatIsUNIX]_.
- 
+
 
 Översikt av systemet
 ====================
@@ -176,7 +176,7 @@ delsystemen.
 Ingående delsystem, mer avancerat
 ---------------------------------
 Detta kapitel beskriver översiktligt delsystemens relationer och kommunikation med varandra.
-Det är menat som en sammanfattning av det som kan läsas mer utförligt i kapitlen om de specifika systemen. 
+Det är menat som en sammanfattning av det som kan läsas mer utförligt i kapitlen om de specifika systemen.
 För att läsa detta rekomenderas en allafall grundläggande kunskap om hur inviwo de olika delsystemen fungerar.
 
 .. figure:: figures/Envision_system_advanced.png
@@ -191,22 +191,22 @@ För att läsa detta rekomenderas en allafall grundläggande kunskap om hur invi
 Parsersystemet och visualiseringssystemet ingår i en pythonmodul kallad *envisionpy*. Se [Envisionpy]_ för mer detaljerad beskrivning.
 Denna modul kan importeras från pythonskript för att få tillgång till ENVISIoNs funktionalitet.
 Envisonpy har också en klass *EnvisionMain* (se [EnvisionMain]_ för mer ingående). EnvisionMain har som uppgift att vara ett gränssnitt där
-envisionpy kan styras från ett utomliggande pythonskript. EnvisionMain initierar en instans av Inviwo, genom 
-pythonmodulerna inviwopyapp och inviwopy, som den kör i bakggrunden. 
+envisionpy kan styras från ett utomliggande pythonskript. EnvisionMain initierar en instans av Inviwo, genom
+pythonmodulerna inviwopyapp och inviwopy, som den kör i bakggrunden.
 Detta gör att Inviwos funktioner kan användas utan att Inviwos gränssnitt visas.
 
-EnvisionMain-klassen har funktioner för att starta parsning genom att köra funktioner från *envisionpy.hdf5parser* 
+EnvisionMain-klassen har funktioner för att starta parsning genom att köra funktioner från *envisionpy.hdf5parser*
 (parsning beskrivet i [Parsersystemet]_), och starta visualiseringar
 genom att initiera och styra *NetworkHandler*-klasser (se [Visualiseringssystemet]_, [NetworkHandlers]_).
 
 Grässnittet är inte en del av envisionpy, utan är ett eget relativt isolerat system. Gränssnittet bygger
 på electron och nodejs och är skrivet med HTML, CSS, och JavaScript. Se [GUI-systemet]_ för mer detaljerad information.
 
-När systemet startas så laddas först den websida som är gränssnittet som användaren ser. 
-Från JavaScript-koden startas sedan, med hjälp av node-modulen child_process, en pythonprocess som kör skriptet *nodeInterface.py*. Detta skript 
+När systemet startas så laddas först den websida som är gränssnittet som användaren ser.
+Från JavaScript-koden startas sedan, med hjälp av node-modulen child_process, en pythonprocess som kör skriptet *nodeInterface.py*. Detta skript
 initerar ett *EnvisionMain*-objekt. Det tar också hand om kommunikation mellan javascript och python-processerna.
-Javascript- och pythonprocesserna kommunicerar med varandra genom att läsa och skriva 
-JSON-object i pythonprocessens *stdin* och *stdout*. 
+Javascript- och pythonprocesserna kommunicerar med varandra genom att läsa och skriva
+JSON-object i pythonprocessens *stdin* och *stdout*.
 
 Gränssnittet kan alltså nu begära att *EnvisionMain* ska utföra olika funktioner genom att skicka JSON-paket
 till den pythonprocess som startats.
@@ -264,7 +264,7 @@ VASP-filer.
 
 **Indatafiler:**
 
--  KPOINTS innehåller information om k-parametrarnas koordinater och vikter, 
+-  KPOINTS innehåller information om k-parametrarnas koordinater och vikter,
    alternativt instruktioner om hur en k-punkts mesh genereras av VASP.
 
 -  INCAR innehåller information, i form av flaggor över hur beräkningar
@@ -275,7 +275,7 @@ VASP-filer.
 -  POTCAR innehåller data om atomtyper.
 
 
- 
+
 
 Vid exempelvis beräkning av PKF för Si i temperaturen 300K, specificeras
 information om hur systemet ser ut i filer som POSCAR. Sedan kan
@@ -298,7 +298,7 @@ utseende:
    :alt: PCDAT_utseende
 
    En demonstrativ bild över utseendet för PCDAT från VASP. Notera att värdena inte riktigt stämmer.
-	 
+
 Bilden ovan beskriver
 utseendet hos en del av PCDAT-filen för PKF för systemet Si i 300K, med
 40 olika tidsteg. Viktigaste är den långa kolumnen av siffror som utgör
@@ -381,7 +381,7 @@ fungerar som mappar och filer i UNIX. Varje *dataset* karaktäriseras
 exempelvis av en sökväg [HDFGroup2]_.
 
 
- 
+
 
 ENVISIoNs HDF5-fil
 ------------------
@@ -539,7 +539,7 @@ Returnerar:
 **\_write\_bandstruct** Denna funktion skriver ut data för bandstruktur i
 en grupp med namn Bandstructure. Inom denna grupp tilldelas specifika
 K-punkter, energier samt bandstrukturer egna dataset. Högsymmetripunkter och deras
-symboler tilldelas egna dataset. Diverse attribut sätts även för bl.a. specifika energier. 
+symboler tilldelas egna dataset. Diverse attribut sätts även för bl.a. specifika energier.
 
 Parametrar:
 
@@ -680,14 +680,14 @@ pythonmodul för varje egenskap hos ett system som ska parsas. Nedan
 listas alla sådana moduler.
 
 Bandstrukturparser
-~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
-Bandstrukturparsern läser in alla energier för k-parametrar från EIGENVAL-filen 
-i användarens VASP-mapp, som skrivs till /Bandstructure i HDF5-filen och 
-dessutom skrivs de inlästa k-parametrarnas koordinater från EIGENVAL-filen 
-in i /BandStructure i HDF5-filen. Högsymmetripunkteroch dess symboler 
-läses av från KPOINTS-filen och Bravais-gittrets typ läses av 
-från OUTCAR-filen i användarens VASP-mapp och dessa punkter och tillhörande 
+Bandstrukturparsern läser in alla energier för k-parametrar från EIGENVAL-filen
+i användarens VASP-mapp, som skrivs till /Bandstructure i HDF5-filen och
+dessutom skrivs de inlästa k-parametrarnas koordinater från EIGENVAL-filen
+in i /BandStructure i HDF5-filen. Högsymmetripunkteroch dess symboler
+läses av från KPOINTS-filen och Bravais-gittrets typ läses av
+från OUTCAR-filen i användarens VASP-mapp och dessa punkter och tillhörande
 symboler skrivs in i egna datasets under /Highcoordinates i HDF5-filen.
 
 Funktionsanrop: envisionpy.hdf5parser.bandstructure(h5file, vasp\_dir)
@@ -839,6 +839,22 @@ Returnerar:
 -  Bool: True om parsning skett felfritt. Ett undantag kan kastas om
    PCDAT-fil inte hittas.
 
+Fermi-yta parser
+~~~~~~~~~~~~~~~~
+
+Reads OUTCAR and EIGNVAL to create datastructure for visualization of fermi surfaces
+
+Parameters:
+    hdf_file_path: str
+        Path where hdf file will be written to
+    vasp_dir_path: str
+        Path of direcotry containing OUTCAR and EIGENVAL files
+
+Returns:
+    True if succesfull else False
+
+
+
 parse\_all
 ~~~~~~~~~~
 
@@ -866,17 +882,17 @@ Testning
 För att varje års projekt ska kunna kontrollera att alla parsersystem
 fungerar är det viktigt med testfiler. Detta kan också ge inblick i hur
 parsern är tänkt att fungera. En generell testmapp i ENVISIONs
-filstruktur för parsersystemet finns vid namn /unit_testing. Mappen innehåller 
+filstruktur för parsersystemet finns vid namn /unit_testing. Mappen innehåller
 tester för parsning av bandstrukturer, tillståndstätheter, elektrontäthet, enhetscell
-och fermi-ytor. Testerna är skapade att testa om HDF5-filer genereras ur parsersystemen 
+och fermi-ytor. Testerna är skapade att testa om HDF5-filer genereras ur parsersystemen
 och om de genererade HDF5-filerna har korrekt datastruktur.
 
-Test för exempelvis parsersystemet för bandstrukturer har implementerats 
-med en testfil med namnet *test\_bandstructure_parsing.py* samt en mapp 
-vid namn *resources*. I *resources* finns det olika mappar med VASP-filer 
-för olika kristaller, som därmed testar att parsern fungerar korrekt för 
-olika filer. Det är tanken att framtida utvecklare använder sig av denna 
-mapp för att lägga in tester för nyskapade funktioner för parsning av 
+Test för exempelvis parsersystemet för bandstrukturer har implementerats
+med en testfil med namnet *test\_bandstructure_parsing.py* samt en mapp
+vid namn *resources*. I *resources* finns det olika mappar med VASP-filer
+för olika kristaller, som därmed testar att parsern fungerar korrekt för
+olika filer. Det är tanken att framtida utvecklare använder sig av denna
+mapp för att lägga in tester för nyskapade funktioner för parsning av
 någon ny egenskap.
 
 Visualiseringssystemet
@@ -939,22 +955,22 @@ nätverken visas i figur fig:PCF_.
 Bandstruktur
 ~~~~~~~~~~~~
 
-Nätverket startar med att öppna en HDF5-fil. Därefter skapas en process som extraherar data. Sedan navigeras det genom HDF5-filen till platsen där alla band, högkarakteristiska punkter (symboler) i Brillouin-zonen och högkarakteristiska punkternas koordinater är sparade. Alla band sparas i en DataFrame där varje kolumn innehåller alla värden för ett band. Alla högkarakteristiska punkter med tillhörande koordinat sparas i varsina DataFrames. Därefter ritas alla band och symboler upp. Det ritas även upp linjer som ligger i lod med symbolerna för att enklare se var i plotten symbolerna är. X-axeln visar symbolerna och y-axeln visar energierna i eV. X-axeln är även baserad på antalet iterationer av k-punkterna ur VASP-filerna. 
+Nätverket startar med att öppna en HDF5-fil. Därefter skapas en process som extraherar data. Sedan navigeras det genom HDF5-filen till platsen där alla band, högkarakteristiska punkter (symboler) i Brillouin-zonen och högkarakteristiska punkternas koordinater är sparade. Alla band sparas i en DataFrame där varje kolumn innehåller alla värden för ett band. Alla högkarakteristiska punkter med tillhörande koordinat sparas i varsina DataFrames. Därefter ritas alla band och symboler upp. Det ritas även upp linjer som ligger i lod med symbolerna för att enklare se var i plotten symbolerna är. X-axeln visar symbolerna och y-axeln visar energierna i eV. X-axeln är även baserad på antalet iterationer av k-punkterna ur VASP-filerna.
 
-Med den kunskapen gruppmedlemmarna besitter idag skulle inte x-axeln vara baserad på iterationer av k-punkter utan på avståndet mellan två symboler i Brillouin-zonen. 
+Med den kunskapen gruppmedlemmarna besitter idag skulle inte x-axeln vara baserad på iterationer av k-punkter utan på avståndet mellan två symboler i Brillouin-zonen.
 
 .. figure:: figures/network_bandstructure.png
    :alt: BandsNetwork
-   :width: 25%
+   :width: 60%
    :align: center
 
    Nätverk för visualisering av bandstruktur.
-	   
+
 .. image:: figures/new_bandstructure.jpg
    :alt: BandsAll
-   :width: 49%
+   :width: 60%
 
-Plott över bandstrukturen med inmarkerade högkarakteristiska punkter (symboler) och linjer för att markera symbolernas läge i plotten. 
+Plott över bandstrukturen med inmarkerade högkarakteristiska punkter (symboler) och linjer för att markera symbolernas läge i plotten.
 
 Tillståndstäthet
 ~~~~~~~~~~~~~~~~
@@ -987,15 +1003,15 @@ i figur fig:DoS_. Användaren kan även välja att visa en
    :width: 100%
    :figwidth: 100%
    :name: fig:DosNetwork
-      
+
    Nätverk för visualisering av tillståndstäthet.
 
-.. _fig:DoS:	 
-   
+.. _fig:DoS:
+
 .. image:: figures/TotalDoS.png
    :alt: TotalDos
    :width: 49%
-	      
+
 .. image:: figures/ZoomedDoS.png
    :alt: ZoomedDos
    :width: 49%
@@ -1016,24 +1032,68 @@ Hos nätverket för visualisering av enhetscellen hämtar först en *HDFSource*-
    :figwidth: 50 %
    :alt: unitcell_network
 
+   Nätverk för visualisering av enhetscellen.
+
+
+
 .. figure:: figures/Visualization/Networks/Unitcell/unitcell.png
    :name: fig:unitcell_vis
    :align: center
    :width: 100 %
    :figwidth: 50 %
    :alt: unitcell_vis
-   
+
+   Den resulterande bilden.
+
+
 
 Fermi-yta
 ~~~~~~~~~~~~~~~~
-text
+
+Visualisering av fermi ytan görs med en skapad python process *HDF5FermiSource*.
+*HDF5FermiSource* läser in en hdf5 fil skapad av parsesystemen. Genom attributet *energy_band*
+väljs vilken data ska visualiseras, datan normalisersas och sedan omvandlas till en *Inviwo-Volume*
+som output. Resterande delarana av nätverket är inbygga inviwo processorer.
+Volymen skickas till två mesh renderare som omvandlare meshen till en bild.
+*ISO-Raycaster* kan sedan välja ut vilka värden i volymen att visa i den resulterande bilden som *Canvas* målar upp.
 
 
+.. image:: figures/Visualization/Networks/Fermi/fermi_network.png
+    :width: 49 %
+    :alt: fermi_network
+
+.. image:: figures/Visualization/Networks/Fermi/fermi_canvas.png
+    :width: 49 %
+    :alt: fermi_network
+
+*Fermi-yta (höger) Inviwo-nätverket (vänster) resulterande bild.*
 
 Elektrontäthet
 ~~~~~~~~~~~~~~~~
-text
 
+Figuren nedan visar nätverket för visualisering av elektrontäthet. Först hämtar en *HDFSource*-processor HDF5-filen. En *HDF5ToVolume*-processor hämtar sedan elektrontätheten från HDF5-filen och genererar en volym för den. Processorerna *CubeProxyGeometry*, *EntryExitPoints* och *VolumeRayCasyer* skapar en bild utifrån volymen. Denna bild är en 3D-bild av elektrontätheten hos materialets enhetscell. Processorerna *VolumeBoundingBox* och *MeshRenderer* skapar en parallellepiped som omsluter volymen. Parallellepipeden skickas sedan vidare till *VolumeRayCaster*-processorn, där den sammanfogas med elektrontäthetsbilden. Till den resulterande bilden läggs det sedan på en bakgrund med hjälp av en *Background*-processor. Slutligen skickas bilden till en *Canvas*-processor, som gör att bilden visas upp. 
+
+Volymen som skapas av *HDF5ToVolume*-processor skickas även parallellt till en *VolumeSlice*-procssor, som genererar ett tvådimensionellt tvärsnitt av elektrontätheten. Till den läggs det sedan till en bakgrund med hjälp av en *Background*-processor och slutligen skickas tvärsnittsbilden till en egen *Canvas*-processor, där den visas upp.
+
+.. figure:: figures/Visualization/Networks/Charge/charge_network.png
+   :name: fig:charge_network
+   :align: center
+   :width: 100 %
+   :figwidth: 50 %
+   :alt: charge_network
+
+   Nätverket för visualisering av elektrontäthet.
+
+
+
+.. figure:: figures/Visualization/Networks/Charge/charge.png
+   :name: fig:charge_vis
+   :align: center
+   :width: 100 %
+   :figwidth: 50 %
+   :alt: charge_vis
+
+   De resulterande bilderna.
 
 
 
@@ -1297,6 +1357,14 @@ visualiseringen. Styr HDF5-källan och val av tidssteg.
 
 .. _sec:datastrukturer:
 
+FermiSurfaceNetworkHandler
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Ärver Network handler och skapar en gränsnitt med några *Inviwo-properties*.
+Specifict i *HDF5FermiSource*: *energy_band* *expand*, *brillouin_zone* och
+*ISO-Raycaster*: *iso-value*. Mer detaljer finns i respective *Inviwo-process* dokumentation.
+
+
 Datastrukturer
 --------------
 
@@ -1334,7 +1402,7 @@ en visualisering krävs processorer som utför specifika uppgifter. Figur
    :alt: ENVISIoNsHDF5
 
    Exempel på en processors utseende.
-	 
+
 De färgade rutorna till vänster på processorn i figur fig:processor_
 är olika typer av ingångar och utgångar. Cirkeln i det övre högra hörnet
 på processorn i samma figur är en lampa som lyser då processorn är
@@ -1532,7 +1600,7 @@ Inport:
 -  DataInport<hdf5::Handle, 0, true> hdf5HandleFlatMultiInport\_
 
 
- 
+
 
 Utport:
 
@@ -1656,7 +1724,7 @@ specificerad i *line\_x\_coordinate\_*. Denna är avsedd att ge en visuell
 markering av var specifika x-värden finns på x-axeln.
 
 
- 
+
 
 Inport:
 
@@ -1724,7 +1792,7 @@ Properties:
   tillstånd kunde uppfyllas med hjälp av denna processor.
 
 
- 
+
 
 Inport:
 
@@ -1758,6 +1826,71 @@ Utport:
 
 .. _sec:Properties:
 
+Fermi
+~~~~~
+**HDF5FermiSource**
+
+Process used for reading HDF5 data pertaining to fermi surface data
+
+Outport:
+
+    volumeOutport: ivw.data.VolumeOutport
+        Final processed data
+
+Properties:
+
+    energy_band: ivw.properties.IntProperty
+        Specifiees the band that should be read from the HDF5 file
+
+    is_brillouin_zone: ivw.propertiesBoolProperty
+        Specifies if the data should be translated to birllouin zone
+
+    is_expanded_zone: ivw.propertiesBoolProperty
+        Specifies if the data should be translated to expanded zone.
+        Note if is_brillouin_zone is set this property will be overriden
+
+
+**__init__(self, id, name):**
+    id: str
+        ID given to the process
+    name: str
+        name given to the process
+
+**brillouin_zone(self, matrix, basis)**
+    Transforms reciprocal lattice to brillouin zone
+
+    Parameters:
+        matrix: numpy.array
+            3D Matrix should represent reciprocal lattice
+
+        basis:
+            Reciprocal basis vectors
+
+    Return:
+        Matrix representing the brillouin zone
+
+**expanded_zone(self, matrix)**
+    Expands given matrix 4 quadrents
+
+    Parameters:
+        matrix: numpy.array
+            3D Matrix should represent reciprocal lattice
+
+    Return:
+        Expanded matrix
+
+**process(self, matrix, basis)**
+    Reads hdf_file set in self.filename,
+    normalises the data and translates it to an *Inviwo-Volum*
+
+    Additional options to expand the data and to translate the data to
+    brillouin zone are possible through the *Inviwo-properties*
+
+    Returns:
+        None
+
+
+
 Properties och widgets
 ----------------------
 
@@ -1773,23 +1906,23 @@ En widget för IntVectorProperty. ”Textbox”, satt till endast läsning
 (read only), som innehåller de värden som finns i tillhörande
 IntVectorProperty.
 
-Envisionpy 
+Envisionpy
 ==========
-ENVISIoNs pythonkod ligger i en modul kallad envisionpy. Det är i denna som all pythonfunktionalitet som disskuteras 
+ENVISIoNs pythonkod ligger i en modul kallad envisionpy. Det är i denna som all pythonfunktionalitet som disskuteras
 i andra kapitel ligger.  Modulen har skapats för att man relativt enkelt ska kunna importera ENVISIoNs
 funktionalitet från ett annat godtyckligt pythonskript (exempelvis som det används i det senare bekrivna GUI-systemet [GUI]_).
 
-Envisionpy har två undermappar, *processor_network* och *hdf5parser*. I dessa ligger de pythonfiler som beskrivs i 
+Envisionpy har två undermappar, *processor_network* och *hdf5parser*. I dessa ligger de pythonfiler som beskrivs i
 [NetworkHandlers]_ respektive [Parsersystemet]_. Den har även en undermapp *utils* där speciella Exception-klasser och fil med atomdata ligger.
 
 EnvisionMain
 ------------
 
-Envisionpy har en klass kallad *EnvisionMain*. Denna klass har som uppgift att bilda ett gränssnitt som 
+Envisionpy har en klass kallad *EnvisionMain*. Denna klass har som uppgift att bilda ett gränssnitt som
 annan pythonkod kan styra all ENVISIoNs visualiserings- och parsningsfunktionalitet från.
-När ett *EnvisionMain*-objekt initieras så startar denna sin egen instans av Inviwo, med hjälp utav *inviwopyapp*, som den kör i bakgrunden. 
+När ett *EnvisionMain*-objekt initieras så startar denna sin egen instans av Inviwo, med hjälp utav *inviwopyapp*, som den kör i bakgrunden.
 Detta tillåter att Inviwos visualiseringsfunktionalitet används utan att dess gränssnitt visas.
- 
+
 *EnvisionMain* kan genom funktionsanrom köra parsning och starta ett godtyckligt antal visualiseringar genom att initera *NetworkHandler*-klasser.
 
 Alla *NetworkHandler*-objekt sparas i en dictionary, *networkHandlers*, under en speciell identifikations-sträng som specificeras då objektet initieras.
@@ -1799,21 +1932,21 @@ Det är via dessa funktioner som parsnings- och visualiseringssystemen styrs.
 
 handle_vis_request
 ~~~~~~~~~~~~~~~~~~
-För att påverka visualiseringarna så används *handle_vis_request*-funktionen. Denna tar ett 
+För att påverka visualiseringarna så används *handle_vis_request*-funktionen. Denna tar ett
 argument kallat *request*. *request* en lista på följande form :
 
-[ACTION, HANDLER_ID, [PARAMETERS...]]. 
+[ACTION, HANDLER_ID, [PARAMETERS...]].
 
-ACTION är en sträng som beskriver vilken 
-funktion som ska köras. En dictionary, *action_dict*, finns som översätter olika strängar till funktioner. 
+ACTION är en sträng som beskriver vilken
+funktion som ska köras. En dictionary, *action_dict*, finns som översätter olika strängar till funktioner.
 
 HANDLER_ID ska innehålla en identifikationssträng för det *NetworkHandler*-objekt
-som funktionen ska köras på. Om en ny visualisering ska startas så specificerar den id för det 
+som funktionen ska köras på. Om en ny visualisering ska startas så specificerar den id för det
 nya *NetworkHandler*-objekt som kommer att skapas.
 
 [PARAMETERS...] är en lista av parametrar som den specificerade funktionen ska kallas med.
 
-Funktionen returnerar en lista på följande form: 
+Funktionen returnerar en lista på följande form:
 
 [ACTION, STATUS, HANDLER_ID, RESPONSE_DATA] där:
 
@@ -1821,7 +1954,7 @@ ACTION och HANDLER_ID är samma strängar som funktionen tog emot.
 
 STATUS är en bool som signalerar om funktionen lyckades eller misslyckades.
 
-RESPONSE_DATA är någon godtycklig data som funktionen som körts har returnerat, sätts till 
+RESPONSE_DATA är någon godtycklig data som funktionen som körts har returnerat, sätts till
 *None* om ingen data returneras.
 
 handle_parse_request
@@ -1858,9 +1991,9 @@ För att GUI-systemet ska kunna använda sig av envisionpy så används nodemodu
 *child_process* tillåter att man från JavaScript startar en pythonprocess som kör ett specificerat skript.
 
 
-För att kommunicera mellan processerna så kan python-processens stdin och stdout användas.  
-JavaScript- och Python-processerna skickar JSON-objekt kodade som strängar på detta sätt. 
-När ett JSON-paket tas emot så parsas det och funktioner körs beroende på innehållet. 
+För att kommunicera mellan processerna så kan python-processens stdin och stdout användas.
+JavaScript- och Python-processerna skickar JSON-objekt kodade som strängar på detta sätt.
+När ett JSON-paket tas emot så parsas det och funktioner körs beroende på innehållet.
 
 Detta görs i filerna *pythonInterface.js* och *nodeInterface.py*.
 
@@ -1873,18 +2006,18 @@ JSON-objekten som skickas via stdin och stdout från och till python är på fö
 
 {tag: TAG_STRING, data: DATA} där
 
-TAG_STRING: Är en sträng som specificerar vad datapaketet har att göra med. I nuläget så används följande taggar. 
-*"envision request"* då en visualisering ska påverkas. 
-*"parse request"* då parsning ska utföras. 
+TAG_STRING: Är en sträng som specificerar vad datapaketet har att göra med. I nuläget så används följande taggar.
+*"envision request"* då en visualisering ska påverkas.
+*"parse request"* då parsning ska utföras.
 *"response"* då paketet innehåller svarsinformation om en utförd funktion.
 
 DATA är någon godtycklig data. Exakt vad den innehåller varierar stort.
 
 Utseende
 --------------------------
-När ENVISIoN-applikationen körs öppnas det grafiska gränssnittet. 
+När ENVISIoN-applikationen körs öppnas det grafiska gränssnittet.
 
-.. _fig:Startup:	
+.. _fig:Startup:
 
 .. image:: figures/envision_gui_startup.png
    :name: fig:GUIBasWin.ong
@@ -1952,4 +2085,3 @@ Appendix A - ENVISIoNs HDF5-filstruktur
    :width: 100%
 
 .. _sec:GUIAppendix:
-
