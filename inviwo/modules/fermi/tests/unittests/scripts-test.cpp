@@ -2,7 +2,7 @@
  *
  * Inviwo - Interactive Visualization Workshop
  *
- * Copyright (c) 2019 Inviwo Foundation
+ * Copyright (c) 2017-2019 Inviwo Foundation
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,25 +27,55 @@
  *
  *********************************************************************************/
 
-#ifndef IVW_FERMIMODULE_H
-#define IVW_FERMIMODULE_H
+#include <warn/push>
+#include <warn/ignore/all>
+#include <gtest/gtest.h>
+#include <warn/pop>
 
-#include <modules/fermi/fermimoduledefine.h>
-#include <inviwo/core/common/inviwomodule.h>
-#include <modules/python3/pythonprocessorfolderobserver.h>
-#include <modules/python3/pyutils.h>
+#include <modules/fermi/fermimodule.h>
+
+#include <inviwo/core/common/inviwoapplication.h>
+#include <modules/python3/python3module.h>
+#include <modules/python3/pythonscript.h>
+#include <modules/python3/pybindutils.h>
+
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
+#include <glm/gtc/epsilon.hpp>
 
 namespace inviwo {
 
-class IVW_MODULE_FERMI_API FermiModule : public InviwoModule {
-public:
-    FermiModule(InviwoApplication* app);
-    virtual ~FermiModule() = default;
+namespace {
+std::string getPath() {
+    auto path = util::getInviwoApplication()->getModuleByType<FermiModule>()->getPath(
+        ModulePath::UnitTests);
+    return path + "/scripts/";
+}
+}  // namespace
 
-    pyutil::ModulePath scripts_;
-    PythonProcessorFolderObserver pythonFolderObserver_;
-};
+TEST(Python3Scripts, ExpandZone) {
+    PythonScriptDisk script(getPath() + "expand_zone.py");
 
-}  // namespace inviwo
+    bool status = false;
+    script.run([&](pybind11::dict dict) {
+        auto pyStatus = dict["status"];
+        auto cStatus = pybind11::cast<bool>(pyStatus);
 
-#endif  // IVW_FERMIMODULE_H
+        EXPECT_TRUE(cStatus);
+    });
+}
+
+TEST(Python3Scripts, BrillouinZone) {
+    PythonScriptDisk script(getPath() + "brillouin_zone.py");
+
+    bool status = false;
+    script.run([&](pybind11::dict dict) {
+        auto pyStatus = dict["status"];
+        auto cStatus = pybind11::cast<bool>(pyStatus);
+
+        EXPECT_TRUE(cStatus);
+    });
+}
+
+} // namespace

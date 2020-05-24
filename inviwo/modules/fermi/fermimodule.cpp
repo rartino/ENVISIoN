@@ -31,8 +31,8 @@
 
 namespace inviwo {
 
-fermiModule::fermiModule(InviwoApplication* app)
-    : InviwoModule(app, "fermi")
+FermiModule::FermiModule(InviwoApplication* app)
+    : InviwoModule(app, "Fermi")
     , scripts_{getPath() + "/processors"}
     , pythonFolderObserver_{app, getPath() + "/processors", *this} {}
 }  // namespace inviwo
