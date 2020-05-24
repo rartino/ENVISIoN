@@ -1,6 +1,6 @@
 #--------------------------------------------------------------------
 # Inviwo fermi Module
-ivw_module(fermi)
+ivw_module(Fermi)
 
 #--------------------------------------------------------------------
 # Add header files
@@ -29,7 +29,10 @@ ivw_group("Shader Files" ${SHADER_FILES})
 #--------------------------------------------------------------------
 # Add Unittests
 set(TEST_FILES
-	#${CMAKE_CURRENT_SOURCE_DIR}/tests/unittests/fermi-test.cpp
+    tests/unittests/fermi-unittest-main.cpp
+    tests/unittests/scripts-test.cpp
+    tests/unittests/scripts/brillouin_zone.py
+    tests/unittests/scripts/expand_zone.py
 )
 ivw_add_unittest(${TEST_FILES})
 
