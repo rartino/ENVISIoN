@@ -199,7 +199,7 @@ EnvisionMain-klassen har funktioner för att starta parsning genom att köra fun
 (parsning beskrivet i [Parsersystemet]_), och starta visualiseringar
 genom att initiera och styra *NetworkHandler*-klasser (se [Visualiseringssystemet]_, [NetworkHandlers]_).
 
-Grässnittet är inte en del av envisionpy, utan är ett eget relativt isolerat system. Gränssnittet bygger
+Gränssnittet är inte en del av envisionpy, utan är ett eget relativt isolerat system. Gränssnittet bygger
 på electron och nodejs och är skrivet med HTML, CSS, och JavaScript. Se [GUI-systemet]_ för mer detaljerad information.
 
 När systemet startas så laddas först den websida som är gränssnittet som användaren ser.
@@ -1908,9 +1908,9 @@ IntVectorProperty.
 
 Envisionpy
 ==========
-ENVISIoNs pythonkod ligger i en modul kallad envisionpy. Det är i denna som all pythonfunktionalitet som disskuteras
+ENVISIoNs pythonkod ligger i en modul kallad envisionpy. Det är i denna som all pythonfunktionalitet som diskuteras
 i andra kapitel ligger.  Modulen har skapats för att man relativt enkelt ska kunna importera ENVISIoNs
-funktionalitet från ett annat godtyckligt pythonskript (exempelvis som det används i det senare bekrivna GUI-systemet [GUI]_).
+funktionalitet från ett annat godtyckligt pythonskript (exempelvis som det används i det senare beskrivna GUI-systemet [GUI]_).
 
 Envisionpy har två undermappar, *processor_network* och *hdf5parser*. I dessa ligger de pythonfiler som beskrivs i
 [NetworkHandlers]_ respektive [Parsersystemet]_. Den har även en undermapp *utils* där speciella Exception-klasser och fil med atomdata ligger.
