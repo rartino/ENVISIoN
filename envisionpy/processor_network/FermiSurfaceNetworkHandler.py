@@ -158,6 +158,11 @@ class FermiSurfaceNetworkHandler(NetworkHandler):
             self.iso_raycaster.getInport('bg')
         )
 
+        network.addLink(
+            self.hdf_fermi_source.getPropertyByIdentifier('fermi_level'),
+            self.iso_raycaster.raycasting.getPropertyByIdentifier('isoValue')
+        )
+
         canvas = factory.create('org.inviwo.CanvasGL', glm.ivec2(0, 400))
         network.addProcessor(canvas)
 
