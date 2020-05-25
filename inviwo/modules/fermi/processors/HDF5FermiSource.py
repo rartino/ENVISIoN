@@ -83,6 +83,11 @@ class HDF5FermiSource(ivw.Processor):
         self.is_expanded_zone = ivw.properties.BoolProperty('expanded_zone', 'Expanded Zone')
         self.addProperty(self.is_expanded_zone, owner=False)
 
+        self.fermi_level = ivw.properties.FloatProperty('fermi_level', 'Fermi Level')
+        self.fermi_level.minValue = 0
+        self.fermi_level.maxValue = 1
+        self.addProperty(self.fermi_level, owner=False)
+
     @staticmethod
     def processorInfo():
         return ivw.ProcessorInfo(
@@ -258,6 +263,10 @@ class HDF5FermiSource(ivw.Processor):
         matrix = np.identity(4)
         matrix[:3, :-1] = basis
         volumes.modelMatrix = ivw.glm.mat4(*matrix.flatten())
+
+        normal_fermi_energy = normalize(fermi_energy)
+        if normal_fermi_energy and 0 < normal_fermi_energy and normal_fermi_energy < 1:
+            self.fermi_level.value = normal_fermi_energy
 
         print('E-Fermi: {}'.format(fermi_energy))
         print('E-Fermi Normal: {}'.format(normalize(fermi_energy)))
