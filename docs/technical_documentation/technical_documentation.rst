@@ -2020,11 +2020,11 @@ När ENVISIoN-applikationen körs öppnas det grafiska gränssnittet.
 .. _fig:Startup:
 
 .. image:: figures/envision_gui_startup.png
-   :name: fig:GUIBasWin.ong
+   :name: fig:GUI_start_Ubuntu.ong
    :width: 60 %
    :alt: GUIBasWin
 
-*GUI utseende vid start*
+*GUI utseende vid start i Linux*
 
 
 
