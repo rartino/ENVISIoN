@@ -271,6 +271,7 @@ class EnvisionMain():
         if handler_id in self.networkHandlers:
             self.networkHandlers[handler_id].clear_processors()
             del self.networkHandlers[handler_id]
+            self.app.network.clear()
             return handler_id
         # elif handler_id in self.networkHandlers:
         #     self.networkHandlers[handler_id].clear_processor_network()
