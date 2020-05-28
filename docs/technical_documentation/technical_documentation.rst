@@ -1175,25 +1175,25 @@ kombineras med andra nätverk genom att denna ärvs i mer specificerade
 *NetworkHandler*-klasser.
 
 
-.. figure:: figures/Visualization/Networks/Unitcell/unitcell_network.png
-   :name: fig:unitcellnetworkk
+.. figure:: figures/Visualization/NetworkHandlers/UnitcellNetworkHandler/unitcell_network.png
+   :name: fig:unitcell_network
    :align: center
    :width: 100 %
    :figwidth: 50 %
-   :alt: unitcellnetworkk
+   :alt: unitcell_network
 
    Nätverket som byggs upp då en UnitcellNetworkHandler-instans initieras.
 
 
 
-.. figure:: figures/Visualization/Networks/Unitcell/unitcell.png
-   :name: fig:unitcellviss
+.. figure:: figures/Visualization/NetworkHandlers/UnitcellNetworkHandler/unitcell.png
+   :name: fig:unitcell_vis
    :align: center
    :width: 100 %
    :figwidth: 50 %
-   :alt: unitcellviss
+   :alt: unitcell_vis
 
-   Resulterande bild från nätverk i figur fig:unitcellnetworkk_
+   Resulterande bild från nätverk i figur fig:unitcell_network_
 
 
 *UnitcellNetworkHandler* börjar med kontrollera att den givna HDF5-filen
