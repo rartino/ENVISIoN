@@ -1028,8 +1028,7 @@ Hos nätverket för visualisering av enhetscellen hämtar först en *HDFSource*-
 .. figure:: figures/Visualization/Networks/Unitcell/unitcell_network.png
    :name: fig:unitcell_network
    :align: center
-   :width: 100 %
-   :figwidth: 50 %
+   :width: 60%
    :alt: unitcell_network
 
    Nätverk för visualisering av enhetscellen.
@@ -1039,8 +1038,7 @@ Hos nätverket för visualisering av enhetscellen hämtar först en *HDFSource*-
 .. figure:: figures/Visualization/Networks/Unitcell/unitcell.png
    :name: fig:unitcell_vis
    :align: center
-   :width: 100 %
-   :figwidth: 50 %
+   :width: 60%
    :alt: unitcell_vis
 
    Den resulterande bilden.
@@ -1078,8 +1076,7 @@ Volymen som skapas av *HDF5ToVolume*-processor skickas även parallellt till en 
 .. figure:: figures/Visualization/Networks/Charge/charge_network.png
    :name: fig:charge_network
    :align: center
-   :width: 100 %
-   :figwidth: 50 %
+   :width: 60%
    :alt: charge_network
 
    Nätverket för visualisering av elektrontäthet.
@@ -1089,8 +1086,7 @@ Volymen som skapas av *HDF5ToVolume*-processor skickas även parallellt till en 
 .. figure:: figures/Visualization/Networks/Charge/charge.png
    :name: fig:charge_vis
    :align: center
-   :width: 100 %
-   :figwidth: 50 %
+   :width: 60%
    :alt: charge_vis
 
    De resulterande bilderna.
@@ -1176,24 +1172,22 @@ kombineras med andra nätverk genom att denna ärvs i mer specificerade
 
 
 .. figure:: figures/Visualization/NetworkHandlers/UnitcellNetworkHandler/unitcell_network.png
-   :name: fig:unitcell_network
+   :name: fig:unitcell_network_handler
    :align: center
-   :width: 100 %
-   :figwidth: 50 %
-   :alt: unitcell_network
+   :width: 60%
+   :alt: unitcell_network_handler
 
    Nätverket som byggs upp då en UnitcellNetworkHandler-instans initieras.
 
 
 
 .. figure:: figures/Visualization/NetworkHandlers/UnitcellNetworkHandler/unitcell.png
-   :name: fig:unitcell_vis
+   :name: fig:unitcell_handler_vis
    :align: center
-   :width: 100 %
-   :figwidth: 50 %
-   :alt: unitcell_vis
+   :width: 60%
+   :alt: unitcell_handler_vis
 
-   Resulterande bild från nätverk i figur fig:unitcell_network_
+   Resulterande bild från nätverk i figur fig:unitcell_handler_vis_
 
 
 *UnitcellNetworkHandler* börjar med kontrollera att den givna HDF5-filen
@@ -1221,31 +1215,29 @@ volymrenderingsaspekten av visualiseringen.
 
 
 .. figure:: figures/Visualization/NetworkHandlers/ChargeNetworkHandler/ChargeNetworkHandler.png
-   :name: fig:chargenetworkk
+   :name: fig:charge_network_handler
    :align: center
-   :width: 100 %
-   :figwidth: 50 %
-   :alt: chargenetworkk
+   :width: 60%
+   :alt: charge_network_handler
 
    Nätverket som byggs upp då en ChargeNetworkHandler-instans initieras.
 
 
 
 .. figure:: figures/Visualization/NetworkHandlers/ChargeNetworkHandler/charge.png
-   :name: fig:charge_viss
+   :name: fig:charge_network_vis
    :align: center
-   :width: 100 %
-   :figwidth: 50 %
-   :alt: charge_viss
+   :width: 60%
+   :alt: charge_handler_vis
 
-   Resulterande bild från nätverk i figur fig:chargenetworkk_.
+   Resulterande bild från nätverk i figur fig:charge_handler_vis_.
 
 
 *ChargeNetworkHandler* börjar med kontrollera att den givna HDF5-filen
 har data för en laddningstäthetsvisualisering och kastar ett
 *AssertionError* om den inte har det. Den fortsätter sedan med att
 initera sin superklass *VolumeNetworkHandler*. Denna sätter up sin del av nätverket som
-indikerat i figur fig:charge_network_.
+indikerat i figur fig:charge_network_handler.
 
 En *HDF5 Source* sätts upp och sedan sätts en *HDF5 To Volume* upp och anslutes till *HDF5
 Source*. *HDF5 To Volume* hämtar ut volymdata från HDF5-filens */CHG/*
