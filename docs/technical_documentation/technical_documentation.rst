@@ -1175,7 +1175,7 @@ kombineras med andra nätverk genom att denna ärvs i mer specificerade
 *NetworkHandler*-klasser.
 
 
-.. figure:: figures/Visualization/NetworkHandlers/UnitcellNetworkHandler/unitcell_network.png
+.. figure:: figures/Visualization/Networks/Unitcell/unitcell_network.png
    :name: fig:unitcellnetworkk
    :align: center
    :width: 100 %
