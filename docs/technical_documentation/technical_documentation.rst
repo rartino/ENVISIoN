@@ -1176,24 +1176,24 @@ kombineras med andra nätverk genom att denna ärvs i mer specificerade
 
 
 .. figure:: figures/Visualization/NetworkHandlers/UnitcellNetworkHandler/unitcell_network.png
-   :name: fig:unitcell_networkk
+   :name: fig:unitcellnetworkk
    :align: center
    :width: 100 %
    :figwidth: 50 %
-   :alt: unitcell_networkk
+   :alt: unitcellnetworkk
 
    Nätverket som byggs upp då en UnitcellNetworkHandler-instans initieras.
 
 
 
 .. figure:: figures/Visualization/NetworkHandlers/UnitcellNetworkHandler/unitcell.png
-   :name: fig:unitcell_viss
+   :name: fig:unitcellviss
    :align: center
    :width: 100 %
    :figwidth: 50 %
-   :alt: unitcell_viss
+   :alt: unitcellviss
 
-   Resulterande bild från nätverk i figur fig:unitcell_networkk_
+   Resulterande bild från nätverk i figur fig:unitcellnetworkk_
 
 
 *UnitcellNetworkHandler* börjar med kontrollera att den givna HDF5-filen
@@ -1221,11 +1221,11 @@ volymrenderingsaspekten av visualiseringen.
 
 
 .. figure:: figures/Visualization/NetworkHandlers/ChargeNetworkHandler/ChargeNetworkHandler.png
-   :name: fig:charge_networkk
+   :name: fig:chargenetworkk
    :align: center
    :width: 100 %
    :figwidth: 50 %
-   :alt: charge_networkk
+   :alt: chargenetworkk
 
    Nätverket som byggs upp då en ChargeNetworkHandler-instans initieras.
 
@@ -1238,7 +1238,7 @@ volymrenderingsaspekten av visualiseringen.
    :figwidth: 50 %
    :alt: charge_viss
 
-   Resulterande bild från nätverk i figur fig:charge_networkk_.
+   Resulterande bild från nätverk i figur fig:chargenetworkk_.
 
 
 *ChargeNetworkHandler* börjar med kontrollera att den givna HDF5-filen
