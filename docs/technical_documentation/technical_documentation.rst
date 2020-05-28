@@ -1186,7 +1186,7 @@ kombineras med andra nätverk genom att denna ärvs i mer specificerade
 
 
 
-.. figure:: figures/Visualization/NetworkHandlers/UnitcellNetworkHandler/unitcell.png
+.. figure:: figures/Visualization/Networks/Unitcell/unitcell.png
    :name: fig:unitcellviss
    :align: center
    :width: 100 %
