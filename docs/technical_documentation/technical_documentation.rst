@@ -1221,24 +1221,24 @@ volymrenderingsaspekten av visualiseringen.
 
 
 .. figure:: figures/Visualization/NetworkHandlers/ChargeNetworkHandler/ChargeNetworkHandler.png
-   :name: fig:charge_network
+   :name: fig:charge_networkk
    :align: center
    :width: 100 %
    :figwidth: 50 %
-   :alt: charge_network
+   :alt: charge_networkk
 
    Nätverket som byggs upp då en ChargeNetworkHandler-instans initieras.
 
 
 
 .. figure:: figures/Visualization/NetworkHandlers/ChargeNetworkHandler/charge.png
-   :name: fig:charge_vis
+   :name: fig:charge_viss
    :align: center
    :width: 100 %
    :figwidth: 50 %
-   :alt: charge_vis
+   :alt: charge_viss
 
-   Resulterande bild från nätverk i figur fig:charge_network_.
+   Resulterande bild från nätverk i figur fig:charge_networkk_.
 
 
 *ChargeNetworkHandler* börjar med kontrollera att den givna HDF5-filen
@@ -1270,11 +1270,11 @@ respektive atompositionsaspekten av visualiseringen.
 
 
 .. figure:: figures/VolumeHandler/parchg_network_ex.png
-   :name: fig:parchg_network
+   :name: fig:parchg_networkk
    :align: center
    :width: 100 %
    :figwidth: 60 %
-   :alt: parchg_network
+   :alt: parchg_networkk
 
    Nätverket som byggs av ParchgNetworkHandler (utan atompositionsrendering).
 
