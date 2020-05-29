@@ -1225,7 +1225,7 @@ volymrenderingsaspekten av visualiseringen.
 
 
 .. figure:: figures/Visualization/NetworkHandlers/ChargeNetworkHandler/charge.png
-   :name: fig:charge_network_vis
+   :name: fig:charge_handler_vis
    :align: center
    :width: 60%
    :alt: charge_handler_vis
