@@ -188,7 +188,7 @@ För att läsa detta rekomenderas en allafall grundläggande kunskap om hur invi
 
    Skiss över delsystemens relationer till varandra.
 
-Parsersystemet och visualiseringssystemet ingår i en pythonmodul kallad *envisionpy*. Se :ref:`Envisionpy` för mer detaljerad beskrivning.
+Parsersystemet och visualiseringssystemet ingår i en pythonmodul kallad *envisionpy*. Se `Envisionpy`_ för mer detaljerad beskrivning.
 Denna modul kan importeras från pythonskript för att få tillgång till ENVISIoNs funktionalitet.
 Envisonpy har också en klass *EnvisionMain* (se [EnvisionMain]_ för mer ingående). EnvisionMain har som uppgift att vara ett gränssnitt där
 envisionpy kan styras från ett utomliggande pythonskript. EnvisionMain initierar en instans av Inviwo, genom
@@ -352,7 +352,7 @@ exempelvist är dataset sparade kontinuerligt. Slutligen återfinns
 HDF5-objektet *attributes*, som kan valbart skapas. Typiskt sätt skapas
 *attributes* som ett sätt för att ytterligare beskriva några egenskaper
 hos ett dataset. En *attribute* innehåller ett namn och ett värde, och
-skapas i samband med att ett dataset öppnas [HDFgroup2]_.
+skapas i samband med att ett dataset öppnas [HDFGroup2]_.
 
 
 .. figure:: figures/Dataset_Metadata_HDF5.png
@@ -1898,7 +1898,6 @@ En widget för IntVectorProperty. ”Textbox”, satt till endast läsning
 (read only), som innehåller de värden som finns i tillhörande
 IntVectorProperty.
 
-.. _Envisionpy:
 Envisionpy
 ==========
 ENVISIoNs pythonkod ligger i en modul kallad envisionpy. Det är i denna som all pythonfunktionalitet som diskuteras
