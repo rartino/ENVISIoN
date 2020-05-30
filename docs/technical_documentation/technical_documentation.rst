@@ -197,7 +197,7 @@ Detta gör att Inviwos funktioner kan användas utan att Inviwos gränssnitt vis
 
 EnvisionMain-klassen har funktioner för att starta parsning genom att köra funktioner från *envisionpy.hdf5parser*
 (parsning beskrivet i `Parsersystemet`_), och starta visualiseringar
-genom att initiera och styra *NetworkHandler*-klasser (se `Visualiseringssystemet`_, `NetworkHandlers_).
+genom att initiera och styra *NetworkHandler*-klasser (se `Visualiseringssystemet`_, `NetworkHandlers`_).
 
 Gränssnittet är inte en del av envisionpy, utan är ett eget relativt isolerat system. Gränssnittet bygger
 på electron och nodejs och är skrivet med HTML, CSS, och JavaScript. Se `GUI-systemet`_ för mer detaljerad information.
