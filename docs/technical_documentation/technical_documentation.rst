@@ -992,7 +992,7 @@ processor har namnet *Partial Pick* i nätverket. Därefter laddas
 Partial-gruppen. All data matas sedan in i en *LinePlot*-processor som
 gör en 2D-graf. Detta matas in i en *Canvas*-processor som visar själva
 grafen. Dessutom finns två textOverlay processorer som skriver ut text
-för x- och y-axeln. Figur fig:DoS_ visar total
+för x- och y-axeln. Figur fig:TotalDoS_ visar total
 tillståndstäthet för titanfosfat, TiPO4. Figur
 fig:DoSNetwork_ visar nätverket som ger 2D-grafen
 i figur fig:DoS_. Användaren kan även välja att visa en
@@ -1006,15 +1006,15 @@ i figur fig:DoS_. Användaren kan även välja att visa en
 
    Nätverk för visualisering av tillståndstäthet.
 
-.. _fig:DoS:
-
 .. image:: figures/TotalDoS.png
    :alt: TotalDos
    :width: 49%
+   :name: fig:TotalDos
 
 .. image:: figures/ZoomedDoS.png
    :alt: ZoomedDos
    :width: 49%
+   :name: fig:ZoomedDos
 
 *Visualisering av tillståndstätheten för TiPO4.
 (vänster) Visualisering av den totala tillståndstätheten med en blå hjälplinje för avläsning.
