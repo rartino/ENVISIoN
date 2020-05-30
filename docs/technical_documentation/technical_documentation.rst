@@ -1187,7 +1187,7 @@ kombineras med andra nätverk genom att denna ärvs i mer specificerade
    :width: 60%
    :alt: unitcell_handler_vis
 
-   Resulterande bild från nätverk i figur fig:unitcell_handler_vis_
+   Resulterande bild från nätverk i figur fig:unitcell_network_handler_
 
 
 *UnitcellNetworkHandler* börjar med kontrollera att den givna HDF5-filen
@@ -1230,7 +1230,7 @@ volymrenderingsaspekten av visualiseringen.
    :width: 60%
    :alt: charge_handler_vis
 
-   Resulterande bild från nätverk i figur fig:charge_handler_vis_.
+   Resulterande bild från nätverk i figur fig:charge_network_handler_.
 
 
 *ChargeNetworkHandler* börjar med kontrollera att den givna HDF5-filen
