@@ -190,17 +190,17 @@ För att läsa detta rekomenderas en allafall grundläggande kunskap om hur invi
 
 Parsersystemet och visualiseringssystemet ingår i en pythonmodul kallad *envisionpy*. Se `Envisionpy`_ för mer detaljerad beskrivning.
 Denna modul kan importeras från pythonskript för att få tillgång till ENVISIoNs funktionalitet.
-Envisonpy har också en klass *EnvisionMain* (se [EnvisionMain]_ för mer ingående). EnvisionMain har som uppgift att vara ett gränssnitt där
+Envisonpy har också en klass *EnvisionMain* (se `EnvisionMain`_ för mer ingående). EnvisionMain har som uppgift att vara ett gränssnitt där
 envisionpy kan styras från ett utomliggande pythonskript. EnvisionMain initierar en instans av Inviwo, genom
 pythonmodulerna inviwopyapp och inviwopy, som den kör i bakggrunden.
 Detta gör att Inviwos funktioner kan användas utan att Inviwos gränssnitt visas.
 
 EnvisionMain-klassen har funktioner för att starta parsning genom att köra funktioner från *envisionpy.hdf5parser*
-(parsning beskrivet i [Parsersystemet]_), och starta visualiseringar
-genom att initiera och styra *NetworkHandler*-klasser (se [Visualiseringssystemet]_, [NetworkHandlers]_).
+(parsning beskrivet i `Parsersystemet`_), och starta visualiseringar
+genom att initiera och styra *NetworkHandler*-klasser (se `Visualiseringssystemet`_, `NetworkHandlers_).
 
 Gränssnittet är inte en del av envisionpy, utan är ett eget relativt isolerat system. Gränssnittet bygger
-på electron och nodejs och är skrivet med HTML, CSS, och JavaScript. Se [GUI-systemet]_ för mer detaljerad information.
+på electron och nodejs och är skrivet med HTML, CSS, och JavaScript. Se `GUI-systemet`_ för mer detaljerad information.
 
 När systemet startas så laddas först den websida som är gränssnittet som användaren ser.
 Från JavaScript-koden startas sedan, med hjälp av node-modulen child_process, en pythonprocess som kör skriptet *nodeInterface.py*. Detta skript
@@ -1905,7 +1905,7 @@ i andra kapitel ligger.  Modulen har skapats för att man relativt enkelt ska ku
 funktionalitet från ett annat godtyckligt pythonskript (exempelvis som det används i det senare beskrivna GUI-systemet [GUI]_).
 
 Envisionpy har två undermappar, *processor_network* och *hdf5parser*. I dessa ligger de pythonfiler som beskrivs i
-[NetworkHandlers]_ respektive [Parsersystemet]_. Den har även en undermapp *utils* där speciella Exception-klasser och fil med atomdata ligger.
+`NetworkHandlers`_ respektive `Parsersystemet`_. Den har även en undermapp *utils* där speciella Exception-klasser och fil med atomdata ligger.
 
 EnvisionMain
 ------------
