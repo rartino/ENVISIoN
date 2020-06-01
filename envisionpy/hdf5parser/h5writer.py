@@ -123,7 +123,7 @@ def _write_bandstruct(h5file, band_data, kval_list, parsed_symbols, parsed_coord
             dataset.attrs['VariableSymbol'] = '$B_{{{}}}$'.format(i)
         for i in range(0, len(parsed_symbols)):
             dataset = h5.create_dataset('/Highcoordinates/{}/Symbol'.format(i),
-                                        data = np.asarray(parsed_symbols[i],dtype = h5py.string_dtype()))
+                                        data = np.asarray(parsed_symbols[i],dtype=h5py.special_dtype(vlen=str)))
             dataset.attrs['Unit'] = 'NoUnit'
             dataset.attrs['QuantitySymbol'] = '$Character$'.format(i)
             dataset.attrs['QuantityName'] = 'Symbol of highcoordinate'
