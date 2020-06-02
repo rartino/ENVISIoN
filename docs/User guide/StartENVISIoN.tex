@@ -1,12 +1,17 @@
-\section{Start ENVISIoN}
-After the Inviwo build is done, an application named \textit{inviwo\_envisionminimum} will be available in the bin files in the build directory. The commands in this section are only compatible with Ubuntu 18.04 LTS and other UNIX based operating systems. To make the application start the graphical user interface, it needs the path to the interface source files located in the same directory. The file containing these files can be copied from \emph{$\sim$/ENVISIoN/scripts} and is named \textit{ENVISIoNimport.py}. Execute the command below to copy the file to the correct directory.
+\section{Start ENVISIoN or Inviwo}
+\label{sec: start envision}
+\subsection{Start ENVISIoN}
+When the building for Inviwo with ENVISIoN is finished, we can start the application's graphical user interface. If you have structured the file system as explained in section ... and section ..., the start up of the application should be the same on every operating system. Open up a terminal or command window and navigate to the ENVISIoN folder located in the ENVISIoN directory. When you stand in .../ENVISIoN/ENVISIoN, execute the following command in the terminal:
 
 \begin{lstlisting}[frame = single, breaklines = true]
-    cp ~/ENVISIoN/scripts/ENVISIoNimport.py ~/build/bin/ENVISIoNimport.py
+    npm run start
 \end{lstlisting}
 
-The application can now be started by standing in the build directory and executing the command below.
+The application ENVISIoN should start and the GUI will pop up. For further instruction concering ENVISIoN's GUI, see section \ref{sec:GUI}.
+
+\subsection{Start Inviwo}
+During the development of ENVISIoN it can be an advantage to use only Inviwo and its graphical user interface. If the installation of ENVISIoN with Inviwo is made correctly, open a terminal or command window and navigate to the ENVISIoN directory. Then, type in the following command in the terminal:
 
 \begin{lstlisting}[frame = single, breaklines = true]
-    ./bin/inviwo_envisionminimum
+    ./inviwo-build/bin/inviwo
 \end{lstlisting}
