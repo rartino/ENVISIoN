@@ -14,6 +14,15 @@
 \usepackage{listings}
 \usepackage{courier}
 \usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage[
+backend=biber,
+style=alphabetic,
+sorting=ynt
+]{biblatex}
+\addbibresource{ref.bib}
+
 \lstset{basicstyle=\footnotesize\ttfamily,breaklines=true}
 \graphicspath{ {./images/} }
 \input{LIPS.tex}
@@ -24,9 +33,9 @@
 \newcommand{\LIPSprojektgrupp}{}
 \newcommand{\LIPSversion}{1.0}
 \newcommand{\LIPSdatum}{\dagensdatum}
-\newcommand{\LIPSartaltermin}{2019/Spring}
+\newcommand{\LIPSartaltermin}{2020/Spring semester}
 \newcommand{\LIPSkursnamn}{TFYA75}
-\newcommand{\LIPSprojekttitel}{Visualization of electron structures}
+\newcommand{\LIPSprojekttitel}{Visualisation of electron structures}
 \newcommand{\LIPSgranskare}{}
 \newcommand{\LIPSgranskatdatum}{}
 \newcommand{\LIPSgodkannare}{}
@@ -58,9 +67,11 @@
     \pagenumbering{arabic}
     \input{Introduction.tex}
     \newpage
-    \input{HowTo.tex}
+    \input{HowToUbuntu.tex}
     \newpage
-    \input{HowToOther.tex}
+    \input{HowToWindows.tex}
+    \newpage
+    \input{PreparingVASPBeforeENVISIoN.tex}
     \input{StartENVISIoN.tex}
     \newpage
     \input{StartInviwo.tex}
@@ -69,9 +80,9 @@
     \newpage
     \input{CommonError.tex}
     \newpage
+    \printbibliography[title={References}, heading=bibintoc]
+    \newpage
     \begin{appendices}
         \input{LicensAppendix.tex}
-        \includepdf[pages={1},offset= 0mm 0mm,pagecommand=\section{Projekt group 2018}\label{appendix:userGuide2018}\thispagestyle{empty}]{oldUserGuide.pdf}
-        \includepdf[pages={2-}]{oldUserGuide.pdf}   
     \end{appendices}
 \end{document}
