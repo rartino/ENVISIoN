@@ -44,14 +44,15 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
     def __init__(self, hdf5_path, inviwoApp):
         self.processors = {}
         VolumeNetworkHandler.__init__(self, inviwoApp)
-
+        
+        """
         # Unitcell is not critical to visualization, if it fails, continnue anyway
         self.unitcellAvailable = True
         try: 
             UnitcellNetworkHandler.__init__(self, hdf5_path, inviwoApp)
         except BadHDF5Error as error:
             self.unitcellAvailable = False
-
+        """
 
         # Check if  hdf5-file is valid
         with h5py.File(hdf5_path, 'r') as file:
@@ -73,20 +74,23 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         # self.set_active_band('final')
 
         # Setup default unitcell settings
+        """
         if self.unitcellAvailable:
             self.toggle_full_mesh(False)
             self.toggle_unitcell_canvas(False)
+        """
 
     def get_ui_data(self):
     # Return data required to fill user interface
+        """
         if self.unitcellAvailable: 
             unitcellData = UnitcellNetworkHandler.get_ui_data(self)
         else: 
             unitcellData = [[], []]
+        """
         return [
             "charge", 
             VolumeNetworkHandler.get_ui_data(self),
-            unitcellData,
             [
                 self.get_available_bands(), 
                 self.get_active_band()
@@ -136,7 +140,7 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
             basis_4x4=np.identity(4)
             basis_array=np.array(h5["/basis/"], dtype='d')
             basis_4x4[:3,:3]=basis_array
-            scaling_factor = h5['/scaling_factor'].value
+            scaling_factor = h5['/scaling_factor'][()]
 
         HDFvolume_basis_property = HDFvolume.getPropertyByIdentifier('basisGroup').getPropertyByIdentifier('basis')
         HDFvolume_basis_property.minValue = inviwopy.glm.mat4(-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
@@ -165,3 +169,15 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
             self.network.addLink(unitcellRenderer.getPropertyByIdentifier('camera'), volumeBoxRenderer.getPropertyByIdentifier('camera'))
             self.network.addLink(volumeBoxRenderer.getPropertyByIdentifier('camera'), unitcellRenderer.getPropertyByIdentifier('camera'))
                 
+        # Configure slice visualisation
+        self.toggle_slice_canvas(True)
+        self.toggle_slice_plane(True)
+        self.set_plane_normal(0, 1, 0)
+        self.set_plane_height(0.5)
+
+        # Configure unitcell visualisation
+        """
+        if self.unitcellAvailable:
+            self.toggle_unitcell_canvas(True)
+            self.set_atom_radius(0.2)
+        """

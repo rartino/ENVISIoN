@@ -27,29 +27,24 @@
 
 import sys,os, time
 
-if 'INVIWO_HOME' in os.environ and sys.path.exists(os.environ['INVIWO_HOME']):
-    sys.path.insert(0,os.environ['INVIWO_HOME'])
-        
+
+if 'INVIWO_HOME' in os.environ and os.environ['INVIWO_HOME'] not in sys.path:
+    sys.path.append(os.environ['INVIWO_HOME'])
+
 try:
     import inviwopy as ivw
     import inviwopyapp as ivwapp
 except ModuleNotFoundError as e:
-    path_canidates = [os.path.realpath(os.path.join(__file__,"..","..","..","inviwo-build","bin")), "/opt/envision/inviwo/bin" ]
-    for path_candidate in path_canidates:
-        if os.path.exists(path_candidate):
-            sys.path.append(path_candidate)        
-            import inviwopy as ivw
-            import inviwopyapp as ivwapp
-            break
-    else:
-        raise Exception("Cannot find inviwo directory. Please set environment variable INVIWO_HOME to point at the directory to use.")
-        
+    sys.stderr.write("Module error: " + str(e) + "\n" + "Can not find module. Please check that the environment variable INVIWO_HOME is set to the correct value in the computers system settings.")
+    #raise Exception("Can not find module. Please set the environment variable INVIWO_HOME to the correct value.")
+
 from envisionpy.processor_network import *
 from envisionpy.utils.exceptions import *
 import envisionpy.hdf5parser
 
+
 class EnvisionMain():
-    """ Class for managing a inviwo instance 
+    """ Class for managing a inviwo instance
         and running ENVISIoN visualizations with it.
 
         Acts as an interface to control all aspects of envision.
@@ -89,7 +84,7 @@ class EnvisionMain():
         self.action_dict["toggle_transperancy_before"] = lambda id, params: self.networkHandlers[id].toggle_transperancy_before(*params)
         # self.action_dict["toggle_tf_editor"] = lambda id, params: self.networkHandlers[id].toggle_tf_editor(*params)
 
-        # Unicell visalisation actions
+        # Unitcell visalisation actions
         self.action_dict["set_atom_radius"] = lambda id, params: self.networkHandlers[id].set_atom_radius(*params)
         self.action_dict["hide_atoms"] = lambda id, params: self.networkHandlers[id].hide_atoms(*params)
         self.action_dict["get_atom_name"] = lambda id, params: self.networkHandlers[id].get_atom_name(*params)
@@ -98,9 +93,14 @@ class EnvisionMain():
         self.action_dict["toggle_full_mesh"] = lambda id, params: self.networkHandlers[id].toggle_full_mesh(*params)
         self.action_dict["set_canvas_position"] = lambda id, params: self.networkHandlers[id].set_canvas_position(*params)
 
-        # Charge and ELF visualisation actions
+        # Charge, ELF and Fermi surface visualisation actions
         self.action_dict["get_bands"] = lambda id, params: self.networkHandlers[id].get_available_bands(*params)
         self.action_dict["set_active_band"] = lambda id, params: self.networkHandlers[id].set_active_band(*params)
+
+        # Fermi surface visualisation actions
+        self.action_dict["toggle_brillouinzone"] = lambda id, params: self.networkHandlers[id].toggle_brillouin_zone(*params)
+        self.action_dict["toggle_expandedzone"] = lambda id, params: self.networkHandlers[id].toggle_expanded_zone(*params)
+        self.action_dict["set_fermi_level"] = lambda id, params: self.networkHandlers[id].set_fermi_level(*params)
 
         # Parchg visualisation actions
         self.action_dict["select_bands"] = lambda id, params: self.networkHandlers[id].select_bands(*params)
@@ -136,24 +136,28 @@ class EnvisionMain():
             "unitcell": UnitcellNetworkHandler,
             "pcf": PCFNetworkHandler,
             "bandstructure": BandstructureNetworkHandler,
-            "dos": DOSNetworkHandler
+            "dos": DOSNetworkHandler,
+            "bandstructure3d": Bandstructure3DNetworkHandler,
+            "fermisurface": FermiSurfaceNetworkHandler
             }
 
-        # print(dir(hdf5parser.vasp))
         self.parseFunctions = {
             "charge": envisionpy.hdf5parser.charge,
             "Electron density": envisionpy.hdf5parser.charge,
-            "elf": envisionpy.hdf5parser.elf, 
+            "elf": envisionpy.hdf5parser.elf,
             "Electron localisation function": envisionpy.hdf5parser.elf,
             "Partial charge density": envisionpy.hdf5parser.parchg,
             "parchg": envisionpy.hdf5parser.parchg,
+            "unitcell": envisionpy.hdf5parser.unitcell,
+            "Unitcell": envisionpy.hdf5parser.unitcell,
             "bandstructure": envisionpy.hdf5parser.bandstructure,
             "Bandstructure": envisionpy.hdf5parser.bandstructure,
             "pcf": envisionpy.hdf5parser.paircorrelation,
             "Pair correlation function": envisionpy.hdf5parser.paircorrelation,
             "dos": envisionpy.hdf5parser.dos,
             "Density of states": envisionpy.hdf5parser.dos,
-            "Unitcell": envisionpy.hdf5parser.unitcell
+            "fermisurface": envisionpy.hdf5parser.fermi_parser,
+            "Fermi surface": envisionpy.hdf5parser.fermi_parser
         }
 
     def update(self):
@@ -162,7 +166,7 @@ class EnvisionMain():
     def initialize_inviwo_app(self):
         # Inviwo requires that a logcentral is created.
         self.lc = ivw.LogCentral()
-        
+
         # Create and register a console logger
         self.cl = ivw.ConsoleLogger()
         self.lc.registerLogger(self.cl)
@@ -193,8 +197,6 @@ class EnvisionMain():
         if not handler_id in self.networkHandlers and (action != "start" and action != "stop"):
             return [action, False, handler_id, format_error(HandlerNotFoundError('Non-existant network handler instance "' + handler_id + '".'))]
 
-        # if action!="start":
-        #     return [action, parameters]
 
         # try:
         # Runs the funtion with networkhandler id and request data as arguments.
@@ -225,19 +227,24 @@ class EnvisionMain():
 
         if parse_types == "All":
             parse_types = [
-                "Electron density", 
+                "Electron density",
                 "Electron localisation function",
                 "Partial charge density",
-                "Bandstructure", 
+                "Unitcell",
+                "Bandstructure",
                 "Pair correlation function",
                 "Density of states",
-                "Unitcell"]
+                "Fermi surface"]
 
         parse_statuses = {}
         for parse_type in parse_types:
-            parse_statuses[parse_type] = self.parseFunctions[parse_type](hdf5_path, vasp_path)
+            try:
+                parse_statuses[parse_type] = self.parseFunctions[parse_type](hdf5_path, vasp_path)
+            except Exception:
+                print("Parser {} could not be parsed some functions may not work.".format(parse_type))
 
-        # TODO: Return status of 
+
+        # TODO: Return status of
         return [parse_statuses, "*Error message*"]
 
 
@@ -264,6 +271,7 @@ class EnvisionMain():
         if handler_id in self.networkHandlers:
             self.networkHandlers[handler_id].clear_processors()
             del self.networkHandlers[handler_id]
+            self.app.network.clear()
             return handler_id
         # elif handler_id in self.networkHandlers:
         #     self.networkHandlers[handler_id].clear_processor_network()
@@ -271,4 +279,3 @@ class EnvisionMain():
         #     return [True, handler_id + " stopped."]
         # else:
         raise HandlerNotFoundError("That visualisation is not running.")
-

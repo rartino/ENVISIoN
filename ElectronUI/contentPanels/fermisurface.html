@@ -1,0 +1,89 @@
+<!--  ENVISIoN
+#
+#  Copyright (c) 2020 Lina Larsson
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#
+#  1. Redistributions of source code must retain the above copyright notice, this
+#  list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright notice,
+#  this list of conditions and the following disclaimer in the documentation
+#  and/or other materials provided with the distribution.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+#  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+#  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+#  ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+#  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+############################################################################################## -->
+
+<!-- Settings panel -->
+<h2 class="border-bottom">Fermi Surface</h2>
+
+<div id="visSettings">
+<!-- Band controls -->
+  <h5 class="border-top">Band selection</h5>
+  <div class="row row-margin">
+    <div class="input-group col-sm-10">
+      <div class="input-group-prepend medium">
+        <label class="input-group-text" for="bandSelection">Selected band</label>
+      </div>
+      <select class="custom-select" id="bandSelection">
+        <!-- <option selected>final</option>
+        <option>1</option> -->
+      </select>
+    </div>
+  </div>
+
+<!-- Brillouin zone controls -->
+	<h5 class="border-top">Brillouin zone</h5>
+	<div class="form-check">
+		<label class="form-check-label">
+			<input type="checkbox" class="form-check-input" id="brillouinZoneCheck" >
+			Enable Brillouin zone
+		</label>
+	</div>
+	
+<!-- Expanded zone controls -->
+	<h5 class="border-top">Expanded zone</h5>
+	<div class="form-check">
+		<label class="form-check-label">
+			<input type="checkbox" class="form-check-input" id="expandedZoneCheck" >
+			Enable expanded zone
+		</label>
+	</div>
+
+<!-- Fermi surface controls -->
+<h5 class="border-top">Fermi level</h5>
+<p>This control changes how the raycasting selects which fermi surface to display. The value is normalized.</p>
+<div class="form-group form-row align-items-center">
+	<label class="col-sm-2" for="sliceHeightRange">Fermi level:</label>
+    <div class="col-sm-4" style="display:flex"> 
+	0
+	<input type="range" min="0" max="1" step="0.001" class="form-control-range" id="fermiLevelRange" style="margin: 5px 0;"> 
+	1
+	</div>
+</div>
+
+</div>
+
+<script>
+  $(document).ready(function () {
+	loadBands(uiData[1]);
+	
+    $("#bandSelection").on("change", bandChanged);
+	$("#brillouinZoneCheck").on("change", brillouinChecked);
+	$("#expandedZoneCheck").on("change", expandedChecked);
+	$("#fermiLevelRange").on("change", fermiLevelChanged);
+	
+	console.log("Fermi control element loaded");
+  });
+</script>

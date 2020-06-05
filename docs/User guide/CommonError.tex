@@ -1,5 +1,7 @@
-\section{Common errors during installation}
-\subsection{Qt}
+\section{Common errors}
+\label{sec:Common errors}
+
+\subsection{Install Qt}
 Inviwo uses the graphics library Qt which isn't always installed properly. These instructions show how to download and install the latest version of Qt on Ubuntu 10.04 LTS. That is, in the moment of writing this user guide, version 5.12.3. 
 
 To download the installation file into the \emph{~/Downloads} directory, simply execute the commands below.
@@ -7,9 +9,6 @@ To download the installation file into the \emph{~/Downloads} directory, simply 
 \begin{lstlisting}[frame = single, breaklines=true]
     cd ~/Downloads
     wget http://download.qt.io/official_releases/qt/5.12/5.12.3/qt-opensource-linux-x64-5.12.3.run
-    
-    
-    
 \end{lstlisting}
 
 When the installation file has finished downloading, the user won't have permission to run the file. To change permissions and run the file by executing the commands below and enter your superuser password immediately after.
@@ -56,3 +55,23 @@ The system is now ready for an Inviwo installation.
     \caption{Instructions for installation of Qt 5.12.3.}
     \label{fig:Qt}
 \end{figure}
+
+\subsection{Set the INVIWO\_HOME path}
+Before using ENVISIoN's GUI it is good to check that your environmental variable INVIWO\_HOME is set to the correct value. Otherwise the system will not find the modules inviwopy or inviwopyapp. If you have started to use the GUI you will receive the following message if the variable is not set:
+\newline 
+``Module error: No module named '[The missing module]'. Can not find module. Please check that the environment variable INVIWO\_HOME is set to the correct value in the computers system settings.''
+\newline
+
+
+\subsection{The module Inviwopyapp did not build}
+
+If the inviwopyapp did not build when building in Visual Studio, open the project once again in Visual Studio 2017 and make sure ``inviwopyapp'' is listed to the right in the ``Solution Explorer'', see figure \ref{fig:VisStudioInviwopyapp}. Inviwopyapp should be under ``minimals'' in the list.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale = 0.6]{images/VisualStudioinviwopyapp.png}
+    \caption{The ``Solution Explorer'' in Visual Stuido 2017}
+    \label{fig:VisStudioInviwopyapp}
+\end{figure}
+
+Now try to build the project again but by choosing ``Build'' in the upper menu and then ``Build Solution'' instead of pressing fn + f5. The build should start, keep track of possible errors during the building. When it's finished, check that inviwopyapp had built.
