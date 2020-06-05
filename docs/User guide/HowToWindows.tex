@@ -1,0 +1,100 @@
+\section{How to build Inviwo with ENVISIoN on Windows 10}
+
+These instructions show how to install and build Inviwo and ENVISIoN on Windows 10.
+
+\subsection{Dependencies}
+A dependency is a program or software that needs to work because the program you are installing relies on it. To be able to install Inviwo the following dependencies needs to be installed. Inviwo will only compile with Windows 64bit, so make sure all dependencies are also installed as 64bit.
+
+\begin{itemize}
+    \setlength\itemsep{0.5em}
+    \item \textbf{Anaconda}
+    \newline Download [Anaconda]
+    \url{https://www.anaconda.com/distribution/#windows} with python 3.7.
+    \item \textbf{Qt}
+    \newline Download [Qt] (\url{https://www.qt.io/download}) opensource. Version 5.14.2 is tested and recommended. Make sure you select install option MSVC-2017 64-bit.
+    \item \textbf{CMake}
+    \newline Download and install [Cmake] (\url{https://cmake.org/download/}).
+    \item \textbf{Visual Studio 2017}
+    \newline Download [Visual Studio 2017] (\url{https://visualstudio.microsoft.com/vs/older-downloads/}). So far, Inviwo has not been able o compile with Visual Studio 2019.
+\end{itemize}
+
+\subsection{Setup project}
+Open the Anaconda Prompt from your Windows searchbar. Then install the following dependencies by writing this in your prompt:
+
+\begin{lstlisting}[frame = single, breaklines=true]
+    conda install git pybind11 numpy scipy matplotlib markdown regex wxpython h5py hdf5 libpng libtiff jpeg cmake nodejs
+\end{lstlisting}
+
+Then navigate to your home directory and run the following commands:
+
+\begin{lstlisting}[frame = single, breaklines=true]
+    mkdir ENVISIoN
+    cd ENVISIoN
+\end{lstlisting}
+
+Then you are going to clone Envision when standing in the ENVISIoN directory by running this command:
+
+\begin{lstlisting}[frame = single, breaklines=true]
+    git clone https://github.com/rartino/envision
+\end{lstlisting}
+
+Next step is to clone Inviwo. Run the following command while still in the ENVISIoN directory:
+\begin{lstlisting}[frame = single, breaklines=true]
+    git clone https://github.com/inviwo/inviwo
+\end{lstlisting}
+
+Then go to the inviwo directory, switch to the branch v0.9.10 and update the registered submodules by running the following commands:
+
+\begin{lstlisting}[frame = single, breaklines=true]
+    cd inviwo
+    git checkout v0.9.11
+    git submodule update --init --recursive
+\end{lstlisting}
+
+After this we want to patch Inviwo. Make sure you are in the inviwo directory and run:
+\begin{lstlisting}[frame = single, breaklines=true]
+    git apply ../ENVISIoN/inviwo/patches/2019/transferfunctionFix.patch
+    git apply ../ENVISIoN/inviwo/patches/2019/deb-package.patch
+    git apply ../ENVISIoN/inviwo/patches/2019/paneProperty2019.patch
+    git apply ../ENVISIoN/inviwo/patches/2019/sysmacro.patch
+    git apply ../ENVISIoN/inviwo/patches/2019/inviwo-v0.9.10-extlibs.patch
+\end{lstlisting}
+
+\subsection{CMake compiling}
+Create a build directory in the ENVISIoN folder that you made earlier. To do this make sure you are standing in the ENVISIoN directory and write:
+
+\begin{lstlisting}[frame = single, breaklines=true]
+    mkdir inviwo-build
+\end{lstlisting}
+
+Then, open CMake (cmake-gui) and configure the projet with Inviwo as your source code and the new build directory inviwo-build as where to build the binaries. When configuring the project, make sure you select Visual Studio 2017 with x64 for platform option.
+
+The following flags should be added to the default:
+\begin{lstlisting}[frame = single, breaklines=true]
+    IVW_USE_EXTERNAL_HDF5:BOOL=OFF
+    IVW_IMG_USE_EXTERNAL:BOOL=ON
+    IVW_EXTERNAL_MODULES:PATH="{path to project}/ENVISIoN/inviwo/modules"
+    IVW_MODULE_CRYSTALVISUALIZATION:BOOL=ON
+    IVW_MODULE_FERMI:BOOL=ON
+    IVW_MODULE_GRAPH2D:BOOL=ON
+    IVW_MODULE_PYTHON3:BOOL=ON
+    IVW_MODULE_PYTHON3QT:BOOL=ON
+    IVW_MODULE_QTWIDGETS:BOOL=ON
+    IVW_MODULE_HDF5:BOOL=ON
+    IVW_PACKAGE_PROJECT:BOOL=ON
+    IVW_PACKAGE_INSTALLER:BOOL=ON
+\end{lstlisting}
+
+When done configuring press "Generate" and then open the project with Visual Studio 2017. In Visual Studio, set the build type in the upper menu bar to RelWithDebInfo and make sure that the solution platform is x64. Then press f5 (or fn + f5) and the building of the project should start. This can take some time. Check the Error List during the building to make sure nothing goes wrong. When the building is complete Inviwo should start.
+
+\subsection{Start ENVISIoN}
+Go back to your Anaconda Prompt and move to your projects directory (should be ENVISIoN) and run:
+
+\begin{lstlisting}[frame = single, breaklines=true]
+    cd ENVISIoN
+    npm install
+    npm run start
+\end{lstlisting}
+
+Now Envision should start and the Envision GUI should pop up. For more information abut how to use ENVISIoN's GUI, see section \ref{sec:GUI}. If you run into errors during the installation, see section \ref{sec:Common errors} where some common errors are listed.
+

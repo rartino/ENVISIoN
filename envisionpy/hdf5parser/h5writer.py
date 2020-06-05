@@ -37,6 +37,17 @@
 #  You should have received a copy of the CC0 legalcode along with
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
+##############################################################################################
+#
+#  Alterations to this file by Daniel Thomas
+#
+#  To the extent possible under law, the person who associated CC0 with
+#  the alterations to this file has waived all copyright and related
+#  or neighboring rights to the alterations made to this file.
+#
+#  You should have received a copy of the CC0 legalcode along with
+#  this work.  If not, see
+#  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 
 
@@ -100,7 +111,7 @@ def _write_steps(h5file, steps):
         h5['/MD'].attrs["steps"] = steps
     return
 
-def _write_bandstruct(h5file, band_data, kval_list):
+def _write_bandstruct(h5file, band_data, kval_list, parsed_symbols, parsed_coords):
     with h5py.File(h5file, "a") as h5:
         h5.create_dataset('BandStructure/KPoints', data=np.array(kval_list), dtype = np.float32)
         for i, band in enumerate(band_data):
@@ -110,6 +121,17 @@ def _write_bandstruct(h5file, band_data, kval_list):
             dataset.attrs['QuantityName'] = 'Energy'
             dataset.attrs['VariableName'] = 'Band {}'.format(i)
             dataset.attrs['VariableSymbol'] = '$B_{{{}}}$'.format(i)
+        for i in range(0, len(parsed_symbols)):
+            dataset = h5.create_dataset('/Highcoordinates/{}/Symbol'.format(i),
+                                        data = np.asarray(parsed_symbols[i],dtype=h5py.special_dtype(vlen=str)))
+            dataset.attrs['Unit'] = 'NoUnit'
+            dataset.attrs['QuantitySymbol'] = '$Character$'.format(i)
+            dataset.attrs['QuantityName'] = 'Symbol of highcoordinate'
+            dataset.attrs['VariableName'] = 'Symbol of coordinate {}'.format(i)
+            dataset.attrs['VariableSymbol'] = '$S_{{{}}}$'.format(i)
+            h5.create_dataset('/Highcoordinates/{}/Coordinates'.format(i),
+                              data = np.array(parsed_coords[i]),
+                              dtype = np.float32)
 
 def _write_fermi_energy(h5file, fermi_energy):
     with h5py.File(h5file,"a") as h5:

@@ -25,17 +25,12 @@
 #
 ##############################################################################################
 
-import sys,os,inspect
-# path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-# sys.path.insert(0, os.path.expanduser(path_to_current_folder))
-
 import inviwopy
 import numpy as np
-from matplotlib import pyplot as plt 
 import h5py
 from envisionpy.utils.atomData import atomic_radii, element_names, element_colors
 
-from .NetworkHandler import NetworkHandler
+from envisionpy.processor_network.NetworkHandler import NetworkHandler
 from envisionpy.utils.exceptions import *
 
 class UnitcellNetworkHandler(NetworkHandler):
@@ -48,13 +43,12 @@ class UnitcellNetworkHandler(NetworkHandler):
         self.nAtomTypes = 0
         self.atomNames = []
         self.atomRadii = []
-        
-        # Make sure the hdf5 file is valid
-        with h5py.File(hdf5_path, 'r') as file:
-            if file.get("UnitCell") == None:
-                raise BadHDF5Error("No unitcell data in that file")
 
-        
+       # Make sure the hdf5 file is valid
+        with h5py.File(hdf5_path, 'r') as file: 
+            if file.get("UnitCell") == None:
+               raise BadHDF5Error("No unitcell data in that file") 
+
         self.setup_unitcell_network(hdf5_path)
         
     def get_ui_data(self):
@@ -83,7 +77,6 @@ class UnitcellNetworkHandler(NetworkHandler):
             for i in range(self.nAtomTypes):
                 self.atomRadii[i] = radius
 
-
     def hide_atoms(self):
         return self.set_atom_radius(0)
     
@@ -109,7 +102,7 @@ class UnitcellNetworkHandler(NetworkHandler):
 
         if enable_unitcell:
             unitcellCanvas = self.add_processor('org.inviwo.CanvasGL', 'Unit Cell Canvas', -600, 400)
-            unitcellCanvas.inputSize.dimensions.value = inviwopy.glm.ivec2(500, 500)
+            unitcellCanvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)
             self.network.addConnection(unitcellRenderer.getOutport('image'), unitcellCanvas.getInport('inport'))
         else:
             self.remove_processor('Unit Cell Canvas')
@@ -127,6 +120,7 @@ class UnitcellNetworkHandler(NetworkHandler):
         if not unitcellCanvas:
             return
         unitcellCanvas.position.value = inviwopy.glm.ivec2(x, y)
+
 # ------------------------------------------
 # ------- Network building functions -------
 
@@ -137,15 +131,17 @@ class UnitcellNetworkHandler(NetworkHandler):
 
         HDFsource = self.add_h5source(h5file, xpos, ypos)
 
-        meshRenderer = self.add_processor('org.inviwo.SphereRenderer', 'Unit Cell Renderer', xpos, ypos+300)
-        canvas = self.add_processor('org.inviwo.CanvasGL', 'Unit Cell Canvas', xpos, ypos+400)
-        self.network.addConnection(meshRenderer.getPort('image'), canvas.getInport('inport'))
-
         strucMesh = self.add_processor('envision.StructureMesh', 'Unit Cell Mesh', xpos, ypos+200)
         # Activate fullMesh, this allows individual resizing of atoms and centers the unitcell around same origin as volume
-        strucMesh.fullMesh.value = False
+        strucMesh.fullMesh.value = True
 
+        meshRenderer = self.add_processor('org.inviwo.SphereRenderer', 'Unit Cell Renderer', xpos, ypos+300)
         self.network.addConnection(strucMesh.getOutport('mesh'), meshRenderer.getInport('geometry'))
+
+        canvas = self.add_processor('org.inviwo.CanvasGL', 'Unit Cell Canvas', xpos, ypos+400)
+        canvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)
+        self.network.addConnection(meshRenderer.getPort('image'), canvas.getInport('inport'))
+        canvas.widget.show()
 
         with h5py.File(h5file,"r") as h5:
             basis_matrix = np.array(h5["/basis"], dtype='d')
@@ -154,8 +150,8 @@ class UnitcellNetworkHandler(NetworkHandler):
             strucMesh_basis_property.maxValue = inviwopy.glm.mat3(1000,1000,1000,1000,1000,1000,1000,1000,1000)
             strucMesh_basis_property.value = inviwopy.glm.mat3(basis_matrix[0,0],basis_matrix[0,1],basis_matrix[0,2],basis_matrix[1,0],basis_matrix[1,1],basis_matrix[1,2],basis_matrix[2,0],basis_matrix[2,1],basis_matrix[2,2])
             strucMesh_scaling_factor_property = strucMesh.getPropertyByIdentifier('scalingFactor')
-            strucMesh_scaling_factor_property.maxValue = h5['/scaling_factor'].value
-            strucMesh_scaling_factor_property.value = h5['/scaling_factor'].value
+            strucMesh_scaling_factor_property.maxValue = h5['/scaling_factor'][()]
+            strucMesh_scaling_factor_property.value = h5['/scaling_factor'][()]
             strucMesh_timestep_property = strucMesh.getPropertyByIdentifier('timestep')
             strucMesh_timestep_property.value = 0
             strucMesh_timestep_property.minValue = 0
@@ -180,7 +176,6 @@ class UnitcellNetworkHandler(NetworkHandler):
                 # The different radii of the elements in data.py are just to differentiate between different elements.
                 strucMesh_radius_property.maxValue = 10
                 strucMesh_radius_property.value = radius
-                strucMesh_radius_property.value = 0.3
                 self.atomRadii.append(radius)
                 strucMesh_color_property = strucMesh.getPropertyByIdentifier('color{0}'.format(i))
                 strucMesh_color_property.value = inviwopy.glm.vec4(color[0],color[1],color[2],color[3])
@@ -192,4 +187,3 @@ class UnitcellNetworkHandler(NetworkHandler):
                 strucMesh_atom_property.maxValue = atoms
 
                 self.nAtomTypes += 1
-       

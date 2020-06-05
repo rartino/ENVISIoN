@@ -50,8 +50,8 @@
   // Load volume settings panel, after loaded fill out with information.
   $("#volumeSettings").load("contentPanels/volumePanel.html", function(){
     loadVolumeUiData(uiData[1]);
-    loadAtoms(uiData[2].slice(1, 3));
-    loadBands(uiData[3]);
+    //loadAtoms(uiData[2].slice(1, 3));
+    loadBands(uiData[2]);
 
     console.log("Charge control element loaded");
   });

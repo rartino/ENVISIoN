@@ -62,7 +62,7 @@ function sidebarLinkClicked() {
         $("#sidebar a").removeClass("active");
     }
     $(this).find("> a").addClass("active");
-    
+
     var div = $($(this).data("show")).show();
     div.siblings("div").hide();
     console.log("sidebar link clicked")
@@ -109,7 +109,8 @@ function loadDataset() {
         try {
             fs.unlinkSync(hdf5Path);
             console.log("Old temp file removed")
-        } catch (err) {}
+		}
+		catch (err) {}
         send_data("parser request", ["All", hdf5Path, vaspPath]);
 
         if (datasetName == ""){
@@ -177,21 +178,21 @@ function removeDataset() {
 
 function startVisPressed() {
     let datasetInfo = loadedDatasets[activeDatasetName];
-    let visTypes = ["charge","elf","parchg","unitcell","pcf","bandstructure","dos"];
-    let selectionIndex = $("#visTypeSelection")[0].selectedIndex;
+    let visTypes = ["charge","unitcell","bandstructure3d", "fermisurface"];
+    let selectionIndex = $("#visTypeSelection")[0].selectedIndex; // Index of list selection, starting at 0
     let visType = visTypes[selectionIndex];
+	console.log("Selected visualisation type: " + visType);
     let hdf5Path = datasetInfo[0];
-    
+
     let visIndex = 0;
     while (datasetInfo[3].includes(activeDatasetName + "_" + visType + "_" + visIndex)) visIndex += 1;
     let visId = activeDatasetName + "_" + visType + "_" + visIndex;
-    
 
     $("#startVisBtn").attr("disabled", true);
     // Start the visualisation
     send_data("envision request", ["start", visId, [
-        visType, 
-        hdf5Path, 
+        visType,
+        hdf5Path,
         visType + "_" + visIndex,
         activeDatasetName]]);
 
@@ -264,8 +265,8 @@ function volumeBackgroundChanged() {
 
 function transperancyChecked() {
     send_data("envision request", [
-        "toggle_transperancy_before", 
-        activeVisId, 
+        "toggle_transperancy_before",
+        activeVisId,
         [$("#transperancyCheckbox").is(':checked')]]);
 }
 
@@ -363,6 +364,24 @@ function partialBandRemoved() {
     return false;
 }
 
+// -------------------------------
+// ----- Fermi surface panel -----
+// -------------------------------
+
+function brillouinChecked(){
+	let enable = $("#BrillouinZoneCheck").is(":checked");
+    send_data("envision request", ["toggle_brillouinzone", activeVisId, [enable]]);
+}
+
+function expandedChecked(){
+	let enable = $("#ExpandedZoneCheck").is(":checked");
+    send_data("envision request", ["toggle_expandedzone", activeVisId, [enable]]);
+}
+
+function fermiLevelChanged(){
+	let value = $("#fermiLevelRange").val();
+	send_data("envision request", ["set_fermi_level", activeVisId, [value]]);
+}
 
 // ---------------------------
 // ----- 2-D graph panel -----
@@ -478,7 +497,7 @@ function atomRadiusChanged() {
 
 function parseClicked() {
     let hdf5Dir = $("#parseHdf5DirInput")[0].files[0].path;
-    let vaspDir = $("#parseVaspDirInput")[0].files[0].path;
+	let vaspDir = $("#parseVaspDirInput")[0].files[0].path; //this.files[0] returns fileobjet at index 0
     let hdf5FileName = $("#hdf5FileNameInput").val();
     let parseType = $("#parseTypeSelect").val();
 
@@ -505,9 +524,9 @@ function visualisationStarted(status, id, data) {
     }
     // If visualisation was started add it to the sidebar and to running visualisations.
     let visName = data[2];
-    let datasetName = data[3]; 
+    let datasetName = data[3];
     loadedDatasets[datasetName][3].push(id);
-    
+
     // Add sidebar element
     let sidebarElem = $(`
         <li data-show="#visControlPanel" data-vis-id="` + id + `" class="subLink">
@@ -551,19 +570,33 @@ function uiDataRecieved(status, id, data) {
         return;
     }
     uiData = data;
-    if (data[0] == "charge") {
+    if (data[0] == "charge"){
         $("#visControlPanel").load("contentPanels/charge.html");
-    }else if (data[0] == "elf") {
+    }
+	else if (data[0] == "elf"){
         $("#visControlPanel").load("contentPanels/elf.html");
-    }else if (data[0] == "parchg"){
+    }
+	else if (data[0] == "parchg"){
         $("#visControlPanel").load("contentPanels/parchg.html");
-    }else if (data[0] == "bandstructure"){
+    }
+	else if (data[0] == "bandstructure"){
         $("#visControlPanel").load("contentPanels/bandstructure.html");
-    }else if (data[0] == "pcf"){
+    }
+	else if (data[0] == "pcf"){
         $("#visControlPanel").load("contentPanels/pcf.html");
-    }else if (data[0] == "dos"){
+    }
+	else if (data[0] == "dos"){
         $("#visControlPanel").load("contentPanels/dos.html");
     }
+	else if (data[0] == "unitcell"){
+		$("#visControlPanel").load("contentPanels/unitcell.html");
+	}
+	else if (data[0] == "bandstructure3d"){
+		$("#visControlPanel").load("contentPanels/bandstructure3d.html");
+	}
+	else if (data[0] == "fermisurface"){
+		$("#visControlPanel").load("contentPanels/fermisurface.html");
+	}
 }
 
 // ---------------------------------------
@@ -571,9 +604,9 @@ function uiDataRecieved(status, id, data) {
 // ---------------------------------------
 
 function loadVolumeUiData(data){
-    // Load state of all volume controls from envision data. 
-    let [type, shadingMode, bgInfo, tfPoints, transperancyMode, 
-        sliceActive, planeActive, planeHeight, wrapMode, 
+    // Load state of all volume controls from envision data.
+    let [type, shadingMode, bgInfo, tfPoints, transperancyMode,
+        sliceActive, planeActive, planeHeight, wrapMode,
         sliceZoom, planeNormal] = data;
     if (type != "volume") console.log("Something is very wrong here");
     $("#shadingModeSelection")[0][shadingMode].selected = true;
@@ -595,13 +628,13 @@ function loadVolumeUiData(data){
     $("#backgroundColor1").val(rgbArrToHex(bgInfo[0]));
     $("#backgroundColor2").val(rgbArrToHex(bgInfo[1]));
     $("#backgroundStyleSelection")[0][bgInfo[2]].selected = true;
-    
+
     loadTFPoints(tfPoints);
 }
 
 function loadGraph2DUiData(data) {
-    let [type, xRange, yRange, 
-        lineActive, lineX, gridActive, gridWidth, 
+    let [type, xRange, yRange,
+        lineActive, lineX, gridActive, gridWidth,
         xLabelsActive, yLabelsActive, nLabels,
         ySelectionInfo, yDatasets] = data;
 
@@ -615,14 +648,14 @@ function loadGraph2DUiData(data) {
     $("#verticalLineCheck").prop("checked", lineActive);
     $("#verticalLineXInput").val(lineX);
 
-    
+
     $("#gridCheck").prop("checked", gridActive);
     $("#gridSizeInput").val(gridWidth);
 
     $("#xLabelCheck").prop("checked", xLabelsActive);
     $("#yLabelCheck").prop("checked", yLabelsActive);
     $("#labelCountInput").val(nLabels);
-    
+
     // Fill selection lists with options
     $("#possibleYDatasets").empty();
     $("#ySingleSelection").empty();
