@@ -178,7 +178,7 @@ function removeDataset() {
 
 function startVisPressed() {
     let datasetInfo = loadedDatasets[activeDatasetName];
-    let visTypes = ["charge","unitcell","bandstructure3d", "fermisurface"];
+    let visTypes = ["charge", "elf", "parchg", "unitcell", "pcf", "dos", "bandstructure", "bandstructure3d"];
     let selectionIndex = $("#visTypeSelection")[0].selectedIndex; // Index of list selection, starting at 0
     let visType = visTypes[selectionIndex];
 	console.log("Selected visualisation type: " + visType);

@@ -133,7 +133,7 @@ class UnitcellNetworkHandler(NetworkHandler):
 
         strucMesh = self.add_processor('envision.StructureMesh', 'Unit Cell Mesh', xpos, ypos+200)
         # Activate fullMesh, this allows individual resizing of atoms and centers the unitcell around same origin as volume
-        strucMesh.fullMesh.value = True
+        strucMesh.fullMesh.value = False
 
         meshRenderer = self.add_processor('org.inviwo.SphereRenderer', 'Unit Cell Renderer', xpos, ypos+300)
         self.network.addConnection(strucMesh.getOutport('mesh'), meshRenderer.getInport('geometry'))
