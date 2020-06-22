@@ -45,14 +45,12 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         self.processors = {}
         VolumeNetworkHandler.__init__(self, inviwoApp)
         
-        """
         # Unitcell is not critical to visualization, if it fails, continnue anyway
         self.unitcellAvailable = True
         try: 
             UnitcellNetworkHandler.__init__(self, hdf5_path, inviwoApp)
         except BadHDF5Error as error:
             self.unitcellAvailable = False
-        """
 
         # Check if  hdf5-file is valid
         with h5py.File(hdf5_path, 'r') as file:
@@ -176,8 +174,8 @@ class ChargeNetworkHandler(VolumeNetworkHandler, UnitcellNetworkHandler):
         self.set_plane_height(0.5)
 
         # Configure unitcell visualisation
-        """
+        
         if self.unitcellAvailable:
             self.toggle_unitcell_canvas(True)
             self.set_atom_radius(0.2)
-        """
+        
