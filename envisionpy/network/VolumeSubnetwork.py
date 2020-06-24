@@ -17,15 +17,15 @@ class VolumeSubnetwork(Subnetwork):
     _Outports_
         imageOutport, Image.outport volume rendering with image rendered inside.
     '''
-    def __init__(self, inviwoApp):
+    def __init__(self, inviwoApp, xpos=0, ypos=0):
         Subnetwork.__init__(self, inviwoApp)
-        self.setup_network(0, 3)
+        self.setup_network(xpos, ypos)
 
 
 # ------------------------------------------
 # ------- Network building functions -------
 
-    # def connect_image(self, image_outport):
+    # def connect_decoration(self, image_outport):
     #     inport = self.get_processor('Mesh Renderer').getInport('imageInport')
     #     self.network.addConnection(image_outport, inport)
 
@@ -38,11 +38,11 @@ class VolumeSubnetwork(Subnetwork):
         hdf5Path = self.get_processor('HDF5 path')
         hdf5Path.selection.selectedValue = path
 
-    def setup_network(self, ypos, xpos):
+    def setup_network(self, xpos, ypos):
         # Setup volume data source
         # Generic hdf5 to volume
-        hdf5Path = self.add_processor('org.inviwo.hdf5.PathSelection', 'HDF5 path', 0, ypos)
-        hdf5Volume = self.add_processor('org.inviwo.hdf5.ToVolume', 'HDF5 selection', 0, ypos+3)
+        hdf5Path = self.add_processor('org.inviwo.hdf5.PathSelection', 'HDF5 path', xpos, ypos)
+        hdf5Volume = self.add_processor('org.inviwo.hdf5.ToVolume', 'HDF5 selection', xpos, ypos+3)
 
         # Bounding box around volume
         boundingBox = self.add_processor('org.inviwo.VolumeBoundingBox', 'Volume Bounding Box', xpos+8, ypos+6)    
@@ -51,9 +51,17 @@ class VolumeSubnetwork(Subnetwork):
         # Setup volume racaster
         cubeProxy = self.add_processor('org.inviwo.CubeProxyGeometry', 'Cube Proxy Geometry', xpos+1, ypos+6)
         entryExit = self.add_processor('org.inviwo.EntryExitPoints', 'EntryExitPoints', xpos+1, ypos+9)
-
         raycaster = self.add_processor('org.inviwo.VolumeRaycaster', "Raycaster", xpos, ypos+12)
-        raycaster.raycaster.samplingRate.value = 4
+        
+        # Volume canvas
+        volumeBackground = self.add_processor('org.inviwo.Background', 'VolumeBackground', xpos, ypos+15)
+        volumeCanvas = self.add_processor('org.inviwo.CanvasGL', 'VolumeCanvas', xpos, ypos+18)
+
+        # Setup slice rendering
+        volumeSlice = self.add_processor('org.inviwo.VolumeSliceGL', 'Volume Slice', xpos-7, ypos+12)   
+        sliceBackground = self.add_processor('org.inviwo.Background', 'SliceBackground', xpos-7, ypos+15)
+        sliceCanvas = self.add_processor('org.inviwo.CanvasGL', 'SliceCanvas', xpos-7, ypos+18)
+        sliceCanvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)       
 
         # Connect processors
         self.network.addConnection(hdf5Path.getOutport('outport'), hdf5Volume.getInport('inport'))
@@ -69,16 +77,30 @@ class VolumeSubnetwork(Subnetwork):
         self.network.addConnection(boundingBox.getOutport('mesh'), meshRenderer.getInport('geometry'))
         self.network.addConnection(meshRenderer.getOutport('image'), raycaster.getInport('bg'))
 
+        
+       
+        self.network.addConnection(raycaster.getOutport('outport'), volumeBackground.getInport('inport'))
+        self.network.addConnection(volumeBackground.getOutport('outport'), volumeCanvas.getInport('inport'))
+        
+        self.network.addConnection(hdf5Volume.getOutport('outport'), volumeSlice.getInport('volume'))
+        self.network.addConnection(volumeSlice.getOutport('outport'), sliceBackground.getInport('inport'))
+        self.network.addConnection(sliceBackground.getOutport('outport'), sliceCanvas.getInport('inport'))
+
+        # Link properties
+        self.network.addLink(meshRenderer.camera, entryExit.camera)
+        self.network.addLink(volumeSlice.planePosition, raycaster.positionindicator.plane1.position)
+        self.network.addLink(volumeSlice.planeNormal, raycaster.positionindicator.plane1.normal)
+
+        # Set default properties
+        raycaster.raycaster.samplingRate.value = 4
+        raycaster.positionindicator.plane1.enable.value = True
+        raycaster.positionindicator.plane2.enable.value = False
+        raycaster.positionindicator.plane3.enable.value = False
+        raycaster.positionindicator.enable.value = True
+        raycaster.positionindicator.plane1.color.value = inviwopy.glm.vec4(1, 1, 1, 0.4)
+
         self.image_outport = raycaster.getOutport('outport')
-        print(self.image_outport)
 
-
-        # # Setup slice rendering
-        # VolumeSlice = networkManager.add_processor('org.inviwo.VolumeSliceGL', 'Volume Slice', xpos-25*7, ypos+300)   
-        # SliceCanvas = networkManager.add_processor('org.inviwo.CanvasGL', 'SliceCanvas', xpos-25*7, ypos+525)
-        # SliceCanvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)       
-        # SliceBackground = networkManager.add_processor('org.inviwo.Background', 'SliceBackground', xpos-25*7, ypos+450)
-        # SliceCanvas.widget.show()
 
         # # self.network.addConnection(HDFvolume.getOutport('outport'), VolumeSlice.getInport('volume'))
         # self.network.addConnection(VolumeSlice.getOutport('outport'), SliceBackground.getInport('inport'))
