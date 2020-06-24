@@ -146,16 +146,3 @@ class VolumeSubnetwork(Subnetwork):
             basis_4x4[3][0], basis_4x4[3][1], basis_4x4[3][2], basis_4x4[3][3])
 
         self.image_outport = raycaster.getOutport('outport')
-    
-        # entryExitPoints_lookFrom_property = EntryExitPoints.getPropertyByIdentifier('camera').getPropertyByIdentifier('lookFrom')
-        # entryExitPoints_lookFrom_property.value = inviwopy.glm.vec3(0,0,8)
-
-        # # Connect unitcell and volume visualisation.
-        # try:
-        #     UnitCellRenderer = self.get_processor('Unit Cell Renderer')
-        # except ProcessorNotFoundError:
-        #     print("No unitcell processor active")
-        # else:
-        #     self.network.addConnection(UnitCellRenderer.getOutport('image'), MeshRenderer.getInport('imageInport'))
-        #     self.network.addLink(UnitCellRenderer.getPropertyByIdentifier('camera'), MeshRenderer.getPropertyByIdentifier('camera'))
-        #     self.network.addLink(MeshRenderer.getPropertyByIdentifier('camera'), UnitCellRenderer.getPropertyByIdentifier('camera'))
