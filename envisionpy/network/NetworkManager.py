@@ -34,8 +34,7 @@ class NetworkManager():
     def add_subnetwork(self, network_type):
         if network_type == "charge":
             print("HDF5 STATUS: ", VolumeSubnetwork.check_hdf5(self.hdf5_path, "/CHG"))
-            subnetwork = VolumeSubnetwork(self.app, 0, 3)
-            subnetwork.connect_hdf5(self.hdf5Output)
+            subnetwork = VolumeSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
             subnetwork.set_hdf5_subpath("/CHG")
             self.subnetworks.append(subnetwork)
             print(subnetwork.image_outport)

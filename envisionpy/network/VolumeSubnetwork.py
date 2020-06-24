@@ -17,9 +17,10 @@ class VolumeSubnetwork(Subnetwork):
     _Outports_
         imageOutport, Image.outport volume rendering with image rendered inside.
     '''
-    def __init__(self, inviwoApp, xpos=0, ypos=0):
+    def __init__(self, inviwoApp, hdf5_path, hdf5_output, xpos=0, ypos=0):
         Subnetwork.__init__(self, inviwoApp)
-        self.setup_network(xpos, ypos)
+        self.setup_network(hdf5_path, hdf5_output, xpos, ypos)
+        self.hide()
 
 
     @staticmethod
@@ -28,6 +29,19 @@ class VolumeSubnetwork(Subnetwork):
             if file.get(sub_path) == None:
                return False 
         return True
+
+    def show(self, show_volume=True, show_slice=True):
+        if show_volume:
+            self.get_processor('VolumeCanvas').widget.show()
+        if show_slice:
+            self.get_processor('SliceCanvas').widget.show()
+        pass
+
+    def hide(self, hide_volume=True, hide_slice=True):
+        if hide_volume:
+            self.get_processor('VolumeCanvas').widget.hide()
+        if hide_slice:
+            self.get_processor('SliceCanvas').widget.hide()
 
 # ------------------------------------------
 # ------- Network building functions -------
@@ -43,15 +57,18 @@ class VolumeSubnetwork(Subnetwork):
         inport = self.get_processor('Mesh Renderer').getInport('imageInport')
         self.network.addConnection(image_outport, inport)
 
-    def connect_hdf5(self, handle_outport):
-        inport = self.get_processor('HDF5 path').getInport('inport')
-        self.network.addConnection(handle_outport, inport)
-
     def set_hdf5_subpath(self, path):
+        # Flashing the canvases on and off forces the option list to update.
+        # Without this option list may be empty and no option is selected.
+        vis = self.get_processor('VolumeCanvas').widget.visibility
+        self.hide()
+        self.show() 
+        self.show() if vis else self.hide()
+
         hdf5Path = self.get_processor('HDF5 path')
         hdf5Path.selection.selectedValue = path
 
-    def setup_network(self, xpos, ypos):
+    def setup_network(self, hdf5_path, hdf5_output, xpos, ypos):
         # Setup volume data source
         # Generic hdf5 to volume
         hdf5Path = self.add_processor('org.inviwo.hdf5.PathSelection', 'HDF5 path', xpos, ypos)
@@ -78,24 +95,20 @@ class VolumeSubnetwork(Subnetwork):
         
         # Connect processors
         self.network.addConnection(hdf5Path.getOutport('outport'), hdf5Volume.getInport('inport'))
-
         self.network.addConnection(hdf5Volume.getOutport('outport'), boundingBox.getInport('volume'))
         self.network.addConnection(hdf5Volume.getOutport('outport'), cubeProxy.getInport('volume'))
         self.network.addConnection(hdf5Volume.getOutport('outport'), raycaster.getInport('volume'))
-
         self.network.addConnection(cubeProxy.getOutport('proxyGeometry'), entryExit.getInport('geometry'))
         self.network.addConnection(entryExit.getOutport('entry'), raycaster.getInport('entry'))
         self.network.addConnection(entryExit.getOutport('exit'), raycaster.getInport('exit'))
-
         self.network.addConnection(boundingBox.getOutport('mesh'), meshRenderer.getInport('geometry'))
         self.network.addConnection(meshRenderer.getOutport('image'), raycaster.getInport('bg'))
-
         self.network.addConnection(raycaster.getOutport('outport'), volumeBackground.getInport('inport'))
         self.network.addConnection(volumeBackground.getOutport('outport'), volumeCanvas.getInport('inport'))
-        
         self.network.addConnection(hdf5Volume.getOutport('outport'), volumeSlice.getInport('volume'))
         self.network.addConnection(volumeSlice.getOutport('outport'), sliceBackground.getInport('inport'))
         self.network.addConnection(sliceBackground.getOutport('outport'), sliceCanvas.getInport('inport'))
+        self.network.addConnection(hdf5_output, hdf5Path.getInport('inport'))
 
         # Link properties
         self.network.addLink(meshRenderer.camera, entryExit.camera)
@@ -110,6 +123,29 @@ class VolumeSubnetwork(Subnetwork):
         raycaster.positionindicator.plane1.color.value = inviwopy.glm.vec4(1, 1, 1, 0.4)
         raycaster.positionindicator.enable.value = False
         sliceCanvas.widget.hide()
+
+        # Read and apply basis from hdf5
+        with h5py.File(hdf5_path, "r") as h5:
+            basis_4x4 = np.identity(4)
+            basis_array = np.array(h5["/basis/"], dtype='d')
+            basis_4x4[:3,:3] = basis_array
+            scaling_factor = h5['/scaling_factor'][()]
+            basis_4x4 = np.multiply(scaling_factor, basis_4x4)
+        hdf5Volume.basisGroup.basis.minValue = inviwopy.glm.mat4(
+            -1000,-1000,-1000,-1000,
+            -1000,-1000,-1000,-1000,
+            -1000,-1000,-1000,-1000,
+            -1000,-1000,-1000,-1000)
+        hdf5Volume.basisGroup.basis.maxValue = inviwopy.glm.mat4(
+            1000,1000,1000,1000,
+            1000,1000,1000,1000,
+            1000,1000,1000,1000,
+            1000,1000,1000,1000)
+        hdf5Volume.basisGroup.basis.value = inviwopy.glm.mat4(
+            basis_4x4[0][0], basis_4x4[0][1], basis_4x4[0][2], basis_4x4[0][3], 
+            basis_4x4[1][0], basis_4x4[1][1], basis_4x4[1][2], basis_4x4[1][3], 
+            basis_4x4[2][0], basis_4x4[2][1], basis_4x4[2][2], basis_4x4[2][3],
+            basis_4x4[3][0], basis_4x4[3][1], basis_4x4[3][2], basis_4x4[3][3])
 
         self.image_outport = raycaster.getOutport('outport')
     
