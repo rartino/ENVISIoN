@@ -25,14 +25,17 @@ class VolumeSubnetwork(Subnetwork):
 # ------------------------------------------
 # ------- Network building functions -------
 
-    # def connect_decoration(self, image_outport):
-    #     inport = self.get_processor('Mesh Renderer').getInport('imageInport')
-    #     self.network.addConnection(image_outport, inport)
+    def link_camera(self, camera_prop):
+        meshRenderer = self.get_processor('Mesh Renderer')
+        self.network.addLink(meshRenderer.camera, camera_prop)
+
+    def connect_decoration(self, image_outport):
+        inport = self.get_processor('Mesh Renderer').getInport('imageInport')
+        self.network.addConnection(image_outport, inport)
 
     def connect_hdf5(self, handle_outport):
         inport = self.get_processor('HDF5 path').getInport('inport')
         self.network.addConnection(handle_outport, inport)
-
 
     def set_hdf5_subpath(self, path):
         hdf5Path = self.get_processor('HDF5 path')
@@ -62,7 +65,7 @@ class VolumeSubnetwork(Subnetwork):
         sliceBackground = self.add_processor('org.inviwo.Background', 'SliceBackground', xpos-7, ypos+15)
         sliceCanvas = self.add_processor('org.inviwo.CanvasGL', 'SliceCanvas', xpos-7, ypos+18)
         sliceCanvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)       
-
+        
         # Connect processors
         self.network.addConnection(hdf5Path.getOutport('outport'), hdf5Volume.getInport('inport'))
 
@@ -77,8 +80,6 @@ class VolumeSubnetwork(Subnetwork):
         self.network.addConnection(boundingBox.getOutport('mesh'), meshRenderer.getInport('geometry'))
         self.network.addConnection(meshRenderer.getOutport('image'), raycaster.getInport('bg'))
 
-        
-       
         self.network.addConnection(raycaster.getOutport('outport'), volumeBackground.getInport('inport'))
         self.network.addConnection(volumeBackground.getOutport('outport'), volumeCanvas.getInport('inport'))
         
@@ -96,52 +97,14 @@ class VolumeSubnetwork(Subnetwork):
         raycaster.positionindicator.plane1.enable.value = True
         raycaster.positionindicator.plane2.enable.value = False
         raycaster.positionindicator.plane3.enable.value = False
-        raycaster.positionindicator.enable.value = True
         raycaster.positionindicator.plane1.color.value = inviwopy.glm.vec4(1, 1, 1, 0.4)
+        raycaster.positionindicator.enable.value = False
+        sliceCanvas.widget.hide()
 
         self.image_outport = raycaster.getOutport('outport')
 
-
-        # # self.network.addConnection(HDFvolume.getOutport('outport'), VolumeSlice.getInport('volume'))
-        # self.network.addConnection(VolumeSlice.getOutport('outport'), SliceBackground.getInport('inport'))
-        # self.network.addConnection(SliceBackground.getOutport('outport'), SliceCanvas.getInport('inport'))
-
-        # # Setup volume rendering part
-        # Canvas = self.add_processor('org.inviwo.CanvasGL', 'Canvas', xpos, ypos+525)
-        # Canvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)
-        # VolumeBackground = self.add_processor('org.inviwo.Background', 'VolumeBackground', xpos, ypos+450)
-        # Canvas.widget.show()
-        
-        # self.network.addConnection(Raycaster.getOutport('outport'), VolumeBackground.getInport('inport'))
-        # self.network.addConnection(VolumeBackground.getOutport('outport'), Canvas.getInport('inport'))
-
-        # self.network.addLink(VolumeSlice.getPropertyByIdentifier('planePosition'), Raycaster.getPropertyByIdentifier('positionindicator').plane1.position)
-        # self.network.addLink(VolumeSlice.getPropertyByIdentifier('planeNormal'), Raycaster.getPropertyByIdentifier('positionindicator').plane1.normal)
-
-        # # Shared connections and properties between electron density and electron localisation function data
-        # self.network.addConnection(MeshRenderer.getOutport('image'), Raycaster.getInport('bg'))
-        # self.network.addConnection(EntryExitPoints.getOutport('entry'), Raycaster.getInport('entry'))
-        # self.network.addConnection(EntryExitPoints.getOutport('exit'), Raycaster.getInport('exit'))
-        # self.network.addConnection(BoundingBox.getOutport('mesh'), MeshRenderer.getInport('geometry'))
-        # self.network.addConnection(CubeProxyGeometry.getOutport('proxyGeometry'), EntryExitPoints.getInport('geometry'))
-        # self.network.addConnection(VolumeBackground.getOutport('outport'), Canvas.getInport('inport'))
-        # self.network.addLink(MeshRenderer.getPropertyByIdentifier('camera'), EntryExitPoints.getPropertyByIdentifier('camera'))
-
-        # self.volumeInports.append(BoundingBox.getInport('volume'))
-        # self.volumeInports.append(CubeProxyGeometry.getInport('volume'))
-        # self.volumeInports.append(Raycaster.getInport('volume'))
-        # self.volumeInports.append(VolumeSlice.getInport('volume'))
-
         # entryExitPoints_lookFrom_property = EntryExitPoints.getPropertyByIdentifier('camera').getPropertyByIdentifier('lookFrom')
         # entryExitPoints_lookFrom_property.value = inviwopy.glm.vec3(0,0,8)
-
-        # # Setup slice plane
-        # pos_indicator = Raycaster.positionindicator
-        # pos_indicator.plane1.enable.value = True
-        # pos_indicator.plane2.enable.value = False
-        # pos_indicator.plane3.enable.value = False
-        # pos_indicator.enable.value = False # Disabled by default
-        # pos_indicator.plane1.color.value = inviwopy.glm.vec4(1, 1, 1, 0.5)
 
         # # Connect unitcell and volume visualisation.
         # try:
