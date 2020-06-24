@@ -12,6 +12,10 @@ class Subnetwork():
         self.image_outport = None
 
 
+    def connect_decoration(self, image_outport):
+        # Should be overloaded in inheriting subnetwork class.
+        raise ProcessorNetworkError("Tried to connect decorations to incompatible subnetwork.")
+
     def add_processor(self, id, name, xpos=0, ypos=0):
         factory = self.app.processorFactory
         new_processor = factory.create(id, glm.ivec2(xpos*25, ypos*25))
@@ -38,7 +42,3 @@ class Subnetwork():
     # Remove all the processors associated with this manager.
         for id in tuple(self.processors):
             self.remove_processor(id)
-
-    def connect_image(self, image_inport):
-        print(self.image_outport)
-        self.network.addConnection(self.image_outport, image_inport)

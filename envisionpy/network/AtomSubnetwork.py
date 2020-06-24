@@ -12,12 +12,12 @@ class AtomSubnetwork(Subnetwork):
     '''
     def __init__(self, inviwoApp, hdf5_path, hdf5_output, xpos=0, ypos=0):
         Subnetwork.__init__(self, inviwoApp)
-
-
         self.atom_radii = []
         self.atom_names = []
         self.nAtomTypes = 0
         self.setup_network(hdf5_path, hdf5_output, xpos, ypos)
+
+        self.hide()
 
     
     @staticmethod
@@ -26,6 +26,12 @@ class AtomSubnetwork(Subnetwork):
             if file.get("UnitCell") == None:
                return False 
         return True
+
+    def show(self):
+        self.get_processor('UnitcellCanvas').widget.show()
+
+    def hide(self):
+        self.get_processor('UnitcellCanvas').widget.hide()
 # ------------------------------------------
 # ------- Network building functions -------
 
@@ -35,21 +41,17 @@ class AtomSubnetwork(Subnetwork):
     def connect_decoration(self, image_outport):
         pass
 
-    def connect_hdf5(self, handle_outport):
-        pass
-
-
-
     def setup_network(self, hdf5_path, hdf5_output, xpos, ypos):
         strucMesh = self.add_processor('envision.StructureMesh', 'UnitcellMesh', xpos, ypos+3)
         meshRenderer = self.add_processor('org.inviwo.SphereRenderer', 'Unit Cell Renderer', xpos, ypos+6)
-
-        canvas = self.add_processor('org.inviwo.CanvasGL', 'UnitcellCanvas', xpos, ypos+9)
+        background = self.add_processor('org.inviwo.Background', 'AtomBackground', xpos, ypos+9)
+        canvas = self.add_processor('org.inviwo.CanvasGL', 'UnitcellCanvas', xpos, ypos+12)
         
         canvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)
 
         self.network.addConnection(strucMesh.getOutport('mesh'), meshRenderer.getInport('geometry'))
-        self.network.addConnection(meshRenderer.getPort('image'), canvas.getInport('inport'))
+        self.network.addConnection(meshRenderer.getOutport('image'), background.getInport('inport'))
+        self.network.addConnection(background.getOutport('outport'), canvas.getInport('inport'))
 
         with h5py.File(hdf5_path, "r") as h5:
             # Set basis matrix and scaling
@@ -111,6 +113,7 @@ class AtomSubnetwork(Subnetwork):
 
         
         self.camera_prop = meshRenderer.camera
+        self.image_outport = meshRenderer.getOutport('outport')
         # # Connect unitcell and volume visualisation.
         # try:
         #     UnitCellRenderer = self.get_processor('Unit Cell Renderer')
