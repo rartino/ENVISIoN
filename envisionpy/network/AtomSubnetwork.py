@@ -94,11 +94,7 @@ class AtomSubnetwork(Subnetwork):
                 strucMesh_radius_property = strucMesh.getPropertyByIdentifier('radius{0}'.format(i))
                 # The atoms in a crystal don't actually look like spheres, as the valence electrons are shared across the crystal.
                 # The different radii of the elements in data.py are just to differentiate between different elements.
-                print("A: ", 'radius{0}'.format(i))
-                print(strucMesh_radius_property)
-                print(strucMesh.radius0)
                 strucMesh_radius_property.maxValue = 10
-                print("B")
                 strucMesh_radius_property.value = radius
                 strucMesh_color_property = strucMesh.getPropertyByIdentifier('color{0}'.format(i))
                 strucMesh_color_property.value = inviwopy.glm.vec4(color[0],color[1],color[2],color[3])
@@ -110,17 +106,5 @@ class AtomSubnetwork(Subnetwork):
 
                 self.nAtomTypes += 1
 
-
-        
         self.camera_prop = meshRenderer.camera
         self.image_outport = meshRenderer.getOutport('image')
-        print("OUTPOROOR: ", self.image_outport)
-        # # Connect unitcell and volume visualisation.
-        # try:
-        #     UnitCellRenderer = self.get_processor('Unit Cell Renderer')
-        # except ProcessorNotFoundError:
-        #     print("No unitcell processor active")
-        # else:
-        #     self.network.addConnection(UnitCellRenderer.getOutport('image'), MeshRenderer.getInport('imageInport'))
-        #     self.network.addLink(UnitCellRenderer.getPropertyByIdentifier('camera'), MeshRenderer.getPropertyByIdentifier('camera'))
-        #     self.network.addLink(MeshRenderer.getPropertyByIdentifier('camera'), UnitCellRenderer.getPropertyByIdentifier('camera'))
