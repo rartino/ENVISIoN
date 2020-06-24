@@ -113,7 +113,8 @@ class AtomSubnetwork(Subnetwork):
 
         
         self.camera_prop = meshRenderer.camera
-        self.image_outport = meshRenderer.getOutport('outport')
+        self.image_outport = meshRenderer.getOutport('image')
+        print("OUTPOROOR: ", self.image_outport)
         # # Connect unitcell and volume visualisation.
         # try:
         #     UnitCellRenderer = self.get_processor('Unit Cell Renderer')

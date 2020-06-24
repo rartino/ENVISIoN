@@ -48,8 +48,6 @@ class VolumeSubnetwork(Subnetwork):
 
     def link_camera(self, camera_prop):
         meshRenderer = self.get_processor('Mesh Renderer')
-        print(meshRenderer.camera)
-        print(camera_prop)
         self.network.addLink(meshRenderer.camera, camera_prop)
         self.network.addLink(camera_prop, meshRenderer.camera)
 
