@@ -22,12 +22,22 @@ class VolumeSubnetwork(Subnetwork):
         self.setup_network(xpos, ypos)
 
 
+    @staticmethod
+    def check_hdf5(hdf5_path, sub_path):
+        with h5py.File(hdf5_path, 'r') as file: 
+            if file.get(sub_path) == None:
+               return False 
+        return True
+
 # ------------------------------------------
 # ------- Network building functions -------
 
     def link_camera(self, camera_prop):
         meshRenderer = self.get_processor('Mesh Renderer')
+        print(meshRenderer.camera)
+        print(camera_prop)
         self.network.addLink(meshRenderer.camera, camera_prop)
+        self.network.addLink(camera_prop, meshRenderer.camera)
 
     def connect_decoration(self, image_outport):
         inport = self.get_processor('Mesh Renderer').getInport('imageInport')
@@ -102,7 +112,7 @@ class VolumeSubnetwork(Subnetwork):
         sliceCanvas.widget.hide()
 
         self.image_outport = raycaster.getOutport('outport')
-
+    
         # entryExitPoints_lookFrom_property = EntryExitPoints.getPropertyByIdentifier('camera').getPropertyByIdentifier('lookFrom')
         # entryExitPoints_lookFrom_property.value = inviwopy.glm.vec3(0,0,8)
 
