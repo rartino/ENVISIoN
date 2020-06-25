@@ -35,7 +35,6 @@ class VolumeSubnetwork(Subnetwork):
             self.get_processor('VolumeCanvas').widget.show()
         if show_slice:
             self.get_processor('SliceCanvas').widget.show()
-        pass
 
     def hide(self, hide_volume=True, hide_slice=True):
         if hide_volume:
@@ -88,8 +87,7 @@ class VolumeSubnetwork(Subnetwork):
         # Setup slice rendering
         volumeSlice = self.add_processor('org.inviwo.VolumeSliceGL', 'Volume Slice', xpos-7, ypos+12)   
         sliceBackground = self.add_processor('org.inviwo.Background', 'SliceBackground', xpos-7, ypos+15)
-        sliceCanvas = self.add_processor('org.inviwo.CanvasGL', 'SliceCanvas', xpos-7, ypos+18)
-        sliceCanvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)       
+        sliceCanvas = self.add_processor('org.inviwo.CanvasGL', 'SliceCanvas', xpos-7, ypos+18)      
         
         # Connect processors
         self.network.addConnection(hdf5Path.getOutport('outport'), hdf5Volume.getInport('inport'))
@@ -120,7 +118,10 @@ class VolumeSubnetwork(Subnetwork):
         raycaster.positionindicator.plane3.enable.value = False
         raycaster.positionindicator.plane1.color.value = inviwopy.glm.vec4(1, 1, 1, 0.4)
         raycaster.positionindicator.enable.value = False
-        sliceCanvas.widget.hide()
+        # sliceCanvas.widget.hide()
+        
+        sliceCanvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500) 
+        volumeCanvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500) 
 
         # Read and apply basis from hdf5
         with h5py.File(hdf5_path, "r") as h5:
