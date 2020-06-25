@@ -106,5 +106,7 @@ class AtomSubnetwork(Subnetwork):
 
                 self.nAtomTypes += 1
 
+        # self.image_outport = meshRenderer.getOutport('image')
+        # self.decoration_inport = 
         self.camera_prop = meshRenderer.camera
-        self.image_outport = meshRenderer.getOutport('image')
+        self.decoration_outport = meshRenderer.getOutport('image')
