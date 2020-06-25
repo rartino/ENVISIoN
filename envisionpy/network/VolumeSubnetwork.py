@@ -1,4 +1,6 @@
 import inviwopy
+import ivw
+import ivw.utils
 import numpy as np
 import h5py
 from envisionpy.utils.exceptions import *
@@ -55,74 +57,23 @@ class VolumeSubnetwork(Subnetwork):
         self.network.addConnection(image_outport, inport)
 
     def set_hdf5_subpath(self, path):
-        # Flashing the canvases on and off forces the option list to update.
-        # Without this option list may be empty and no option is selected.
         vis = self.get_processor('VolumeCanvas').widget.visibility
         self.hide()
         self.show() 
-        self.show() if vis else self.hide()
+        self.show() if vis else self.hide() # Flashing canvas forces network update to refresh options.
 
         hdf5Path = self.get_processor('HDF5 path')
         hdf5Path.selection.selectedValue = path
 
+    def set_volume_selection(self, key):
+        vis = self.get_processor('VolumeCanvas').widget.visibility
+        self.hide()
+        self.show() 
+        self.show() if vis else self.hide() # Flashing canvas forces network update to refresh options.
+        hdf5Vol = self.get_processor('Hdf5Selection')
+        hdf5Vol.volumeSelection.selectedValue = key
+
     def setup_network(self, hdf5_path, hdf5_output, xpos, ypos):
-        # Setup volume data source
-        # Generic hdf5 to volume
-        hdf5Path = self.add_processor('org.inviwo.hdf5.PathSelection', 'HDF5 path', xpos, ypos)
-        hdf5Volume = self.add_processor('org.inviwo.hdf5.ToVolume', 'HDF5 selection', xpos, ypos+3)
-
-        # Bounding box around volume
-        boundingBox = self.add_processor('org.inviwo.VolumeBoundingBox', 'Volume Bounding Box', xpos+8, ypos+6)    
-        meshRenderer = self.add_processor('org.inviwo.GeometryRenderGL', 'Mesh Renderer', xpos+8, ypos+9)
-        
-        # Setup volume racaster
-        cubeProxy = self.add_processor('org.inviwo.CubeProxyGeometry', 'Cube Proxy Geometry', xpos+1, ypos+6)
-        entryExit = self.add_processor('org.inviwo.EntryExitPoints', 'EntryExitPoints', xpos+1, ypos+9)
-        raycaster = self.add_processor('org.inviwo.VolumeRaycaster', "Raycaster", xpos, ypos+12)
-        
-        # Volume canvas
-        volumeBackground = self.add_processor('org.inviwo.Background', 'VolumeBackground', xpos, ypos+15)
-        volumeCanvas = self.add_processor('org.inviwo.CanvasGL', 'VolumeCanvas', xpos, ypos+18)
-
-        # Setup slice rendering
-        volumeSlice = self.add_processor('org.inviwo.VolumeSliceGL', 'Volume Slice', xpos-7, ypos+12)   
-        sliceBackground = self.add_processor('org.inviwo.Background', 'SliceBackground', xpos-7, ypos+15)
-        sliceCanvas = self.add_processor('org.inviwo.CanvasGL', 'SliceCanvas', xpos-7, ypos+18)      
-        
-        # Connect processors
-        self.network.addConnection(hdf5Path.getOutport('outport'), hdf5Volume.getInport('inport'))
-        self.network.addConnection(hdf5Volume.getOutport('outport'), boundingBox.getInport('volume'))
-        self.network.addConnection(hdf5Volume.getOutport('outport'), cubeProxy.getInport('volume'))
-        self.network.addConnection(hdf5Volume.getOutport('outport'), raycaster.getInport('volume'))
-        self.network.addConnection(cubeProxy.getOutport('proxyGeometry'), entryExit.getInport('geometry'))
-        self.network.addConnection(entryExit.getOutport('entry'), raycaster.getInport('entry'))
-        self.network.addConnection(entryExit.getOutport('exit'), raycaster.getInport('exit'))
-        self.network.addConnection(boundingBox.getOutport('mesh'), meshRenderer.getInport('geometry'))
-        self.network.addConnection(meshRenderer.getOutport('image'), raycaster.getInport('bg'))
-        self.network.addConnection(raycaster.getOutport('outport'), volumeBackground.getInport('inport'))
-        self.network.addConnection(volumeBackground.getOutport('outport'), volumeCanvas.getInport('inport'))
-        self.network.addConnection(hdf5Volume.getOutport('outport'), volumeSlice.getInport('volume'))
-        self.network.addConnection(volumeSlice.getOutport('outport'), sliceBackground.getInport('inport'))
-        self.network.addConnection(sliceBackground.getOutport('outport'), sliceCanvas.getInport('inport'))
-        self.network.addConnection(hdf5_output, hdf5Path.getInport('inport'))
-
-        # Link properties
-        self.network.addLink(meshRenderer.camera, entryExit.camera)
-        self.network.addLink(volumeSlice.planePosition, raycaster.positionindicator.plane1.position)
-        self.network.addLink(volumeSlice.planeNormal, raycaster.positionindicator.plane1.normal)
-
-        # Set default properties
-        raycaster.raycaster.samplingRate.value = 4
-        raycaster.positionindicator.plane1.enable.value = True
-        raycaster.positionindicator.plane2.enable.value = False
-        raycaster.positionindicator.plane3.enable.value = False
-        raycaster.positionindicator.plane1.color.value = inviwopy.glm.vec4(1, 1, 1, 0.4)
-        raycaster.positionindicator.enable.value = False
-        # sliceCanvas.widget.hide()
-        
-        sliceCanvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500) 
-        volumeCanvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500) 
-
         # Read and apply basis from hdf5
         with h5py.File(hdf5_path, "r") as h5:
             basis_4x4 = np.identity(4)
@@ -130,6 +81,12 @@ class VolumeSubnetwork(Subnetwork):
             basis_4x4[:3,:3] = basis_array
             scaling_factor = h5['/scaling_factor'][()]
             basis_4x4 = np.multiply(scaling_factor, basis_4x4)
+        
+        # Setup hdf5 to volume
+        hdf5Path = self.add_processor('org.inviwo.hdf5.PathSelection', 'HDF5 path', xpos, ypos)
+        hdf5Volume = self.add_processor('org.inviwo.hdf5.ToVolume', 'Hdf5Selection', xpos, ypos+3)
+        self.network.addConnection(hdf5_output, hdf5Path.getInport('inport'))
+        self.network.addConnection(hdf5Path.getOutport('outport'), hdf5Volume.getInport('inport'))
         hdf5Volume.basisGroup.basis.minValue = inviwopy.glm.mat4(
             -1000,-1000,-1000,-1000,
             -1000,-1000,-1000,-1000,
@@ -145,5 +102,65 @@ class VolumeSubnetwork(Subnetwork):
             basis_4x4[1][0], basis_4x4[1][1], basis_4x4[1][2], basis_4x4[1][3], 
             basis_4x4[2][0], basis_4x4[2][1], basis_4x4[2][2], basis_4x4[2][3],
             basis_4x4[3][0], basis_4x4[3][1], basis_4x4[3][2], basis_4x4[3][3])
+
+        # Setup volume rendering
+        boundingBox = self.add_processor('org.inviwo.VolumeBoundingBox', 'Volume Bounding Box', xpos+8, ypos+6)    
+        meshRenderer = self.add_processor('org.inviwo.GeometryRenderGL', 'Mesh Renderer', xpos+8, ypos+9)
+        cubeProxy = self.add_processor('org.inviwo.CubeProxyGeometry', 'Cube Proxy Geometry', xpos+1, ypos+6)
+        entryExit = self.add_processor('org.inviwo.EntryExitPoints', 'EntryExitPoints', xpos+1, ypos+9)
+        raycaster = self.add_processor('org.inviwo.VolumeRaycaster', "Raycaster", xpos, ypos+12)
+        volumeBackground = self.add_processor('org.inviwo.Background', 'VolumeBackground', xpos, ypos+15)
+        volumeCanvas = self.add_processor('org.inviwo.CanvasGL', 'VolumeCanvas', xpos, ypos+18)
+        self.network.addConnection(hdf5Volume.getOutport('outport'), boundingBox.getInport('volume'))
+        self.network.addConnection(hdf5Volume.getOutport('outport'), cubeProxy.getInport('volume'))
+        self.network.addConnection(hdf5Volume.getOutport('outport'), raycaster.getInport('volume'))
+        self.network.addConnection(cubeProxy.getOutport('proxyGeometry'), entryExit.getInport('geometry'))
+        self.network.addConnection(entryExit.getOutport('entry'), raycaster.getInport('entry'))
+        self.network.addConnection(entryExit.getOutport('exit'), raycaster.getInport('exit'))
+        self.network.addConnection(boundingBox.getOutport('mesh'), meshRenderer.getInport('geometry'))
+        self.network.addConnection(meshRenderer.getOutport('image'), raycaster.getInport('bg'))
+        self.network.addConnection(raycaster.getOutport('outport'), volumeBackground.getInport('inport'))
+        self.network.addConnection(volumeBackground.getOutport('outport'), volumeCanvas.getInport('inport'))
+        self.network.addLink(meshRenderer.camera, entryExit.camera)
+
+
+        # Setup slice rendering
+        volumeSlice = self.add_processor('org.inviwo.VolumeSliceGL', 'Volume Slice', xpos-7, ypos+12)   
+        sliceBackground = self.add_processor('org.inviwo.Background', 'SliceBackground', xpos-7, ypos+15)
+        sliceCanvas = self.add_processor('org.inviwo.CanvasGL', 'SliceCanvas', xpos-7, ypos+18)
+        self.network.addConnection(hdf5Volume.getOutport('outport'), volumeSlice.getInport('volume'))
+        self.network.addConnection(volumeSlice.getOutport('outport'), sliceBackground.getInport('inport'))
+        self.network.addConnection(sliceBackground.getOutport('outport'), sliceCanvas.getInport('inport'))
+        self.network.addLink(volumeSlice.planePosition, raycaster.positionindicator.plane1.position)
+        self.network.addLink(volumeSlice.planeNormal, raycaster.positionindicator.plane1.normal)
+        raycaster.raycaster.samplingRate.value = 4
+        raycaster.positionindicator.plane1.enable.value = True
+        raycaster.positionindicator.plane2.enable.value = False
+        raycaster.positionindicator.plane3.enable.value = False
+        raycaster.positionindicator.plane1.color.value = inviwopy.glm.vec4(1, 1, 1, 0.4)
+        volumeSlice.sliceAxis.value = 3
+        volumeSlice.planeNormal.value = inviwopy.glm.vec3(1, 0, 0)
+        raycaster.positionindicator.enable.value = True
+
+        # Setup slice in 3d view
+        meshCreator = self.add_processor('org.inviwo.MeshCreator', 'MeshCreator', xpos-14, ypos+12)
+        hfRender = self.add_processor('org.inviwo.HeightFieldRenderGL', 'HFRender', xpos-14, ypos+15)
+        self.network.addConnection(meshCreator.getOutport('outport'), hfRender.getInport('geometry'))
+        self.network.addConnection(sliceBackground.getOutport('outport'), hfRender.getInport('texture'))
+        self.network.addLink(volumeSlice.worldPosition_, meshCreator.position1)
+        self.network.addLink(meshRenderer.camera, hfRender.camera)
+        self.network.addLink(volumeSlice.planeNormal, meshCreator.normal)
+        meshCreator.meshType.selectedDisplayName = 'Plane'
+        meshCreator.scale.value = scaling_factor
+        hfRender.heightScale.value = 0
+        hfRender.terrainShadingMode.selectedDisplayName = 'Color Texture'
+        hfRender.lighting.shadingMode.selectedDisplayName = 'No Shading'
+        
+        # Default settings.
+        sliceCanvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500) 
+        volumeCanvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500) 
+
+        
+            
 
         self.image_outport = raycaster.getOutport('outport')

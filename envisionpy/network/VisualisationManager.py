@@ -25,9 +25,11 @@ class VisualisationManager():
         if network_type == "charge":
             subnetwork = VolumeSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
             subnetwork.set_hdf5_subpath("/CHG")
+            subnetwork.set_volume_selection('/final')
         elif network_type == "elf":
             subnetwork = VolumeSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 15)
             subnetwork.set_hdf5_subpath("/ELF")
+            subnetwork.set_volume_selection('/final')
         elif network_type == "atom":
             subnetwork = AtomSubnetwork(self.app, self.hdf5_path, self.hdf5Output, -15, 3)
         self.subnetworks.append(subnetwork)
