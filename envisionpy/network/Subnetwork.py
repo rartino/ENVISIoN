@@ -30,8 +30,8 @@ class Subnetwork():
         del self.processors[id]
 
     def remove_processor_by_ref(self, processor):
-            self.network.removeProcessor(processor)
             self.processors = {key:val for key, val in self.processors.items() if val != processor}
+            self.network.removeProcessor(processor)
 
     def get_processor(self, id):
         if id in self.processors:
@@ -39,6 +39,6 @@ class Subnetwork():
         raise ProcessorNotFoundError("Processor with ID " + id + " not found.")
 
     def clear_processors(self):
-    # Remove all the processors associated with this manager.
-        for id in tuple(self.processors):
-            self.remove_processor(id)
+        for key in list(self.processors.keys()):
+            self.remove_processor(key)
+        del self.processors
