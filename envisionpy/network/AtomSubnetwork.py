@@ -16,7 +16,7 @@ class AtomSubnetwork(Subnetwork):
         self.atom_names = []
         self.nAtomTypes = 0
         self.setup_network(hdf5_path, hdf5_output, xpos, ypos)
-
+        self.set_atom_radius(0.5)
         self.hide()
 
     
@@ -32,6 +32,48 @@ class AtomSubnetwork(Subnetwork):
 
     def hide(self):
         self.get_processor('UnitcellCanvas').widget.hide()
+
+# ------------------------------------------
+# ------- Property control functions -------
+
+    def set_atom_radius(self, radius, index=None):
+        structureMesh = self.get_processor('UnitcellMesh')
+        if structureMesh.fullMesh.value:
+            if index != None:
+                self.atom_radii[index] = radius
+                structureMesh.getPropertyByIdentifier("radius" + str(index)).value = radius
+            else:
+                for i in range(self.nAtomTypes):
+                    self.atom_radii[i] = radius
+                    self.set_atom_radius(radius, i)
+        else:
+            sphereRenderer = self.get_processor('UnitcellRenderer')
+            sphereRenderer.sphereProperties.defaultRadius.value = radius
+            for i in range(self.nAtomTypes):
+                self.atom_radii[i] = radius
+
+    def hide_atoms(self):
+        return self.set_atom_radius(0)
+    
+    def get_atom_names(self):
+        return self.atom_names
+    
+    def get_atom_name(self, index):
+        return self.atom_names[index]
+
+    def get_atom_radii(self):
+        return self.atom_names
+
+    def toggle_full_mesh(self, enable):
+        structMesh = self.get_processor('UnitcellMesh')
+        structMesh.fullMesh.value = enable
+
+    def set_canvas_position(self, x, y):
+    # Updates the position of the canvas
+    # Upper left corner will be at coordinate (x, y)
+        unitcellCanvas = self.get_processor('UnitcellCanvas')
+        unitcellCanvas.position.value = inviwopy.glm.ivec2(x, y)
+
 # ------------------------------------------
 # ------- Network building functions -------
 
@@ -43,7 +85,7 @@ class AtomSubnetwork(Subnetwork):
 
     def setup_network(self, hdf5_path, hdf5_output, xpos, ypos):
         strucMesh = self.add_processor('envision.StructureMesh', 'UnitcellMesh', xpos, ypos+3)
-        meshRenderer = self.add_processor('org.inviwo.SphereRenderer', 'Unit Cell Renderer', xpos, ypos+6)
+        meshRenderer = self.add_processor('org.inviwo.SphereRenderer', 'UnitcellRenderer', xpos, ypos+6)
         background = self.add_processor('org.inviwo.Background', 'AtomBackground', xpos, ypos+9)
         canvas = self.add_processor('org.inviwo.CanvasGL', 'UnitcellCanvas', xpos, ypos+12)
         
