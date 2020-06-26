@@ -349,7 +349,7 @@ class VolumeSubnetwork(Subnetwork):
         raycaster.positionindicator.plane1.color.value = inviwopy.glm.vec4(1, 1, 1, 0.4)
         volumeSlice.sliceAxis.value = 3
         volumeSlice.planeNormal.value = inviwopy.glm.vec3(1, 0, 0)
-        raycaster.positionindicator.enable.value = True
+        raycaster.positionindicator.enable.value = False
 
         meshCreator.meshType.selectedDisplayName = 'Plane'
         meshCreator.scale.value = scaling_factor
