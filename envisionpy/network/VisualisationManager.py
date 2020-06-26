@@ -9,6 +9,11 @@ class VisualisationManager():
         self.app = inviwoApp
         self.network = inviwoApp.network
         self.subnetworks = {}
+
+        self.main_visualisation = None
+        self.main_vis_type = None
+        self.available_visualisations = []
+
         self.hdf5_path = hdf5_path
 
         # Add hdf5 source processor
@@ -16,10 +21,6 @@ class VisualisationManager():
         self.hdf5Source.filename.value = hdf5_path
         self.network.addProcessor(self.hdf5Source)
         self.hdf5Output = self.hdf5Source.getOutport('outport')
-
-        self.main_visualisation = None
-        self.available_visualisations = []
-    
 
         # Check what visualisations are possible with this hdf5-file.
         with h5py.File(hdf5_path, 'r') as file:
@@ -37,6 +38,7 @@ class VisualisationManager():
         if self.main_visualisation != None:
             raise ProcessorNetworkError('Main visualisation already started.')
         self.main_visualisation = self.add_subnetwork(vis_type)
+        self.main_vis_type = vis_type
         self.main_visualisation.show()
 
     def stop(self):
@@ -45,8 +47,21 @@ class VisualisationManager():
         self.network.removeProcessor(self.hdf5Source)
 
     def add_decoration(self, vis_type):
+    # Add decoration to main visualisation.
+        # TODO: check if decoration type is compatible with main visualisation.
         subnetwork = self.add_subnetwork(vis_type)
         self.main_visualisation.connect_3d_decoration(subnetwork.decoration_outport, subnetwork.camera_prop)
+    
+    def remove_decoration(self, vis_type):
+    # Remove decoration and clear that subnetwork.
+        if not vis_type in self.subnetworks:
+            return
+        
+        self.main_visualisation.disconnect_3d_decoration(self.subnetworks[vis_type].decoration_outport)
+
+        if vis_type != self.main_vis_type:
+            self.subnetworks[vis_type].clear_processors()
+            del self.subnetworks[vis_type]
 
     def add_subnetwork(self, vis_type):
     # Add add a subnetwork for a specific visualisation type.
@@ -66,7 +81,7 @@ class VisualisationManager():
             subnetwork.set_hdf5_subpath("/ELF")
             subnetwork.set_volume_selection('/final')
         elif vis_type == "atom":
-            subnetwork = AtomSubnetwork(self.app, self.hdf5_path, self.hdf5Output, -18, 3)
+            subnetwork = AtomSubnetwork(self.app, self.hdf5_path, self.hdf5Output, -20, 3)
         subnetwork.hide() # All new visualisations are hidden by default, show elsewhere.
         self.subnetworks[vis_type] = subnetwork
         return subnetwork
