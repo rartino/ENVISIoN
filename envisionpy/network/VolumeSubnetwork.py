@@ -362,6 +362,5 @@ class VolumeSubnetwork(Subnetwork):
 
         self.image_outport = raycaster.getOutport('outport')
         self.decoration_outport = hfRender.getOutport('image')
-        print(self.decoration_outport)
         self.decoration_inport = meshRenderer.getInport('imageInport')
         self.camera_prop = meshRenderer.camera
