@@ -247,11 +247,6 @@ class VolumeSubnetwork(Subnetwork):
 # ------------------------------------------
 # ------- Network building functions -------
 
-    def link_camera(self, camera_prop):
-        meshRenderer = self.get_processor('Mesh Renderer')
-        self.network.addLink(meshRenderer.camera, camera_prop)
-        self.network.addLink(camera_prop, meshRenderer.camera)
-
     def set_hdf5_subpath(self, path):
         vis = self.get_processor('VolumeCanvas').widget.visibility
         self.hide()
