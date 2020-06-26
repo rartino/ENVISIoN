@@ -7,8 +7,8 @@ import envisionpy.hdf5parser
 from envisionpy.network import VisualisationManager
 
 # Path to the vasp output directory you wish to visualise
-VASP_DIR = path_to_current_folder + "/../unit_testing/resources/Cu_band_CUB"
-HDF5_FILE = path_to_current_folder + "/../test2.hdf5"
+VASP_DIR = path_to_current_folder + "/../unit_testing/resources/NaCl_charge_density"
+HDF5_FILE = path_to_current_folder + "/../test3.hdf5"
 
 # Parse for charge density visualisation.
 envisionpy.hdf5parser.charge(HDF5_FILE, VASP_DIR)
