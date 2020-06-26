@@ -1,0 +1,18 @@
+ISTART = 0     # Do not start from WAVECAR
+ICHARG = 2     # Initial charge from atoms
+NELM   = 40    # Perform at most 40 electronic steps
+NELMIN = 2     # Perform at least two electronic steps
+EDIFF  = 1E-6 # energy convergence
+ENCUT  = 300
+LREAL  = .FALSE.
+LELF   = .TRUE.
+ISMEAR = 0; SIGMA = 0.1
+ISPIN  = 2
+LORBIT = 11
+NCORE  = 16
+
+IBRION = 1
+NSW    = 300
+ISIF   = 4
+
+LAECHG = .TRUE.
