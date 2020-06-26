@@ -152,3 +152,4 @@ class AtomSubnetwork(Subnetwork):
         # self.decoration_inport = 
         self.camera_prop = meshRenderer.camera
         self.decoration_outport = meshRenderer.getOutport('image')
+        self.decoration_inport = meshRenderer.getInport('imageInport')
