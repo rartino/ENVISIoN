@@ -9,12 +9,43 @@ class Subnetwork():
         self.app = inviwoApp
         self.network = inviwoApp.network
         self.processors = {}
-        self.image_outport = None
 
+        self.decorations = []
+        self.decoration_mergers = []
+        self.decoration_inport = None
+        self.camera_prop = None
 
-    def connect_decoration(self, image_outport):
+    def disconnect_3d_decoration(self, image_outport):
+        # TODO:
+        # remove connections
+        # remove image mergers if needed
+        # remove from list 
+        pass
+
+    def connect_3d_decoration(self, image_outport, camera_prop=None):
         # Should be overloaded in inheriting subnetwork class.
-        raise ProcessorNetworkError("Tried to connect decorations to incompatible subnetwork.")
+        if self.decoration_inport == None:
+            raise ProcessorNetworkError("Tried to connect decorations to incompatible visualisation.")
+        if image_outport in self.decorations:
+            return
+        
+        if len(self.decorations) == 0:
+            self.network.addConnection(image_outport, self.decoration_inport)
+
+        # Add image mergers to merge all decorations.
+        else:
+            self.network.removeConnection(self.decorations[-1], self.decoration_inport)
+            decorationMerger = self.add_processor('org.inviwo.ImageCompositeProcessorGL', 'DecorationMerger', len(self.decorations) * 7, -3)
+            self.decoration_mergers.append(decorationMerger)
+            self.network.addConnection(self.decorations[-1], decorationMerger.getInport('imageInport1'))
+            self.network.addConnection(image_outport, decorationMerger.getInport('imageInport2'))
+            self.network.addConnection(decorationMerger.getOutport('outport'), self.decoration_inport)
+            self.decoration_inport = decorationMerger.getInport('imageInport2')
+        self.decorations.append(image_outport)
+
+        # Link camera properties.
+        if camera_prop != None and camera_prop != self.camera_prop:
+            self.network.addLink(self.camera_prop, camera_prop)
 
     def add_processor(self, id, name, xpos=0, ypos=0):
         factory = self.app.processorFactory
