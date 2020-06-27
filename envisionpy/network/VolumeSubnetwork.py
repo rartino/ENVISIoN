@@ -1,4 +1,5 @@
 import inviwopy
+# import inviwopy.glm as glm
 import numpy as np
 import h5py
 from envisionpy.utils.exceptions import *
@@ -331,11 +332,7 @@ class VolumeSubnetwork(Subnetwork):
             1000,1000,1000,1000,
             1000,1000,1000,1000,
             1000,1000,1000,1000)
-        hdf5Volume.basisGroup.basis.value = inviwopy.glm.mat4(
-            basis_4x4[0][0], basis_4x4[0][1], basis_4x4[0][2], basis_4x4[0][3], 
-            basis_4x4[1][0], basis_4x4[1][1], basis_4x4[1][2], basis_4x4[1][3], 
-            basis_4x4[2][0], basis_4x4[2][1], basis_4x4[2][2], basis_4x4[2][3],
-            basis_4x4[3][0], basis_4x4[3][1], basis_4x4[3][2], basis_4x4[3][3])
+        hdf5Volume.basisGroup.basis.value = inviwopy.glm.mat4(*basis_4x4.flatten())
 
         raycaster.raycaster.samplingRate.value = 4
         raycaster.positionindicator.plane1.enable.value = True
@@ -359,3 +356,9 @@ class VolumeSubnetwork(Subnetwork):
         self.decoration_outport = hfRender.getOutport('image')
         self.decoration_inport = meshRenderer.getInport('imageInport')
         self.camera_prop = meshRenderer.camera
+
+
+        meshRenderer.camera.fov.minValue = 5
+        meshRenderer.camera.fov.value = 10
+        meshRenderer.camera.farPlane = 500
+        meshRenderer.camera.nearPlane = 1
