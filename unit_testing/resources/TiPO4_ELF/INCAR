@@ -1,0 +1,30 @@
+TiPO4-I_exp
+START   = 0             #  startjob: no WAVECAR file  
+ICHARG  = 2             #  charge: from atoms     
+INIWAV  = 1             #  random initialization for wf.  
+NELM    = 60            #  maximum of 40 electronic steps
+NELMIN  = 2             #  minimum of two steps
+NELMDL  = -5            #  no update of charge for 3 steps 
+EDIFF   = 1E-5          # accuracy for electronic minimization
+IALGO   = 38
+ISIF    = 4 
+NSW     = 0
+IBRION  = -1
+ISMEAR  = -5
+ENCUT   = 520
+PREC    = Accurate            
+ISPIN   = 2
+LORBIT  = 11
+LREAL   = .FALSE.       #  real space projection yes / no
+NPAR    = 1
+MAGMOM  = 1 -1 1 -1 1 -1 1 -1 40*0.1
+
+LDAU    = .TRUE.
+LDAUTYPE= 2
+LDAUL   = 2 2 2 2 2 2 2 2 40*-1
+LDAUU   = 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 40*0
+LAECHG  = .TRUE. 
+LELF  = .TRUE. 
+NEDOS = 1500
+
+LMAXMIX = 4

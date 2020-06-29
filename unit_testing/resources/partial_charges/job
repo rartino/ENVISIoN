@@ -1,0 +1,12 @@
+#!/bin/bash
+#SBATCH -N 1
+#SBATCH -A liu-2015-00017-21
+#SBATCH -t 2:00:00
+#SBATCH -J C.
+
+ml load VASP/5.4.4.16052018-nsc1-intel-2018a-eb
+date
+time mpprun vasp-half
+
+date
+# clean_vasp.sh -k CHGCAR vasprun.xml
