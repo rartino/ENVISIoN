@@ -10,17 +10,11 @@ from .Subnetwork import Subnetwork
 class VolumeSubnetwork(Subnetwork):
     '''
     Manages a subnetwork for generic volume rendering. 
-    Used for charge and ELF visualisations.
-
-    _Inports_
-        volumeInports, 4x Volume.inport. Volumes should have the same dimensions.
-        imageInport, 1 Image.inport. If image should have a depth layer and the same camera angle to be rendered inside the volume.
-    _Outports_
-        imageOutport, Image.outport volume rendering with image rendered inside.
+    Used for charge density, ELF, and fermi surface visualisations.
     '''
-    def __init__(self, inviwoApp, hdf5_path, hdf5_output, xpos=0, ypos=0):
+    def __init__(self, inviwoApp, hdf5_path, hdf5_outport, xpos=0, ypos=0):
         Subnetwork.__init__(self, inviwoApp)
-        self.setup_network(hdf5_path, hdf5_output, xpos, ypos)
+        self.setup_network(hdf5_path, hdf5_outport, xpos, ypos)
         self.hide()
         self.is_multichannel = False
         self.transperancy_before = True
@@ -248,6 +242,26 @@ class VolumeSubnetwork(Subnetwork):
 # ------------------------------------------
 # ------- Network building functions -------
 
+    def set_basis(self, basis_3x3, scale=1):
+        print(basis_3x3)
+        basis_4x4 = np.identity(4)
+        basis_4x4[:3,:3] = basis_3x3
+        basis_4x4 = np.multiply(scale, basis_4x4)
+        hdf5Volume = self.get_processor('Hdf5Selection')
+        hdf5Volume.basisGroup.basis.minValue = inviwopy.glm.mat4(
+            -1000,-1000,-1000,-1000,
+            -1000,-1000,-1000,-1000,
+            -1000,-1000,-1000,-1000,
+            -1000,-1000,-1000,-1000)
+        hdf5Volume.basisGroup.basis.maxValue = inviwopy.glm.mat4(
+            1000,1000,1000,1000,
+            1000,1000,1000,1000,
+            1000,1000,1000,1000,
+            1000,1000,1000,1000)
+        hdf5Volume.basisGroup.basis.value = inviwopy.glm.mat4(*basis_4x4.flatten())
+        meshCreator = self.get_processor('MeshCreator')
+        meshCreator.scale.value = scale
+
     def set_hdf5_subpath(self, path):
         vis = self.get_processor('VolumeCanvas').widget.visibility
         self.hide()
@@ -314,25 +328,25 @@ class VolumeSubnetwork(Subnetwork):
         self.network.addLink(volumeSlice.planeNormal, meshCreator.normal)
         
         # Read from hdf5
-        with h5py.File(hdf5_path, "r") as h5:
-            basis_4x4 = np.identity(4)
-            basis_array = np.array(h5["/basis/"], dtype='d')
-            basis_4x4[:3,:3] = basis_array
-            scaling_factor = h5['/scaling_factor'][()]
-            basis_4x4 = np.multiply(scaling_factor, basis_4x4)
+        # with h5py.File(hdf5_path, "r") as h5:
+        #     basis_4x4 = np.identity(4)
+        #     basis_array = np.array(h5["/basis/"], dtype='d')
+        #     basis_4x4[:3,:3] = basis_array
+        #     scaling_factor = h5['/scaling_factor'][()]
+        #     basis_4x4 = np.multiply(scaling_factor, basis_4x4)
 
         # Initialize property values
-        hdf5Volume.basisGroup.basis.minValue = inviwopy.glm.mat4(
-            -1000,-1000,-1000,-1000,
-            -1000,-1000,-1000,-1000,
-            -1000,-1000,-1000,-1000,
-            -1000,-1000,-1000,-1000)
-        hdf5Volume.basisGroup.basis.maxValue = inviwopy.glm.mat4(
-            1000,1000,1000,1000,
-            1000,1000,1000,1000,
-            1000,1000,1000,1000,
-            1000,1000,1000,1000)
-        hdf5Volume.basisGroup.basis.value = inviwopy.glm.mat4(*basis_4x4.flatten())
+        # hdf5Volume.basisGroup.basis.minValue = inviwopy.glm.mat4(
+        #     -1000,-1000,-1000,-1000,
+        #     -1000,-1000,-1000,-1000,
+        #     -1000,-1000,-1000,-1000,
+        #     -1000,-1000,-1000,-1000)
+        # hdf5Volume.basisGroup.basis.maxValue = inviwopy.glm.mat4(
+        #     1000,1000,1000,1000,
+        #     1000,1000,1000,1000,
+        #     1000,1000,1000,1000,
+        #     1000,1000,1000,1000)
+        # hdf5Volume.basisGroup.basis.value = inviwopy.glm.mat4(*basis_4x4.flatten())
 
         raycaster.raycaster.samplingRate.value = 4
         raycaster.positionindicator.plane1.enable.value = True
@@ -344,7 +358,7 @@ class VolumeSubnetwork(Subnetwork):
         raycaster.positionindicator.enable.value = False
 
         meshCreator.meshType.selectedDisplayName = 'Plane'
-        meshCreator.scale.value = scaling_factor
+        # meshCreator.scale.value = scaling_factor
         hfRender.heightScale.value = 0
         hfRender.terrainShadingMode.selectedDisplayName = 'Color Texture'
         hfRender.lighting.shadingMode.selectedDisplayName = 'No Shading'
