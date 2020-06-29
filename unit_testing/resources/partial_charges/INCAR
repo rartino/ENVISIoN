@@ -1,0 +1,8 @@
+Diamond
+ISTART   = 1            #  startjob: WAVECAR file  
+LWAVE    = .FALSE.
+LPARD    = .TRUE.
+LCHARG   = .TRUE.
+IBAND    =  1 2 3 4
+LSEPK    = .FALSE.
+LSEPB    = .TRUE.
