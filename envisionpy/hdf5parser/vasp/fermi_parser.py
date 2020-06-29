@@ -31,6 +31,149 @@ import h5py
 import numpy as np
 import re
 import sys
+import scipy
+
+def enlarge(matrix):
+    '''
+    Inviwo requires volume data to be at least 48x48x48 in size. 
+    Duplicate volume data voxels until that size is reached.
+    '''
+    while any(len(x) < 96 for x in matrix):
+        matrix = scipy.ndimage.zoom(matrix, 2)
+    return matrix
+
+def expand(matrix):
+        '''
+        Expands given matrix 4 quadrents
+
+        Parameters
+        ------
+
+        matrix: numpy.array
+            3D Matrix should represent reciprocal lattice
+
+        Return
+        ------
+
+            Expanded matrix
+        '''
+        lenx = matrix.shape[0]
+        leny = matrix.shape[1]
+        lenz = matrix.shape[2]
+
+        new = np.zeros((2*lenx, 2*leny, 2*lenz), dtype=np.float32)
+        new[0:lenx, 0:leny, 0:lenz] = matrix
+        new[lenx:2*lenx, 0:leny, 0:lenz] = matrix
+
+        new[0:lenx, leny:2*leny, 0:lenz] = matrix
+        new[lenx:2*lenx, leny:2*leny, 0:lenz] = matrix
+
+        new[0:lenx, 0:leny, lenz:2*lenz] = matrix
+        new[lenx:2*lenx, 0:leny, lenz:2*lenz] = matrix
+
+        new[0:lenx, leny:2*leny, lenz:2*lenz] = matrix
+        new[lenx:2*lenx, leny:2*leny, lenz:2*lenz] = matrix
+
+        return new
+
+def brillouin_zone(matrix, basis):
+        '''
+        Transforms reciprocal lattice to brillouin zone
+
+        Parameters
+        ------
+
+        matrix: numpy.array
+            3D Matrix should represent reciprocal lattice
+
+        basis:
+            Reciprocal basis vectors
+
+        Return
+        ------
+
+            Matrix representing the brillouin zone
+        '''
+        base_x = basis[0]
+        base_y = basis[1]
+        base_z = basis[2]
+
+        base_xy = base_x - base_y
+        base_xy = np.ceil(base_xy)
+
+        base_xz = base_x - base_z
+        base_xz = np.ceil(base_xz)
+
+        base_zx = base_z - base_x
+        base_zx = np.ceil(base_zx)
+
+        base_x = np.ceil(base_x)
+        base_y = np.ceil(base_y)
+        base_z = np.ceil(base_z)
+
+        lenx = matrix.shape[0]
+        leny = matrix.shape[1]
+        lenz = matrix.shape[2]
+
+        matrix = expand(matrix)
+
+        for x in range(matrix.shape[0]):
+            for y in range(matrix.shape[1]):
+                for z in range(matrix.shape[2]):
+                    if np.dot(base_x, np.array([x - lenx*base_x[0]*3/2, y - leny*base_x[1]*3/2, z - lenz*base_x[2]*3/2])) >= 0:
+                        matrix[x, y, z] = 1
+                    if np.dot(-base_x, np.array([x - lenx*base_x[0]*1/2, y - leny*base_x[1]*1/2, z - lenz*base_x[2]*1/2])) >= 0:
+                        matrix[x, y, z] = 1
+
+                    if np.dot(base_y, np.array([x - lenx*base_y[0]*3/2, y - leny*base_y[1]*3/2, z - lenz*base_y[2]*3/2])) >= 0:
+                        matrix[x, y, z] = 1
+                    if np.dot(-base_y, np.array([x - lenx*base_y[0]*1/2, y - leny*base_y[1]*1/2, z - lenz*base_y[2]*1/2])) >= 0:
+                        matrix[x, y, z] = 1
+
+                    if np.dot(base_z, np.array([x - lenx*base_z[0]*3/2, y - leny*base_z[1]*3/2, z - lenz*base_z[2]*3/2])) >= 0:
+                        matrix[x, y, z] = 1
+                    if np.dot(-base_z, np.array([x - lenx*base_z[0]*1/2, y - leny*base_z[1]*1/2, z - lenz*base_z[2]*1/2])) >= 0:
+                        matrix[x, y, z] = 1
+
+                    if np.dot(base_xy, np.array([x - lenx*base_xy[0]*3/2, y - leny*base_xy[1]*3/2, z - lenz*base_xy[2]*3/2])) >= 0:
+                        matrix[x, y, z] = 1
+                    if np.dot(-base_xy, np.array([x - lenx*base_xy[0]*1/2, y - leny*base_xy[1]*1/2, z - lenz*base_xy[2]*1/2])) >= 0:
+                        matrix[x, y, z] = 1
+
+                    if np.dot(base_xz, np.array([x - lenx*base_xz[0]*3/2, y - leny*base_xz[1]*3/2, z - lenz*base_xz[2]*3/2])) >= 0:
+                        matrix[x, y, z] = 1
+                    if np.dot(-base_xz, np.array([x - lenx*base_xz[0]*1/2, y - leny*base_xz[1]*1/2, z - lenz*base_xz[2]*1/2])) >= 0:
+                        matrix[x, y, z] = 1
+
+                    if np.dot(base_zx, np.array([x - lenx*base_zx[0]*3/2, y - leny*base_zx[1]*3/2, z - lenz*base_zx[2]*3/2])) >= 0:
+                        matrix[x, y, z] = 1
+                    if np.dot(-base_zx, np.array([x - lenx*base_zx[0]*1/2, y - leny*base_zx[1]*1/2, z - lenz*base_zx[2]*1/2])) >= 0:
+                        matrix[x, y, z] = 1
+
+        return matrix
+
+def convert_fermi_volumes(band, basis, fermi_energy):
+    emin = band.min()
+    emax = band.max()
+    def normalize(value):
+            return (value - emin) / (emax - emin)
+    normalize_vector = np.vectorize(normalize)
+
+    fermi_matrix = normalize_vector(band.copy())
+    brillouin_zone_matrix = brillouin_zone(fermi_matrix.copy(), basis)
+    expanded_matrix = expand(fermi_matrix.copy())
+    normalized_fermi_energy = normalize(fermi_energy)
+
+    fermi_matrix = enlarge(fermi_matrix)
+    brillouin_zone_matrix = enlarge(brillouin_zone_matrix)
+    expanded_matrix = enlarge(expanded_matrix)
+
+
+    # fermi_matrix = expand(fermi_matrix)
+    # brillouin_zone_matrix = expand(brillouin_zone_matrix)
+    # fermi_matrix = expand(fermi_matrix)
+    # fermi_matrix = expand(fermi_matrix)
+    return [fermi_matrix, brillouin_zone_matrix, expanded_matrix, normalized_fermi_energy]
 
 
 def fermi_parser(hdf_file_path, vasp_dir_path):
@@ -123,6 +266,12 @@ def fermi_parser(hdf_file_path, vasp_dir_path):
 
         hdf_subgroup = hdf_group.create_group(str(band_index))
         hdf_subgroup.create_dataset('composition', data=band, dtype='float32')
+
+        volumes = convert_fermi_volumes(band, basis, fermi_energy)
+        hdf_subgroup.create_dataset('fermi_volume', data=volumes[0], dtype=np.float32)
+        hdf_subgroup.create_dataset('brillouin_zone', data=volumes[1], dtype=np.float32)
+        hdf_subgroup.create_dataset('expanded_volume', data=volumes[2], dtype=np.float32)
+        hdf_subgroup.create_dataset('normalized_fermi_energy', data=np.array(volumes[3]), dtype=np.float32)
 
     hdf_file.close()
 

@@ -1,6 +1,7 @@
 from envisionpy.utils.exceptions import *
 import inviwopy.glm as glm
 import h5py
+import numpy as np
 from .VolumeSubnetwork import VolumeSubnetwork
 from .AtomSubnetwork import AtomSubnetwork
 
@@ -30,6 +31,8 @@ class VisualisationManager():
                 self.available_visualisations.append("elf")
             if file.get("UnitCell") != None:
                 self.available_visualisations.append("atom")
+            if file.get("fermi_bands") != None:
+                self.available_visualisations.append("fermi")
 
         print("Available vis types: ", self.available_visualisations)
 
@@ -49,6 +52,7 @@ class VisualisationManager():
     def add_decoration(self, vis_type):
     # Add decoration to main visualisation.
         # TODO: check if decoration type is compatible with main visualisation.
+        print("Connecting decoration ", vis_type)
         subnetwork = self.add_subnetwork(vis_type)
         self.main_visualisation.connect_3d_decoration(subnetwork.decoration_outport, subnetwork.camera_prop)
     
@@ -73,13 +77,28 @@ class VisualisationManager():
         
         # Initialize a new subnetwork
         if vis_type == "charge":
+            self.supported_decorations = ["elf", "atom"]
             subnetwork = VolumeSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
+            with h5py.File(self.hdf5_path, "r") as h5:
+                basis_3x3 = np.array(h5["/basis/"], dtype='d')
+                scale = h5['/scaling_factor'][()]
+                subnetwork.set_basis(basis_3x3, scale)
             subnetwork.set_hdf5_subpath("/CHG")
             subnetwork.set_volume_selection('/final')
         elif vis_type == "elf":
-            subnetwork = VolumeSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 15)
+            subnetwork = VolumeSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
+            with h5py.File(self.hdf5_path, "r") as h5:
+                basis_3x3 = np.array(h5["/basis/"], dtype='d')
+                scale = h5['/scaling_factor'][()]
+                subnetwork.set_basis(basis_3x3, scale)
             subnetwork.set_hdf5_subpath("/ELF")
             subnetwork.set_volume_selection('/final')
+        elif vis_type == "fermi":
+            subnetwork = VolumeSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
+            with h5py.File(self.hdf5_path, "r") as h5:
+                basis_3x3 = np.array(h5["/reciprocal_basis/"], dtype='d')
+                subnetwork.set_basis(basis_3x3, 1)
+            subnetwork.set_hdf5_subpath("/fermi_bands")
         elif vis_type == "atom":
             subnetwork = AtomSubnetwork(self.app, self.hdf5_path, self.hdf5Output, -20, 3)
         subnetwork.hide() # All new visualisations are hidden by default, show elsewhere.
