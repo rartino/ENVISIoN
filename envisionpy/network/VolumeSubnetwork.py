@@ -12,16 +12,15 @@ class VolumeSubnetwork(Subnetwork):
     Manages a subnetwork for generic volume rendering. 
     Used for charge density, ELF, and fermi surface visualisations.
     '''
-    def __init__(self, inviwoApp, hdf5_path, hdf5_outport, xpos=0, ypos=0):
+    def __init__(self, inviwoApp, hdf5_path, hdf5_outport, xpos=0, ypos=0, multichannel=False):
         Subnetwork.__init__(self, inviwoApp)
         self.setup_network(hdf5_path, hdf5_outport, xpos, ypos)
         self.hide()
-        self.is_multichannel = False
+        self.is_multichannel = multichannel
         self.transperancy_before = True
 
         #  Set initial conditions
         self.clear_tf()
-        # self.toggle_slice_canvas(False)
         self.set_plane_normal()
         self.set_slice_background(inviwopy.glm.vec4(0,0,0,1),
                             inviwopy.glm.vec4(1,1,1,1),3,0)
@@ -150,9 +149,24 @@ class VolumeSubnetwork(Subnetwork):
         self.slice_copy_tf()
         self.update_transperancy_before()
 
+    def add_isovalue(self, value, color):
+    # Add point to the raycaster isovalues
+    # Color should be an 4-element-array containing RGBA with values in 0-1 interval.
+        raycaster = self.get_processor('Raycaster')
+        glm_col = inviwopy.glm.vec4(color[0], color[1], color[2], color[3])
+        raycaster.isotfComposite.isovalues.add(value, glm_col)
+        pass
+
     def set_shading_mode(self, key):
-        Raycaster = self.get_processor('Raycaster')
-        Raycaster.lighting.shadingMode.selectedDisplayName = key
+        raycaster = self.get_processor('Raycaster')
+        raycaster.lighting.shadingMode.selectedDisplayName = key
+
+    def set_rendering_type(self, idx):
+        # 0 - DVR
+        # 1 - DVR + Isosurface
+        # 2 - Isosurface
+        raycaster = self.get_processor('Raycaster')
+        raycaster.raycaster.renderingType.selectedIndex = idx
 
     def set_volume_background(self, color_1 = None, color_2 = None, styleIndex = None, blendModeIndex = None):
     # Set the background of the volume canvas
@@ -305,7 +319,7 @@ class VolumeSubnetwork(Subnetwork):
         self.network.addConnection(raycaster.getOutport('outport'), volumeBackground.getInport('inport'))
         self.network.addConnection(volumeBackground.getOutport('outport'), volumeCanvas.getInport('inport'))
         self.network.addLink(meshRenderer.camera, entryExit.camera)
-
+        self.network.addLink(meshRenderer.camera, raycaster.camera)
 
         # Setup slice rendering
         volumeSlice = self.add_processor('org.inviwo.VolumeSliceGL', 'VolumeSlice', xpos-7, ypos+12)   
@@ -316,7 +330,6 @@ class VolumeSubnetwork(Subnetwork):
         self.network.addConnection(sliceBackground.getOutport('outport'), sliceCanvas.getInport('inport'))
         self.network.addLink(volumeSlice.planePosition, raycaster.positionindicator.plane1.position)
         self.network.addLink(volumeSlice.planeNormal, raycaster.positionindicator.plane1.normal)
-       
 
         # Setup slice in 3d view
         meshCreator = self.add_processor('org.inviwo.MeshCreator', 'MeshCreator', xpos-14, ypos+12)
@@ -326,27 +339,6 @@ class VolumeSubnetwork(Subnetwork):
         self.network.addLink(volumeSlice.worldPosition_, meshCreator.position1)
         self.network.addLink(meshRenderer.camera, hfRender.camera)
         self.network.addLink(volumeSlice.planeNormal, meshCreator.normal)
-        
-        # Read from hdf5
-        # with h5py.File(hdf5_path, "r") as h5:
-        #     basis_4x4 = np.identity(4)
-        #     basis_array = np.array(h5["/basis/"], dtype='d')
-        #     basis_4x4[:3,:3] = basis_array
-        #     scaling_factor = h5['/scaling_factor'][()]
-        #     basis_4x4 = np.multiply(scaling_factor, basis_4x4)
-
-        # Initialize property values
-        # hdf5Volume.basisGroup.basis.minValue = inviwopy.glm.mat4(
-        #     -1000,-1000,-1000,-1000,
-        #     -1000,-1000,-1000,-1000,
-        #     -1000,-1000,-1000,-1000,
-        #     -1000,-1000,-1000,-1000)
-        # hdf5Volume.basisGroup.basis.maxValue = inviwopy.glm.mat4(
-        #     1000,1000,1000,1000,
-        #     1000,1000,1000,1000,
-        #     1000,1000,1000,1000,
-        #     1000,1000,1000,1000)
-        # hdf5Volume.basisGroup.basis.value = inviwopy.glm.mat4(*basis_4x4.flatten())
 
         raycaster.raycaster.samplingRate.value = 4
         raycaster.positionindicator.plane1.enable.value = True
@@ -373,6 +365,6 @@ class VolumeSubnetwork(Subnetwork):
 
 
         meshRenderer.camera.fov.minValue = 5
-        meshRenderer.camera.fov.value = 10
+        meshRenderer.camera.fov.value = 5
         meshRenderer.camera.farPlane = 500
         meshRenderer.camera.nearPlane = 1
