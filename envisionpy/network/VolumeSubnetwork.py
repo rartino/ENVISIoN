@@ -14,9 +14,9 @@ class VolumeSubnetwork(Subnetwork):
     '''
     def __init__(self, inviwoApp, hdf5_path, hdf5_outport, xpos=0, ypos=0, multichannel=False):
         Subnetwork.__init__(self, inviwoApp)
+        self.is_multichannel = multichannel
         self.setup_network(hdf5_path, hdf5_outport, xpos, ypos)
         self.hide()
-        self.is_multichannel = multichannel
         self.transperancy_before = True
 
         #  Set initial conditions
@@ -305,7 +305,17 @@ class VolumeSubnetwork(Subnetwork):
         meshRenderer = self.add_processor('org.inviwo.GeometryRenderGL', 'Mesh Renderer', xpos+8, ypos+9)
         cubeProxy = self.add_processor('org.inviwo.CubeProxyGeometry', 'Cube Proxy Geometry', xpos+1, ypos+6)
         entryExit = self.add_processor('org.inviwo.EntryExitPoints', 'EntryExitPoints', xpos+1, ypos+9)
-        raycaster = self.add_processor('org.inviwo.VolumeRaycaster', "Raycaster", xpos, ypos+12)
+        if not self.is_multichannel:
+            raycaster = self.add_processor('org.inviwo.VolumeRaycaster', "Raycaster", xpos, ypos+12)
+            raycaster.raycaster.renderingType.selectedIndex = 1
+        else:
+            raycaster = self.add_processor('org.inviwo.MultichannelRaycaster', "Raycaster", xpos, ypos+12)
+            # Multichannel raycaster does not support iso+dvr mode. Two processors needed.
+            isoRaycaster = self.add_processor('org.inviwo.MultichannelRaycaster', "IsoRaycaster", xpos+7, ypos+12)
+            isoRaycaster.raycaster.compositingMode.selectedIndex = 6
+            isoRaycaster.raycaster.samplingRate.value = 4
+            isoRaycaster.raycaster.classificationMode.selectedIndex = 0
+            isoRaycaster.raycaster.isoValue.value = 0
         volumeBackground = self.add_processor('org.inviwo.Background', 'VolumeBackground', xpos, ypos+15)
         volumeCanvas = self.add_processor('org.inviwo.CanvasGL', 'VolumeCanvas', xpos, ypos+18)
         self.network.addConnection(hdf5Volume.getOutport('outport'), boundingBox.getInport('volume'))
@@ -320,6 +330,13 @@ class VolumeSubnetwork(Subnetwork):
         self.network.addConnection(volumeBackground.getOutport('outport'), volumeCanvas.getInport('inport'))
         self.network.addLink(meshRenderer.camera, entryExit.camera)
         self.network.addLink(meshRenderer.camera, raycaster.camera)
+        if self.is_multichannel:
+            # Link up the extra iso raycaster
+            self.network.addConnection(hdf5Volume.getOutport('outport'), isoRaycaster.getInport('volume'))
+            self.network.addConnection(entryExit.getOutport('entry'), isoRaycaster.getInport('entry'))
+            self.network.addConnection(entryExit.getOutport('exit'), isoRaycaster.getInport('exit'))
+            self.network.addConnection(isoRaycaster.getOutport('outport'), meshRenderer.getInport('imageInport'))
+            self.network.addLink(meshRenderer.camera, isoRaycaster.camera)
 
         # Setup slice rendering
         volumeSlice = self.add_processor('org.inviwo.VolumeSliceGL', 'VolumeSlice', xpos-7, ypos+12)   
@@ -360,9 +377,12 @@ class VolumeSubnetwork(Subnetwork):
 
         self.image_outport = raycaster.getOutport('outport')
         self.decoration_outport = hfRender.getOutport('image')
-        self.decoration_inport = meshRenderer.getInport('imageInport')
-        self.camera_prop = meshRenderer.camera
 
+        if self.is_multichannel:
+            self.decoration_inport = isoRaycaster.getInport('bg')
+        else:
+            self.decoration_inport = meshRenderer.getInport('imageInport')
+        self.camera_prop = meshRenderer.camera
 
         meshRenderer.camera.fov.minValue = 5
         meshRenderer.camera.fov.value = 5
