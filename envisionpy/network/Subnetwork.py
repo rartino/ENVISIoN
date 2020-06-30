@@ -48,6 +48,9 @@ class Subnetwork():
             self.network.addLink(self.camera_prop, camera_prop)
 
     def add_processor(self, id, name, xpos=0, ypos=0):
+        # Add a processor. If processor with name already added return it.
+        if name in self.processors:
+            return self.processors[name]
         factory = self.app.processorFactory
         new_processor = factory.create(id, glm.ivec2(xpos*25, ypos*25))
         new_processor.identifier = name
@@ -57,12 +60,16 @@ class Subnetwork():
         return new_processor
 
     def remove_processor(self, id):
-        self.network.removeProcessor(self.processors[id])
+        # Processor python reference has to be deleted before
+        # processor is deleted in inviwo, risk crash otherwise
+        identifier = self.get_processor(id).identifier
         del self.processors[id]
+        self.network.removeProcessor(self.network.getProcessorByIdentifier(identifier))
 
     def remove_processor_by_ref(self, processor):
-            self.processors = {key:val for key, val in self.processors.items() if val != processor}
-            self.network.removeProcessor(processor)
+        self.remove_processor(processor.identifier)
+            # self.processors = {key:val for key, val in self.processors.items() if val != processor}
+            # self.network.removeProcessor(processor)
 
     def get_processor(self, id):
         if id in self.processors:
