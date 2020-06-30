@@ -4,6 +4,7 @@ import h5py
 import numpy as np
 from .VolumeSubnetwork import VolumeSubnetwork
 from .AtomSubnetwork import AtomSubnetwork
+from .ParchgSubnetwork import ParchgSubnetwork
 
 class VisualisationManager():
     def __init__(self, hdf5_path, inviwoApp):
@@ -33,14 +34,17 @@ class VisualisationManager():
                 self.available_visualisations.append("atom")
             if file.get("fermi_bands") != None:
                 self.available_visualisations.append("fermi")
+            if file.get("PARCHG") != None:
+                self.available_visualisations.append("parchg")
+
 
         print("Available vis types: ", self.available_visualisations)
 
-    def start(self, vis_type):
-    # Start a main visualisation
+    def start(self, vis_type, *args):
+        # Start a main visualisation
         if self.main_visualisation != None:
             raise ProcessorNetworkError('Main visualisation already started.')
-        self.main_visualisation = self.add_subnetwork(vis_type)
+        self.main_visualisation = self.add_subnetwork(vis_type, *args)
         self.main_vis_type = vis_type
         self.main_visualisation.show()
 
@@ -67,9 +71,9 @@ class VisualisationManager():
             self.subnetworks[vis_type].clear_processors()
             del self.subnetworks[vis_type]
 
-    def add_subnetwork(self, vis_type):
-    # Add add a subnetwork for a specific visualisation type.
-    # Max one network per visualisation type is created.
+    def add_subnetwork(self, vis_type, *args):
+        # Add add a subnetwork for a specific visualisation type.
+        # Max one network per visualisation type is created.
         if not vis_type in self.available_visualisations:
             raise BadHDF5Error('Tried to start visualisation with unsupported hdf5 file.')
         if vis_type in self.subnetworks:
@@ -99,8 +103,11 @@ class VisualisationManager():
                 basis_3x3 = np.array(h5["/reciprocal_basis/"], dtype='d')
                 subnetwork.set_basis(basis_3x3, 1)
             subnetwork.set_hdf5_subpath("/fermi_bands")
+            subnetwork.add_isovalue(0.5, [1, 1, 1, 1])
         elif vis_type == "atom":
             subnetwork = AtomSubnetwork(self.app, self.hdf5_path, self.hdf5Output, -20, 3)
+        elif vis_type == "parchg":
+            subnetwork = ParchgSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3, *args)
         subnetwork.hide() # All new visualisations are hidden by default, show elsewhere.
         self.subnetworks[vis_type] = subnetwork
         return subnetwork
