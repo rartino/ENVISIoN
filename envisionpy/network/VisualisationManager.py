@@ -84,30 +84,27 @@ class VisualisationManager():
             self.supported_decorations = ["elf", "atom"]
             subnetwork = VolumeSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
             with h5py.File(self.hdf5_path, "r") as h5:
-                basis_3x3 = np.array(h5["/basis/"], dtype='d')
-                scale = h5['/scaling_factor'][()]
-                subnetwork.set_basis(basis_3x3, scale)
+                subnetwork.set_basis(np.array(h5["/basis/"], dtype='d'), h5['/scaling_factor'][()])
             subnetwork.set_hdf5_subpath("/CHG")
             subnetwork.set_volume_selection('/final')
         elif vis_type == "elf":
             subnetwork = VolumeSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
             with h5py.File(self.hdf5_path, "r") as h5:
-                basis_3x3 = np.array(h5["/basis/"], dtype='d')
-                scale = h5['/scaling_factor'][()]
-                subnetwork.set_basis(basis_3x3, scale)
+                subnetwork.set_basis(np.array(h5["/basis/"], dtype='d'), h5['/scaling_factor'][()])
             subnetwork.set_hdf5_subpath("/ELF")
             subnetwork.set_volume_selection('/final')
         elif vis_type == "fermi":
             subnetwork = VolumeSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
             with h5py.File(self.hdf5_path, "r") as h5:
-                basis_3x3 = np.array(h5["/reciprocal_basis/"], dtype='d')
-                subnetwork.set_basis(basis_3x3, 1)
+                subnetwork.set_basis(np.array(h5["/reciprocal_basis/"], dtype='d'), 1)
             subnetwork.set_hdf5_subpath("/fermi_bands")
             subnetwork.add_isovalue(0.5, [1, 1, 1, 1])
         elif vis_type == "atom":
             subnetwork = AtomSubnetwork(self.app, self.hdf5_path, self.hdf5Output, -20, 3)
         elif vis_type == "parchg":
             subnetwork = ParchgSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3, *args)
+            with h5py.File(self.hdf5_path, "r") as h5:
+                subnetwork.set_basis(np.array(h5["/basis/"], dtype='d'), h5['/scaling_factor'][()])
         subnetwork.hide() # All new visualisations are hidden by default, show elsewhere.
         self.subnetworks[vis_type] = subnetwork
         return subnetwork

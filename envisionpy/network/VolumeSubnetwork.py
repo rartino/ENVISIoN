@@ -385,6 +385,6 @@ class VolumeSubnetwork(Subnetwork):
         self.camera_prop = meshRenderer.camera
 
         meshRenderer.camera.fov.minValue = 5
-        meshRenderer.camera.fov.value = 5
+        meshRenderer.camera.fov.value = 7
         meshRenderer.camera.farPlane = 500
         meshRenderer.camera.nearPlane = 1
