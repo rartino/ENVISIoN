@@ -14,19 +14,16 @@ class VolumeSubnetwork(Subnetwork):
         Subnetwork.__init__(self, inviwoApp)
         self.is_multichannel = multichannel
         self.setup_network(hdf5_path, hdf5_outport, xpos, ypos)
-        self.hide()
         self.transperancy_before = True
 
-        #  Set initial conditions
+        self.set_slice_background(
+            inviwopy.glm.vec4(0,0,0,1), 
+            inviwopy.glm.vec4(1,1,1,1),3,0)
         self.clear_tf()
         self.set_plane_normal()
-        self.set_slice_background(inviwopy.glm.vec4(0,0,0,1),
-                            inviwopy.glm.vec4(1,1,1,1),3,0)
-        self.slice_copy_tf()
 
-        self.add_tf_point(0.45, [0.1, 0.1, 0.8, 0.05])
-        self.add_tf_point(0.5, [0.2, 0.8, 0.1, 0.1])
-        self.add_tf_point(0.8, [0.9, 0.1, 0.1, 0.5])
+    def decoration_is_valid(self, vis_type):
+        return vis_type in ['charge', 'elf', 'atom']
 
     def show(self, show_volume=True, show_slice=True):
         if show_volume:
@@ -268,19 +265,19 @@ class VolumeSubnetwork(Subnetwork):
         meshCreator.scale.value = scale
 
     def set_hdf5_subpath(self, path):
-        vis = self.get_processor('VolumeCanvas').widget.visibility
-        self.hide()
-        self.show() 
-        self.show() if vis else self.hide() # Flashing canvas forces network update to refresh options.
+        # vis = self.get_processor('VolumeCanvas').widget.visibility
+        # self.hide()
+        # self.show() 
+        # self.show() if vis else self.hide() # Flashing canvas forces network update to refresh options.
 
         hdf5Path = self.get_processor('HDF5 path')
         hdf5Path.selection.selectedValue = path
 
     def set_volume_selection(self, key):
-        vis = self.get_processor('VolumeCanvas').widget.visibility
-        self.hide()
-        self.show() 
-        self.show() if vis else self.hide() # Flashing canvas forces network update to refresh options.
+        # vis = self.get_processor('VolumeCanvas').widget.visibility
+        # self.hide()
+        # self.show() 
+        # self.show() if vis else self.hide() # Flashing canvas forces network update to refresh options.
         hdf5Vol = self.get_processor('Hdf5Selection')
         hdf5Vol.volumeSelection.selectedValue = key
 

@@ -15,6 +15,12 @@ class Subnetwork():
         self.decoration_inport = None
         self.camera_prop = None
 
+    def hide(self):
+        pass
+
+    def show(self):
+        pass
+
     def disconnect_3d_decoration(self, image_outport):
         # TODO:
         # remove connections
@@ -25,7 +31,7 @@ class Subnetwork():
     def connect_3d_decoration(self, image_outport, camera_prop=None):
         # Should be overloaded in inheriting subnetwork class.
         if self.decoration_inport == None:
-            raise ProcessorNetworkError("Tried to connect decorations to incompatible visualisation.")
+            raise EnvisionError("Tried to connect decorations to incompatible visualisation.")
         if image_outport in self.decorations:
             return
         

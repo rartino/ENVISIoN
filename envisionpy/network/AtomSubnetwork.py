@@ -3,7 +3,7 @@ import numpy as np
 import h5py
 from envisionpy.utils.exceptions import *
 from envisionpy.utils.atomData import atomic_radii, element_names, element_colors
-from .Subnetwork import Subnetwork
+from .baseNetworks.Subnetwork import Subnetwork
 # TODO add volume merger and multi-raycaster
 
 class AtomSubnetwork(Subnetwork):
@@ -18,14 +18,15 @@ class AtomSubnetwork(Subnetwork):
         self.setup_network(hdf5_path, hdf5_output, xpos, ypos)
         self.set_atom_radius(0.5)
         self.hide()
-
     
+
+
     @staticmethod
-    def check_hdf5(hdf5_path):
-        with h5py.File(hdf5_path, 'r') as file: 
-            if file.get("UnitCell") == None:
-               return False 
-        return True
+    def valid_hdf5(hdf5_file):
+        return hdf5_file.get("UnitCell") != None
+
+    def decoration_is_valid(self, vis_type):
+        return vis_type in ['charge', 'elf']
 
     def show(self):
         self.get_processor('UnitcellCanvas').widget.show()
