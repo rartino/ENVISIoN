@@ -5,8 +5,6 @@ import h5py
 from envisionpy.utils.exceptions import *
 from .Subnetwork import Subnetwork
 
-# TODO add volume merger and multi-raycaster
-
 class VolumeSubnetwork(Subnetwork):
     '''
     Manages a subnetwork for generic volume rendering. 
@@ -29,13 +27,6 @@ class VolumeSubnetwork(Subnetwork):
         self.add_tf_point(0.45, [0.1, 0.1, 0.8, 0.05])
         self.add_tf_point(0.5, [0.2, 0.8, 0.1, 0.1])
         self.add_tf_point(0.8, [0.9, 0.1, 0.1, 0.5])
-
-    @staticmethod
-    def check_hdf5(hdf5_path, sub_path):
-        with h5py.File(hdf5_path, 'r') as file: 
-            if file.get(sub_path) == None:
-               return False 
-        return True
 
     def show(self, show_volume=True, show_slice=True):
         if show_volume:
