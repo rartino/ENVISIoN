@@ -9,20 +9,14 @@ from .VolumeSubnetwork import VolumeSubnetwork
 
 class ParchgSubnetwork(VolumeSubnetwork):
     '''
-    Manages a subnetwork for multichannel volume rendering. 
-    Used for the partial charge density visualisation.
-
-    Makes use of a modified VolumeSubnetwork. Modifies volume selection and 
-    raycaster is replaced by a multichannel raycaster.
-
-    Overloads some raycaster related functions to work with the multichannel raycaster.    
+    Manages a subnetwork for partial charge density visualisation. 
+    Makes use of a modified VolumeSubnetwork. Modifies the volume selection.
     '''
     def __init__(self, inviwoApp, hdf5_path, hdf5_outport, xpos=0, ypos=0, band_list=[], mode_list=[]):
         # Initialize a volume subnetwork with multichannel raycaster
         VolumeSubnetwork.__init__(self, inviwoApp, hdf5_path, hdf5_outport, xpos, ypos+6, True)
         self.set_hdf5_subpath('PARCHG/Bands')
         
-
         # Available bands and modes in hdf5 file.
         self.available_bands = []
         self.available_modes = []
@@ -34,36 +28,50 @@ class ParchgSubnetwork(VolumeSubnetwork):
             if ("magnetic" in self.available_modes) and ("total" in self.available_modes):
                 self.available_modes += ["up", "down"]
 
+        self.current_bands = []
+        self.current_modes = []
+
         self.volume_processors = []
+        self.basis_props = []
+        self.basis_3x3 = [[1,0,0],[0,1,0],[0,0,1]]
+        self.basis_scale = 1
         
         # Modify network for parchg visualisation.
         self.modify_network(hdf5_path, hdf5_outport, xpos, ypos)
-        self.select_bands([1], ['total'])
-        # self.select_bands([4, 3, 2, 1], ['up', 'down', 'up', 'down'])
+        self.select_bands(band_list, mode_list, xpos+1, ypos)
 
     def get_available_modes(self):
         return self.available_modes
 
     def get_available_bands(self):
         return self.available_bands
+
+    def get_partial_selections(self):
+        return [self.current_bands, self.current_modes]
+
 # ------------------------------------------
 # ------- Property control functions -------
     def set_basis(self, basis_3x3, scale=1):
+        self.basis_3x3 = basis_3x3
         basis_4x4 = np.identity(4)
         basis_4x4[:3,:3] = basis_3x3
         basis_4x4 = np.multiply(scale, basis_4x4)
-        hdf5Volume = self.get_processor('Hdf5Selection')
-        hdf5Volume.basisGroup.basis.minValue = inviwopy.glm.mat4(
+        minValue = inviwopy.glm.mat4(
             -1000,-1000,-1000,-1000,
             -1000,-1000,-1000,-1000,
             -1000,-1000,-1000,-1000,
             -1000,-1000,-1000,-1000)
-        hdf5Volume.basisGroup.basis.maxValue = inviwopy.glm.mat4(
+        maxValue = inviwopy.glm.mat4(
             1000,1000,1000,1000,
             1000,1000,1000,1000,
             1000,1000,1000,1000,
             1000,1000,1000,1000)
-        hdf5Volume.basisGroup.basis.value = inviwopy.glm.mat4(*basis_4x4.flatten())
+        value = inviwopy.glm.mat4(*basis_4x4.flatten())
+        for basis_prop in self.basis_props:
+            basis_prop.minValue = minValue
+            basis_prop.maxValue = maxValue
+            basis_prop.value = value
+
         meshCreator = self.get_processor('MeshCreator')
         meshCreator.scale.value = scale
 # ------------------------------------------
@@ -85,10 +93,13 @@ class ParchgSubnetwork(VolumeSubnetwork):
             if str(band) not in self.available_bands:
                 raise EnvisionError('Unavailable band. Data for band [' + str(band) + '] not in hdf5 file.')
 
+        self.current_bands = band_list
+        self.current_modes = mode_list
+
         # Clear any old volume selection
         for processor in self.volume_processors:
-            print(processor)
             self.remove_processor_by_ref(processor)
+        self.basis_props.clear()
         self.volume_processors.clear()
 
         # Set up new volume selections according to band and mode selections.
@@ -97,6 +108,7 @@ class ParchgSubnetwork(VolumeSubnetwork):
         for i in range(len(band_list)):
             if mode_list[i] == 'total' or mode_list[i] == 'magnetic':
                 volumeTotal = self.add_processor('org.inviwo.hdf5.ToVolume', 'Band ' + str(band_list[i]) + ' ' + mode_list[i], xpos+7*(i+1), ypos+3)
+                self.basis_props.append(volumeTotal.basisGroup.basis)
                 self.volume_processors.append(volumeTotal)
                 hdf5_inports.append(volumeTotal.getInport('inport'))
                 volume_outports.append(volumeTotal.getOutport('outport'))
@@ -113,10 +125,14 @@ class ParchgSubnetwork(VolumeSubnetwork):
                 if mode_list[i] == 'down':
                     volumeCombine.eqn.value = '0.5*(v1-v2)'
 
+                self.basis_props.append(volumeInPlus.basisGroup.basis)
+                self.basis_props.append(volumeInMinus.basisGroup.basis)
                 hdf5_inports.append(volumeInPlus.getInport('inport'))
                 hdf5_inports.append(volumeInMinus.getInport('inport'))
                 volume_outports.append(volumeCombine.getOutport('outport'))
                 self.volume_processors += [volumeInPlus, volumeInMinus, volumeCombine]
+
+        self.set_basis(self.basis_3x3, self.basis_scale)
 
         # Connect the hdf5 inports and volume outports.
         hdf5Path = self.get_processor('HDF5 path')
