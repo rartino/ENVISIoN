@@ -2,11 +2,16 @@ from envisionpy.utils.exceptions import *
 import inviwopy.glm as glm
 import h5py
 import numpy as np
-from .VolumeSubnetwork import VolumeSubnetwork
 from .AtomSubnetwork import AtomSubnetwork
 from .ParchgSubnetwork import ParchgSubnetwork
+from .ChargeSubnetwork import ChargeSubnetwork
+from .ElfSubnetwork import ElfSubnetwork
+from .FermiSubnetwork import FermiSubnetwork
 
 class VisualisationManager():
+    '''
+    Class for managing one visualisation instance. 
+    '''
     def __init__(self, hdf5_path, inviwoApp):
         self.app = inviwoApp
         self.network = inviwoApp.network
@@ -26,24 +31,24 @@ class VisualisationManager():
 
         # Check what visualisations are possible with this hdf5-file.
         with h5py.File(hdf5_path, 'r') as file:
-            if file.get("CHG") != None and len(file.get("CHG").keys()) != 0:
+            if ChargeSubnetwork.valid_hdf5(file):
                 self.available_visualisations.append("charge")
-            if file.get("ELF") != None and len(file.get("ELF").keys()) != 0:
+            if ElfSubnetwork.valid_hdf5(file):
                 self.available_visualisations.append("elf")
-            if file.get("UnitCell") != None:
+            if AtomSubnetwork.valid_hdf5(file):
                 self.available_visualisations.append("atom")
-            if file.get("fermi_bands") != None:
+            if FermiSubnetwork.valid_hdf5(file):
                 self.available_visualisations.append("fermi")
             if file.get("PARCHG") != None:
                 self.available_visualisations.append("parchg")
-
+            self.available_visualisations.append("band")
 
         print("Available vis types: ", self.available_visualisations)
 
     def start(self, vis_type, *args):
         # Start a main visualisation
         if self.main_visualisation != None:
-            raise ProcessorNetworkError('Main visualisation already started.')
+            raise EnvisionError('Main visualisation already started.')
         self.main_visualisation = self.add_subnetwork(vis_type, *args)
         self.main_vis_type = vis_type
         self.main_visualisation.show()
@@ -55,8 +60,8 @@ class VisualisationManager():
 
     def add_decoration(self, vis_type):
     # Add decoration to main visualisation.
-        # TODO: check if decoration type is compatible with main visualisation.
-        print("Connecting decoration ", vis_type)
+        if not self.main_visualisation.decoration_is_valid(vis_type):
+            raise EnvisionError('Incompatible decoration type ' + str(vis_type)+'.')
         subnetwork = self.add_subnetwork(vis_type)
         self.main_visualisation.connect_3d_decoration(subnetwork.decoration_outport, subnetwork.camera_prop)
     
@@ -75,36 +80,33 @@ class VisualisationManager():
         # Add add a subnetwork for a specific visualisation type.
         # Max one network per visualisation type is created.
         if not vis_type in self.available_visualisations:
-            raise BadHDF5Error('Tried to start visualisation with unsupported hdf5 file.')
+            raise BadHDF5Error('Tried to start visualisation '+vis_type+' with unsupported hdf5 file.')
         if vis_type in self.subnetworks:
             return self.subnetworks[vis_type]
         
         # Initialize a new subnetwork
         if vis_type == "charge":
             self.supported_decorations = ["elf", "atom"]
-            subnetwork = VolumeSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
-            with h5py.File(self.hdf5_path, "r") as h5:
-                subnetwork.set_basis(np.array(h5["/basis/"], dtype='d'), h5['/scaling_factor'][()])
-            subnetwork.set_hdf5_subpath("/CHG")
-            subnetwork.set_volume_selection('/final')
+            subnetwork = ChargeSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
+
         elif vis_type == "elf":
-            subnetwork = VolumeSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
-            with h5py.File(self.hdf5_path, "r") as h5:
-                subnetwork.set_basis(np.array(h5["/basis/"], dtype='d'), h5['/scaling_factor'][()])
-            subnetwork.set_hdf5_subpath("/ELF")
-            subnetwork.set_volume_selection('/final')
+            subnetwork = ElfSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
+
         elif vis_type == "fermi":
-            subnetwork = VolumeSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
-            with h5py.File(self.hdf5_path, "r") as h5:
-                subnetwork.set_basis(np.array(h5["/reciprocal_basis/"], dtype='d'), 1)
-            subnetwork.set_hdf5_subpath("/fermi_bands")
-            subnetwork.add_isovalue(0.5, [1, 1, 1, 1])
+            subnetwork = FermiSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
+
         elif vis_type == "atom":
             subnetwork = AtomSubnetwork(self.app, self.hdf5_path, self.hdf5Output, -20, 3)
+
         elif vis_type == "parchg":
             subnetwork = ParchgSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3, *args)
             with h5py.File(self.hdf5_path, "r") as h5:
                 subnetwork.set_basis(np.array(h5["/basis/"], dtype='d'), h5['/scaling_factor'][()])
+
+        # elif vis_type == "band":
+        #     subnetwork = LinePlotSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
+        #     subnetwork.set_hdf5_subpath('/Bandstructure/Bands')
+        #     subnetwork.set_y_selection_type(2)
         subnetwork.hide() # All new visualisations are hidden by default, show elsewhere.
         self.subnetworks[vis_type] = subnetwork
         return subnetwork

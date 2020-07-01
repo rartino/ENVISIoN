@@ -4,13 +4,14 @@ import ivw.utils
 import numpy as np
 import h5py
 from envisionpy.utils.exceptions import *
-from .VolumeSubnetwork import VolumeSubnetwork
+from .baseNetworks.VolumeSubnetwork import VolumeSubnetwork
 
 
 class ParchgSubnetwork(VolumeSubnetwork):
     '''
     Manages a subnetwork for partial charge density visualisation. 
-    Makes use of a modified VolumeSubnetwork. Modifies the volume selection.
+    Makes use of a modified VolumeSubnetwork. Has a different volume selection than 
+    the default VolumeSubnetwork implementation.
     '''
     def __init__(self, inviwoApp, hdf5_path, hdf5_outport, xpos=0, ypos=0, band_list=[], mode_list=[]):
         # Initialize a volume subnetwork with multichannel raycaster
@@ -40,6 +41,11 @@ class ParchgSubnetwork(VolumeSubnetwork):
         self.modify_network(hdf5_path, hdf5_outport, xpos, ypos)
         self.select_bands(band_list, mode_list, xpos+1, ypos)
 
+        # Set some default parameters for charge visualisation.
+        self.add_tf_point(0.45, [0.1, 0.1, 0.8, 0.05])
+        self.add_tf_point(0.5, [0.2, 0.8, 0.1, 0.1])
+        self.add_tf_point(0.8, [0.9, 0.1, 0.1, 0.5])
+
     def get_available_modes(self):
         return self.available_modes
 
@@ -51,6 +57,7 @@ class ParchgSubnetwork(VolumeSubnetwork):
 
 # ------------------------------------------
 # ------- Property control functions -------
+
     def set_basis(self, basis_3x3, scale=1):
         self.basis_3x3 = basis_3x3
         basis_4x4 = np.identity(4)
@@ -74,6 +81,7 @@ class ParchgSubnetwork(VolumeSubnetwork):
 
         meshCreator = self.get_processor('MeshCreator')
         meshCreator.scale.value = scale
+
 # ------------------------------------------
 # ------- Network building functions -------
 
