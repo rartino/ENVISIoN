@@ -46,6 +46,13 @@ class ParchgSubnetwork(VolumeSubnetwork):
         self.add_tf_point(0.5, [0.2, 0.8, 0.1, 0.1])
         self.add_tf_point(0.8, [0.9, 0.1, 0.1, 0.5])
 
+    @staticmethod
+    def valid_hdf5(hdf5_file):
+        return hdf5_file.get("PARCHG") != None
+
+    def decoration_is_valid(self, vis_type):
+        return vis_type in ['charge', 'elf', 'atom']
+
     def get_available_modes(self):
         return self.available_modes
 
