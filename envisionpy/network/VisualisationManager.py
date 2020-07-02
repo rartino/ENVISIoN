@@ -7,10 +7,11 @@ from .ParchgSubnetwork import ParchgSubnetwork
 from .ChargeSubnetwork import ChargeSubnetwork
 from .ElfSubnetwork import ElfSubnetwork
 from .FermiSubnetwork import FermiSubnetwork
+from .BandSubnetwork import BandSubnetwork
 
 class VisualisationManager():
     '''
-    Class for managing one visualisation instance. 
+    Class for managing one visualisation instance.
     '''
     def __init__(self, hdf5_path, inviwoApp):
         self.app = inviwoApp
@@ -39,9 +40,10 @@ class VisualisationManager():
                 self.available_visualisations.append("atom")
             if FermiSubnetwork.valid_hdf5(file):
                 self.available_visualisations.append("fermi")
-            if file.get("PARCHG") != None:
+            if ParchgSubnetwork.valid_hdf5(file):
                 self.available_visualisations.append("parchg")
-            self.available_visualisations.append("band")
+            if BandSubnetwork.valid_hdf5(file):
+                self.available_visualisations.append("band")
 
         print("Available vis types: ", self.available_visualisations)
 
@@ -103,10 +105,9 @@ class VisualisationManager():
             with h5py.File(self.hdf5_path, "r") as h5:
                 subnetwork.set_basis(np.array(h5["/basis/"], dtype='d'), h5['/scaling_factor'][()])
 
-        # elif vis_type == "band":
-        #     subnetwork = LinePlotSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
-        #     subnetwork.set_hdf5_subpath('/Bandstructure/Bands')
-        #     subnetwork.set_y_selection_type(2)
+        elif vis_type == "band":
+            subnetwork = BandSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
+            
         subnetwork.hide() # All new visualisations are hidden by default, show elsewhere.
         self.subnetworks[vis_type] = subnetwork
         return subnetwork
