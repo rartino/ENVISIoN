@@ -43,7 +43,7 @@ class LinePlotSubnetwork(Subnetwork):
         plotter.groupYSelection_.value = selection_string
 
     def set_title(self, title):
-        self.get_processor("TitleText").value = title
+        self.get_processor("TitleText").text.value = title
 
     def set_x_range(self, xMax, xMin):
         plotter = self.get_processor("LinePlot")

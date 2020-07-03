@@ -8,6 +8,7 @@ from .ChargeSubnetwork import ChargeSubnetwork
 from .ElfSubnetwork import ElfSubnetwork
 from .FermiSubnetwork import FermiSubnetwork
 from .BandSubnetwork import BandSubnetwork
+from .DosSubnetwork import DosSubnetwork
 
 class VisualisationManager():
     '''
@@ -44,6 +45,8 @@ class VisualisationManager():
                 self.available_visualisations.append("parchg")
             if BandSubnetwork.valid_hdf5(file):
                 self.available_visualisations.append("band")
+            if DosSubnetwork.valid_hdf5(file):
+                self.available_visualisations.append("dos")
 
         print("Available vis types: ", self.available_visualisations)
 
@@ -107,6 +110,9 @@ class VisualisationManager():
 
         elif vis_type == "band":
             subnetwork = BandSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
+
+        elif vis_type == "dos":
+            subnetwork = DosSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
             
         subnetwork.hide() # All new visualisations are hidden by default, show elsewhere.
         self.subnetworks[vis_type] = subnetwork
