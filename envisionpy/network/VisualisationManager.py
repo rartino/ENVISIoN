@@ -18,6 +18,7 @@ class VisualisationManager():
         self.app = inviwoApp
         self.network = inviwoApp.network
         self.subnetworks = {}
+        self.active_visualisations = []
 
         self.main_visualisation = None
         self.main_vis_type = None
@@ -51,43 +52,39 @@ class VisualisationManager():
         print("Available vis types: ", self.available_visualisations)
 
     def start(self, vis_type, *args):
-        # Start a main visualisation
-        if self.main_visualisation != None:
-            raise EnvisionError('Main visualisation already started.')
-        self.main_visualisation = self.add_subnetwork(vis_type, *args)
-        self.main_vis_type = vis_type
-        self.main_visualisation.show()
-
+        subnetwork = self.create_subnetwork(vis_type, *args)
+        subnetwork.show()
+        
     def stop(self):
         for subnetwork in self.subnetworks:
             subnetwork.clear_processors()
         self.network.removeProcessor(self.hdf5Source)
 
-    def add_decoration(self, vis_type):
-    # Add decoration to main visualisation.
-        if not self.main_visualisation.decoration_is_valid(vis_type):
-            raise EnvisionError('Incompatible decoration type ' + str(vis_type)+'.')
-        subnetwork = self.add_subnetwork(vis_type)
-        self.main_visualisation.connect_3d_decoration(subnetwork.decoration_outport, subnetwork.camera_prop)
+    def add_decoration(self, target_vis, deco_type):
+        if target_vis not in self.subnetworks:
+            raise EnvisionError('Visualisation ['+target_vis+'] is not running. Start it before adding decoration.')
+
+        if deco_type in self.subnetworks:
+            subnetwork = self.subnetworks[deco_type]
+        else:
+            subnetwork = self.create_subnetwork(deco_type)
+        self.subnetworks[target_vis].connect_decoration(subnetwork, deco_type)
     
-    def remove_decoration(self, vis_type):
+    def remove_decoration(self, vis_type, deco_type):
     # Remove decoration and clear that subnetwork.
-        if not vis_type in self.subnetworks:
-            return
-        
-        self.main_visualisation.disconnect_3d_decoration(self.subnetworks[vis_type].decoration_outport)
+        if vis_type not in self.subnetworks or deco_type not in self.subnetworks:
+            raise EnvisionError('')
+        self.subnetworks[vis_type].disconnect_decoration(self.subnetworks[deco_type], deco_type)
 
-        if vis_type != self.main_vis_type:
-            self.subnetworks[vis_type].clear_processors()
-            del self.subnetworks[vis_type]
-
-    def add_subnetwork(self, vis_type, *args):
+    def create_subnetwork(self, vis_type, *args):
         # Add add a subnetwork for a specific visualisation type.
         # Max one network per visualisation type is created.
-        if not vis_type in self.available_visualisations:
-            raise BadHDF5Error('Tried to start visualisation '+vis_type+' with unsupported hdf5 file.')
-        if vis_type in self.subnetworks:
-            return self.subnetworks[vis_type]
+
+        if vis_type not in self.available_visualisations:
+            raise EnvisionError('Cannot start visualisation ['+vis_type+'] with unsupported hdf5 file.')
+        
+        # if vis_type in self.subnetworks:
+        #     return self.subnetworks[vis_type]
         
         # Initialize a new subnetwork
         if vis_type == "charge":
@@ -113,8 +110,8 @@ class VisualisationManager():
 
         elif vis_type == "dos":
             subnetwork = DosSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
-            
-        subnetwork.hide() # All new visualisations are hidden by default, show elsewhere.
+
+        subnetwork.hide() # All new visualisations are hidden by default here.
         self.subnetworks[vis_type] = subnetwork
         return subnetwork
         
