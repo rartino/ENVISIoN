@@ -15,17 +15,20 @@ class VolumeSubnetwork(Subnetwork):
         self.is_multichannel = multichannel
         self.setup_network(hdf5_path, hdf5_outport, xpos, ypos)
         self.transperancy_before = True
+        self.tf_enabled = True
+        self.iso_enabled = True
 
         self.set_slice_background(
             inviwopy.glm.vec4(0,0,0,1), 
             inviwopy.glm.vec4(1,1,1,1),3,0)
         self.clear_tf()
         self.set_plane_normal()
+        self.set_iso_surface(0.5, [1, 1, 1, 0])
 
     def decoration_is_valid(self, vis_type):
         return vis_type in ['charge', 'elf', 'atom']
 
-    def show(self, show_volume=True, show_slice=True):
+    def show(self, show_volume=True, show_slice=False):
         if show_volume:
             self.get_processor('VolumeCanvas').widget.show()
         if show_slice:
@@ -44,8 +47,6 @@ class VolumeSubnetwork(Subnetwork):
     # Set the mask of the transfer function
     # Only volume densities between maskMin and maskMax are visible after this
         raycaster = self.get_processor('Raycaster')
-        volumeSlice = self.get_processor('VolumeSlice')
-        volumeSlice.tfGroup.transferFunction.setMask(maskMin,maskMax)
         if not self.is_multichannel:
             raycaster.isotfComposite.tf.setMask(maskMin, maskMax)
         else:
@@ -71,13 +72,15 @@ class VolumeSubnetwork(Subnetwork):
     # Copy the volume transferfunction to the slice transferfunction
     # Adds a white point just before the first one aswell
         volumeSlice = self.get_processor('VolumeSlice')
-        raycaster = self.get_processor('Raycaster')
-        if not self.is_multichannel:
-            volumeSlice.tfGroup.transferFunction.value = raycaster.isotfComposite.tf.value
-        else:
-            volumeSlice.tfGroup.transferFunction.value = getattr(raycaster, 'transfer-functions').transferFunction1.value
+        volumeSlice.tfGroup.transferFunction.clear()
         tf_points = self.get_tf_points()
-        if len(tf_points) > 0 and tf_points[0][0] != 0:
+
+        # Copy all points but with alpha=1
+        for point in tf_points:
+            volumeSlice.tfGroup.transferFunction.add(point[0], inviwopy.glm.vec4(point[1][0], point[1][1], point[1][2], 1))
+
+        # Add white point below lowest value.
+        if self.transperancy_before and len(tf_points) > 0 and tf_points[0][0] != 0:
             volumeSlice.tfGroup.transferFunction.add(0.99*tf_points[0][0], inviwopy.glm.vec4(1.0, 1.0, 1.0, 1.0))
 
     def clear_tf(self):
@@ -144,6 +147,16 @@ class VolumeSubnetwork(Subnetwork):
         glm_col = inviwopy.glm.vec4(color[0], color[1], color[2], color[3])
         raycaster.isotfComposite.isovalues.add(value, glm_col)
         pass
+
+    def set_iso_surface(self, value, color):
+        glm_col = inviwopy.glm.vec4(color[0], color[1], color[2], color[3])
+        if self.is_multichannel:
+            # TODO add iso surface controls for multichannel raycaster
+            pass
+        else:
+            raycaster = self.get_processor('Raycaster')
+            raycaster.isotfComposite.isovalues.clear()
+            raycaster.isotfComposite.isovalues.add(value, glm_col)
 
     def set_shading_mode(self, key):
         raycaster = self.get_processor('Raycaster')
@@ -365,6 +378,7 @@ class VolumeSubnetwork(Subnetwork):
 
         self.image_outport = raycaster.getOutport('outport')
         self.decoration_outport = hfRender.getOutport('image')
+        self.volume_outport = hdf5Volume.getOutport('outport')
 
         if self.is_multichannel:
             self.decoration_inport = isoRaycaster.getInport('bg')
