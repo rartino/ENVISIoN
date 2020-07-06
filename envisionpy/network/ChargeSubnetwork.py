@@ -11,12 +11,15 @@ class ChargeSubnetwork(VolumeSubnetwork):
     Uses a default VolumeSubnetwork.
     '''
     def __init__(self, inviwoApp, hdf5_path, hdf5_outport, xpos=0, ypos=0):
+        # Set up a generic volume rendering network.
         VolumeSubnetwork.__init__(self, inviwoApp, hdf5_path, hdf5_outport, xpos, ypos, False)
         
         # Set basis and volume path
         with h5py.File(hdf5_path, "r") as h5:
             self.set_basis(np.array(h5["/basis/"], dtype='d'), h5['/scaling_factor'][()])
         self.set_hdf5_subpath("/CHG")
+        self.set_volume_selection('/final')
+        self.set_volume_selection('/0')
         self.set_volume_selection('/final')
 
         # Set some default parameters for charge visualisation.
@@ -32,5 +35,25 @@ class ChargeSubnetwork(VolumeSubnetwork):
             hdf5_file.get('basis') != None and 
             hdf5_file.get('scaling_factor') != None)
 
-    def decoration_is_valid(self, vis_type):
-        return vis_type in ['charge', 'elf', 'atom']
+    def valid_decorations(self):
+        # Which decorations can be started while running this one.
+        return ['atom']
+
+    def disconnect_decoration(self, other, vis_type):
+        if vis_type == 'atom':
+            self.network.removeLink(self.camera_prop, other.camera_prop)
+        self.disconnect_decorations_port(other.decoration_outport)
+
+    def connect_decoration(self, other, vis_type):
+        # Add a decoration by connecting data ports and linking properties.
+        if vis_type not in self.valid_decorations():
+            raise EnvisionError('Invalid decoration type ['+vis_type+'].')
+
+        # Link needed properties between networks.
+        if vis_type == 'atom':
+            self.network.addLink(self.camera_prop, other.camera_prop)
+        self.connect_decoration_ports(other.decoration_outport)
+
+
+        # Connect ports.
+

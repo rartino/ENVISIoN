@@ -10,48 +10,60 @@ class Subnetwork():
         self.network = inviwoApp.network
         self.processors = {}
 
-        self.decorations = []
+        self.decoration_inport = None # Should be defined if subnetwork can use decorations.
+        self.decoration_outport = None # Should be defined if subnetwork can be used as decoration.
+        self.decoration_outports = []
         self.decoration_mergers = []
-        self.decoration_inport = None
-        self.camera_prop = None
+        self.last_inport = None
 
     def hide(self):
-        pass
+        raise EnvisionError('Subnetwork needs to have a hide function overloaded.')
 
     def show(self):
-        pass
+        raise EnvisionError('Subnetwork needs to have a show function overloaded.')
 
-    def disconnect_3d_decoration(self, image_outport):
-        # TODO:
-        # remove connections
-        # remove image mergers if needed
-        # remove from list 
-        pass
+    def disconnect_decorations_port(self, deco_outport):
+        # Remove a decoration from this visualisaiton.
+        
+        # Clear ports and image mergers.
+        for port in self.decoration_outports:
+            self.network.removeConnection(port, self.decoration_inport)
+        while len(self.decoration_mergers) > 0:
+            identifier = self.decoration_mergers[0].identifier
+            del self.decoration_mergers[0]
+            self.remove_processor(identifier)
 
-    def connect_3d_decoration(self, image_outport, camera_prop=None):
-        # Should be overloaded in inheriting subnetwork class.
+        # Remove wanted decoration port.
+        self.decoration_outports.remove(deco_outport)
+
+        # Reconnect remaining decorations.
+        self.last_inport = self.decoration_inport
+        for port in self.decoration_outports:
+            self.connect_decoration_ports(port)
+        
+
+    def connect_decoration_ports(self, deco_outport):
         if self.decoration_inport == None:
             raise EnvisionError("Tried to connect decorations to incompatible visualisation.")
-        if image_outport in self.decorations:
-            return
+        if self.last_inport == None:
+            self.last_inport = self.decoration_inport
+        if deco_outport in self.decoration_outports:
+            raise EnvisionError('Decoration already connected.')
         
-        if len(self.decorations) == 0:
-            self.network.addConnection(image_outport, self.decoration_inport)
-
+        # Connect decoration directly
+        if len(self.decoration_outports) == 0:
+            self.network.addConnection(deco_outport, self.decoration_inport)
         # Add image mergers to merge all decorations.
         else:
-            self.network.removeConnection(self.decorations[-1], self.decoration_inport)
-            decorationMerger = self.add_processor('org.inviwo.ImageCompositeProcessorGL', 'DecorationMerger', len(self.decorations) * 7, -3)
+            self.network.removeConnection(self.decoration_outports[-1], self.last_inport)
+            decorationMerger = self.add_processor('org.inviwo.ImageCompositeProcessorGL', 'DecorationMerger', len(self.decoration_outports) * 7, -3)
             self.decoration_mergers.append(decorationMerger)
-            self.network.addConnection(self.decorations[-1], decorationMerger.getInport('imageInport1'))
-            self.network.addConnection(image_outport, decorationMerger.getInport('imageInport2'))
-            self.network.addConnection(decorationMerger.getOutport('outport'), self.decoration_inport)
-            self.decoration_inport = decorationMerger.getInport('imageInport2')
-        self.decorations.append(image_outport)
+            self.network.addConnection(self.decoration_outports[-1], decorationMerger.getInport('imageInport1'))
+            self.network.addConnection(deco_outport, decorationMerger.getInport('imageInport2'))
+            self.network.addConnection(decorationMerger.getOutport('outport'), self.last_inport)
+            self.last_inport = decorationMerger.getInport('imageInport2')
 
-        # Link camera properties.
-        if camera_prop != None and camera_prop != self.camera_prop:
-            self.network.addLink(self.camera_prop, camera_prop)
+        self.decoration_outports.append(deco_outport)
 
     def add_processor(self, id, name, xpos=0, ypos=0):
         # Add a processor. If processor with name already added return it.
