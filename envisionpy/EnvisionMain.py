@@ -25,11 +25,13 @@
 #
 ##############################################################################################
 
-import sys,os, time
+import sys, os, time
 
 
-if 'INVIWO_HOME' in os.environ and os.environ['INVIWO_HOME'] not in sys.path:
-    sys.path.append(os.environ['INVIWO_HOME'])
+# if 'INVIWO_HOME' in os.environ and os.environ['INVIWO_HOME'] not in sys.path:
+#     sys.path.append(os.environ['INVIWO_HOME'])
+
+sys.path.append("C:/Kandidatprojekt/inviwo-build/bin/Release")
 
 try:
     import inviwopy as ivw
@@ -38,7 +40,7 @@ except ModuleNotFoundError as e:
     sys.stderr.write("Module error: " + str(e) + "\n" + "Can not find module. Please check that the environment variable INVIWO_HOME is set to the correct value in the computers system settings.")
     #raise Exception("Can not find module. Please set the environment variable INVIWO_HOME to the correct value.")
 
-from envisionpy.processor_network import *
+from envisionpy.network import VisualisationManager
 from envisionpy.utils.exceptions import *
 import envisionpy.hdf5parser
 
@@ -55,93 +57,14 @@ class EnvisionMain():
     def __init__(self):
         self.app = None
         self.initialize_inviwo_app()
-        self.networkHandlers = {}
 
-        # Mapp action strings to functions
-        # Functions should always take one id and a list of parameters.
-        self.action_dict = {}
-        self.action_dict["start"] = lambda id, params: self.initialize_visualisation(id, *params)
-        self.action_dict["stop"] = lambda id, params: self.stop_visualisation(id, *params)
-        self.action_dict["get_ui_data"] = lambda id, params: self.networkHandlers[id].get_ui_data(*params)
-        self.action_dict["position_canvases"] = lambda id, params: self.networkHandlers[id].position_canvases(*params)
+        self.visualisation_managers = {}
 
-        # Volume visualisation actions
-        self.action_dict["clear_tf"] = lambda id, params: self.networkHandlers[id].clear_tf(*params)
-        self.action_dict["set_tf_points"] = lambda id, params: self.networkHandlers[id].set_tf_points(*params)
-        self.action_dict["add_tf_point"] = lambda id, params: self.networkHandlers[id].add_tf_point(*params)
-        # self.action_dict["remove_tf_point"] = lambda id, params: self.networkHandlers[id].remove_tf_point(*params)
-        self.action_dict["get_tf_points"] = lambda id, params: self.networkHandlers[id].get_tf_points(*params)
-        self.action_dict["set_shading_mode"] = lambda id, params: self.networkHandlers[id].set_shading_mode(*params)
-        self.action_dict["set_volume_background"] = lambda id, params: self.networkHandlers[id].set_volume_background(*params)
-        self.action_dict["set_slice_background"] = lambda id, params: self.networkHandlers[id].set_slice_background(*params)
-        self.action_dict["toggle_slice_plane"] = lambda id, params: self.networkHandlers[id].toggle_slice_plane(*params)
-        self.action_dict["set_plane_normal"] = lambda id, params: self.networkHandlers[id].set_plane_normal(*params)
-        self.action_dict["set_plane_height"] = lambda id, params: self.networkHandlers[id].set_plane_height(*params)
-        self.action_dict["toggle_slice_canvas"] = lambda id, params: self.networkHandlers[id].toggle_slice_canvas(*params)
-        self.action_dict["set_texture_wrap_mode"] = lambda id, params: self.networkHandlers[id].set_texture_wrap_mode(*params)
-        self.action_dict["set_slice_zoom"] = lambda id, params: self.networkHandlers[id].set_slice_zoom(*params)
-        self.action_dict["show_volume_dist"] = lambda id, params: self.networkHandlers[id].show_volume_dist(*params)
-        self.action_dict["toggle_transperancy_before"] = lambda id, params: self.networkHandlers[id].toggle_transperancy_before(*params)
-        # self.action_dict["toggle_tf_editor"] = lambda id, params: self.networkHandlers[id].toggle_tf_editor(*params)
+        # self.ui_callable = [
+        # ]
 
-        # Unitcell visalisation actions
-        self.action_dict["set_atom_radius"] = lambda id, params: self.networkHandlers[id].set_atom_radius(*params)
-        self.action_dict["hide_atoms"] = lambda id, params: self.networkHandlers[id].hide_atoms(*params)
-        self.action_dict["get_atom_name"] = lambda id, params: self.networkHandlers[id].get_atom_name(*params)
-        self.action_dict["get_atom_names"] = lambda id, params: self.networkHandlers[id].get_atom_names(*params)
-        self.action_dict["toggle_unitcell_canvas"] = lambda id, params: self.networkHandlers[id].toggle_unitcell_canvas(*params)
-        self.action_dict["toggle_full_mesh"] = lambda id, params: self.networkHandlers[id].toggle_full_mesh(*params)
-        self.action_dict["set_canvas_position"] = lambda id, params: self.networkHandlers[id].set_canvas_position(*params)
-
-        # Charge, ELF and Fermi surface visualisation actions
-        self.action_dict["get_bands"] = lambda id, params: self.networkHandlers[id].get_available_bands(*params)
-        self.action_dict["set_active_band"] = lambda id, params: self.networkHandlers[id].set_active_band(*params)
-
-        # Fermi surface visualisation actions
-        self.action_dict["toggle_brillouinzone"] = lambda id, params: self.networkHandlers[id].toggle_brillouin_zone(*params)
-        self.action_dict["toggle_expandedzone"] = lambda id, params: self.networkHandlers[id].toggle_expanded_zone(*params)
-        self.action_dict["set_fermi_level"] = lambda id, params: self.networkHandlers[id].set_fermi_level(*params)
-
-        # Parchg visualisation actions
-        self.action_dict["select_bands"] = lambda id, params: self.networkHandlers[id].select_bands(*params)
-
-        # Line plot
-        self.action_dict["set_x_range"] = lambda id, params: self.networkHandlers[id].set_x_range(*params)
-        self.action_dict["set_y_range"] = lambda id, params: self.networkHandlers[id].set_y_range(*params)
-        self.action_dict["toggle_vertical_line"] = lambda id, params: self.networkHandlers[id].toggle_vertical_line(*params)
-        self.action_dict["set_vertical_line_x"] = lambda id, params: self.networkHandlers[id].set_vertical_line_x(*params)
-        self.action_dict["toggle_grid"] = lambda id, params: self.networkHandlers[id].toggle_grid(*params)
-        self.action_dict["set_grid_size"] = lambda id, params: self.networkHandlers[id].set_grid_size(*params)
-        self.action_dict["toggle_x_label"] = lambda id, params: self.networkHandlers[id].toggle_x_label(*params)
-        self.action_dict["toggle_y_label"] = lambda id, params: self.networkHandlers[id].toggle_y_label(*params)
-        self.action_dict["set_n_labels"] = lambda id, params: self.networkHandlers[id].set_n_labels(*params)
-        self.action_dict["set_y_selection_type"] = lambda id, params: self.networkHandlers[id].set_y_selection_type(*params)
-        self.action_dict["get_available_datasets"] = lambda id, params: self.networkHandlers[id].get_available_datasets(*params)
-        self.action_dict["set_y_single_selection_index"] = lambda id, params: self.networkHandlers[id].set_y_single_selection_index(*params)
-        self.action_dict["set_y_multi_selection"] = lambda id, params: self.networkHandlers[id].set_y_multi_selection(*params)
-        # self.action_dict["set_y_single_selection"] = lambda id, params: self.networkHandlers[id].set_y_single_selection(*params)
-        # self.action_dict["set_y_single_selection"] = lambda id, params: self.networkHandlers[id].set_y_single_selection(*params)
-
-        # DoS
-        self.action_dict["toggle_total"] = lambda id, params: self.networkHandlers[id].toggle_total(*params)
-        self.action_dict["toggle_partial"] = lambda id, params: self.networkHandlers[id].toggle_partial(*params)
-        self.action_dict["set_partial_selection"] = lambda id, params: self.networkHandlers[id].set_partial_selection(*params)
-
-
-
-        self.visualisationTypes = {
-            "charge": ChargeNetworkHandler,
-            "elf": ELFNetworkHandler,
-            "parchg": ParchgNetworkHandler,
-            "unitcell": UnitcellNetworkHandler,
-            "pcf": PCFNetworkHandler,
-            "bandstructure": BandstructureNetworkHandler,
-            "dos": DOSNetworkHandler,
-            "bandstructure3d": Bandstructure3DNetworkHandler,
-            "fermisurface": FermiSurfaceNetworkHandler
-            }
-
-        self.parseFunctions = {
+        # Map request strings to parse functions.
+        self.parse_functions = {
             "charge": envisionpy.hdf5parser.charge,
             "Electron density": envisionpy.hdf5parser.charge,
             "elf": envisionpy.hdf5parser.elf,
@@ -184,47 +107,32 @@ class EnvisionMain():
         self.app.update()
         self.app.network.clear()
 
-    def handle_vis_request(self, request):
-        # Recieve a request, acts on it, then returns a response
-        # Requests are on form [ACTION, HANDLER_ID, [PARAMETERS]]'
-        action, handler_id, parameters = request
+    def handle_request(self, request):
+        # Request should be a list on form specified in xx.rst
 
+        if request['type'] not in dir(self):
+            response_data = False
 
-        # Check if action exist
-        if not action in self.action_dict:
-            return [request[0], False, handler_id, format_error(InvalidRequestError("Unknown action"))]
-        # Check if id exist
-        if not handler_id in self.networkHandlers and (action != "start" and action != "stop"):
-            return [action, False, handler_id, format_error(HandlerNotFoundError('Non-existant network handler instance "' + handler_id + '".'))]
+        # run function based on request type.
+        func = getattr(self, request['type'])
+        response_data = func(*request['data'])
+        # if request['type'] == 'parse':
+        #     response_data = self.handle_parse_request(*request['data'])
+        # elif request['type'] == 'init_visualisation':
+        #     print(2)
+        # elif request['type'] == 'start_visualisation':
+        #     print(3)
+        # elif request['type'] == 'edit_visualisation':
+        #     print(4)
 
+        response_packet = {
+            'type': request['type'],
+            'data': response_data}
+        return response_packet
 
-        # try:
-        # Runs the funtion with networkhandler id and request data as arguments.
-        try:
-            response_data = self.action_dict[action](handler_id, parameters)
-        except HandlerNotFoundError as e:
-            return [action, False, handler_id, format_error(e)]
-        except BadHDF5Error as e:
-            return [action, False, handler_id, format_error(e)]
-        except HandlerAlreadyExistError as e:
-            return [action, False, handler_id, format_error(e)]
-        # except EnvisionError as e:
-        #     return [action, False, handler_id, format_error(e)]
-        else:
-            return [action, True, handler_id, response_data]
+# Functions callable from UI
 
-        # return [action] + self.action_dict[action](handler_id, parameters)
-        # except AttributeError as error:
-        # # Triggered if network handler instance does not have desired function.
-        #     return [request[0], False, "Function does not exsist."]
-        # except TypeError as error:
-        #     return [request[0], False, "Bad parameters."]
-
-
-    def handle_parse_request(self, request):
-        # Requests are on form [[PARSE_TYPES...], HDF5_PATH, VASP_PATH]
-        parse_types, hdf5_path, vasp_path = request
-
+    def parse_vasp(self, vasp_path, hdf5_path, parse_types):
         if parse_types == "All":
             parse_types = [
                 "Electron density",
@@ -239,43 +147,49 @@ class EnvisionMain():
         parse_statuses = {}
         for parse_type in parse_types:
             try:
-                parse_statuses[parse_type] = self.parseFunctions[parse_type](hdf5_path, vasp_path)
+                parse_statuses[parse_type] = self.parse_functions[parse_type](hdf5_path, vasp_path)
             except Exception:
+                parse_statuses[parse_type] = False
                 print("Parser {} could not be parsed some functions may not work.".format(parse_type))
 
+        return parse_statuses
 
-        # TODO: Return status of
-        return [parse_statuses, "*Error message*"]
+    def init_manager(self, hdf5_path):
+        file_name = os.path.splitext(hdf5_path)[0].split('/')[-1]
+        print(os.path.splitext(hdf5_path))
+        identifier = file_name
+        n = 1
+        while identifier in self.visualisation_managers:
+            identifier = file_name + str(n)
+            n += 1
+        visualisationManager = VisualisationManager(hdf5_path, self.app)
+        self.visualisation_managers[identifier] = visualisationManager
+        return [identifier, visualisationManager.available_visualisations] 
 
+    def close_manager(self, identifier):
+        if identifier not in self.visualisation_managers:
+            return False
+        self.visualisation_managers[identifier].stop()
+        del self.visualisation_managers[identifier]
+        return True
 
-    def initialize_visualisation(self, handler_id, vis_type, hdf5_file, name=None, datasetName=None):
-        # Initializes a network handler which will start a visualization.
-        # Type of subclass depends on vis_type
+    def start_visualisation(self, identifier, vis_type):
+        if identifier not in self.visualisation_managers:
+            return False
+        self.visualisation_managers[identifier].start(vis_type)
+        return True
 
-        # TODO: add exception on file not found and faulty hdf5 file
-        if handler_id in self.networkHandlers:
-            raise HandlerAlreadyExistError("Already starting that visualisation " + handler_id + ". Wait a bit and try again.")
-        self.networkHandlers[handler_id] = self.visualisationTypes[vis_type](hdf5_file, self.app)
+    def stop_visualisation(self, identifier, vis_type):
+        if identifier not in self.visualisation_managers:
+            return False
+        self.visualisation_managers[identifier].stop(vis_type)
 
-        return [handler_id, vis_type, name, datasetName]
-
-    def stop_visualisation(self, handler_id, stop_all=False):
-    # Stop visualizations depending on vis_type.
-        if stop_all:
-            ids = tuple(self.networkHandlers)
-            for id in ids:
-                self.networkHandlers[id].clear_processors()
-            self.app.network.clear()
-            self.networkHandlers.clear()
-            return ids
-        if handler_id in self.networkHandlers:
-            self.networkHandlers[handler_id].clear_processors()
-            del self.networkHandlers[handler_id]
-            self.app.network.clear()
-            return handler_id
-        # elif handler_id in self.networkHandlers:
-        #     self.networkHandlers[handler_id].clear_processor_network()
-        #     del self.networkHandlers[handler_id]
-        #     return [True, handler_id + " stopped."]
-        # else:
-        raise HandlerNotFoundError("That visualisation is not running.")
+    def visualisation_request(self, identifier, vis_type, function_name, param_list):
+        if identifier not in self.visualisation_managers:
+            return False
+        return self.visualisation_managers[identifier].call_subnetwork(vis_type, function_name, param_list)
+        
+    def get_ui_data(self, identifier):
+        if identifier not in self.visualisation_managers:
+            return False
+        return self.visualisation_managers[identifier].get_ui_data()
