@@ -140,19 +140,27 @@ class VolumeSubnetwork(Subnetwork):
         self.slice_copy_tf()
         self.update_transperancy_before()
 
-    def add_isovalue(self, value, color):
-    # Add point to the raycaster isovalues
-    # Color should be an 4-element-array containing RGBA with values in 0-1 interval.
-        raycaster = self.get_processor('Raycaster')
-        glm_col = inviwopy.glm.vec4(color[0], color[1], color[2], color[3])
-        raycaster.isotfComposite.isovalues.add(value, glm_col)
-        pass
+    # def add_isovalue(self, value, color):
+    # # Add point to the raycaster isovalues
+    # # Color should be an 4-element-array containing RGBA with values in 0-1 interval.
+    #     raycaster = self.get_processor('Raycaster')
+    #     glm_col = inviwopy.glm.vec4(color[0], color[1], color[2], color[3])
+    #     raycaster.isotfComposite.isovalues.add(value, glm_col)
+    #     pass
 
     def set_iso_surface(self, value, color):
         glm_col = inviwopy.glm.vec4(color[0], color[1], color[2], color[3])
         if self.is_multichannel:
-            # TODO add iso surface controls for multichannel raycaster
-            pass
+            raycaster = self.get_processor('IsoRaycaster')
+            raycaster.raycaster.isoValue.value = value
+            getattr(raycaster, 'transfer-functions').transferFunction1.clear()
+            getattr(raycaster, 'transfer-functions').transferFunction2.clear()
+            getattr(raycaster, 'transfer-functions').transferFunction3.clear()
+            getattr(raycaster, 'transfer-functions').transferFunction4.clear()
+            getattr(raycaster, 'transfer-functions').transferFunction1.add(value, glm_col)
+            getattr(raycaster, 'transfer-functions').transferFunction2.add(value, glm_col)
+            getattr(raycaster, 'transfer-functions').transferFunction3.add(value, glm_col)
+            getattr(raycaster, 'transfer-functions').transferFunction4.add(value, glm_col)
         else:
             raycaster = self.get_processor('Raycaster')
             raycaster.isotfComposite.isovalues.clear()
@@ -203,7 +211,6 @@ class VolumeSubnetwork(Subnetwork):
     def set_plane_normal(self, x=0, y=1, z=0):
     # Set the normal of the slice plane
     # x, y, and z can vary between 0 and 1
-    # TODO: move sliceAxis.value to some initialization code
         VolumeSlice = self.get_processor('VolumeSlice')
         VolumeSlice.planeNormal.value = inviwopy.glm.vec3(x, y, z)
 
@@ -315,7 +322,7 @@ class VolumeSubnetwork(Subnetwork):
             isoRaycaster = self.add_processor('org.inviwo.MultichannelRaycaster', "IsoRaycaster", xpos+7, ypos+12)
             isoRaycaster.raycaster.compositingMode.selectedIndex = 6
             isoRaycaster.raycaster.samplingRate.value = 4
-            isoRaycaster.raycaster.classificationMode.selectedIndex = 0
+            isoRaycaster.raycaster.classificationMode.selectedIndex = 1
             isoRaycaster.raycaster.isoValue.value = 0
         volumeBackground = self.add_processor('org.inviwo.Background', 'VolumeBackground', xpos, ypos+15)
         volumeCanvas = self.add_processor('org.inviwo.CanvasGL', 'VolumeCanvas', xpos, ypos+18)
@@ -382,8 +389,10 @@ class VolumeSubnetwork(Subnetwork):
 
         if self.is_multichannel:
             self.decoration_inport = isoRaycaster.getInport('bg')
+            self.transfer_function_prop = getattr(raycaster, 'transfer-functions').transferFunction1
         else:
             self.decoration_inport = meshRenderer.getInport('imageInport')
+            self.transfer_function_prop = raycaster.isotfComposite.tf
         self.camera_prop = meshRenderer.camera
 
         meshRenderer.camera.fov.minValue = 5
