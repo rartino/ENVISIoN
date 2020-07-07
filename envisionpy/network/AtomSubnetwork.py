@@ -4,7 +4,6 @@ import h5py
 from envisionpy.utils.exceptions import *
 from envisionpy.utils.atomData import atomic_radii, element_names, element_colors
 from .baseNetworks.Subnetwork import Subnetwork
-from .ElfSubnetwork import ElfSubnetwork
 # TODO add volume merger and multi-raycaster
 
 class AtomSubnetwork(Subnetwork):
@@ -24,6 +23,9 @@ class AtomSubnetwork(Subnetwork):
     @staticmethod
     def valid_hdf5(hdf5_file):
         return hdf5_file.get("UnitCell") != None
+
+    def valid_decorations(self):
+        return []
 
     def show(self):
         self.get_processor('UnitcellCanvas').widget.show()
@@ -74,12 +76,6 @@ class AtomSubnetwork(Subnetwork):
 
 # ------------------------------------------
 # ------- Network building functions -------
-
-    def link_camera(self, camera_prop):
-        pass
-
-    def connect_decoration(self, image_outport):
-        pass
 
     def setup_network(self, hdf5_path, hdf5_output, xpos, ypos):
         strucMesh = self.add_processor('envision.StructureMesh', 'UnitcellMesh', xpos, ypos+3)

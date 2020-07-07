@@ -105,7 +105,7 @@ class VisualisationManager():
 
         elif vis_type == "elf":
             subnetwork = ElfSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
-            self.get_subnetwork['multi'].connect_volume(
+            self.get_subnetwork('multi').connect_volume(
                 subnetwork.volume_outport, 
                 subnetwork.transfer_function_prop, 
                 subnetwork.camera_prop)
@@ -119,8 +119,6 @@ class VisualisationManager():
 
         elif vis_type == "parchg":
             subnetwork = ParchgSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3, *args)
-            with h5py.File(self.hdf5_path, "r") as h5:
-                subnetwork.set_basis(np.array(h5["/basis/"], dtype='d'), h5['/scaling_factor'][()])
 
         elif vis_type == "atom":
             subnetwork = AtomSubnetwork(self.app, self.hdf5_path, self.hdf5Output, -20, 3)
@@ -138,5 +136,4 @@ class VisualisationManager():
         self.subnetworks[vis_type] = subnetwork
         return subnetwork
         
-
             

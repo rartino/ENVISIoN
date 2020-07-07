@@ -7,11 +7,19 @@ from envisionpy.utils.exceptions import *
 from .baseNetworks.VolumeSubnetwork import VolumeSubnetwork
 
 
+# TODO: add self.volume_outport with a merged version of all the 
+#       volumes. Use a VolumeCombiner processor and input all volumes
+#       add data divide by number of volumes. Output of this is volume_outport
+#       This will allow the visualisation to be used with the multi volume vis.
+
 class ParchgSubnetwork(VolumeSubnetwork):
     '''
     Manages a subnetwork for partial charge density visualisation. 
     Makes use of a modified VolumeSubnetwork. Has a different volume selection than 
-    the default VolumeSubnetwork implementation.
+    the default VolumeSubnetwork implementation to allow selection of different bands
+    and modes.
+
+    Based on VolumeSubnetwork.
     '''
     def __init__(self, inviwoApp, hdf5_path, hdf5_outport, xpos=0, ypos=0, band_list=[], mode_list=[]):
         # Initialize a volume subnetwork with multichannel raycaster
@@ -29,6 +37,8 @@ class ParchgSubnetwork(VolumeSubnetwork):
             if ("magnetic" in self.available_modes) and ("total" in self.available_modes):
                 self.available_modes += ["up", "down"]
 
+            # self.set_basis(np.array(h5["/basis/"], dtype='d'), h5['/scaling_factor'][()])
+
         self.current_bands = []
         self.current_modes = []
 
@@ -41,6 +51,9 @@ class ParchgSubnetwork(VolumeSubnetwork):
         self.modify_network(hdf5_path, hdf5_outport, xpos, ypos)
         self.select_bands(band_list, mode_list, xpos+1, ypos)
 
+        with h5py.File(hdf5_path, "r") as h5:
+            self.set_basis(np.array(h5["/basis/"], dtype='d'), h5['/scaling_factor'][()])
+
         # Set some default parameters for charge visualisation.
         self.add_tf_point(0.45, [0.1, 0.1, 0.8, 0.05])
         self.add_tf_point(0.5, [0.2, 0.8, 0.1, 0.1])
@@ -50,8 +63,22 @@ class ParchgSubnetwork(VolumeSubnetwork):
     def valid_hdf5(hdf5_file):
         return hdf5_file.get("PARCHG") != None
 
-    def decoration_is_valid(self, vis_type):
-        return vis_type in ['charge', 'elf', 'atom']
+    def valid_decorations(self):
+        return ['atom']
+
+    def connect_decoration(self, other, vis_type):
+        if vis_type not in self.valid_decorations():
+            raise EnvisionError('Invalid decoration type ['+vis_type+'].')
+        # Link needed properties between networks.
+        if vis_type == 'atom':
+            self.network.addLink(self.camera_prop, other.camera_prop)
+        self.connect_decoration_ports(other.decoration_outport)
+
+    def disconnect_decoration(self, other, vis_type):
+        if vis_type == 'atom':
+            self.network.removeLink(self.camera_prop, other.camera_prop)
+        self.disconnect_decorations_port(other.decoration_outport)
+
 
     def get_available_modes(self):
         return self.available_modes

@@ -29,5 +29,6 @@ class FermiSubnetwork(VolumeSubnetwork):
     def valid_hdf5(hdf5_file):
         return hdf5_file.get("fermi_bands") != None
 
-    def decoration_is_valid(self, vis_type):
-        return vis_type in ['fermi']
+    def valid_decorations(self):
+        return []
+
