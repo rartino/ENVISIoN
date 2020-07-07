@@ -32,5 +32,23 @@ class ElfSubnetwork(VolumeSubnetwork):
             hdf5_file.get('basis') != None and 
             hdf5_file.get('scaling_factor') != None)
 
-    def decoration_is_valid(self, vis_type):
-        return vis_type in ['charge', 'elf', 'atom']
+    def valid_decorations(self):
+        return ['atom']
+
+    def connect_decoration(self, other, vis_type):
+        # Add a decoration by connecting data ports and linking properties.
+        if vis_type not in self.valid_decorations():
+            raise EnvisionError('Invalid decoration type ['+vis_type+'].')
+
+        # Link needed properties between networks.
+        if vis_type == 'atom':
+            self.network.addLink(self.camera_prop, other.camera_prop)
+        
+        self.connect_decoration_ports(other.decoration_outport)
+
+    def disconnect_decoration(self, other, vis_type):
+        if vis_type == 'atom':
+            self.network.removeLink(self.camera_prop, other.camera_prop)
+        self.disconnect_decorations_port(other.decoration_outport)
+
+    

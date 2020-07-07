@@ -36,13 +36,7 @@ class ChargeSubnetwork(VolumeSubnetwork):
             hdf5_file.get('scaling_factor') != None)
 
     def valid_decorations(self):
-        # Which decorations can be started while running this one.
         return ['atom']
-
-    def disconnect_decoration(self, other, vis_type):
-        if vis_type == 'atom':
-            self.network.removeLink(self.camera_prop, other.camera_prop)
-        self.disconnect_decorations_port(other.decoration_outport)
 
     def connect_decoration(self, other, vis_type):
         # Add a decoration by connecting data ports and linking properties.
@@ -52,8 +46,13 @@ class ChargeSubnetwork(VolumeSubnetwork):
         # Link needed properties between networks.
         if vis_type == 'atom':
             self.network.addLink(self.camera_prop, other.camera_prop)
+        
         self.connect_decoration_ports(other.decoration_outport)
 
+    def disconnect_decoration(self, other, vis_type):
+        if vis_type == 'atom':
+            self.network.removeLink(self.camera_prop, other.camera_prop)
+        self.disconnect_decorations_port(other.decoration_outport)
 
-        # Connect ports.
+    
 
