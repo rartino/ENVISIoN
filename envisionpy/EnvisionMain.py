@@ -111,7 +111,7 @@ class EnvisionMain():
         # Request should be a list on form specified in xx.rst
 
         if request['type'] not in dir(self):
-            response_data = False
+            response_data = 'Unhandled request'
 
         # run function based on request type.
         func = getattr(self, request['type'])
@@ -156,7 +156,6 @@ class EnvisionMain():
 
     def init_manager(self, hdf5_path):
         file_name = os.path.splitext(hdf5_path)[0].split('/')[-1]
-        print(os.path.splitext(hdf5_path))
         identifier = file_name
         n = 1
         while identifier in self.visualisation_managers:
@@ -164,7 +163,7 @@ class EnvisionMain():
             n += 1
         visualisationManager = VisualisationManager(hdf5_path, self.app)
         self.visualisation_managers[identifier] = visualisationManager
-        return [identifier, visualisationManager.available_visualisations] 
+        return [identifier, hdf5_path, visualisationManager.available_visualisations] 
 
     def close_manager(self, identifier):
         if identifier not in self.visualisation_managers:
