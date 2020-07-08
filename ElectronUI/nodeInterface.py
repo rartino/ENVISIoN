@@ -31,9 +31,8 @@ import select
 import json
 path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 sys.path.append(path_to_current_folder + "/../")
-# from envisionpy import envisionpy
-# from envisionpy import envisionpy
 from envisionpy.EnvisionMain import EnvisionMain
+from envisionpy.utils.exceptions import *
 
 
 import threading
@@ -41,7 +40,7 @@ import queue
 
 def send_packet(tag, data):
 # Package data into JSON-string-packet and send it via printing.
-    packet = json.dumps({"type": tag, "data": data})
+    packet = json.dumps({"tag": tag, "data": data})
     print(packet)
     sys.stdout.flush()
 
@@ -61,20 +60,23 @@ def main():
     input_thread.daemon = True
     input_thread.start()
 
-    time_start = time.time()
     while True:
+        time_start = time.time()
         while not input_queue.empty():
             # send_packet("Debug", "Packet recieved")
-            request = decode_packet(input_queue.get())
-            # send_packet("echo", request)
-            if request["type"] == "envision request":
-                response = envisionMain.handle_vis_request(request["data"])
-                send_packet("response", response)
-            elif request["type"] == "parser request":
-                response = envisionMain.handle_parse_request(request["data"])
-                send_packet("response", response)
-            
-        
+            packet = decode_packet(input_queue.get())
+            if packet['tag'] == 'request':
+                try: 
+                    response = envisionMain.handle_request(packet['data'])
+                    send_packet('response', response)
+                except EnvisionError as e: # non critical error envision should still function.
+                    send_packet('error', [packet['data'], format_error(e)])
+                # except Exception as e:
+                #     send_packet('error', [packet['data'], format_error(e)])
+            if packet['tag'] == 'ping':
+                send_packet('pong', packet['data'])
+            else:
+                print('Unhandled packet: ', packet)
         envisionMain.update()
 
         # Try to loop at 60 fps
@@ -82,28 +84,24 @@ def main():
         time.sleep(max([1.0/60.0 - time_elapsed, 0]))
 
 # Initialize ENVISIoN
+send_packet("status", ["Initializing envision"])
 envisionMain = EnvisionMain()
-send_packet("status", ["envision started", True])
-
-main()
+send_packet("status", ["envision started"])
+# envisionMain.update()
+# print(envisionMain.handle_request({'type': 'init_manager', 'data': ['C:/Kandidatprojekt/ENVISIoN-2020/nacl100.hdf5']}))
+# envisionMain.update()
+# print(envisionMain.handle_request({'type': 'start_visualisation', 'data': ['nacl100', 'charge']}))
+# envisionMain.update()
+# envisionMain.update()
 # while True:
 #     time_start = time.time()
-#     # While stdin is not empty read lines
-#     while select.select([sys.stdin,],[],[],0.0)[0]:
-#         #JSON request packages are send from JavaScript via stdin
-#         
-#         request = decode_packet(sys.stdin.readline())
-#         
-#         if request["type"] == "envision request":
-#             response = envision.handle_request(request["data"])
-#             send_packet("response", response)
-#     # else:
-#     #     send_data("Debug", "No input recieved")
-#     #     print("No input recieved")
-    
-#     envision.update()
+#     envisionMain.update()
 
 #     # Try to loop at 60 fps
 #     time_elapsed = time.time() - time_start
-#     time.sleep(max([1.0/60 - time_elapsed, 0]))
+#     time.sleep(max([1.0/60.0 - time_elapsed, 0]))
+
+
+
+main()
     

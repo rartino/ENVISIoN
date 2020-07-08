@@ -34,17 +34,11 @@ var pythonProcess = null
 
 var nRequests = 0;
 var nResponses = 0;
+var nPings = 0
 
 //TODO: not sure if encoding will always be the same on platforms
 
 var response_callbacks = {
-    // "get_bands": loadBands,
-    // "get_atom_names": loadAtoms,
-    // "get_tf_points": loadTFPoints,
-    // "get_available_datasets": loadAvailableDatasets,
-    "get_ui_data": uiDataRecieved,
-    "start": visualisationStarted,
-    "stop": visualisationStopped
 }
 
 function start_python_process() {
@@ -64,91 +58,109 @@ function start_python_process() {
     else {
         console.log("Python process already launched")
     }
+
+    // send_request('init_manager', ['C:/Kandidatprojekt/ENVISIoN-2020/nacl1001.hdf5'])
+    // send_request('init_manager', ['C:/Kandidatprojekt/ENVISIoN-2020/nacl1001.hdf5'])
+    // send_request('start_visualisation', ['nacl100', 'charge'])
+    
+    // Send a ping every second to keep checking that python is responsive
+    setInterval(()=>send_data('ping', nPings++), 1000)
 }
 
-function send_test_packets(n){
-    for (i = 0; i < n; i++) {
-        send_data("Message", "Here be packets.")
-    }
+
+
+function send_request(type, parameters=null) {
+    // Send a default envision request
+    if (parameters == null) parameters = []
+    nRequests += 1;
+    responsesBehind(nRequests - nResponses);
+    send_data('request', {type: type, parameters: parameters})
 }
 
 function send_data(tag, data) {
 // Put data into json object and send it
-    nRequests += 1;
-    responsesBehind(nRequests - nResponses);
     if (pythonCrashed)
         return;
-    var json_data = {type: tag, data: data}
+    var json_data = {tag: tag, data: data}
     var packet = JSON.stringify(json_data) + "\r\n";
     try{
-		if (CONFIG.logSentPackets)
-		console.log("Sending packet: \n", packet)
-	pythonProcess.stdin.write(packet)
+        if (CONFIG.logSentPackets && (tag != 'ping' || CONFIG.logPings)) 
+            console.log("Sending packet: \n", packet)
+	    pythonProcess.stdin.write(packet)
 	}
     catch {
         pythonCrashed = true;
 		const options = {
 			type: "warning", title: "ENVISIoN has stopped working!",
 			message: "The python process has crashed. You must reload ENVISIoN or close and restart the program."
-			}
+        }
 		dialog.showMessageBox(options)
 	}
 }
 
 function on_data_recieve(packet) {
-    // Print data recieved from python process
+    // Run when text is recieved from python. Decodes and reacts to packet data.
 
-    // Decode data
+    // Split each line that was recieved
     data = Buffer.from(packet, 'hex')
-    // // Split up if multiple JSON objects were recieved
     data = data.toString().split("\n")
     for (i = 0; i < data.length - 1; i++) {
         try {
             json_data = JSON.parse(data[i])
-            if ("type" in json_data){
-                if (CONFIG.logRecievedPackets)
-                console.log("Packet recieved:\n", JSON.stringify(json_data))
-                if (json_data["type"] == "response"){
+            if ("tag" in json_data){
+                if (CONFIG.logRecievedPackets && (json_data['tag'] != 'pong' || CONFIG.logPings))
+                    console.log("Packet recieved:\n", JSON.stringify(json_data))
+                
+                if (json_data["tag"] == "response"){
                     handle_response_packet(json_data["data"])
                     nResponses += 1;
                     responsesBehind(nRequests - nResponses);
+                }
+                else if (json_data["tag"] == "error"){
+                    nResponses += 1;
+                    responsesBehind(nRequests - nResponses);
+                    let req = JSON.stringify(json_data['data'][0])
+                    let error = json_data['data'][1]
+                    let errorType = error[0];
+                    let errorDesc = error[1].replace(/\\n/g, "\n");
+                    let options = {
+                        type: "error", title: "Request failed to resolve.",
+                        message: errorType + "\n" + errorDesc + "\n" + req 
+                    }
+                    dialog.showMessageBox(options)
+                }
+                else if (json_data["tag"] == "pong") {
+                    // console.log('Ping: ' + json_data['data'])
                 }
             }
             else{
                 if (CONFIG.logPyPrint)
                     console.log("Python print: \n" + data[i])
             }
+        }
 
-          }
-          catch(err) {
+        // Packet could not be decoded as json.
+        catch(err) { 
             if (CONFIG.logPyPrint)
                 console.log("Python print: \n" + data[i])
-          }
+        }
     }
+}
+
+function set_response_callback(type, func) {
+    response_callbacks[type] = func;
 }
 
 function handle_response_packet(packet){
-    let action = packet[0];
-    let status = packet[1];
-    let id = packet[2]
-    let data = packet[3];
-    if (action in response_callbacks){
-        response_callbacks[action](status, id, data);
-    }
-    if (!status && CONFIG.logFailedRequests){
-        let errorType = data[0];
-        let errorMsg = data[1].replace(/\\n/g, "\n");
-        console.log("Requested action failed: \n" + errorType + ": " + errorMsg);
-        if (errorType != "HandlerNotFoundError"){
-            alert(errorType + "\n" + errorMsg);
-        }
-        // alert(data.replace(/\\n/g, "\n"));
-        // console.log(data.replace(/\\n/g, "\n"));
+    let type = packet['type'];
+    let data = packet['data'];
+    if (type in response_callbacks){
+        response_callbacks[type](...data);
     }
 }
 
-var lastError;
 var pythonCrashed = false;
+var lastError;
 function on_python_error(data) {
     //lastError = Buffer.from(data, 'hex')
     // setTimeout(function(){
@@ -158,8 +170,8 @@ function on_python_error(data) {
     if (!CONFIG.logPyError)
         return
     console.log("PYTHON ERROR: ")
-    // var output = Buffer.from(data, 'hex')
     console.log(data.toString())
+    // var output = Buffer.from(data, 'hex')
     //dialog.showErrorBox("Error in ENVISIoN: ", data.toString())
 }
 
