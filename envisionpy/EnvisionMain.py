@@ -49,8 +49,6 @@ class EnvisionMain():
     """ Class for managing a inviwo instance
         and running ENVISIoN visualizations with it.
 
-        Acts as an interface to control all aspects of envision.
-
         Can be used by different interfaces as long as they send requests using
         the same JSON standard.
     """
@@ -107,23 +105,20 @@ class EnvisionMain():
         self.app.update()
         self.app.network.clear()
 
-    def handle_request(self, request):
-        # Request should be a list on form specified in xx.rst
+        print(dir(self.app))
 
+    def handle_request(self, request):
+        # Request should be a dictionary with a string specifying a function in 'type'
+        # and a list of function arguments in 'parameters'
+
+
+        # TODO: Allow only a subset of functions to pass.
         if request['type'] not in dir(self):
             response_data = 'Unhandled request'
 
-        # run function based on request type.
+        # Run function based on request type.
         func = getattr(self, request['type'])
-        response_data = func(*request['data'])
-        # if request['type'] == 'parse':
-        #     response_data = self.handle_parse_request(*request['data'])
-        # elif request['type'] == 'init_visualisation':
-        #     print(2)
-        # elif request['type'] == 'start_visualisation':
-        #     print(3)
-        # elif request['type'] == 'edit_visualisation':
-        #     print(4)
+        response_data = func(*request['parameters'])
 
         response_packet = {
             'type': request['type'],
@@ -133,6 +128,10 @@ class EnvisionMain():
 # Functions callable from UI
 
     def parse_vasp(self, vasp_path, hdf5_path, parse_types):
+        if parse_types != 'All' and not all(elem in self.parse_functions for elem in parse_types):
+            raise EnvisionError('Invalid parse type.')
+
+
         if parse_types == "All":
             parse_types = [
                 "Electron density",
@@ -154,12 +153,14 @@ class EnvisionMain():
 
         return parse_statuses
 
-    def init_manager(self, hdf5_path):
-        file_name = os.path.splitext(hdf5_path)[0].split('/')[-1]
-        identifier = file_name
+    def init_manager(self, hdf5_path, identifier=None):
+        if identifier == None:
+            identifier = os.path.splitext(hdf5_path)[0].split('/')[-1]
+        base_id = identifier
+        # Make sure identifier is unique
         n = 1
         while identifier in self.visualisation_managers:
-            identifier = file_name + str(n)
+            identifier = base_id + str(n)
             n += 1
         visualisationManager = VisualisationManager(hdf5_path, self.app)
         self.visualisation_managers[identifier] = visualisationManager
@@ -174,7 +175,7 @@ class EnvisionMain():
 
     def start_visualisation(self, identifier, vis_type):
         if identifier not in self.visualisation_managers:
-            return False
+            raise EnvisionError('No visualisation manager with id:'+identifier+" has been initialized.")
         self.visualisation_managers[identifier].start(vis_type)
         return True
 
