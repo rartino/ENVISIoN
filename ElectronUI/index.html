@@ -58,10 +58,7 @@
 </head>
 
 <body>
-
-
   <div class="wrapper">
-    <!-- Sidebar  -->
     <nav id="sidebar">
       <div class="sidebar-header">
         <h3>ENVISI<i class="fas fa-atom"></i>N</h3>
@@ -71,23 +68,6 @@
       </div>
 
       <ul class="list-unstyled components">
-
-        <!-- <div>
-          <li>
-            <a href="#homeSubmenu">Visualisations</a>
-          </li>
-          <ul class="list-unstyled show">
-            <li id="chargeLink">
-              <a href="#">Electron density</a>
-            </li>
-            <li>
-              <a href="#">Electron localisation function</a>
-            </li>
-          </ul>
-        </div> -->
-
-
-
         <li id="datasetLoaderLink" data-show="#dataLoaderPanel">
           <a href="#" class="active">
             <i class="fas fa-spinner"></i>
@@ -99,11 +79,8 @@
 
         <h5>Active datasets</h5>
         <div id="datasetLinks">
-
-
         </div>
         <hr>
-
         <li id="parserLink" data-show="#parserPanel">
           <a href="#">
             <i class="far fa-file"></i>
@@ -121,7 +98,6 @@
     </nav>
 
     <div id="page">
-
       <div class="sticky">
         <div id="loadalert" class="alert alert-info" >
           <strong>Loading... </strong>
@@ -132,11 +108,10 @@
 
       <!-- Page Content  -->
       <div id="content" class="container-fluid">
-
         <div id="dataLoaderPanel" class="content-panel" style="display:block"></div>
         <div id="aboutPanel" class="content-panel" style="display:none"></div>
         <div id="parserPanel" class="content-panel" style="display:none"></div>
-        <div id="datasetPanel" class="content-panel" style="display:none">DATASET CONSTROLS HERE</div>
+        <!-- <div id="datasetPanel" class="content-panel" style="display:none">DATASET CONSTROLS HERE</div> -->
         <div id="visControlPanel" class="content-panel" style="display:none">VISUALISATION CONTROLS HERE</div>
 
       </div>
@@ -147,13 +122,14 @@
 
 
   <script>
+    start_python_process()
     $("#dataLoaderPanel").load("contentPanels/datasetLoader.html");
-    $("#datasetPanel").load("contentPanels/datasetControls.html");
     $("#aboutPanel").load("contentPanels/about.html");
     $("#parserPanel").load("contentPanels/parserPanel.html");
-
-    start_python_process();
-
+    $("#visControlPanel").load("contentPanels/visualisationControl.html");
+    
+    // start_python_process();
+    
 
     $(document).ready(function () {
       $("li").on("click", sidebarLinkClicked);
