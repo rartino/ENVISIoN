@@ -1,4 +1,4 @@
-﻿  <!-- ENVISIoN
+﻿<!-- ENVISIoN
 
   Copyright (c) 2019 Jesper Ericsson
   All rights reserved.
@@ -29,31 +29,31 @@
 <html lang="en">
 
 <head>
-    <title>ENVISIoN</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/style.css">
-    <!-- <link rel="stylesheet" href="tabs.css"> -->
-    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <title>ENVISIoN</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- <link rel="stylesheet" href="tabs.css"> -->
+  <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script> -->
 
 
-    <script>let $ = require('jquery');</script>
-    <script>require('popper.js');</script>
-    <script>require('bootstrap');</script>
-    <script src="js/eventCallbacks.js"></script>
-    <script src="js/pythonInterface.js"></script>
-    <script src="js/utils.js"></script>
+  <script>let $ = require('jquery');</script>
+  <script>require('popper.js');</script>
+  <script>require('bootstrap');</script>
+  <script src="js/eventCallbacks.js"></script>
+  <script src="js/pythonInterface.js"></script>
+  <script src="js/utils.js"></script>
 
 
-    <!-- <script defer src="https://use.fontawesome.com/releases/v5.6.3/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY"
+  <!-- <script defer src="https://use.fontawesome.com/releases/v5.6.3/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY"
       crossorigin="anonymous"></script>
     <script defer src="https://use.fontawesome.com/releases/v5.6.3/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ"
       crossorigin="anonymous"></script> -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/"
-          crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css"
+    integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
 
 </head>
 
@@ -99,7 +99,7 @@
 
     <div id="page">
       <div class="sticky">
-        <div id="loadalert" class="alert alert-info" >
+        <div id="loadalert" class="alert alert-info">
           <strong>Loading... </strong>
           <span>envision is n requests behind.</span>
         </div>
@@ -108,11 +108,10 @@
 
       <!-- Page Content  -->
       <div id="content" class="container-fluid">
-        <div id="dataLoaderPanel" class="content-panel" style="display:block"></div>
+        <div id="dataLoaderPanel" class="content-panel" style="display:none"></div>
         <div id="aboutPanel" class="content-panel" style="display:none"></div>
         <div id="parserPanel" class="content-panel" style="display:none"></div>
-        <!-- <div id="datasetPanel" class="content-panel" style="display:none">DATASET CONSTROLS HERE</div> -->
-        <div id="visControlPanel" class="content-panel" style="display:none">VISUALISATION CONTROLS HERE</div>
+        <div id="visControlPanel" class="content-panel" style="display:block">VISUALISATION CONTROLS HERE</div>
 
       </div>
 
@@ -122,18 +121,30 @@
 
 
   <script>
-    start_python_process()
-    $("#dataLoaderPanel").load("contentPanels/datasetLoader.html");
-    $("#aboutPanel").load("contentPanels/about.html");
-    $("#parserPanel").load("contentPanels/parserPanel.html");
-    $("#visControlPanel").load("contentPanels/visualisationControl.html");
-    
-    // start_python_process();
-    
+    start_python_process();
 
+    function sidebarLinkClicked() {
+      if ($(this).hasClass("subLink")) {
+        $("#sidebar a").not($(this).parent().parent().find("> li > a")).removeClass("active");
+        $(this).parent().parent().find("> li > a").addClass("active")
+      }
+      else {
+        $("#sidebar a").removeClass("active");
+      }
+      $(this).find("> a").addClass("active");
+      var div = $($(this).data("show")).show();
+      div.siblings("div").hide();
+    }
     $(document).ready(function () {
+      $("#dataLoaderPanel").load("contentPanels/datasetLoader.html");
+      $("#aboutPanel").load("contentPanels/about.html");
+      $("#parserPanel").load("contentPanels/parserPanel.html");
+      $("#visControlPanel").load("contentPanels/visualisationControl.html");
+
       $("li").on("click", sidebarLinkClicked);
       $("#loadalert").hide();
+
+      
     });
   </script>
 

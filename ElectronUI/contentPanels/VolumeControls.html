@@ -1,0 +1,100 @@
+<div class="input-group">
+  <div class="input-group-prepend medium">
+    <label class="input-group-text" for="shadingModeSelection">Shading mode</label>
+  </div>
+  <select class="custom-select" id="shadingModeSelection">
+    <option>No Shading</option>
+    <option>Ambient</option>
+    <option>Diffuse</option>
+    <option>Specular</option>
+    <option selected>Blinn Phong</option>
+    <option>Phong</option>
+  </select>
+</div>
+
+<div class="input-group">
+  <div class="input-group-prepend medium">
+    <label class="input-group-text">Background</label>
+  </div>
+  <input class="form-control" id="backgroundColor1" type="color" value="#000000" required>
+  <input class="form-control" id="backgroundColor2" type="color" value="#ffffff" required>
+  <select class="custom-select" id="backgroundStyleSelection">
+    <option selected>Vertical gradient</option>
+    <option>Horizontal gradient</option>
+    <option>Spherical gradient</option>
+    <option>Uniform color</option>
+    <option>Checker board</option>
+  </select>
+</div>
+
+
+
+<div class="form-check">
+  <input type="checkbox" class="form-check-input" id="transperancyCheckbox" checked>
+  <label class="form-check-label" for="transperancyCheckbox">Toggle transperancy before first point</label>
+</div>
+
+<h5>Transfer Function</h5>
+<div id="tfPoints">
+  <form class="needs-validation" id="tfAdder">
+    <div class="input-group" id="addTFGroup">
+      <input type="text" class="form-control" placeholder="value [0-1]" id="tfValue" required>
+      <input type="text" class="form-control" placeholder="alpha [0-1]" id="tfAlpha" required>
+      <input class="form-control" type="color" value="#563d7c" required>
+      <div class="input-group-append">
+        <button class="btn btn-primary" type="submit" id="tfAddButton">+</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<h5>Volume Slice</h5>
+<div class="form-check">
+  <input type="checkbox" class="form-check-input" id="sliceCanvasCheck">
+  <label class="form-check-label" for="sliceCanvasCheck">Toggle slice rendering</label>
+</div>
+<div class="form-check">
+  <input type="checkbox" class="form-check-input" id="slicePlaneCheck">
+  <label class=" form-check-label" for="slicePlaneCheck">Toggle position indicator</label>
+</div>
+<table>
+  <td><label for="sliceHeightRange">Slice plane height </label></td>
+  <td><input class="form-control-range" type="range" min="0" max="1" step="0.01" id="sliceHeightRange"></td>
+  <td><input class="form-control" type="text" placeholder="[0-1]" id="sliceHeightText" style="max-width:60px;"></td>
+</table>
+<table>
+  <td><label for="sliceZoomRange">Slice image zoom </label></td>
+  <td><input type="range" min="0" max="1" step="0.01" class="form-control-range" id="sliceZoomRange"></td>
+  <td><input type="text" class="form-control" placeholder="[0-1]" id="sliceZoomText" style="max-width:60px;"></td>
+</table>
+<div class="input-group">
+  <div class="input-group-prepend medium">
+    <label class="input-group-text" for="sliceWrapSelection">Texture wrap</label>
+  </div>
+  <select class="custom-select" id="sliceWrapSelection">
+    <option selected>Fill with color</option>
+    <option>Repeat</option>
+  </select>
+</div>
+
+<form class="input-group" id="sliceNormalForm">
+  <div class="input-group-prepend medium">
+    <label class="input-group-text">Plane normal</label>
+  </div>
+  <input type="text" class="form-control" placeholder="x" value="0" id="sliceNormX" required>
+  <input type="text" class="form-control" placeholder="y" value="1" id="sliceNormY" required>
+  <input type="text" class="form-control" placeholder="z" value="0" id="sliceNormZ" required>
+  <div class="input-group-append">
+    <button class="btn btn-primary" type="submit">&#x2713</button>
+  </div>
+</form>
+
+<script>
+  $("#shadingModeSelection").on("change", function() {
+    let selectionIndex = $(this).val();
+    let type = $(this).closest(".visualisationPanel").data("type");
+    send_request("visualisation_request", [activeDatasetID, type, "set_shading_mode", [selectionIndex]])
+  })
+
+
+</script>

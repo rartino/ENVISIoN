@@ -168,21 +168,22 @@ class EnvisionMain():
 
     def close_manager(self, identifier):
         if identifier not in self.visualisation_managers:
-            return False
+            raise EnvisionError('Tried to close non existant visualisation manager id:'+identifier+".")
         self.visualisation_managers[identifier].stop()
         del self.visualisation_managers[identifier]
-        return True
+        return identifier
 
     def start_visualisation(self, identifier, vis_type):
         if identifier not in self.visualisation_managers:
             raise EnvisionError('No visualisation manager with id:'+identifier+" has been initialized.")
         self.visualisation_managers[identifier].start(vis_type)
-        return True
+        return [identifier, vis_type]
 
     def stop_visualisation(self, identifier, vis_type):
         if identifier not in self.visualisation_managers:
             return False
         self.visualisation_managers[identifier].stop(vis_type)
+        return [identifier, vis_type]
 
     def visualisation_request(self, identifier, vis_type, function_name, param_list):
         if identifier not in self.visualisation_managers:

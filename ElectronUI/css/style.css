@@ -26,6 +26,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ############################################################################################## */
 
 
+.visualisationPanel {
+    margin-left: 30px;
+    display: none;
+}
+
+.visualisationPanel.active {
+    display: block;
+}
+
 .row.row-margin{
     margin-bottom: 5px;
 }

@@ -1,0 +1,86 @@
+
+
+<h3 id="datasetName">DATASET NAME</h3>
+
+<div class="form-check visStart" data-type="multi">
+    <input class="form-check-input" type="checkbox" value="" id="multiCheck">
+    <label class="form-check-label" for="multiCheck">
+      Volume Composition
+    </label>
+</div>
+<div id="multiSettings" class="visualisationPanel" data-type="multi">
+</div>
+
+<div class="form-check visStart" data-type="charge">
+    <input class="form-check-input" type="checkbox" value="" id="chargeCheck">
+    <label class="form-check-label" for="chargeCheck">
+      Charge Density
+    </label>
+</div>
+<div id="chargeSettings" class="visualisationPanel" data-type="charge">
+</div>
+
+<div class="form-check visStart" data-type="elf">
+    <input class="form-check-input" type="checkbox" value="" id="elfCheck">
+    <label class="form-check-label" for="elfCheck">
+      Electron Localisation Function
+    </label>
+</div>
+<div id="elfSettings" class="visualisationPanel">
+</div>
+
+<div class="form-check">
+    <input class="form-check-input" type="checkbox" value="" id="parchgCheck">
+    <label class="form-check-label" for="parchgCheck">
+      Partial Charge Density
+    </label>
+</div>
+<div class="form-check">
+    <input class="form-check-input" type="checkbox" value="" id="fermiCheck">
+    <label class="form-check-label" for="chargeCheck">
+      Fermi Surface/Volume
+    </label>
+</div>
+<div class="form-check">
+    <input class="form-check-input" type="checkbox" value="" id="atomCheck">
+    <label class="form-check-label" for="chargeCheck">
+      Atom Positions
+    </label>
+</div>
+
+
+<script>
+    $(".visStart").on("change", function(){
+      let started = $(this).find(".form-check-input").is(":checked")
+      let type = $(this).data("type");
+      let panelDiv = $(this).next(".visualisationPanel")
+      $(this).find(".form-check-input").prop("disabled", true);
+      
+      if (started) {
+        send_request('start_visualisation', [activeDatasetID, type])
+      }
+      else {
+        send_request('stop_visualisation', [activeDatasetID, type])
+      }
+    });
+
+    set_response_callback('start_visualisation', function(identifier, type){
+      let div = $(".visStart,[data-type="+type+"]");
+      div.find(".form-check-input").prop("disabled", false);
+      div.next(".visualisationPanel").show();
+    });
+    set_response_callback('stop_visualisation', function(identifier, type){
+      let div = $(".visStart,[data-type="+type+"]");
+      div.find(".form-check-input").prop("disabled", false);
+      div.next(".visualisationPanel").hide();
+    });
+    // $("#chargeCheck").on("change", function(){
+    //     console.log("change")
+    // });
+
+    // Load the control panel for each visualisation type.
+    $("#chargeSettings").load("contentPanels/VolumeControls.html");
+    $("#chargeSettings").show();
+
+
+</script>
