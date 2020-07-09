@@ -1,7 +1,5 @@
 from envisionpy.utils.exceptions import *
 import inviwopy.glm as glm
-import inviwopy.qt
-import ivw.utils
 import h5py
 import numpy as np
 from .AtomSubnetwork import AtomSubnetwork
@@ -15,7 +13,7 @@ from .MultiVolumeSubnetwork import MultiVolumeSubnetwork
 
 class VisualisationManager():
     '''
-    Class for managing one visualisation instance.
+    Class for managing one visualisation instance from a single HDF5 file.
     '''
     def __init__(self, hdf5_path, inviwoApp):
         self.app = inviwoApp
@@ -51,8 +49,7 @@ class VisualisationManager():
                 self.available_visualisations.append("dos")
             if len(set(['charge', 'elf', 'fermi', 'parchg']) & set(self.available_visualisations)) > 0:
                 self.available_visualisations.append('multi')
-        print("Available vis types: ", self.available_visualisations)
-
+                
     def start(self, vis_type, *args):
         # Start a new main visualisation.
         subnetwork = self.get_subnetwork(vis_type, *args)
@@ -98,24 +95,12 @@ class VisualisationManager():
         # Initialize a new subnetwork
         if vis_type == "charge":
             subnetwork = ChargeSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
-            self.get_subnetwork('multi').connect_volume(
-                subnetwork.volume_outport, 
-                subnetwork.transfer_function_prop, 
-                subnetwork.camera_prop)
 
         elif vis_type == "elf":
             subnetwork = ElfSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
-            self.get_subnetwork('multi').connect_volume(
-                subnetwork.volume_outport, 
-                subnetwork.transfer_function_prop, 
-                subnetwork.camera_prop)
 
         elif vis_type == "fermi":
             subnetwork = FermiSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
-            self.get_subnetwork('multi').connect_volume(
-                subnetwork.volume_outport, 
-                subnetwork.transfer_function_prop, 
-                subnetwork.camera_prop)
 
         elif vis_type == "parchg":
             subnetwork = ParchgSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 0, 3, *args)
@@ -131,9 +116,26 @@ class VisualisationManager():
 
         elif vis_type == "multi":
             subnetwork = MultiVolumeSubnetwork(self.app, self.hdf5_path, self.hdf5Output, 30, 3)
+            for t in ['charge', 'elf']:
+                if t in self.subnetworks:
+                    subnetwork.connect_volume(
+                        self.subnetworks[t].volume_outport, 
+                        self.subnetworks[t].transfer_function_prop, 
+                        self.subnetworks[t].camera_prop)
 
         subnetwork.hide() # All new visualisations are hidden by default here.
         self.subnetworks[vis_type] = subnetwork
         return subnetwork
+
+    def get_ui_data(self):
+        data_packet = {}
+        for vis_type, subnetwork in self.subnetworks:
+            data_packet[vis_type] = subnetwork.get_ui_data()
+        return data_packet
+
+    def call_subnetwork(self, vis_type, function_name, param_list):
+        if function_name not in dir(self.get_subnetwork(vis_type)):
+            raise EnvisionError("Invalid function call")
+        return getattr(self.get_subnetwork(vis_type), function_name)(*param_list)
         
             
