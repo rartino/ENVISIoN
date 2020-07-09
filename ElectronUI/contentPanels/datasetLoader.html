@@ -37,7 +37,7 @@
 <div class="form-check">
   <label class="form-check-label">
     <input type="radio" class="form-check-input" id="hdf5SourceCheckbox" name="sourceSelection">
-    HDF5 file (faster dataset loading)
+    HDF5 file (faster loading)
   </label>
 </div>
 <div id="vaspSource" style="display:block">
@@ -49,7 +49,7 @@
       <div class="custom-file">
         <input type="file" class="custom-file-input" id="vaspDirInput" aria-describedby="vaspLoadSpan" webkitdirectory
           onchange="">
-        <label class="custom-file-label" for="vaspDirInput">Choose directory</label>
+        <label class="custom-file-label" for="vaspDirInput" style="white-space: nowrap; text-overflow: ellipsis;">Choose directory</label>
       </div>
     </div>
   </div>
@@ -66,7 +66,7 @@
       <div class="custom-file">
         <input type="file" class="custom-file-input" id="hdf5LoadInput" aria-describedby="hdf5LoadSpan"
           accept=".hdf5,.HDF5">
-        <label class="custom-file-label" for="hdf5LoadInput">placeholder.hdf5</label>
+        <label class="custom-file-label" for="hdf5LoadInput" style="white-space: nowrap; text-overflow: ellipsis;">placeholder.hdf5</label>
       </div>
     </div>
   </div>
@@ -81,44 +81,123 @@
   </div>
 </div>
 
-
 <button id="loadDatasetBtn" type="button" class="btn btn-primary">Load dataset</button>
 
 <h5 class="border-top">Loaded datasets</h5>
 <p>Loaded datasets can be visualised by selecting them in the menu on the left.</p>
 <div id="datasetsList">
-<!--   <div class="row row-margin">
-    <div class="input-group col" id="addTFGroup">
-      <div class="input-group-prepend">
-        <label class="input-group-text">short</label>
-        <label class="input-group-text">path1</label>
-      </div>
-      <div class="input-group-append">
-        <button class="btn btn-primary" type="submit" id="tfAddButton">Remove</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="row row-margin">
-      <div class="input-group col-md" id="addTFGroup">
-        <div class="input-group-prepend medium">
-          <label class="input-group-text">much longer name</label>
-        </div>
-        <input type="text" class="form-control" id="wawawaw" value="path1" disabled>
-        <div class="input-group-append">
-          <button class="btn btn-primary" type="submit" id="tfAddButton">Remove</button>
-        </div>
-      </div>
-    </div> -->
 </div>
 
 
 <script>
+  var activeDatasetID;
+  var loadedDatasets = {};
+  var tempHdf5Files = [];
   $(document).ready(function () {
+    const fs = require('fs')
+
     $("#vaspSourceCheckbox").on("click", togglePathType);
     $("#hdf5SourceCheckbox").on("click", togglePathType);
-    $("#loadDatasetBtn").on("click", loadDataset);
+    $(".custom-file-input").on("change", pathInputChanged);
+    
+    $("#loadDatasetBtn").on("click", function(){
+      $("#loadDatasetBtn").prop("disabled",true);
+      $("#loadDatasetBtn").text("Loading...");
+      let isVaspPath = $("#vaspSourceCheckbox").is(":checked");
+      let isHdf5Path = $("#hdf5SourceCheckbox").is(":checked");
+      let datasetName = $("#datasetNameText").val();
 
-    console.log("Dataset selector")
+      let hdf5Path;
+
+      if (isVaspPath) {
+        let vaspPath = $("#vaspDirInput")[0].files[0].path;
+        hdf5Path = "temp_" + tempHdf5Files.length + ".hdf5";
+        tempHdf5Files.push(hdf5Path);
+
+        // Try to remove old temporary file
+        try {
+            fs.unlinkSync(hdf5Path);
+        }
+        catch (err) {}
+        send_request("parse_vasp", [vaspPath, hdf5Path, "All"]);
+
+        if (datasetName == ""){
+            let strs = vaspPath.split(/[\\/]/);
+            datasetName = strs[strs.length - 1];
+        }
+      }
+      else if (isHdf5Path) {
+        hdf5Path = $("#hdf5LoadInput")[0].files[0].path;
+        if (datasetName == ""){
+            let strs = hdf5Path.split(/[\\/]/);
+            datasetName = strs[strs.length - 1].split(".")[0];
+        }
+      }
+      send_request("init_manager", [hdf5Path, datasetName])
+    });
+
+
+    set_response_callback("init_manager", function(identifier, hdf5Path, visTypes){
+      $("#loadDatasetBtn").prop("disabled", false);
+      $("#loadDatasetBtn").text("Load Dataset");
+
+      // Create list item for this dataset
+      let listElem = $(`
+        <div class="row row-margin">
+          <div class="input-group col">
+            <div class="input-group-prepend large">
+              <label class="input-group-text">` + identifier + `</label>
+            </div>
+            <input type="text" class="form-control" value="` + hdf5Path + `" disabled>
+            <div class="input-group-append">
+              <button class="btn btn-danger">Clear</button>
+            </div>
+          </div>
+        </div>`);
+      $("#datasetsList").append(listElem);
+      // add to sidebar
+      let sidebarElem = $(`
+        <div>
+          <li data-show="#visControlPanel" data-identifier=`+identifier+`>
+            <a href="#">` + identifier + `</a>
+          </li>
+          <ul class="list-unstyled show"></ul>
+        </div>`);
+      sidebarElem.find("> li").on("click", sidebarLinkClicked);
+      sidebarElem.find("> li").on("click", function(){
+        activeDatasetID = $(this).data("identifier")
+        $("#datasetName").text(activeDatasetID)
+      });
+      $("#datasetLinks").append(sidebarElem);
+      listElem.find(".btn-danger").on("click", ()=>closeDataset(identifier, listElem, sidebarElem));
+    });
+
+    function closeDataset(identifier, listElem, sidebarElem) {
+      listElem.remove();
+      sidebarElem.remove();
+      send_request('close_manager', [identifier])
+    }
+
+    function togglePathType() {
+      let vaspDiv = $("#vaspSource")
+      let hdf5Div = $("#hdf5Source")
+      if ($("#vaspSourceCheckbox").is(":checked")) {
+        vaspDiv.css("display", "block")
+        hdf5Div.css("display", "none")
+      }
+      else if ($("#hdf5SourceCheckbox").is(":checked")) {
+        vaspDiv.css("display", "none")
+        hdf5Div.css("display", "block")
+      }
+    }
+
+    function pathInputChanged() {
+      let pathEnd = $(this)[0].files[0].path;
+      pathEnd = pathEnd.split("\\")
+      pathEnd = pathEnd[pathEnd.length - 1]
+      pathEnd = pathEnd.split("/")
+      pathEnd = pathEnd[pathEnd.length - 1]
+      $(this).next('.custom-file-label').addClass("selected").html(pathEnd);
+    }
   });
 </script>
