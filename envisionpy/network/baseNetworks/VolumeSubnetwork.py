@@ -8,22 +8,28 @@ from .Subnetwork import Subnetwork
 class VolumeSubnetwork(Subnetwork):
     '''
     Manages a subnetwork for generic volume rendering. 
-    Used for charge density, ELF, and fermi surface visualisations.
+    Not used directly in any visualisation but inherited by others.
+    Used for charge density, ELF, fermi surface, partial charge, visualisations.
     '''
     def __init__(self, inviwoApp, hdf5_path, hdf5_outport, xpos=0, ypos=0, multichannel=False):
         Subnetwork.__init__(self, inviwoApp)
         self.is_multichannel = multichannel
-        self.setup_network(hdf5_path, hdf5_outport, xpos, ypos)
         self.transperancy_before = True
         self.tf_enabled = True
-        self.iso_enabled = True
-
+        self.iso_enabled = False
+        self.iso_color = [0, 0, 0, 0]
+        self.iso_value = 0.5
+        
+        self.setup_network(hdf5_path, hdf5_outport, xpos, ypos)
+        
+        self.set_texture_wrap_mode(2)
         self.set_slice_background(
             inviwopy.glm.vec4(0,0,0,1), 
             inviwopy.glm.vec4(1,1,1,1),3,0)
         self.clear_tf()
         self.set_plane_normal()
-        self.set_iso_surface(0.5, [1, 1, 1, 0])
+        self.set_iso_surface(0.5, [1, 1, 1, 1])
+        self.toggle_iso(False)
 
     def decoration_is_valid(self, vis_type):
         return vis_type in ['charge', 'elf', 'atom']
@@ -39,6 +45,39 @@ class VolumeSubnetwork(Subnetwork):
             self.get_processor('VolumeCanvas').widget.hide()
         if hide_slice:
             self.get_processor('SliceCanvas').widget.hide()
+
+    def get_ui_data(self):
+        rc = self.get_processor('Raycaster')
+        vCanvas = self.get_processor('VolumeCanvas')
+        sCanvas = self.get_processor('SliceCanvas')
+        selection = self.get_processor('Hdf5Selection')
+        volumeSlice = self.get_processor('VolumeSlice')
+
+        print([
+                sCanvas.widget.visibility, 
+                rc.positionindicator.enable.value, 
+                volumeSlice.planePosition.value.x, 
+                volumeSlice.trafoGroup.imageScale.value,
+                volumeSlice.trafoGroup.volumeWrapping.selectedDisplayName,
+                [volumeSlice.planeNormal.value.x, volumeSlice.planeNormal.value.y, volumeSlice.planeNormal.value.z]
+            ])
+        return [
+            not vCanvas.widget.visibility,
+            [selection.volumeSelection.selectedValue, selection.volumeSelection.values],
+            rc.lighting.shadingMode.selectedDisplayName,
+            self.get_background_info(),
+            self.transperancy_before,
+            self.get_tf_points(),
+            [self.iso_enabled, self.iso_value, self.iso_color],
+            [
+                sCanvas.widget.visibility, 
+                rc.positionindicator.enable.value, 
+                volumeSlice.planePosition.value.x, 
+                volumeSlice.trafoGroup.imageScale.value,
+                volumeSlice.trafoGroup.volumeWrapping.selectedDisplayName,
+                [volumeSlice.planeNormal.value.x, volumeSlice.planeNormal.value.y, volumeSlice.planeNormal.value.z]
+            ]
+        ]
 
 # ------------------------------------------
 # ------- Property control functions -------
@@ -58,31 +97,25 @@ class VolumeSubnetwork(Subnetwork):
     def toggle_transperancy_before(self, enable):
     # Toggle full transperancy before first tf point.
         self.transperancy_before = enable
-        return self.update_transperancy_before()
+        self.tf_changed()
 
-    def update_transperancy_before(self):
+    def tf_changed(self):
         if self.transperancy_before and len(self.get_tf_points()) > 0:
             lowestVal = self.get_tf_points()[0][0]
         else:
             lowestVal = 0
         self.set_mask(lowestVal, 1)
-        return [lowestVal, 1]
 
-    def slice_copy_tf(self):
-    # Copy the volume transferfunction to the slice transferfunction
-    # Adds a white point just before the first one aswell
+        # Copy the volume transferfunction to the slice transferfunction
+        # Adds a white point just before the first one aswell
         volumeSlice = self.get_processor('VolumeSlice')
         volumeSlice.tfGroup.transferFunction.clear()
         tf_points = self.get_tf_points()
-
-        # Copy all points but with alpha=1
         for point in tf_points:
             volumeSlice.tfGroup.transferFunction.add(point[0], inviwopy.glm.vec4(point[1][0], point[1][1], point[1][2], 1))
-
-        # Add white point below lowest value.
         if self.transperancy_before and len(tf_points) > 0 and tf_points[0][0] != 0:
             volumeSlice.tfGroup.transferFunction.add(0.99*tf_points[0][0], inviwopy.glm.vec4(1.0, 1.0, 1.0, 1.0))
-
+   
     def clear_tf(self):
     # Clears the transfer function of all points
         Raycaster = self.get_processor('Raycaster')
@@ -93,7 +126,7 @@ class VolumeSubnetwork(Subnetwork):
             getattr(Raycaster, 'transfer-functions').transferFunction2.clear()
             getattr(Raycaster, 'transfer-functions').transferFunction3.clear()
             getattr(Raycaster, 'transfer-functions').transferFunction4.clear()
-        self.slice_copy_tf()
+        self.tf_changed()
 
     def set_tf_points(self, points):
     # Sets all transfer function points from an array of tf poitns.
@@ -112,8 +145,7 @@ class VolumeSubnetwork(Subnetwork):
             getattr(raycaster, 'transfer-functions').transferFunction2.value = tfProperty.value
             getattr(raycaster, 'transfer-functions').transferFunction3.value = tfProperty.value
             getattr(raycaster, 'transfer-functions').transferFunction4.value = tfProperty.value
-        self.slice_copy_tf()
-        self.update_transperancy_before()
+        self.tf_changed()
 
     def get_tf_points(self):
     # Return a list of all the transferfunction points
@@ -137,19 +169,26 @@ class VolumeSubnetwork(Subnetwork):
             getattr(raycaster, 'transfer-functions').transferFunction2.add(value, glm_col)
             getattr(raycaster, 'transfer-functions').transferFunction3.add(value, glm_col)
             getattr(raycaster, 'transfer-functions').transferFunction4.add(value, glm_col)
-        self.slice_copy_tf()
-        self.update_transperancy_before()
+        self.tf_changed()
 
-    # def add_isovalue(self, value, color):
-    # # Add point to the raycaster isovalues
-    # # Color should be an 4-element-array containing RGBA with values in 0-1 interval.
-    #     raycaster = self.get_processor('Raycaster')
-    #     glm_col = inviwopy.glm.vec4(color[0], color[1], color[2], color[3])
-    #     raycaster.isotfComposite.isovalues.add(value, glm_col)
-    #     pass
+    def toggle_iso(self, enable):
+        self.iso_enabled = enable
+        if self.is_multichannel:
+            if enable:
+                self.set_iso_surface(self.iso_value, self.iso_color)
+            else:
+                self.set_iso_surface(self.iso_value, [self.iso_color[0], self.iso_color[1], self.iso_color[2], 0])
+        else:
+            if enable:
+                self.get_processor('Raycaster').raycaster.renderingType.selectedIndex = 1
+            else:
+                self.get_processor('Raycaster').raycaster.renderingType.selectedIndex = 0
+
 
     def set_iso_surface(self, value, color):
         glm_col = inviwopy.glm.vec4(color[0], color[1], color[2], color[3])
+        self.iso_color = color
+        self.iso_value = value
         if self.is_multichannel:
             raycaster = self.get_processor('IsoRaycaster')
             raycaster.raycaster.isoValue.value = value
@@ -169,13 +208,6 @@ class VolumeSubnetwork(Subnetwork):
     def set_shading_mode(self, key):
         raycaster = self.get_processor('Raycaster')
         raycaster.lighting.shadingMode.selectedDisplayName = key
-
-    def set_rendering_type(self, idx):
-        # 0 - DVR
-        # 1 - DVR + Isosurface
-        # 2 - Isosurface
-        raycaster = self.get_processor('Raycaster')
-        raycaster.raycaster.renderingType.selectedIndex = idx
 
     def set_volume_background(self, color_1 = None, color_2 = None, styleIndex = None, blendModeIndex = None):
     # Set the background of the volume canvas
@@ -227,13 +259,6 @@ class VolumeSubnetwork(Subnetwork):
     def set_slice_zoom(self, zoom):
         volumeSlice = self.get_processor('VolumeSlice')
         volumeSlice.trafoGroup.imageScale.value = zoom
-    
-    def get_slice_active(self):
-        try:
-            self.get_processor('SliceCanvas')
-            return True
-        except ProcessorNotFoundError:
-            return False
 
     def get_plane_active(self):
         return self.get_processor('Raycaster').positionindicator.enable.value
@@ -253,7 +278,7 @@ class VolumeSubnetwork(Subnetwork):
 
     def get_background_info(self):
         background = self.get_processor("VolumeBackground")
-        style = background.backgroundStyle.selectedIndex
+        style = background.backgroundStyle.selectedDisplayName
         col_1 = background.bgColor1.value
         col_2 = background.bgColor2.value
         return [
