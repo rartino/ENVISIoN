@@ -136,7 +136,9 @@
       div.siblings("div").hide();
     }
     $(document).ready(function () {
-      $("#dataLoaderPanel").load("contentPanels/datasetLoader.html");
+      $("#dataLoaderPanel").load("contentPanels/datasetLoader.html", function(){
+        console.log($(this))
+      });
       $("#aboutPanel").load("contentPanels/about.html");
       $("#parserPanel").load("contentPanels/parserPanel.html");
       $("#visControlPanel").load("contentPanels/visualisationControl.html");

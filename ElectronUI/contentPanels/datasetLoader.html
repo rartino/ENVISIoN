@@ -90,7 +90,7 @@
 
 
 <script>
-  var activeDatasetID;
+  var activeDatasetID = "placeholder";
   var loadedDatasets = {};
   var tempHdf5Files = [];
   $(document).ready(function () {
@@ -165,8 +165,10 @@
         </div>`);
       sidebarElem.find("> li").on("click", sidebarLinkClicked);
       sidebarElem.find("> li").on("click", function(){
-        activeDatasetID = $(this).data("identifier")
-        $("#datasetName").text(activeDatasetID)
+        activeDatasetID = $(this).data("identifier");
+        $("#datasetName").text(activeDatasetID);
+        disableVisControls();
+        send_request("get_ui_data", [activeDatasetID]);
       });
       $("#datasetLinks").append(sidebarElem);
       listElem.find(".btn-danger").on("click", ()=>closeDataset(identifier, listElem, sidebarElem));
