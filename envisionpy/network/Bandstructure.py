@@ -5,7 +5,7 @@ import h5py
 from envisionpy.utils.exceptions import *
 from .baseNetworks.LinePlotSubnetwork import LinePlotSubnetwork
 
-class BandSubnetwork(LinePlotSubnetwork):
+class Bandstructure(LinePlotSubnetwork):
     '''
     Manages a subnetwork for bandstructure visualisation. 
     Uses a default LinePlotSubnetwork.

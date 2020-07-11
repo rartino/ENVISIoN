@@ -5,9 +5,9 @@ import h5py
 from envisionpy.utils.exceptions import *
 from .baseNetworks.VolumeSubnetwork import VolumeSubnetwork
 
-class MultiVolumeSubnetwork(VolumeSubnetwork):
+class MultiVolume(VolumeSubnetwork):
     '''
-    Manages a subnetwork for rendering of multiple volumes. 
+    Manages a subnetwork for rendering of multiple volumes from other visualisations. 
     Takes multiple volumes and transfer functions and renders them in a single image.
     Used to for example render both Electron Density and ELF in the same canvas. 
 
@@ -21,7 +21,6 @@ class MultiVolumeSubnetwork(VolumeSubnetwork):
         self.used_inports = [False] * 4
         self.other_transferfunctions = [None] * 4
         
-
     @staticmethod
     def valid_hdf5(hdf5_file):
         return (
@@ -48,8 +47,6 @@ class MultiVolumeSubnetwork(VolumeSubnetwork):
         if vis_type == 'atom':
             self.network.removeLink(self.camera_prop, other.camera_prop)
         self.disconnect_decorations_port(other.decoration_outport)
-
-    
 
     def copy_transferfunctions(self):
         # Copy all the transferfunctions from connected visualisations.

@@ -3,15 +3,15 @@ import numpy as np
 import h5py
 from envisionpy.utils.exceptions import *
 from envisionpy.utils.atomData import atomic_radii, element_names, element_colors
-from .baseNetworks.Subnetwork import Subnetwork
+from .baseNetworks.Decoration import Decoration
 # TODO add volume merger and multi-raycaster
 
-class AtomSubnetwork(Subnetwork):
+class AtomPositions(Decoration):
     '''
     Manages a subnetwork for atom position rendering.
     '''
     def __init__(self, inviwoApp, hdf5_path, hdf5_output, xpos=0, ypos=0):
-        Subnetwork.__init__(self, inviwoApp)
+        Decoration.__init__(self, inviwoApp)
         self.atom_radii = []
         self.atom_names = []
         self.nAtomTypes = 0
@@ -24,8 +24,25 @@ class AtomSubnetwork(Subnetwork):
     def valid_hdf5(hdf5_file):
         return hdf5_file.get("UnitCell") != None
 
-    def valid_decorations(self):
-        return []
+    def valid_visualisations(self):
+        return ['charge', 'elf', 'parchg']
+
+    def connect_decoration(self, other, vis_type):
+        # Add a decoration by connecting data ports and linking properties.
+        if vis_type not in self.valid_visualisations():
+            raise EnvisionError('Invalid visualisation type ['+vis_type+'].')
+
+        # Link needed properties between networks.
+        if vis_type == 'charge' or vis_type == 'elf' or vis_type == 'parchg':
+            self.network.addLink(self.camera_prop, other.camera_prop)
+            self.network.addLink(other.camera_prop, self.camera_prop)
+        
+        other.connect_decoration_ports(self.decoration_outport)
+
+    def disconnect_decoration(self, other, vis_type):
+        if vis_type == 'charge' or vis_type == 'elf' or vis_type == 'parchg':
+            self.network.removeLink(self.camera_prop, other.camera_prop)
+        other.disconnect_decorations_port(self.decoration_outport)
 
     def show(self):
         self.get_processor('UnitcellCanvas').widget.show()
@@ -33,6 +50,12 @@ class AtomSubnetwork(Subnetwork):
     def hide(self):
         self.get_processor('UnitcellCanvas').widget.hide()
 
+    # def get_ui_data(self):
+    #     rc = self.get_processor('Raycaster')
+    #     vCanvas = self.get_processor('VolumeCanvas')
+    #     sCanvas = self.get_processor('SliceCanvas')
+    #     selection = self.get_processor('Hdf5Selection')
+    #     volumeSlice = self.get_processor('VolumeSlice')
 # ------------------------------------------
 # ------- Property control functions -------
 
