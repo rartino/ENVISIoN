@@ -1,8 +1,34 @@
+<!-- 
+  This html is used multiple times in the same html document.
+  In order to avoid duplicate id:s all id:s have "VISTYPE" prepended.
+  Before adding this to a html document replace all instances of VISTYPE
+  with an unique identifier.
+  VISTYPE should be changed to the same string that NetworkManager uses to identify
+  the visualisation type, for example "charge", "elf", "fermi".
+-->
+
+
+<div class="form-check">
+  <input type="checkbox" class="form-check-input" id="VISTYPE_hideCheck">
+  <label class="form-check-label" for="VISTYPE_hideCheck">Hide Canvas</label>
+</div>
+
 <div class="input-group">
   <div class="input-group-prepend medium">
-    <label class="input-group-text" for="shadingModeSelection">Shading mode</label>
+    <label class="input-group-text" for="VISTYPE_volumeSelection">Select volume</label>
   </div>
-  <select class="custom-select" id="shadingModeSelection">
+  <select class="custom-select" id="VISTYPE_volumeSelection">
+    <option selected>/DEFAULT</option>
+  </select>
+</div>
+
+<br>
+
+<div class="input-group">
+  <div class="input-group-prepend medium">
+    <label class="input-group-text" for="VISTYPE_shadingModeSelection">Shading mode</label>
+  </div>
+  <select class="custom-select" id="VISTYPE_shadingModeSelection">
     <option>No Shading</option>
     <option>Ambient</option>
     <option>Diffuse</option>
@@ -16,9 +42,9 @@
   <div class="input-group-prepend medium">
     <label class="input-group-text">Background</label>
   </div>
-  <input class="form-control" id="backgroundColor1" type="color" value="#000000" required>
-  <input class="form-control" id="backgroundColor2" type="color" value="#ffffff" required>
-  <select class="custom-select" id="backgroundStyleSelection">
+  <input class="form-control" id="VISTYPE_backgroundColor1" type="color" value="#000000" required>
+  <input class="form-control" id="VISTYPE_backgroundColor2" type="color" value="#ffffff" required>
+  <select class="custom-select" id="VISTYPE_backgroundStyleSelection">
     <option selected>Vertical gradient</option>
     <option>Horizontal gradient</option>
     <option>Spherical gradient</option>
@@ -27,74 +53,203 @@
   </select>
 </div>
 
-
-
-<div class="form-check">
-  <input type="checkbox" class="form-check-input" id="transperancyCheckbox" checked>
-  <label class="form-check-label" for="transperancyCheckbox">Toggle transperancy before first point</label>
-</div>
-
 <h5>Transfer Function</h5>
-<div id="tfPoints">
-  <form class="needs-validation" id="tfAdder">
-    <div class="input-group" id="addTFGroup">
-      <input type="text" class="form-control" placeholder="value [0-1]" id="tfValue" required>
-      <input type="text" class="form-control" placeholder="alpha [0-1]" id="tfAlpha" required>
+<div class="form-check">
+  <input type="checkbox" class="form-check-input" id="VISTYPE_transperancyCheckbox" checked>
+  <label class="form-check-label" for="VISTYPE_transperancyCheckbox">Toggle transperancy before first point</label>
+</div>
+<div id="VISTYPE_tfPoints">
+  <form class="needs-validation" id="VISTYPE_tfAdder">
+    <div class="input-group" id="VISTYPE_addTFGroup">
+      <input type="text" class="form-control" placeholder="value [0-1]" id="VISTYPE_tfValue" required>
+      <input type="text" class="form-control" placeholder="alpha [0-1]" id="VISTYPE_tfAlpha" required>
       <input class="form-control" type="color" value="#563d7c" required>
       <div class="input-group-append">
-        <button class="btn btn-primary" type="submit" id="tfAddButton">+</button>
+        <button class="btn btn-primary" type="submit" id="VISTYPE_tfAddButton">+</button>
       </div>
     </div>
   </form>
 </div>
 
+<h5>ISO surface</h5>
+<div class="form-check">
+  <input type="checkbox" class="form-check-input" id="VISTYPE_isoCheck">
+  <label class="form-check-label" for="VISTYPE_isoCheck">Toggle ISO surface</label>
+</div>
+<table>
+  <td><label for="VISTYPE_isoRange">Slice plane height </label></td>
+  <td><input class="form-control-range" type="range" min="0" max="1" step="0.01" value="0.5" id="VISTYPE_isoRange"></td>
+  <td><input class="form-control" type="text" placeholder="0.5" id="VISTYPE_isoText" style="max-width:60px;"></td>
+</table>
+
 <h5>Volume Slice</h5>
 <div class="form-check">
-  <input type="checkbox" class="form-check-input" id="sliceCanvasCheck">
-  <label class="form-check-label" for="sliceCanvasCheck">Toggle slice rendering</label>
+  <input type="checkbox" class="form-check-input" id="VISTYPE_sliceCanvasCheck">
+  <label class="form-check-label" for="VISTYPE_sliceCanvasCheck">Toggle slice rendering</label>
 </div>
 <div class="form-check">
-  <input type="checkbox" class="form-check-input" id="slicePlaneCheck">
-  <label class=" form-check-label" for="slicePlaneCheck">Toggle position indicator</label>
+  <input type="checkbox" class="form-check-input" id="VISTYPE_slicePlaneCheck">
+  <label class=" form-check-label" for="VISTYPE_slicePlaneCheck">Toggle position indicator</label>
 </div>
 <table>
-  <td><label for="sliceHeightRange">Slice plane height </label></td>
-  <td><input class="form-control-range" type="range" min="0" max="1" step="0.01" id="sliceHeightRange"></td>
-  <td><input class="form-control" type="text" placeholder="[0-1]" id="sliceHeightText" style="max-width:60px;"></td>
+  <td><label for="VISTYPE_sliceHeightRange">Slice plane height </label></td>
+  <td><input class="form-control-range" type="range" min="0" max="1" step="0.01" value="0.5" id="VISTYPE_sliceHeightRange"></td>
+  <td><input class="form-control" type="text" placeholder="0.5" id="VISTYPE_sliceHeightText" style="max-width:60px;"></td>
 </table>
 <table>
-  <td><label for="sliceZoomRange">Slice image zoom </label></td>
-  <td><input type="range" min="0" max="1" step="0.01" class="form-control-range" id="sliceZoomRange"></td>
-  <td><input type="text" class="form-control" placeholder="[0-1]" id="sliceZoomText" style="max-width:60px;"></td>
+  <td><label for="VISTYPE_sliceZoomRange">Slice image zoom </label></td>
+  <td><input type="range" min="0" max="1" step="0.01" value="1" class="form-control-range" id="VISTYPE_sliceZoomRange"></td>
+  <td><input type="text" class="form-control" placeholder="1" id="VISTYPE_sliceZoomText" style="max-width:60px;"></td>
 </table>
+
 <div class="input-group">
   <div class="input-group-prepend medium">
-    <label class="input-group-text" for="sliceWrapSelection">Texture wrap</label>
+    <label class="input-group-text" for="VISTYPE_sliceWrapSelection">Texture wrap</label>
   </div>
-  <select class="custom-select" id="sliceWrapSelection">
-    <option selected>Fill with color</option>
-    <option>Repeat</option>
+  <select class="custom-select" id="VISTYPE_sliceWrapSelection">
+    <option>Fill with Color</option>
+    <option selected>Repeat</option>
   </select>
 </div>
 
-<form class="input-group" id="sliceNormalForm">
+<form class="input-group" id="VISTYPE_sliceNormalForm">
   <div class="input-group-prepend medium">
     <label class="input-group-text">Plane normal</label>
   </div>
-  <input type="text" class="form-control" placeholder="x" value="0" id="sliceNormX" required>
-  <input type="text" class="form-control" placeholder="y" value="1" id="sliceNormY" required>
-  <input type="text" class="form-control" placeholder="z" value="0" id="sliceNormZ" required>
+  <input type="text" class="form-control" placeholder="x" value="0" id="VISTYPE_sliceNormX" required>
+  <input type="text" class="form-control" placeholder="y" value="1" id="VISTYPE_sliceNormY" required>
+  <input type="text" class="form-control" placeholder="z" value="0" id="VISTYPE_sliceNormZ" required>
   <div class="input-group-append">
     <button class="btn btn-primary" type="submit">&#x2713</button>
   </div>
 </form>
 
+<hr>
+
 <script>
-  $("#shadingModeSelection").on("change", function() {
-    let selectionIndex = $(this).val();
-    let type = $(this).closest(".visualisationPanel").data("type");
-    send_request("visualisation_request", [activeDatasetID, type, "set_shading_mode", [selectionIndex]])
-  })
+
+  function VISTYPE_load_ui_data(uiData){
+    console.log("RELOADING UI");
+    $("#VISTYPE_hideCheck").prop("checked", uiData[0]);
+
+    // Reload volume selections.
+    $("#VISTYPE_volumeSelection").empty();
+    uiData[1][1].forEach(option => {
+      $("#VISTYPE_volumeSelection").append('<option selected>'+option+'</option>');
+    });
+    $("#VISTYPE_volumeSelection").val(uiData[1][0]);
+
+    $("#VISTYPE_shadingModeSelection").val(uiData[2]);
+
+    let bgData = uiData[3];
+    $("#VISTYPE_backgroundColor1").val(rgbArrToHex(bgData[0]));
+    $("#VISTYPE_backgroundColor2").val(rgbArrToHex(bgData[1]));
+    $("#VISTYPE_backgroundStyleSelection").val(bgData[2]);
+    
+    $("#VISTYPE_transperancyCheckbox").prop('checked', uiData[4]);
+    let tfData = uiData[5];
+    // TODO
+
+    let isoData = uiData[6];
+    $("#VISTYPE_isoCheck").prop('checked', isoData[0]);
+    $("#VISTYPE_isoRange,#VISTYPE_isoText").val(isoData[1]);
+
+    let sliceData = uiData[7];
+    $("#VISTYPE_sliceCanvasCheck").prop('checked', sliceData[0]);
+    $("#VISTYPE_slicePlaneCheck").prop('checked', sliceData[1]);
+    $("#VISTYPE_sliceHeightRange,#VISTYPE_sliceHeightText").val(sliceData[2]);
+    $("#VISTYPE_sliceZoomRange,#VISTYPE_sliceZoomText").val(sliceData[3]);
+    $("#VISTYPE_sliceWrapSelection").val(sliceData[4]);
+    $("#VISTYPE_sliceNormX").val(sliceData[5][0]);
+    $("#VISTYPE_sliceNormY").val(sliceData[5][1]);
+    $("#VISTYPE_sliceNormZ").val(sliceData[5][2]);
+  }
+
+  $(document).ready(function () {
+    // Set input filters to text field inputs.
+    $("#VISTYPE_tfValue,#VISTYPE_tfAlpha,#VISTYPE_sliceHeightText,#VISTYPE_sliceNormX,#VISTYPE_sliceNormY,#VISTYPE_sliceNormZ,#VISTYPE_sliceZoomText,VISTYPE_isoText").inputFilter(function (value) {
+      return /^(0?(\.\d*)?|1(\.0*)?)?$/.test(value) //True if float in range 0 to 1, or empty.
+    });
+
+    // Set callbacks on ui inputs.
+
+    $("#VISTYPE_hideCheck").on("change", function() {
+      let checked = $(this).is(":checked");
+      if (checked)
+        send_request("visualisation_request", [activeDatasetID, "VISTYPE", "hide", [true, false]])
+      else
+        send_request("visualisation_request", [activeDatasetID, "VISTYPE", "show", [true, false]])
+    });
+
+    $("#VISTYPE_volumeSelection").on("change", function() {
+      send_request("visualisation_request", [activeDatasetID, "VISTYPE", "set_volume_selection", [$(this).val()]])
+    });
+
+    $("#VISTYPE_shadingModeSelection").on("change", function() {
+      let selectionIndex = $(this).val();
+      send_request("visualisation_request", [activeDatasetID, "VISTYPE", "set_shading_mode", [selectionIndex]])
+    });
+
+    $("#VISTYPE_backgroundColor1,#VISTYPE_backgroundColor2,#VISTYPE_backgroundStyleSelection").on("change", function() {
+      let color1 = hexToRGB($("#VISTYPE_backgroundColor1").val());
+      let color2 = hexToRGB($("#VISTYPE_backgroundColor2").val());
+      color1.push(1);
+      color2.push(1);
+      let styleIndex = $("#VISTYPE_backgroundStyleSelection")[0].selectedIndex;
+      send_request("visualisation_request", [activeDatasetID, "VISTYPE", "set_volume_background", [color1, color2, styleIndex]])
+    });
+    
+    $("#VISTYPE_transperancyCheckbox").on('change', function() {
+      send_request("visualisation_request", [activeDatasetID, "VISTYPE", "toggle_transperancy_before", [$(this).is(":checked")]])
+    });
+
+    $("#VISTYPE_sliceCanvasCheck").on('change', function() {
+      let checked = $(this).is(":checked")
+      if (checked)
+        send_request("visualisation_request", [activeDatasetID, "VISTYPE", "show", [false, true]])
+      else
+        send_request("visualisation_request", [activeDatasetID, "VISTYPE", "hide", [false, true]])
+    });
+
+    $("#VISTYPE_slicePlaneCheck").on('change', function() {
+        send_request("visualisation_request", [activeDatasetID, "VISTYPE", "toggle_slice_plane", [$(this).is(":checked")]]);
+    });
+
+    $("#VISTYPE_sliceHeightRange,#VISTYPE_sliceHeightText").on('change input keydown keyup mousedown mouseup select contextmenu drop', function() {
+      let value = $(this).val();
+      $("#VISTYPE_sliceHeightRange").val(value);
+      $("#VISTYPE_sliceHeightText").val(value);
+      if (value == "") value = 0.5;
+      else value = parseFloat(value);
+      send_request("visualisation_request", [activeDatasetID, "VISTYPE", "set_plane_height", [value]]);
+    });
+
+    $("#VISTYPE_sliceZoomRange,#VISTYPE_sliceZoomText").on('change input keydown keyup mousedown mouseup select contextmenu drop', function() {
+      let value = $(this).val();
+      $("#VISTYPE_sliceZoomRange").val(value);
+      $("#VISTYPE_sliceZoomText").val(value);
+      if (value == "") value = 1;
+      else value = parseFloat(value);
+      value = Math.min(10, 1/value);
+      send_request("visualisation_request", [activeDatasetID, "VISTYPE", "set_slice_zoom", [value]]);
+    });
+
+    $("#VISTYPE_sliceWrapSelection").on('change', function() {
+      idx = [0, 2][$(this)[0].selectedIndex];
+      send_request("visualisation_request", [activeDatasetID, "VISTYPE", "set_texture_wrap_mode", [idx]]);
+    });
+
+    $("#VISTYPE_sliceNormalForm").on('submit', function() {
+      let x = parseFloat($(this)[0].children[1].value);
+      let y = parseFloat($(this)[0].children[2].value);
+      let z = parseFloat($(this)[0].children[3].value);
+      send_request("visualisation_request", [activeDatasetID, "VISTYPE", "set_plane_normal", [x, y, z]]);
+      return false;
+    });
+
+  });
+
+  
 
 
 </script>

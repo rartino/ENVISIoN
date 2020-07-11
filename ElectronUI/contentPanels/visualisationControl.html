@@ -2,8 +2,9 @@
 
 <h3 id="datasetName">DATASET NAME</h3>
 
+<!-- multi volume -->
 <div class="form-check visStart" data-type="multi">
-    <input class="form-check-input" type="checkbox" value="" id="multiCheck">
+    <input class="form-check-input visCheck" type="checkbox" value="" id="multiCheck">
     <label class="form-check-label" for="multiCheck">
       Volume Composition
     </label>
@@ -11,8 +12,9 @@
 <div id="multiSettings" class="visualisationPanel" data-type="multi">
 </div>
 
+<!-- charge density -->
 <div class="form-check visStart" data-type="charge">
-    <input class="form-check-input" type="checkbox" value="" id="chargeCheck">
+    <input class="form-check-input visCheck" type="checkbox" value="" id="chargeCheck">
     <label class="form-check-label" for="chargeCheck">
       Charge Density
     </label>
@@ -20,67 +22,137 @@
 <div id="chargeSettings" class="visualisationPanel" data-type="charge">
 </div>
 
+<!-- elf -->
 <div class="form-check visStart" data-type="elf">
-    <input class="form-check-input" type="checkbox" value="" id="elfCheck">
+    <input class="form-check-input visCheck" type="checkbox" value="" id="elfCheck">
     <label class="form-check-label" for="elfCheck">
       Electron Localisation Function
     </label>
 </div>
-<div id="elfSettings" class="visualisationPanel">
+<div id="elfSettings" class="visualisationPanel" data-type="elf">
 </div>
 
-<div class="form-check">
-    <input class="form-check-input" type="checkbox" value="" id="parchgCheck">
+<!-- partial charge -->
+<div class="form-check visStart" data-type="parchg">
+    <input class="form-check-input visCheck" type="checkbox" value="" id="parchgCheck">
     <label class="form-check-label" for="parchgCheck">
       Partial Charge Density
     </label>
 </div>
-<div class="form-check">
-    <input class="form-check-input" type="checkbox" value="" id="fermiCheck">
-    <label class="form-check-label" for="chargeCheck">
+
+<!-- fermi surface -->
+<div class="form-check visStart" data-type="fermi">
+    <input class="form-check-input visCheck" type="checkbox" value="" id="fermiCheck">
+    <label class="form-check-label" for="fermiCheck">
       Fermi Surface/Volume
     </label>
 </div>
-<div class="form-check">
-    <input class="form-check-input" type="checkbox" value="" id="atomCheck">
-    <label class="form-check-label" for="chargeCheck">
+<div id="fermiSettings" class="visualisationPanel" data-type="fermi">
+</div>
+
+<!-- atom position -->
+<div class="form-check visStart" data-type="atom">
+    <input class="form-check-input visCheck" type="checkbox" value="" id="atomCheck">
+    <label class="form-check-label" for="atomCheck">
       Atom Positions
     </label>
 </div>
 
 
 <script>
-    $(".visStart").on("change", function(){
-      let started = $(this).find(".form-check-input").is(":checked")
-      let type = $(this).data("type");
-      let panelDiv = $(this).next(".visualisationPanel")
-      $(this).find(".form-check-input").prop("disabled", true);
+
+
+  function disableVisControls(){
+    $(".visualisationPanel").hide();
+    $(".visCheck").prop("disabled", true); 
+  }
+    
+    $(document).ready(function () {
+      $(".visStart").on("change", function(){
+        let started = $(this).find(".form-check-input").is(":checked");
+        let type = $(this).data("type");
+        let panelDiv = $(this).next(".visualisationPanel");
+        $(this).find(".form-check-input").prop("disabled", true);
+        
+        if (started) {
+          send_request('start_visualisation', [activeDatasetID, type])
+        }
+        else {
+          send_request('stop_visualisation', [activeDatasetID, type])
+        }
+      });
+
+      set_response_callback('start_visualisation', function(identifier, type){
+        let div = $(".visStart").filter("[data-type="+type+"]");
+        div.find(".form-check-input").prop("disabled", false);
+        div.next(".visualisationPanel").show();
+      });
       
-      if (started) {
-        send_request('start_visualisation', [activeDatasetID, type])
-      }
-      else {
-        send_request('stop_visualisation', [activeDatasetID, type])
-      }
+      set_response_callback('stop_visualisation', function(identifier, type){
+        let div = $(".visStart").filter("[data-type="+type+"]");
+        div.find(".form-check-input").prop("disabled", false);
+        div.next(".visualisationPanel").hide();
+      });
+      
+      set_response_callback('get_ui_data', function(available_vis_types, active_vis_types, ui_data) {
+        let divs = $(".visStart");
+        divs.find(".visCheck").prop('checked', false);
+        divs.find(".visCheck").prop('disabled', true);
+        // Enable settings for available and active visualisations.
+        available_vis_types.forEach(type => {
+          let div = divs.filter("[data-type="+type+"]")
+          let check = div.find(".visCheck")
+          let active = active_vis_types.includes(type);
+          check.prop("disabled", false);
+          console.log("ACTIVE "  + active);
+          check.prop('checked', active);
+          div.next('.visualisationPanel').toggle(active)
+        });
+
+        for (type in ui_data) {
+          // Each visualisation type has a VISTYPE_load_ui_data() function.
+          window[type + "_load_ui_data"](ui_data[type])
+        }
+        console.log("DONEZO")
+
+      })
+
+      // Load specific visualisation control panels.
+      $('<div id="loaded-content" />').load("contentPanels/VolumeControls.html", function () {
+        let html = $(this).html();
+        html = html.replace(/VISTYPE/g, 'charge') // Replace VISTYPE to avoid duplicate ids.
+        $("#chargeSettings").append(html)
+        $("#chargeSettings").show();
+      });
+      $('<div id="loaded-content" />').load("contentPanels/VolumeControls.html", function () {
+        let html = $(this).html();
+        html = html.replace(/VISTYPE/g, 'elf') // Replace VISTYPE to avoid duplicate ids.
+        $("#elfSettings").append(html)
+        $("#elfSettings").show();
+      });
+      $('<div id="loaded-content" />').load("contentPanels/VolumeControls.html", function () {
+        let html = $(this).html();
+        html = html.replace(/VISTYPE/g, 'fermi') // Replace VISTYPE to avoid duplicate ids.
+        $("#fermiSettings").append(html)
+        $("#fermiSettings").show();
+      });
+
+
     });
 
-    set_response_callback('start_visualisation', function(identifier, type){
-      let div = $(".visStart,[data-type="+type+"]");
-      div.find(".form-check-input").prop("disabled", false);
-      div.next(".visualisationPanel").show();
-    });
-    set_response_callback('stop_visualisation', function(identifier, type){
-      let div = $(".visStart,[data-type="+type+"]");
-      div.find(".form-check-input").prop("disabled", false);
-      div.next(".visualisationPanel").hide();
-    });
+    
+
+    
     // $("#chargeCheck").on("change", function(){
     //     console.log("change")
     // });
 
     // Load the control panel for each visualisation type.
-    $("#chargeSettings").load("contentPanels/VolumeControls.html");
+    // $("#chargeSettings").load("contentPanels/VolumeControls.html");
+    // $("#chargeSettings").append(chargePanel.html())
+    // $("#elfSettings").load("contentPanels/VolumeControls.html");
     $("#chargeSettings").show();
+    $("#elfSettings").show();
 
 
 </script>
