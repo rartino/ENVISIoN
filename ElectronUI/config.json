@@ -2,7 +2,8 @@
     "startWithDevTools": true,
     "logSentPackets": true,
     "logRecievedPackets": true,
-    "logFailedRequests": false,
+    "logFailedRequests": true,
     "logPyPrint": false,
-    "logPyError": true
+    "logPyError": true,
+    "logPings": false
 }
