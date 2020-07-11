@@ -1,5 +1,4 @@
 import inviwopy
-import ivw.utils
 # import inviwopy.glm as glm
 import numpy as np
 import h5py
@@ -12,7 +11,7 @@ from .baseNetworks.VolumeSubnetwork import VolumeSubnetwork
 #       add data divide by number of volumes. Output of this is volume_outport
 #       This will allow the visualisation to be used with the multi volume vis.
 
-class ParchgSubnetwork(VolumeSubnetwork):
+class PartialChargeDensity(VolumeSubnetwork):
     '''
     Manages a subnetwork for partial charge density visualisation. 
     Makes use of a modified VolumeSubnetwork. Has a different volume selection than 

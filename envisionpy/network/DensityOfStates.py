@@ -1,5 +1,4 @@
 import inviwopy
-import ivw.utils
 # import inviwopy.glm as glm
 import numpy as np
 import h5py
@@ -7,7 +6,7 @@ import time
 from envisionpy.utils.exceptions import *
 from .baseNetworks.LinePlotSubnetwork import LinePlotSubnetwork
 
-class DosSubnetwork(LinePlotSubnetwork):
+class DensityOfStates(LinePlotSubnetwork):
     '''
     Manages a subnetwork for density of states (DoS) visualisation. 
     
