@@ -57,6 +57,8 @@
       Atom Positions
     </label>
 </div>
+<div id="atomSettings" class="visualisationPanel" data-type="atom">
+</div>
 
 
 <script>
@@ -98,15 +100,17 @@
         let divs = $(".visStart");
         divs.find(".visCheck").prop('checked', false);
         divs.find(".visCheck").prop('disabled', true);
+        console.log(active_vis_types)
         // Enable settings for available and active visualisations.
         available_vis_types.forEach(type => {
+          console.log("Reloading " + type)
           let div = divs.filter("[data-type="+type+"]")
           let check = div.find(".visCheck")
           let active = active_vis_types.includes(type);
           check.prop("disabled", false);
-          console.log("ACTIVE "  + active);
           check.prop('checked', active);
           div.next('.visualisationPanel').toggle(active)
+          console.log("donereload")
         });
 
         for (type in ui_data) {
@@ -137,6 +141,9 @@
         $("#fermiSettings").show();
       });
 
+
+      $("#atomSettings").load("contentPanels/AtomControls.html");
+      $("#atomSettings").show();
 
     });
 
