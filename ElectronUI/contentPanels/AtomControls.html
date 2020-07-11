@@ -1,0 +1,47 @@
+<!-- 
+  This html is used to build the settings panel for atom position rendering.
+-->
+
+
+<div class="form-check">
+  <input type="checkbox" class="form-check-input" id="atom_showCheck">
+  <label class="form-check-label" for="atom_showCheck">Show separate canvas</label>
+</div>
+
+<div id="atomControls">
+</div>
+  
+<script>
+  function atom_load_ui_data(uiData){
+    $("#atomControls").empty();
+
+    let names = uiData[0];
+    let radii = uiData[1];
+
+    for (let i=0; i<names.length; i++) {
+      let elem = $(`
+        <div>
+        <h5>`+names[i]+`</h5>
+        <table>
+          <td><label>Radius</label></td>
+          <td><input class="form-control-range" type="range" min="0" max="1" step="0.01" value="`+radii[i]+`"></td>
+        </table>
+        </div>`);
+      elem.find('input').on('input', function() {
+        let idx = parseInt($(this).parent().parent().index());
+        let rad = (Math.pow(2.999, parseFloat($(this).val())) - 0.999);
+        send_request('visualisation_request', [activeDatasetID, "atom", "set_atom_radius", [rad, idx]]);
+      });
+      $("#atomControls").append(elem);
+    } 
+  }
+
+  $(document).ready(function () {
+    $("#atom_showCheck").on('change', function() {
+      if ($(this).is(':checked'))
+        send_request('visualisation_request', [activeDatasetID, "atom", "show", []]);
+      else
+        send_request('visualisation_request', [activeDatasetID, "atom", "hide", []]);
+    });
+  });
+</script>
