@@ -53,14 +53,6 @@ class VolumeSubnetwork(Subnetwork):
         selection = self.get_processor('Hdf5Selection')
         volumeSlice = self.get_processor('VolumeSlice')
 
-        print([
-                sCanvas.widget.visibility, 
-                rc.positionindicator.enable.value, 
-                volumeSlice.planePosition.value.x, 
-                volumeSlice.trafoGroup.imageScale.value,
-                volumeSlice.trafoGroup.volumeWrapping.selectedDisplayName,
-                [volumeSlice.planeNormal.value.x, volumeSlice.planeNormal.value.y, volumeSlice.planeNormal.value.z]
-            ])
         return [
             not vCanvas.widget.visibility,
             [selection.volumeSelection.selectedValue, selection.volumeSelection.values],
@@ -132,7 +124,7 @@ class VolumeSubnetwork(Subnetwork):
     # Sets all transfer function points from an array of tf poitns.
         raycaster = self.get_processor('Raycaster')
         if not self.is_multichannel:
-            tfProperty = raycaster.isotfComposite.transferFunction
+            tfProperty = raycaster.isotfComposite.tf
         else:
             tfProperty = getattr(raycaster, 'transfer-functions').transferFunction1
         tfProperty.clear()
@@ -148,7 +140,7 @@ class VolumeSubnetwork(Subnetwork):
         self.tf_changed()
 
     def get_tf_points(self):
-    # Return a list of all the transferfunction points
+    # Return a list of all the transferfunction points. list element: [value, [color]]
         Raycaster = self.get_processor('Raycaster')
         if not self.is_multichannel:
             tf_property = Raycaster.isotfComposite.tf
@@ -170,6 +162,7 @@ class VolumeSubnetwork(Subnetwork):
             getattr(raycaster, 'transfer-functions').transferFunction3.add(value, glm_col)
             getattr(raycaster, 'transfer-functions').transferFunction4.add(value, glm_col)
         self.tf_changed()
+        return [self.get_tf_points()]
 
     def toggle_iso(self, enable):
         self.iso_enabled = enable

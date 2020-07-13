@@ -31,35 +31,6 @@
 // TODO: This file is pretty long and difficult to read. Events callbacks could be moved out to each HTML files <script> tag.
 //       That way functions are at the same place as their html elements.
 
-
-
-// Stores information about all loaded datasets
-// loadedDatasets[DATASET_ID] = [HDF5_PATH, SIDEBAR_ELEMENT, CONTENT_ELEMENT, [VIS_IDS...]]
-
-
-// Stores information about running visualisations
-// runningVisualisations[ID] = [DISPLAY_NAME, DATASET_ID, SIDEBAR_ELEMENT]
-var runningVisualisations = {}
-
-// Variable to store UI data recieved from envision for later use
-var uiData;
-
-
-
-function datasetFocused() {
-    let name = $(this).find("> a")[0].textContent;
-    console.log("dataset opened: ", name);
-    datasetInfo = loadedDatasets[name];
-    activeDatasetName = name;
-    $("#datasetTitle").text(name);
-}
-
-function visualisationFocused() {
-   activeVisId = $(this).data("vis-id");
-   send_data("envision request", ["get_ui_data", activeVisId, []])
-}
-
-
 function resetCanvasPositions(visId) {
     let xPos = window.screenX + window.outerWidth;
     let yPos = window.screenY;
@@ -71,102 +42,6 @@ function showVolumeDist() {
     send_data("envision request", ["show_volume_dist", activeVisId, []]);
 }
 
-// ----------------------------------
-// ----- Volume rendering panel -----
-// ----------------------------------
-
-function bandChanged() {
-    let selection = $("#bandSelection").val();
-    send_data("envision request", ["set_active_band", activeVisId, [selection]]);
-
-}
-
-function shadingModeChanged() {
-    let selectionIndex = $(this)[0].selectedIndex;
-    send_data("envision request", ["set_shading_mode", activeVisId, [selectionIndex]]);
-}
-
-function volumeBackgroundChanged() {
-    let color1 = hexToRGB($("#backgroundColor1").val());
-    let color2 = hexToRGB($("#backgroundColor2").val());
-    color1.push(1);
-    color2.push(1);
-    let styleIndex = $("#backgroundStyleSelection")[0].selectedIndex;
-    console.log(JSON.stringify([color1, color2, styleIndex]));
-    send_data("envision request", ["set_volume_background", activeVisId, [color1, color2, styleIndex]])
-}
-
-function transperancyChecked() {
-    send_data("envision request", [
-        "toggle_transperancy_before",
-        activeVisId,
-        [$("#transperancyCheckbox").is(':checked')]]);
-}
-
-function addTfPointSubmitted() {
-    let value = parseFloat($(this)[0][0].value);
-    let alpha = parseFloat($(this)[0][1].value);
-    let color = hexToRGB($(this)[0][2].value);
-    color.push(alpha);
-
-    send_data("envision request", ["add_tf_point", activeVisId, [value, color]]);
-    visPanelChanged();
-    return false;
-}
-
-function tfPointChanged() {
-    send_data("envision request", ["set_tf_points", activeVisId, [getTfPoints()]]);
-    visPanelChanged();
-}
-
-function removeTfPoint() {
-    $(this).closest('[name="tfPoint"]').remove();
-    send_data("envision request", ["set_tf_points", activeVisId, [getTfPoints()]]);
-    return false;
-}
-
-function sliceCanvasToggle() {
-    send_data("envision request", ["toggle_slice_canvas", activeVisId, [$("#sliceCanvasCheck").is(":checked")]]);
-    resetCanvasPositions(activeVisId);
-}
-
-function slicePlaneToggle() {
-    send_data("envision request", ["toggle_slice_plane", activeVisId, [$("#slicePlaneCheck").is(":checked")]]);
-}
-
-function sliceHeightChanged() {
-    let value = $(this).val();
-    $("#sliceHeightRange").val(value);
-    $("#sliceHeightText").val(value);
-    if (value == "")
-        value = 0.5;
-    else
-        value = parseFloat(value);
-    send_data("envision request", ["set_plane_height", activeVisId, [value]]);
-}
-
-function sliceZoomChanged() {
-    let value = $(this).val();
-    $("#sliceZoomtRange").val(value);
-    $("#sliceZoomText").val(value);
-    let a = Math.pow(20.99, value) - 0.99;
-    send_data("envision request", ["set_slice_zoom", activeVisId, [a]]);
-}
-
-
-function wrapModeSelected() {
-    let selectedIndex = $("#sliceWrapSelection")[0].selectedIndex;
-    let modeIndexes = [0, 2]
-    send_data("envision request", ["set_texture_wrap_mode", activeVisId, [modeIndexes[selectedIndex]]]);
-}
-
-function sliceNormalChanged() {
-    let x = parseFloat($(this)[0].children[1].value);
-    let y = parseFloat($(this)[0].children[2].value);
-    let z = parseFloat($(this)[0].children[3].value);
-    send_data("envision request", ["set_plane_normal", activeVisId, [x, y, z]]);
-    return false;
-}
 
 // --------------------------------
 // ----- Partial charge panel -----
@@ -197,24 +72,6 @@ function partialBandRemoved() {
     return false;
 }
 
-// -------------------------------
-// ----- Fermi surface panel -----
-// -------------------------------
-
-function brillouinChecked(){
-	let enable = $("#BrillouinZoneCheck").is(":checked");
-    send_data("envision request", ["toggle_brillouinzone", activeVisId, [enable]]);
-}
-
-function expandedChecked(){
-	let enable = $("#ExpandedZoneCheck").is(":checked");
-    send_data("envision request", ["toggle_expandedzone", activeVisId, [enable]]);
-}
-
-function fermiLevelChanged(){
-	let value = $("#fermiLevelRange").val();
-	send_data("envision request", ["set_fermi_level", activeVisId, [value]]);
-}
 
 // ---------------------------
 // ----- 2-D graph panel -----
@@ -306,165 +163,6 @@ function yMultiSelectionSubmitted() {
     return false;
 }
 
-function hideAtomsChanged() {
-    let enable = $("#hideAllAtomsCheck").is(":checked");
-    if (!enable)
-        send_data("envision request", ["hide_atoms", activeVisId, []]);
-    else
-        $('[name="atomRadiusSlider"]').trigger("input");
-}
-
-function atomRadiusChanged() {
-    if (!$("#hideAllAtomsCheck").is(":checked"))
-        return
-    let value = parseFloat($(this).val());
-    let radius = (Math.pow(2.999, value) - 0.999);
-    console.log(radius);
-    let index = parseInt($(this).parent().parent().parent().index());
-    send_data("envision request", ["set_atom_radius", activeVisId, [radius, index]]);
-}
-
-// ------------------------
-// ----- Parser panel -----
-// ------------------------
-
-function parseClicked() {
-    let hdf5Dir = $("#parseHdf5DirInput")[0].files[0].path;
-	let vaspDir = $("#parseVaspDirInput")[0].files[0].path; //this.files[0] returns fileobjet at index 0
-    let hdf5FileName = $("#hdf5FileNameInput").val();
-    let parseType = $("#parseTypeSelect").val();
-
-    if (!/^.*\.(hdf5|HDF5)$/.test(hdf5FileName)) {
-        alert("File must end with .hdf5");
-        return;
-    }
-
-    send_data("parser request", [[parseType], hdf5Dir + "/" + hdf5FileName, vaspDir])
-    console.log(vaspDir, hdf5Dir, hdf5FileName, parseType);
-}
-
-
-// ----------------------------------
-// ----- Python response events -----
-// ----------------------------------
-
-function visualisationStarted(status, id, data) {
-    $("#startVisBtn").attr("disabled", false);
-    if (!status){
-        alert("Visualisation failed to start \n" + "Reason: " + data);
-        console.log("Visualisation start failed");
-        return;
-    }
-    // If visualisation was started add it to the sidebar and to running visualisations.
-    let visName = data[2];
-    let datasetName = data[3];
-    loadedDatasets[datasetName][3].push(id);
-
-    // Add sidebar element
-    let sidebarElem = $(`
-        <li data-show="#visControlPanel" data-vis-id="` + id + `" class="subLink">
-        <a href="#">` + visName + `
-        <button class="btn btn-danger navbar-btn btn-sm float-right">Stop</button>
-        </a>
-        </li>`);
-    loadedDatasets[datasetName][1].find("ul").append(sidebarElem);
-    sidebarElem.on("click", sidebarLinkClicked);
-    sidebarElem.on("click", visualisationFocused);
-    sidebarElem.find("button").on("click", stopVisPressed)
-
-    runningVisualisations[id] = [visName, datasetName, sidebarElem];
-    // sidebarElem.trigger("click");
-
-    resetCanvasPositions(id);
-}
-
-function visualisationStopped(status, id, data) {
-    // runningVisualisations[ID] = [DISPLAY_NAME, DATASET_ID, SIDEBAR_ELEMENT]
-    if (!status){
-        console.log("Visualisation stop failed");
-    }
-    arrayRemoveByValue(loadedDatasets[runningVisualisations[id][1]][3], id);
-    runningVisualisations[id][2].parent().parent().find("> li").trigger("click");
-    runningVisualisations[id][2].remove();
-
-    // sidebarLinkClicked
-    delete runningVisualisations[id];
-}
-
-
-function uiDataRecieved(status, id, data) {
-    if (!status){
-        console.log("UI data recieve failed");
-        return;
-    }
-    // TODO: Disable input elements by default, enable from here.
-    if (id != activeVisId) {
-        console.log("Data for inactive panel");
-        return;
-    }
-    uiData = data;
-    if (data[0] == "charge"){
-        $("#visControlPanel").load("contentPanels/charge.html");
-    }
-	else if (data[0] == "elf"){
-        $("#visControlPanel").load("contentPanels/elf.html");
-    }
-	else if (data[0] == "parchg"){
-        $("#visControlPanel").load("contentPanels/parchg.html");
-    }
-	else if (data[0] == "bandstructure"){
-        $("#visControlPanel").load("contentPanels/bandstructure.html");
-    }
-	else if (data[0] == "pcf"){
-        $("#visControlPanel").load("contentPanels/pcf.html");
-    }
-	else if (data[0] == "dos"){
-        $("#visControlPanel").load("contentPanels/dos.html");
-    }
-	else if (data[0] == "unitcell"){
-		$("#visControlPanel").load("contentPanels/unitcell.html");
-	}
-	else if (data[0] == "bandstructure3d"){
-		$("#visControlPanel").load("contentPanels/bandstructure3d.html");
-	}
-	else if (data[0] == "fermisurface"){
-		$("#visControlPanel").load("contentPanels/fermisurface.html");
-	}
-}
-
-// ---------------------------------------
-// ----- Interface loading functions -----
-// ---------------------------------------
-
-function loadVolumeUiData(data){
-    // Load state of all volume controls from envision data.
-    let [type, shadingMode, bgInfo, tfPoints, transperancyMode,
-        sliceActive, planeActive, planeHeight, wrapMode,
-        sliceZoom, planeNormal] = data;
-    if (type != "volume") console.log("Something is very wrong here");
-    $("#shadingModeSelection")[0][shadingMode].selected = true;
-    $("#transperancyCheckbox").prop("checked", transperancyMode);
-    $("#sliceCanvasCheck").prop("checked", sliceActive);
-    $("#slicePlaneCheck").prop("checked", planeActive);
-    $("#sliceWrapSelection")[0][new Map([[0,0], [2,1]]).get(wrapMode)].selected = true;
-    planeHeight = Math.round(planeHeight * 1000) / 1000
-    $("#sliceHeightRange").val(planeHeight);
-    $("#sliceHeightText").val(planeHeight);
-    sliceZoom = Math.round(-0.32851*Math.log(100/(100*sliceZoom + 99))*1000)/1000
-    $("#sliceZoomRange").val(sliceZoom);
-    $("#sliceZoomText").val(sliceZoom);
-
-    $("#sliceNormX").val(planeNormal[0]);
-    $("#sliceNormY").val(planeNormal[1]);
-    $("#sliceNormZ").val(planeNormal[2]);
-
-    $("#backgroundColor1").val(rgbArrToHex(bgInfo[0]));
-    $("#backgroundColor2").val(rgbArrToHex(bgInfo[1]));
-    $("#backgroundStyleSelection")[0][bgInfo[2]].selected = true;
-
-    loadTFPoints(tfPoints);
-}
-
 function loadGraph2DUiData(data) {
     let [type, xRange, yRange,
         lineActive, lineX, gridActive, gridWidth,
@@ -520,42 +218,6 @@ function loadBands(data) {
     $("#bandSelection")[0][activeBand].selected = true;
 }
 
-function loadAtoms(data) {
-    let [atoms, atomRadii] = data;
-    $("#atomControls").empty();
-    for (let i = 0; i < atoms.length; i++) {
-        let atomControlElement = $(
-            '<div class="form-row row-margin" name="atomControlRow">' +
-            '<div class="col-sm-3">' +
-            // '<div class="form-check">' +
-            // '<input type="checkbox" class="form-check-input" checked>' +
-            '<label class="form-check-label">' + atoms[i] + ' radius</label>' +
-            // '</div>' +
-            '</div>' +
-            '<div class="col-sm-4">' +
-            '<div class="form-group">' +
-            '<input type="range" min="0" max="1" step="0.01" class="form-control-range" name="atomRadiusSlider">' +
-            '</div>' +
-            '</div>' +
-            '</div>');
-        let rangeVal = -0.913014*Math.log(100/(100*atomRadii[i] + 99));
-        console.log(rangeVal)
-        atomControlElement.find("input").val(rangeVal);
-        $("#atomControls").append(atomControlElement);
-
-        atomControlElement.find(".form-control-range").on("input", atomRadiusChanged);
-    }
-}
-
-function loadTFPoints(points) {
-    $("#tfPoints").empty();
-    for (let i = 0; i < points.length; i++) {
-        console.log("POINT ADDED")
-        let hexColor = rgbToHex(points[i][1][0], points[i][1][1], points[i][1][2])
-        addTfPointElement(points[i][0], Math.round(points[i][1][3] * 1000000) / 1000000, hexColor)
-    }
-}
-
 function loadAvailablePartials(options) {
     $("#partialBandSelection > option").slice(1).remove();
     $("#partialModeSelection > option").slice(1).remove();
@@ -572,59 +234,6 @@ function loadActivePartials(partials) {
     }
 }
 
-
-
-// -----------------------------------
-// ----- Interface value reading -----
-// -----------------------------------
-
-function getTfPoints() {
-    // Return a list containing current tfPonts
-    let tfPoints = [];
-    for (let i = 0; i < $("#tfPoints")[0].children.length; i++) {
-        let formNode = $("#tfPoints")[0].children[i].children[0];
-        if (formNode.getAttribute("id") == "tfAdder")
-            continue;
-        let value = parseFloat(formNode.children[0].children[0].value);
-        let alpha = parseFloat(formNode.children[0].children[1].value);
-        let color = hexToRGB(formNode.children[0].children[2].value);
-        color.push(alpha);
-        tfPoints.push([value, color]);
-    }
-    return tfPoints;
-}
-
-function addTfPointElement(value, alpha, color) {
-    // Adds an elemend representing the point to the list in the interface.
-    let points = getTfPoints();
-    if (points.find(function (point) { return point[0] == value }) != undefined) {
-        console.log("Point with value already already exist.");
-        return false
-    }
-
-    let pointElement = $(
-        '<div class="row row-margin" name="tfPoint">' +
-        '<div class="col-sm-10">' +
-        '<div class="input-group">' +
-        '<input type="text" class="form-control" value="' + value + '">' +
-        '<input type="text" class="form-control" value="' + alpha + '">' +
-        '<input class="form-control" type="color" value="' + color + '">' +
-        '<div class="input-group-append">' +
-        '<button class="btn btn-primary" type="submit">-</button>' +
-        '</div>' +
-        '</div>' +
-        '</div>' +
-        '</div>');
-
-    let insertionIndex = points.findIndex(function (point) { return point[0] > value });
-    if (insertionIndex == -1)
-        $("#tfPoints").append(pointElement);
-    else {
-        pointElement.insertBefore($("#tfPoints")[0].children[insertionIndex])
-    }
-    pointElement.find("button").on("click", removeTfPoint);
-    pointElement.find("input").on("change", tfPointChanged);
-}
 
 function addPartialBandElement(band, mode) {
     let elem = $(`
@@ -668,10 +277,4 @@ function getPartialBandSelections() {
         modes.push(mode)
     }
     return [bands, modes];
-}
-
-
-function visPanelChanged() {
-    console.log("Updating panel: ", activeVisId);
-    send_data("envision request", ["get_ui_data", activeVisId, []]);
 }

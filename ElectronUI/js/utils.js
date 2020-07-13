@@ -55,6 +55,10 @@ function arrayRemoveByValue(arr, value) {
     // return arr.filter(item => item !== value);
 }
 
+function precise(x, digits){
+    return parseFloat(Number.parseFloat(x).toPrecision(digits));
+}
+
 // Restricts input for each element in the set of matched elements to the given inputFilter.
 $.fn.inputFilter = function (inputFilter) {
     return this.on("input keydown keyup mousedown mouseup select contextmenu drop", function () {
@@ -68,3 +72,12 @@ $.fn.inputFilter = function (inputFilter) {
         }
     });
 };
+
+function pathInputChanged() {
+    let pathEnd = $(this)[0].files[0].path;
+    pathEnd = pathEnd.split("\\")
+    pathEnd = pathEnd[pathEnd.length - 1]
+    pathEnd = pathEnd.split("/")
+    pathEnd = pathEnd[pathEnd.length - 1]
+    $(this).next('.custom-file-label').addClass("selected").html(pathEnd);
+}

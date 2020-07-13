@@ -151,7 +151,7 @@ class EnvisionMain():
                 parse_statuses[parse_type] = False
                 print("Parser {} could not be parsed some functions may not work.".format(parse_type))
 
-        return parse_statuses
+        return [parse_statuses]
 
     def init_manager(self, hdf5_path, identifier=None):
         if identifier == None:

@@ -58,7 +58,7 @@
   <input type="checkbox" class="form-check-input" id="VISTYPE_transperancyCheckbox" checked>
   <label class="form-check-label" for="VISTYPE_transperancyCheckbox">Toggle transperancy before first point</label>
 </div>
-<div id="VISTYPE_tfPoints">
+<div>
   <form class="needs-validation" id="VISTYPE_tfAdder">
     <div class="input-group" id="VISTYPE_addTFGroup">
       <input type="text" class="form-control" placeholder="value [0-1]" id="VISTYPE_tfValue" required>
@@ -69,6 +69,8 @@
       </div>
     </div>
   </form>
+  <div id="VISTYPE_tfPoints">
+  </div>
 </div>
 
 <h5>ISO surface</h5>
@@ -148,7 +150,10 @@
     
     $("#VISTYPE_transperancyCheckbox").prop('checked', uiData[4]);
     let tfData = uiData[5];
-    // TODO
+    $("#VISTYPE_tfPoints").empty();
+    tfData.forEach(tfPoint => {
+      VISTYPE_addTfPointElement(tfPoint[0], tfPoint[1]);
+    });
 
     let isoData = uiData[6];
     $("#VISTYPE_isoCheck").prop('checked', isoData[0]);
@@ -163,6 +168,52 @@
     $("#VISTYPE_sliceNormX").val(sliceData[5][0]);
     $("#VISTYPE_sliceNormY").val(sliceData[5][1]);
     $("#VISTYPE_sliceNormZ").val(sliceData[5][2]);
+  }
+
+
+  function VISTYPE_getTfPoints() {
+    // Return a list containing current tfPonts shown.
+    let tfPoints = [];
+    for (let i = 0; i < $("#VISTYPE_tfPoints")[0].children.length; i++) {
+        let pointElem = $("#VISTYPE_tfPoints")[0].children[i];
+        let value = parseFloat(pointElem.children[0].value);
+        let alpha = parseFloat(pointElem.children[1].value);
+        let color = hexToRGB(pointElem.children[2].value);
+        color.push(alpha);
+        tfPoints.push([value, color]);
+    }
+    return tfPoints;
+  }
+
+  function VISTYPE_addTfPointElement(value, color) {
+    // Adds an elemend representing the point to the list in the interface.
+    let alpha = color[3];
+    color = rgbArrToHex(color);
+    let points = VISTYPE_getTfPoints();
+
+    let pointElement = $(`
+      <div class="input-group">
+        <input type="text" class="form-control" value="` + precise(value, 3) + `">
+        <input type="text" class="form-control" value="` + precise(alpha, 3) + `">
+        <input class="form-control" type="color" value="` + color + `">
+        <div class="input-group-append">
+          <button class="btn btn-primary" type="submit">-&nbsp;</button>
+        </div>
+      </div>`);
+
+    let insertionIndex = points.findIndex(function (point) { return point[0] > value });
+    if (insertionIndex == -1)
+        $("#VISTYPE_tfPoints").append(pointElement);
+    else {
+        pointElement.insertBefore($("#VISTYPE_tfPoints")[0].children[insertionIndex])
+    }
+    pointElement.find("button").on("click", function(){
+      $(this).parent().parent().remove();
+      send_request("visualisation_request", [activeDatasetID, "VISTYPE", "set_tf_points", [VISTYPE_getTfPoints()]]);
+    });
+    pointElement.find("input").on("change", function(){
+      send_request("visualisation_request", [activeDatasetID, "VISTYPE", "set_tf_points", [VISTYPE_getTfPoints()]]);
+    });
   }
 
   $(document).ready(function () {
@@ -246,6 +297,21 @@
       send_request("visualisation_request", [activeDatasetID, "VISTYPE", "set_plane_normal", [x, y, z]]);
       return false;
     });
+
+    $("#VISTYPE_tfAdder").on('submit', function() {
+      let value = parseFloat($(this)[0][0].value);
+      let alpha = parseFloat($(this)[0][1].value);
+      let color = hexToRGB($(this)[0][2].value);
+      color.push(alpha);
+      VISTYPE_addTfPointElement(value, color);
+      send_request("visualisation_request", [activeDatasetID, "VISTYPE", "add_tf_point", [value, color]]);
+      return false;
+    });
+
+
+  
+
+  
 
   });
 
