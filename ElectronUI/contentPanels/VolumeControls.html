@@ -218,7 +218,7 @@
 
   $(document).ready(function () {
     // Set input filters to text field inputs.
-    $("#VISTYPE_tfValue,#VISTYPE_tfAlpha,#VISTYPE_sliceHeightText,#VISTYPE_sliceNormX,#VISTYPE_sliceNormY,#VISTYPE_sliceNormZ,#VISTYPE_sliceZoomText,VISTYPE_isoText").inputFilter(function (value) {
+    $("#VISTYPE_tfValue,#VISTYPE_tfAlpha,#VISTYPE_sliceHeightText,#VISTYPE_sliceNormX,#VISTYPE_sliceNormY,#VISTYPE_sliceNormZ,#VISTYPE_sliceZoomText,#VISTYPE_isoText").inputFilter(function (value) {
       return /^(0?(\.\d*)?|1(\.0*)?)?$/.test(value) //True if float in range 0 to 1, or empty.
     });
 
@@ -250,9 +250,37 @@
       send_request("visualisation_request", [activeDatasetID, "VISTYPE", "set_volume_background", [color1, color2, styleIndex]])
     });
     
+    // Transfer function
+
     $("#VISTYPE_transperancyCheckbox").on('change', function() {
       send_request("visualisation_request", [activeDatasetID, "VISTYPE", "toggle_transperancy_before", [$(this).is(":checked")]])
     });
+
+    $("#VISTYPE_tfAdder").on('submit', function() {
+      let value = parseFloat($(this)[0][0].value);
+      let alpha = parseFloat($(this)[0][1].value);
+      let color = hexToRGB($(this)[0][2].value);
+      color.push(alpha);
+      VISTYPE_addTfPointElement(value, color);
+      send_request("visualisation_request", [activeDatasetID, "VISTYPE", "add_tf_point", [value, color]]);
+      return false;
+    });
+
+    // Iso surface
+
+    $("#VISTYPE_isoCheck").on('change', function() {
+      send_request("visualisation_request", [activeDatasetID, "VISTYPE", "toggle_iso", [$(this).is(':checked')]]);
+    });
+
+    $("#VISTYPE_isoRange,#VISTYPE_isoText").on('change input keydown keyup mousedown mouseup select contextmenu drop', function() {
+      let value = $(this).val();
+      $("#VISTYPE_isoRange,#VISTYPE_isoText").val(value);
+      if (value == "") value = 0.5;
+      else value = parseFloat(value);
+      send_request("visualisation_request", [activeDatasetID, "VISTYPE", "set_iso_surface", [value]]);
+    });
+
+    // Slice
 
     $("#VISTYPE_sliceCanvasCheck").on('change', function() {
       let checked = $(this).is(":checked")
@@ -298,15 +326,7 @@
       return false;
     });
 
-    $("#VISTYPE_tfAdder").on('submit', function() {
-      let value = parseFloat($(this)[0][0].value);
-      let alpha = parseFloat($(this)[0][1].value);
-      let color = hexToRGB($(this)[0][2].value);
-      color.push(alpha);
-      VISTYPE_addTfPointElement(value, color);
-      send_request("visualisation_request", [activeDatasetID, "VISTYPE", "add_tf_point", [value, color]]);
-      return false;
-    });
+    
 
 
   
