@@ -253,22 +253,6 @@ class VolumeSubnetwork(Subnetwork):
         volumeSlice = self.get_processor('VolumeSlice')
         volumeSlice.trafoGroup.imageScale.value = zoom
 
-    def get_plane_active(self):
-        return self.get_processor('Raycaster').positionindicator.enable.value
-
-    def get_plane_height(self):
-        return self.get_processor('VolumeSlice').planePosition.value.x
-
-    def get_slice_zoom(self):
-        return self.get_processor('VolumeSlice').trafoGroup.imageScale.value
-
-    def get_texture_wrap_mode(self):
-        return self.get_processor('VolumeSlice').trafoGroup.volumeWrapping.selectedIndex
-
-    def get_plane_normal(self):
-        vec = self.get_processor('VolumeSlice').planeNormal.value
-        return [vec.x, vec.y, vec.z]
-
     def get_background_info(self):
         background = self.get_processor("VolumeBackground")
         style = background.backgroundStyle.selectedDisplayName
