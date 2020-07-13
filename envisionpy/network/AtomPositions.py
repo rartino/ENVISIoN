@@ -4,7 +4,6 @@ import h5py
 from envisionpy.utils.exceptions import *
 from envisionpy.utils.atomData import atomic_radii, element_names, element_colors
 from .baseNetworks.Decoration import Decoration
-# TODO add volume merger and multi-raycaster
 
 class AtomPositions(Decoration):
     '''
@@ -50,12 +49,11 @@ class AtomPositions(Decoration):
     def hide(self):
         self.get_processor('UnitcellCanvas').widget.hide()
 
-    # def get_ui_data(self):
-    #     rc = self.get_processor('Raycaster')
-    #     vCanvas = self.get_processor('VolumeCanvas')
-    #     sCanvas = self.get_processor('SliceCanvas')
-    #     selection = self.get_processor('Hdf5Selection')
-    #     volumeSlice = self.get_processor('VolumeSlice')
+    def get_ui_data(self):
+        return [
+            self.atom_names,
+            self.atom_radii
+        ]
 # ------------------------------------------
 # ------- Property control functions -------
 
@@ -77,15 +75,6 @@ class AtomPositions(Decoration):
 
     def hide_atoms(self):
         return self.set_atom_radius(0)
-    
-    def get_atom_names(self):
-        return self.atom_names
-    
-    def get_atom_name(self, index):
-        return self.atom_names[index]
-
-    def get_atom_radii(self):
-        return self.atom_names
 
     def toggle_full_mesh(self, enable):
         structMesh = self.get_processor('UnitcellMesh')
