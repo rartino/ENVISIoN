@@ -178,10 +178,11 @@ class VolumeSubnetwork(Subnetwork):
                 self.get_processor('Raycaster').raycaster.renderingType.selectedIndex = 0
 
 
-    def set_iso_surface(self, value, color):
-        glm_col = inviwopy.glm.vec4(color[0], color[1], color[2], color[3])
+    def set_iso_surface(self, value, color=None):
+        if color==None: color = self.iso_color
         self.iso_color = color
         self.iso_value = value
+        glm_col = inviwopy.glm.vec4(color[0], color[1], color[2], color[3])
         if self.is_multichannel:
             raycaster = self.get_processor('IsoRaycaster')
             raycaster.raycaster.isoValue.value = value
