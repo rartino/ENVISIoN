@@ -82,6 +82,7 @@
         else {
           send_request('stop_visualisation', [activeDatasetID, type])
         }
+        send_request('get_ui_data', [activeDatasetID]);
       });
 
       set_response_callback('start_visualisation', function(identifier, type){
