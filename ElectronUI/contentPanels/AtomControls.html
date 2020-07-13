@@ -8,12 +8,12 @@
   <label class="form-check-label" for="atom_showCheck">Show separate canvas</label>
 </div>
 
-<div id="atomControls">
+<div id="atomList">
 </div>
   
 <script>
   function atom_load_ui_data(uiData){
-    $("#atomControls").empty();
+    $("#atomList").empty();
 
     let names = uiData[0];
     let radii = uiData[1];
@@ -32,7 +32,7 @@
         let rad = (Math.pow(2.999, parseFloat($(this).val())) - 0.999);
         send_request('visualisation_request', [activeDatasetID, "atom", "set_atom_radius", [rad, idx]]);
       });
-      $("#atomControls").append(elem);
+      $("#atomList").append(elem);
     } 
   }
 

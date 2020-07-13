@@ -28,75 +28,87 @@
 <!-- File input stuff -->
 <h4 class="border-bottom">Parser</h4>
 <p>Parse data from VASP output files into a HDF5 file that ENVISIoN can visualise.</p>
+
+<h5>VASP source</h5>
 <div>
-  <div class="row row-margin">
-    <div class="input-group col-md">
-      <div class="input-group-prepend medium">
-        <span class="input-group-text" id="vaspLoadSpan">VASP source</span>
-      </div>
-      <div class="custom-file">
-        <input type="file" class="custom-file-input" id="parseVaspDirInput" aria-describedby="vaspLoadSpan" webkitdirectory>
-		<label class="custom-file-label" for="parseVaspDirInput">Choose directory</label>
-      </div>
+  <div class="input-group">
+    <div class="input-group-prepend medium">
+      <span class="input-group-text" id="vaspLoadSpan">VASP directory</span>
+    </div>
+    <div class="custom-file">
+      <input type="file" class="custom-file-input" id="parseVaspDirInput" aria-describedby="vaspLoadSpan" webkitdirectory>
+  <label class="custom-file-label" for="parseVaspDirInput">Choose directory</label>
     </div>
   </div>
-  <label>Save parsed HDF5 file</label>
-  <div class="row row-margin">
-    <div class="input-group col-md">
-      <div class="input-group-prepend medium">
-        <span class="input-group-text" id="hdf5FileNamePrep">HDF5 file name</span>
-      </div>
-      <input type="text" class="form-control" id="hdf5FileNameInput" aria-describedby="hdf5FileNamePrep"
-        placeholder="example.hdf5">
-    </div>
+</div>
+<br>
+
+<h5>Save parsed HDF5 file</h5>
+<div class="input-group">
+  <div class="input-group-prepend medium">
+    <span class="input-group-text" id="hdf5FileNamePrep">HDF5 file name</span>
   </div>
-  <div class="row row-margin">
-    <div class="input-group col-md">
-      <div class="input-group-prepend medium">
-        <span class="input-group-text" id="hdfSaveSpan">Save directory</span>
-      </div>
-      <div class="custom-file">
-        <input type="file" class="custom-file-input" id="parseHdf5DirInput" aria-describedby="hdfSaveSpan" webkitdirectory
-          onchange="">
-        <label class="custom-file-label" for="parseHdf5DirInput">Choose directory</label>
-      </div>
-    </div>
+  <input type="text" class="form-control" id="hdf5FileNameInput" aria-describedby="hdf5FileNamePrep" placeholder="example.hdf5">
+</div>
+<div class="input-group">
+  <div class="input-group-prepend medium">
+    <span class="input-group-text" id="hdfSaveSpan">Save directory</span>
   </div>
-
-
-  
-  <div class="row row-margin">
-    <div class="input-group col-sm-8">
-      <div class="input-group-prepend">
-        <label class="input-group-text" for="parseTypeSelect">Visualisation type</label>
-      </div>
-      <select class="custom-select" id="parseTypeSelect">
-        <option selected>Electron density</option>
-        <option>Electron localisation function</option>
-        <option>Partial charge density</option>
-		<option>Unitcell</option>
-        <option>Bandstructure</option>
-        <option>Density of states</option>
-        <option>Pair correlation function</option>
-		<option>Fermi surface</option>
-      </select>
-    </div>
+  <div class="custom-file">
+    <input type="file" class="custom-file-input" id="parseHdf5DirInput" aria-describedby="hdfSaveSpan" webkitdirectory
+      onchange="">
+    <label class="custom-file-label" for="parseHdf5DirInput">Choose directory</label>
   </div>
-
-  <div style="margin-bottom:5px; margin-top:10px">
-    <button id="parseBtn" type="parseBtn" class="btn btn-primary">Parse</button>
-  </div>
-
-  <p>If the VASP directory contains data for multiple visualisation types
-      you can parse multiple visualisation types to the same hdf5 file sequentially.</p>
-
-
 </div>
 
+<br>
+  
+<div class="input-group">
+  <div class="input-group-prepend">
+    <label class="input-group-text" for="parseTypeSelect">Visualisation type</label>
+  </div>
+  <select class="custom-select" id="parseTypeSelect">
+    <option selected>Electron density</option>
+    <option>Electron localisation function</option>
+    <option>Partial charge density</option>
+		<option>Unitcell</option>
+    <option>Bandstructure</option>
+    <option>Density of states</option>
+    <option>Pair correlation function</option>
+		<option>Fermi surface</option>
+  </select>
+</div>
+
+<div style="margin-bottom:5px; margin-top:10px">
+  <button id="parseBtn" type="parseBtn" class="btn btn-primary">Parse</button>
+</div>
+
+<p>If the VASP directory contains data for multiple visualisation types
+    you can parse multiple visualisation types to the same hdf5 file sequentially.</p>
 
 <script>
-  // $(document).ready(function () {
-  //   $(".custom-file-input").on("change", pathInputChanged);
-  //   $("#parseBtn").on("click", parseClicked);
-  // });
+  $(document).ready(function () {
+    $("#parseHdf5DirInput,#parseVaspDirInput").on("change", pathInputChanged);
+
+    $("#parseBtn").on("click", function(){
+      $(this).prop('disabled', true);
+      $(this).text('Parsing...');
+      let hdf5Dir = $("#parseHdf5DirInput")[0].files[0].path;
+	    let vaspDir = $("#parseVaspDirInput")[0].files[0].path;
+      let hdf5FileName = $("#hdf5FileNameInput").val();
+      let parseType = $("#parseTypeSelect").val();
+
+      if (!/^.*\.(hdf5|HDF5)$/.test(hdf5FileName)) {
+          alert("File must end with .hdf5");
+          return;
+      }
+      send_request("parse_vasp", [vaspDir, hdf5Dir + "/" + hdf5FileName, [parseType]]);
+    });
+
+    set_response_callback('parse_vasp', function(parseStatuses) {
+      $("#parseBtn").text('Parse');
+      $("#parseBtn").prop('disabled', false);
+      // TODO: Give user feedback based on parse status.
+    });
+  });
 </script>

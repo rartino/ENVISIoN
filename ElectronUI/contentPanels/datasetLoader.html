@@ -193,13 +193,6 @@
       }
     }
 
-    function pathInputChanged() {
-      let pathEnd = $(this)[0].files[0].path;
-      pathEnd = pathEnd.split("\\")
-      pathEnd = pathEnd[pathEnd.length - 1]
-      pathEnd = pathEnd.split("/")
-      pathEnd = pathEnd[pathEnd.length - 1]
-      $(this).next('.custom-file-label').addClass("selected").html(pathEnd);
-    }
+    
   });
 </script>
