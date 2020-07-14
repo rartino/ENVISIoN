@@ -32,7 +32,6 @@ class Subnetwork():
             identifier = self.decoration_mergers[0].identifier
             del self.decoration_mergers[0]
             self.remove_processor(identifier)
-
         # Remove wanted decoration port.
         self.decoration_outports.remove(deco_outport)
 
@@ -49,7 +48,6 @@ class Subnetwork():
             self.last_inport = self.decoration_inport
         if deco_outport in self.decoration_outports:
             raise EnvisionError('Decoration already connected.')
-        
         # Connect decoration directly
         if len(self.decoration_outports) == 0:
             self.network.addConnection(deco_outport, self.decoration_inport)
