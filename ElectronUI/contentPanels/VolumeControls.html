@@ -21,8 +21,8 @@
     <option selected>/DEFAULT</option>
   </select>
 </div>
-
 <br>
+
 
 <div class="input-group">
   <div class="input-group-prepend medium">
@@ -53,6 +53,7 @@
   </select>
 </div>
 
+<br>
 <h5>Transfer Function</h5>
 <div class="form-check">
   <input type="checkbox" class="form-check-input" id="VISTYPE_transperancyCheckbox" checked>
@@ -73,6 +74,7 @@
   </div>
 </div>
 
+<br>
 <h5>ISO surface</h5>
 <div class="form-check">
   <input type="checkbox" class="form-check-input" id="VISTYPE_isoCheck">
@@ -237,8 +239,7 @@
     });
 
     $("#VISTYPE_shadingModeSelection").on("change", function() {
-      let selectionIndex = $(this).val();
-      send_request("visualisation_request", [activeDatasetID, "VISTYPE", "set_shading_mode", [selectionIndex]])
+      send_request("visualisation_request", [activeDatasetID, "VISTYPE", "set_shading_mode", [$(this).val()]])
     });
 
     $("#VISTYPE_backgroundColor1,#VISTYPE_backgroundColor2,#VISTYPE_backgroundStyleSelection").on("change", function() {

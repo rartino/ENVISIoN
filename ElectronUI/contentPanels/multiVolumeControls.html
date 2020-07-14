@@ -1,0 +1,57 @@
+<!-- 
+  This html is used to build the settings panel for multi volume rendering.
+-->
+
+<button class="btn btn-primary" id="multiColorReloadBtn">Reload colors</button>
+
+<div class="input-group">
+  <div class="input-group-prepend medium">
+    <label class="input-group-text" for="multi_shadingModeSelection">Shading mode</label>
+  </div>
+  <select class="custom-select" id="multi_shadingModeSelection">
+    <option>No Shading</option>
+    <option>Ambient</option>
+    <option>Diffuse</option>
+    <option>Specular</option>
+    <option selected>Blinn Phong</option>
+    <option>Phong</option>
+  </select>
+</div>
+
+<div class="input-group">
+  <div class="input-group-prepend medium">
+    <label class="input-group-text">Background</label>
+  </div>
+  <input class="form-control" id="multi_backgroundColor1" type="color" value="#000000" required>
+  <input class="form-control" id="multi_backgroundColor2" type="color" value="#ffffff" required>
+  <select class="custom-select" id="multi_backgroundStyleSelection">
+    <option selected>Vertical gradient</option>
+    <option>Horizontal gradient</option>
+    <option>Spherical gradient</option>
+    <option>Uniform color</option>
+    <option>Checker board</option>
+  </select>
+</div>
+
+<hr>
+<script>
+  $(document).ready(function () {
+    $("#multiColorReloadBtn").on('click', function(){
+      send_request('visualisation_request', [activeDatasetID, "multi", "copy_transferfunctions"]);
+    });
+
+    $("#multi_shadingModeSelection").on("change", function() {
+      send_request("visualisation_request", [activeDatasetID, "multi", "set_shading_mode", [$(this).val()]])
+    });
+
+    $("#multi_backgroundColor1,#multi_backgroundColor2,#multi_backgroundStyleSelection").on("change", function() {
+      let color1 = hexToRGB($("#multi_backgroundColor1").val());
+      let color2 = hexToRGB($("#multi_backgroundColor2").val());
+      color1.push(1);
+      color2.push(1);
+      let styleIndex = $("#multi_backgroundStyleSelection")[0].selectedIndex;
+      send_request("visualisation_request", [activeDatasetID, "multi", "set_volume_background", [color1, color2, styleIndex]])
+    });
+
+  });
+</script>
