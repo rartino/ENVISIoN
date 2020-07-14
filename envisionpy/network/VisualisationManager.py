@@ -70,7 +70,6 @@ class VisualisationManager():
                 if vis_type in deco_network.valid_visualisations():
                     deco_network.connect_decoration(subnetwork, vis_type)
             subnetwork.show()
-            
         return subnetwork
         
     def stop(self, vis_type=None):
@@ -80,34 +79,13 @@ class VisualisationManager():
                 subnetwork.clear_processors()
             self.network.removeProcessor(self.hdf5Source)
             return
+
         if vis_type not in self.subnetworks:
             raise EnvisionError('Tried to stop non running visualisation.')
-
         if vis_type in self.decorations:
             del self.decorations[vis_type]
         self.subnetworks[vis_type].clear_processors()
         del self.subnetworks[vis_type]
-
-        
-
-    # def start_decoration(self, target_vis, deco_type):
-    #     # Add a visualisation as a decoration.
-    #     if target_vis not in self.subnetworks:
-    #         raise EnvisionError('Visualisation ['+target_vis+'] is not running. Start it before adding decoration.')
-        
-    #     subnetwork = self.get_subnetwork(deco_type)
-
-    #     # self.subnetworks[target_vis].connect_decoration(subnetwork, deco_type)
-    #     subnetwork.connect_decoration(self.subnetworks[target_vis], target_vis)
-
-    #     # Try to add this decoration to running visualisations.
-    #     return subnetwork
-    
-    def remove_decoration(self, vis_type, deco_type):
-    # Remove decoration and clear that subnetwork.
-        if vis_type not in self.subnetworks or deco_type not in self.subnetworks:
-            raise EnvisionError('')
-        self.subnetworks[vis_type].disconnect_decoration(self.subnetworks[deco_type], deco_type)
 
     def get_subnetwork(self, vis_type, *args):
         # Return the subnetwork for specified visualisation type.
