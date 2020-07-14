@@ -30,6 +30,8 @@ class AtomPositions(Decoration):
         # Add a decoration by connecting data ports and linking properties.
         if vis_type not in self.valid_visualisations():
             raise EnvisionError('Invalid visualisation type ['+vis_type+'].')
+        
+        self.other_subnetworks[vis_type] = other
 
         # Link needed properties between networks.
         if vis_type == 'charge' or vis_type == 'elf' or vis_type == 'parchg':
