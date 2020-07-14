@@ -93,6 +93,7 @@ class PartialChargeDensity(VolumeSubnetwork):
 
     def set_basis(self, basis_3x3, scale=1):
         self.basis_3x3 = basis_3x3
+        self.basis_scale = scale
         basis_4x4 = np.identity(4)
         basis_4x4[:3,:3] = basis_3x3
         basis_4x4 = np.multiply(scale, basis_4x4)
