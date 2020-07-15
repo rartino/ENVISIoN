@@ -189,6 +189,13 @@ class EnvisionMain():
         if identifier not in self.visualisation_managers:
             return False
         return self.visualisation_managers[identifier].call_subnetwork(vis_type, function_name, param_list)
+
+    def reset_canvas_positions(self, start_x ,start_y):
+        for manager in self.visualisation_managers.values():
+            manager.reset_canvas_positions(start_x, start_y)
+            start_y += 500
+            
+
         
     def get_ui_data(self, identifier):
         if identifier not in self.visualisation_managers:
