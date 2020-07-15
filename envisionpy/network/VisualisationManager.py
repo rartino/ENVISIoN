@@ -70,6 +70,7 @@ class VisualisationManager():
                 if vis_type in deco_network.valid_visualisations():
                     deco_network.connect_decoration(subnetwork, vis_type)
             subnetwork.show()
+        # self.reset_canvas_positions()
         return subnetwork
         
     def stop(self, vis_type=None):
@@ -132,6 +133,21 @@ class VisualisationManager():
         self.subnetworks[vis_type] = subnetwork
         return subnetwork
 
+    def reset_canvas_positions(self, start_x=0, start_y=0, max_width=10000):
+        # Position all canvases side by side starting with the upper right corner
+        # in given start coordinate.
+        x_tmp = start_x
+        y_tmp = start_y
+        for subnetwork in self.subnetworks.values():
+            for canvas in subnetwork.canvases:
+                if not canvas.widget.visibility: continue
+                if x_tmp > start_x+max_width: 
+                    x_tmp = start_x
+                    y_tmp += canvas.widget.dimensions[1]
+                canvas.widget.position = glm.ivec2(x_tmp, y_tmp)
+                x_tmp += canvas.widget.dimensions[0]
+
+
     def get_ui_data(self):
         data_packet = []
         data_packet.append(self.available_visualisations) # Available visualisations
@@ -140,7 +156,6 @@ class VisualisationManager():
         for vis_type, subnetwork in self.subnetworks.items():
             data_packet[1].append(vis_type)
             data_packet[2][vis_type] = subnetwork.get_ui_data()
-        print(data_packet)
         return data_packet
 
     def call_subnetwork(self, vis_type, function_name, param_list):

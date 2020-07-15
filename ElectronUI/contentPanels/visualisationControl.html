@@ -77,12 +77,13 @@
         $(this).find(".form-check-input").prop("disabled", true);
         
         if (started) {
-          send_request('start_visualisation', [activeDatasetID, type])
+          send_request('start_visualisation', [activeDatasetID, type]);
         }
         else {
           send_request('stop_visualisation', [activeDatasetID, type])
         }
         send_request('get_ui_data', [activeDatasetID]);
+        send_request('reset_canvas_positions', [window.screenX+window.outerWidth, window.screenY]);
       });
 
       set_response_callback('start_visualisation', function(identifier, type){
@@ -114,16 +115,10 @@
 
         for (type in ui_data) {
           let func = window[type + "_load_ui_data"];
-          console.log(func)
           if (typeof func == 'function')
             func(ui_data[type]);
-          console.log(2)
         }
-        console.log("UI LOAD DONE")
-
-
-
-      })
+      });
 
       // Load specific visualisation control panels.
       $('<div id="loaded-content" />').load("contentPanels/VolumeControls.html", function () {
