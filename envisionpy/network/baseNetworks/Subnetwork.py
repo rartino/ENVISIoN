@@ -9,6 +9,7 @@ class Subnetwork():
         self.app = inviwoApp
         self.network = inviwoApp.network
         self.processors = {}
+        self.canvases = []
 
         self.decoration_inport = None # Should be defined if subnetwork can use decorations.
         self.decoration_outport = None # Should be defined if subnetwork can be used as decoration.
@@ -63,29 +64,41 @@ class Subnetwork():
 
         self.decoration_outports.append(deco_outport)
 
-    def add_processor(self, id, name, xpos=0, ypos=0):
+    def add_processor(self, processor_type, name, xpos=0, ypos=0):
         # Add a processor. If processor with name already added return it.
         if name in self.processors:
             return self.processors[name]
         factory = self.app.processorFactory
-        new_processor = factory.create(id, glm.ivec2(xpos*25, ypos*25))
+        new_processor = factory.create(processor_type, glm.ivec2(xpos*25, ypos*25))
         new_processor.identifier = name
         self.network.addProcessor(new_processor)
 
         self.processors[name] = new_processor
+        
+        if processor_type=="org.inviwo.CanvasGL":
+            self.canvases.append(new_processor)
+            
         return new_processor
 
     def remove_processor(self, id):
         # Processor python reference has to be deleted before
         # processor is deleted in inviwo, risk crash otherwise
         identifier = self.get_processor(id).identifier
+
+        # Remove if canvas.
+        try: del self.canvases[self.canvases.index(self.get_processor(id))]
+        except ValueError: pass
+
         del self.processors[id]
         self.network.removeProcessor(self.network.getProcessorByIdentifier(identifier))
 
     def remove_processor_by_ref(self, processor):
-        self.remove_processor(processor.identifier)
-            # self.processors = {key:val for key, val in self.processors.items() if val != processor}
-            # self.network.removeProcessor(processor)
+        identifier = None
+        for i, p in self.processors.items():
+            if p == processor:
+                identifier = i
+                break
+        self.remove_processor(identifier)
 
     def get_processor(self, id):
         if id in self.processors:
