@@ -74,7 +74,7 @@ class VolumeSubnetwork(Subnetwork):
 # ------------------------------------------
 # ------- Property control functions -------
 
-    def set_mask(self, maskMin, maskMax):
+    def set_mask(self, maskMin, maskMax, idx=None):
     # Set the mask of the transfer function
     # Only volume densities between maskMin and maskMax are visible after this
         raycaster = self.get_processor('Raycaster')
@@ -288,10 +288,11 @@ class VolumeSubnetwork(Subnetwork):
         meshCreator.scale.value = scale
 
     def set_hdf5_subpath(self, path):
-        # vis = self.get_processor('VolumeCanvas').widget.visibility
-        # self.hide()
-        # self.show() 
-        # self.show() if vis else self.hide() # Flashing canvas forces network update to refresh options.
+        # Flashing canvas forces network update to refresh options.
+        # Without this inviwo will not always detect and select the proper volume.
+        vis = self.get_processor('VolumeCanvas').widget.visibility
+        self.hide() if vis else self.show() 
+        self.show() if vis else self.hide() 
 
         hdf5Path = self.get_processor('HDF5 path')
         hdf5Path.selection.selectedValue = path
