@@ -5,6 +5,13 @@ import h5py
 from envisionpy.utils.exceptions import *
 from .baseNetworks.VolumeSubnetwork import VolumeSubnetwork
 
+# TODO: Link the tf properties instead and copying will be done automatically.
+#       Inviwo bug is preventing this as of writing.
+
+# TODO: Closing one of the connected volume visualisations while this one is running
+#       Will result in unsupported behaviour. Either block those from closing before
+#       this, notify this about them closing, or restart this when volume is closed.
+
 class MultiVolume(VolumeSubnetwork):
     '''
     Manages a subnetwork for rendering of multiple volumes from other visualisations. 
@@ -29,24 +36,8 @@ class MultiVolume(VolumeSubnetwork):
             hdf5_file.get('basis') != None and 
             hdf5_file.get('scaling_factor') != None)
 
-    def valid_decorations(self):
-        # Which decorations can be started while running this one.
-        return ['atom']
-    
-    def connect_decoration(self, other, vis_type):
-        # Add a decoration by connecting data ports and linking properties.
-        if vis_type not in self.valid_decorations():
-            raise EnvisionError('Invalid decoration type ['+vis_type+'].')
-
-        # Link needed properties between networks.
-        if vis_type == 'atom':
-            self.network.addLink(self.camera_prop, other.camera_prop)
-        self.connect_decoration_ports(other.decoration_outport)
-
-    def disconnect_decoration(self, other, vis_type):
-        if vis_type == 'atom':
-            self.network.removeLink(self.camera_prop, other.camera_prop)
-        self.disconnect_decorations_port(other.decoration_outport)
+    def get_ui_data(self):
+        return []
 
     def copy_transferfunctions(self):
         # Copy all the transferfunctions from connected visualisations.
@@ -55,10 +46,15 @@ class MultiVolume(VolumeSubnetwork):
         for i, connected in enumerate(self.used_inports):
             if not connected: continue
             tf_points = self.other_transferfunctions[i].getValues()
+            self.transfer_functions[i].clear()
             for p in tf_points:
                 self.transfer_functions[i].add(p)
-            mask = self.other_transferfunctions[i].mask
-            self.transfer_functions[i].setMask(mask[0], mask[1])
+
+            if tf_points[0].pos != 0:
+                self.transfer_functions[i].add(
+                    tf_points[0].pos * 0.99,
+                    inviwopy.glm.vec4(1.0, 1.0, 1.0, 0.0))
+
 
 
     def connect_volume(self, volume_outport, transfer_func_prop, camera_prop):
