@@ -52,4 +52,7 @@ class ProcessorNotFoundError(EnvisionError):
 class BadHDF5Error(EnvisionError):
     pass
 
+class ProcessorNetworkError(EnvisionError):
+    pass
+
 # TODO: Custom parse errors
