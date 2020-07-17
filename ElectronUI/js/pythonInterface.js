@@ -58,10 +58,6 @@ function start_python_process() {
     else {
         console.log("Python process already launched")
     }
-
-    // send_request('init_manager', ['C:/Kandidatprojekt/ENVISIoN-2020/nacl1001.hdf5'])
-    // send_request('init_manager', ['C:/Kandidatprojekt/ENVISIoN-2020/nacl1001.hdf5'])
-    // send_request('start_visualisation', ['nacl100', 'charge'])
     
     // Send a ping every second to keep checking that python is responsive
     setInterval(()=>send_data('ping', nPings++), 1000)
@@ -154,7 +150,7 @@ function set_response_callback(type, func) {
 function handle_response_packet(packet){
     let type = packet['type'];
     let data = packet['data'];
-    if (type in response_callbacks){
+    if (type in response_callbacks && typeof response_callbacks[type] == 'function'){
         response_callbacks[type](...data);
     }
 }
