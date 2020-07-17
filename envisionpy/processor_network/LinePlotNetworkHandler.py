@@ -258,7 +258,7 @@ class LinePlotNetworkHandler(NetworkHandler):
         # line_plot_processor.allYSelection.value = True
         background.bgColor1.value = inviwopy.glm.vec4(1)
         background.bgColor2.value = inviwopy.glm.vec4(1)
-        canvas.inputSize.dimensions.value = inviwopy.glm.ivec2(900, 700)
+        canvas.inputSize.dimensions.value = inviwopy.glm.size2_t(900, 700) 
         canvas.widget.show()
 
         # if has_fermi_energy:
