@@ -36,10 +36,19 @@ import scipy
 def enlarge(matrix):
     '''
     Inviwo requires volume data to be at least 48x48x48 in size. 
-    Duplicate volume data voxels until that size is reached.
+    Interpolate volume data voxels until that size is reached.
     '''
-    while any(len(x) < 96 for x in matrix):
-        matrix = scipy.ndimage.zoom(matrix, 2)
+
+    # Inviwo requires arrays to be above a certain size.
+    # Volumes in hdf5 below 48x48x48 will not be detected
+    # Larger interpolated volume dimensions make slice look better. 
+    # 128 seem to be a good choice between size and looks.
+    scale = 128/min(len(x) for x in matrix)
+    if scale > 1:
+        matrix = scipy.ndimage.zoom(matrix, scale, None, 3, 'wrap')
+
+    # while any(len(x) < 96 for x in matrix):
+    #     matrix = scipy.ndimage.zoom(matrix, 2)
     return matrix
 
 def expand(matrix):

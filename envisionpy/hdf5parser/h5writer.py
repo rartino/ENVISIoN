@@ -205,20 +205,23 @@ def _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy):
                         set_attrs(dataset, name, '', 'Density of States', '$D$', 'states/eV')
 
 def _write_volume(h5file, i, array, data_dim, hdfgroup):
-    print("DATA DIMENSIONS:")
-    print(data_dim)
-    # print(data_dim[0])
     with h5py.File(h5file, "a") as h5:
         if array:
+            # Normalize array.
+            array = np.array(array)
+            array -= min(array) # Lowest value becomes 0
+            array /= max(array) # Highest value becomes 1
+
+            # Turn into 3 dimensional array
             volumeArray = np.reshape(array, (data_dim[2],data_dim[1],data_dim[0]))
 
             # Inviwo requires arrays to be above a certain size.
-            # Resize array to fit
-            while any(x < 48 for x in data_dim):
-                data_dim[0] *= 2
-                data_dim[1] *= 2
-                data_dim[2] *= 2
-                volumeArray = scipy.ndimage.zoom(volumeArray, 2)
+            # Volumes in hdf5 below 48x48x48 will not be detected
+            # Larger interpolated volume dimensions make slice look better. 
+            # 128 seem to be a good choice between size and looks.
+            scale = 128/min(data_dim)
+            if scale > 1:
+                volumeArray = scipy.ndimage.zoom(volumeArray, scale, None, 3, 'wrap')
             h5.create_dataset('{}/{}'.format(hdfgroup, i), data = volumeArray, dtype=np.float32)
         else:
             try:
