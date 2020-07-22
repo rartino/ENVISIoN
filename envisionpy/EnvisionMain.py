@@ -28,10 +28,10 @@
 import sys, os, time
 
 
-# if 'INVIWO_HOME' in os.environ and os.environ['INVIWO_HOME'] not in sys.path:
-#     sys.path.append(os.environ['INVIWO_HOME'])
+if 'INVIWO_HOME' in os.environ and os.environ['INVIWO_HOME'] not in sys.path:
+    sys.path.append(os.environ['INVIWO_HOME'])
 
-sys.path.append("C:/Kandidatprojekt/inviwo-build/bin/Release")
+# sys.path.append("C:/Kandidatprojekt/inviwo-build/bin/Release")
 
 try:
     import inviwopy as ivw
