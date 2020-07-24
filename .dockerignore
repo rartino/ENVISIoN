@@ -1,0 +1,7 @@
+.git
+node_modules
+packaging
+docs
+Dockerfile
+unit_testing
+*.hdf5
