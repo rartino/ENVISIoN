@@ -1,7 +1,7 @@
 .git
 node_modules
-packaging
 docs
 Dockerfile
+envision-linux-x64
 unit_testing
 *.hdf5
