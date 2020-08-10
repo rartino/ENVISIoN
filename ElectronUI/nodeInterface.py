@@ -73,7 +73,7 @@ def main():
                     send_packet('error', [packet['data'], format_error(e)])
                 # except Exception as e:
                 #     send_packet('error', [packet['data'], format_error(e)])
-            if packet['tag'] == 'ping':
+            elif packet['tag'] == 'ping':
                 send_packet('pong', packet['data'])
             else:
                 print('Unhandled packet: ', packet)
