@@ -1,0 +1,4 @@
+#!/bin/sh
+export LD_LIBRARY_PATH="/usr/share/envision/inviwo/lib/:$LD_LIBRARY_PATH"
+export PYTHONPATH="/usr/share/envision/inviwo/lib/:$PYTHONPATH"
+/usr/share/envision/ENVISIoN/envision --no-sandbox
