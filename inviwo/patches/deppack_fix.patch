@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 5c5c0849c..ab513afde 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -26,7 +26,7 @@
+  # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  #
+  #################################################################################
+-
++set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Envision Team")
+ cmake_minimum_required(VERSION 3.12.0)
+ cmake_policy(VERSION 3.12.0)
+ 
