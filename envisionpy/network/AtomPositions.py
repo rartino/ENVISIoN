@@ -130,19 +130,21 @@ class AtomPositions(Decoration):
 
             strucMesh.timestep.maxValue = 0
             for i,key in enumerate(list(h5[base_group + "/Atoms"].keys())):
-
                 element = h5[base_group + "/Atoms/"+key].attrs['element']
                 
                 name = element_names.get(element, 'Unknown')
-                self.atom_names.append(name)
                 color = element_colors.get(element, (0.5, 0.5, 0.5, 1.0))
                 radius = atomic_radii.get(element, 0.5)
+                self.atom_names.append(name)
                 self.atom_radii.append(radius)
                 
                 coordReader = self.add_processor('envision.CoordinateReader', '{0} {1}'.format(i,name), xpos-i*7, ypos)
                 self.network.addConnection(hdf5_output, coordReader.getInport('inport'))
                 self.network.addConnection(coordReader.getOutport('outport'), strucMesh.getInport('coordinates'))
                 coordReader.path.value = base_group + '/Atoms/' + key
+
+                if strucMesh.getPropertyByIdentifier('radius{0}'.format(i)) == None:
+                        continue
                 strucMesh_radius_property = strucMesh.getPropertyByIdentifier('radius{0}'.format(i))
                 # The atoms in a crystal don't actually look like spheres, as the valence electrons are shared across the crystal.
                 # The different radii of the elements in data.py are just to differentiate between different elements.
