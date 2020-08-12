@@ -1,0 +1,20 @@
+diff --git a/src/core/util/filesystem.cpp b/src/core/util/filesystem.cpp
+index c1b084daa..18b79298e 100644
+--- a/src/core/util/filesystem.cpp
++++ b/src/core/util/filesystem.cpp
+@@ -530,8 +530,13 @@ std::string findBasePath() {
+         }
+     }
+ #endif
+-    // locate Inviwo base path matching the subfolders data/workspaces and modules
+-    std::string basePath = inviwo::filesystem::getParentFolderWithChildren(
++    std::string basePath;
++    // try to use base path from environment variable.
++    if (const char* basePathEnv = std::getenv("INVIWO_BASE_PATH"))
++        basePath = basePathEnv;
++    // locate Inviwo base path matching the subfolders data/workspaces and modules.
++    else
++        basePath = inviwo::filesystem::getParentFolderWithChildren(
+         inviwo::filesystem::getExecutablePath(), {"data/workspaces", "modules"});
+ 
+     if (basePath.empty()) {

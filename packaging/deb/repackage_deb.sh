@@ -1,6 +1,6 @@
+#!/bin/bash
 # Repackages the generated .deb package from the inviwobuild. The package is not valid by default.
 # Also build and inserts envision
-
 echo "__Repackaging .deb__"
 echo "Extracting package..."
 rm -r unpack/
