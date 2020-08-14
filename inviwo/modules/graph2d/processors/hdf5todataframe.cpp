@@ -1,5 +1,4 @@
 #include <modules/graph2d/processors/hdf5todataframe.h>
-#include <inviwo/core/common/inviwo.h>
 
 namespace inviwo {
 
@@ -85,7 +84,7 @@ void HDF5ToDataframe::reloadColumns() {
 	// Initialize new dataframe
 	dataframe_ = std::make_shared<DataFrame>(0);
 
-	// Exit if valid data exists.
+	// Exit if no valid data exists.
 	if (columnMatches_.size() == 0 || !hdf5HandleInport_.hasData()) return;
 
 	const auto handle = hdf5HandleInport_.getData();
@@ -105,7 +104,6 @@ void HDF5ToDataframe::reloadColumns() {
 			addColumn(columnMatches_[i], handle);
 		break;
 	}
-
 }
 
 void HDF5ToDataframe::addColumn(const hdf5::MetaData& meta, const std::shared_ptr<const hdf5::Handle> handle) {

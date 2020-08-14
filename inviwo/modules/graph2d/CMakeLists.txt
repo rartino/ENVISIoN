@@ -6,6 +6,7 @@ ivw_module(graph2d)
 # Add header files
 set(HEADER_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/processors/hdf5todataframe.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/processors/plot2d.h
     )
 
 ivw_group("Header Files" ${HEADER_FILES})
@@ -14,6 +15,7 @@ ivw_group("Header Files" ${HEADER_FILES})
 # Add source files
 set(SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/processors/hdf5todataframe.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/processors/plot2d.cpp
     )
 
 ivw_group("Source Files" ${SOURCE_FILES})
