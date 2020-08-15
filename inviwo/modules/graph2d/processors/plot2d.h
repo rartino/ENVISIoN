@@ -10,6 +10,7 @@
 #include <inviwo/core/properties/compositeproperty.h>
 #include <inviwo/core/properties/optionproperty.h>
 #include <inviwo/core/properties/cameraproperty.h>
+#include <inviwo/core/properties/boolproperty.h>
 
 #include <inviwo/core/ports/volumeport.h>
 #include <inviwo/core/ports/imageport.h>
@@ -22,6 +23,8 @@
 
 #include <modules/plottinggl/plottingglmoduledefine.h>
 #include <modules/plottinggl/utils/axisrenderer.h>
+
+#include <modules/basegl/baseglmoduledefine.h>
 
 
 
@@ -40,7 +43,6 @@ public:
     static const ProcessorInfo processorInfo_;
 
 private:
-
 	DataInport<DataFrame, 1, false> inport_;
 	ImageInport imageInport_;
     ImageOutport outport_;
@@ -51,11 +53,18 @@ private:
     plot::AxisProperty xAxis_;
 	plot::AxisProperty yAxis_;
 
+	BoolProperty toggle3d_;
+	FloatVec3Property position_;
+	FloatVec2Property size_;
+
     CameraProperty camera_;
+	//OrthographicCamera camera2d_;
+	std::unique_ptr<Camera> camera2d_;
+
     CameraTrackball trackball_;
 
     std::vector<plot::AxisRenderer3D> axisRenderers_;
-
+	MeshDrawerGL lineDrawer_;
 
 	void reloadDatasets();
 	void updateAxis();
