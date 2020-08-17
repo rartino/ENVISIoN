@@ -26,6 +26,16 @@
 
 #include <modules/basegl/baseglmoduledefine.h>
 
+#include <modules/opengl/shader/shader.h>
+#include <modules/opengl/image/imagecompositor.h>
+#include <inviwo/core/datastructures/geometry/mesh.h>
+#include <modules/opengl/rendering/meshdrawergl.h>
+#include <inviwo/core/datastructures/geometry/basicmesh.h>
+#include <inviwo/core/ports/meshport.h>
+#include <inviwo/core/rendering/meshdrawer.h>
+#include <modules/opengl/shader/shader.h>
+#include <inviwo/core/properties/simplelightingproperty.h>
+
 
 
 
@@ -38,6 +48,8 @@ public:
     virtual ~Plot2dProcessor() = default;
     virtual const ProcessorInfo getProcessorInfo() const override;
 
+
+	virtual void initializeResources() override;
     virtual void process() override;
 
     static const ProcessorInfo processorInfo_;
@@ -46,6 +58,7 @@ private:
 	DataInport<DataFrame, 1, false> inport_;
 	ImageInport imageInport_;
     ImageOutport outport_;
+	MeshOutport meshOutport_;
 
     OptionPropertyString xAxisSelection_;
 	OptionPropertyString yAxisSelection_;
@@ -64,10 +77,30 @@ private:
     CameraTrackball trackball_;
 
     std::vector<plot::AxisRenderer3D> axisRenderers_;
-	MeshDrawerGL lineDrawer_;
+
+
+	//BasicMesh lineMesh_;
+	//BasicMesh lineMesh_;
+	std::shared_ptr<BasicMesh> lineMesh_;
+	std::shared_ptr<IndexBufferRAM> indices_;
+	std::unique_ptr<MeshDrawer> meshDrawer_;
+	Shader shader_;
+	SimpleLightingProperty lightingProperty_;
+	Shader shader2d_;
+	//Mesh lines_;
+	//MeshDrawerGL lineDrawer_;
+	//Shader lineShader_;
+
+	vec3 origin_;
+	double width_;
+	double height_;
+	Camera* activeCamera_;
+
+
 
 	void reloadDatasets();
 	void updateAxis();
+	void rebuildMesh();
 
 };
 
