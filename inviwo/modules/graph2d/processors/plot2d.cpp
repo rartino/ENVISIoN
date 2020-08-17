@@ -4,6 +4,12 @@
 #include <modules/opengl/texture/textureutils.h>
 #include <inviwo/core/util/raiiutils.h>
 #include <inviwo/core/algorithm/boundingbox.h>
+#include <inviwo/core/rendering/meshdrawerfactory.h>
+
+
+#include <modules/opengl/texture/textureutils.h>
+#include <modules/opengl/shader/shaderutils.h>
+#include <modules/opengl/openglutils.h>
 
 namespace inviwo {
 
@@ -23,6 +29,7 @@ Plot2dProcessor::Plot2dProcessor()
     : Processor()
     , inport_("inport")
     , imageInport_("imageInport")
+	, meshOutport_("meshOutport")
     , outport_("outport")
     , xAxis_("xAxis", "X Axis")
     , yAxis_("yAxis", "Y Axis")
@@ -35,7 +42,55 @@ Plot2dProcessor::Plot2dProcessor()
 	, yAxisSelection_("yAxisSelection", "Y Axis")
 	, toggle3d_("toggle3d", "Render in 3D space")
 	, camera2d_{ InviwoApplication::getPtr()->getCameraFactory()->create("OrthographicCamera") }
+	/*, lines_(DrawType::Lines, ConnectivityType::Strip)
+	, lineDrawer_(&lines_)
+	, lineShader_("img_color.frag")*/
+	, lineMesh_( std::make_shared<BasicMesh>() )
+	, meshDrawer_( std::unique_ptr<MeshDrawer>() )
+	, shader_("meshrendering.vert", "meshrendering.frag", false)
+	, lightingProperty_("lighting", "Lighting", &camera_)
+	, shader2d_("mesh2drendering.vert", "mesh2drendering.frag")
     {
+	shader_.onReload([this]() { invalidate(InvalidationLevel::InvalidResources); });
+	
+
+	indices_ = lineMesh_->addIndexBuffer(DrawType::Lines, ConnectivityType::None);
+	vec4 col(1, 0, 0, 1);
+	vec3 p1(0, 0, 0);
+	vec3 p2(4, 4, 0);
+	vec3 p3(6, 1, 0);
+	vec3 p4(2, 3, 0);
+	indices_->add(lineMesh_->addVertex(p1, p1, p1, col));
+	indices_->add(lineMesh_->addVertex(p2, p2, p2, col));
+	indices_->add(lineMesh_->addVertex(p2, p2, p2, col));
+	indices_->add(lineMesh_->addVertex(p3, p3, p3, col));
+	indices_->add(lineMesh_->addVertex(p3, p3, p3, col));
+	indices_->add(lineMesh_->addVertex(p4, p4, p4, col));
+	indices_->add(lineMesh_->addVertex(p4, p4, p4, col));
+	indices_->add(lineMesh_->addVertex(p1, p1, p1, col));
+	//LogInfo("INDICES1 : " + std::to_string(lineMesh_->get));
+
+	//lineMesh_->clearRepresentations();
+	indices_->clear();
+	indices_->add(lineMesh_->addVertex(p1, p1, p1, col));
+	indices_->add(lineMesh_->addVertex(p4, p4, p4, col));
+
+	//LogInfo("INDICES2 : " + std::to_string(lineMesh_->getNumberOfIndicies()));
+
+	MeshDrawerFactory* factory = InviwoApplication::getPtr()->getMeshDrawerFactory();
+	meshDrawer_ = std::move(factory->create(lineMesh_.get()));
+	//auto renderer = ;
+
+	//indices_->add(lineMesh_->addVertex(vec3(0, 0, 0)));
+	/*indices_ = lineMesh_.addIndexBuffer(DrawType::Lines, ConnectivityType::None);
+	indices_->add(lineMesh_.addVertex(vec3(10, 10, 0)));
+	indices_->add(lineMesh_.addVertex(vec3(10, 10, 0)));
+	indices_->add(lineMesh_.addVertex(vec3(5, 3, 0)));
+	indices_->add(lineMesh_.addVertex(vec3(5, 3, 0)));
+	indices_->add(lineMesh_.addVertex(vec3(8, 1, 0)));
+	indices_->add(lineMesh_.addVertex(vec3(8, 1, 0)));
+	indices_->add(lineMesh_.addVertex(vec3(0, 0, 0)));*/
+	//ConnectivityType::Strip
 
 	// Initialize the 2d camera.
 	camera2d_->setLookFrom(vec3(0, 0, 100));
@@ -49,6 +104,7 @@ Plot2dProcessor::Plot2dProcessor()
     addPort(inport_);
     addPort(imageInport_);
     addPort(outport_);
+	addPort(meshOutport_);
 
 	// Add properties
 	addProperty(toggle3d_);
@@ -58,6 +114,7 @@ Plot2dProcessor::Plot2dProcessor()
 	addProperties(xAxis_, yAxis_);
 	addProperty(camera_);
 	addProperty(trackball_);
+	addProperty(lightingProperty_);
 
 	// Setup property default values
 	xAxis_.setCaption("x");
@@ -105,6 +162,14 @@ Plot2dProcessor::Plot2dProcessor()
 	}
 }
 
+
+void Plot2dProcessor::initializeResources() {
+	LogInfo("Initializing resources plot2d");
+	utilgl::addShaderDefines(shader_, lightingProperty_);
+	shader_.build();
+}
+
+
 void Plot2dProcessor::process() {
 	LogInfo("Process start");
 	if (imageInport_.isReady()) {
@@ -116,23 +181,59 @@ void Plot2dProcessor::process() {
 
 	const size2_t dims = outport_.getDimensions();
 	double aspect = (double)dims[0] / (double)dims[1];
+	
 
+	
 	if (toggle3d_.get()) {
-		// Render with the normal camera property
-		axisRenderers_[0].render(&camera_.get(), dims, position_.get(), position_.get() + vec3(size_.get()[0], 0, 0), vec3(0.0f, 1.0f, 1.0f));
-		axisRenderers_[1].render(&camera_.get(), dims, position_.get(), position_.get() + vec3(0, size_.get()[1], 0), vec3(1.0f, 0.0f, 1.0f));
+		// Render with the camera property
+		axisRenderers_[0].render(&camera_.get(), dims, position_.get(), position_.get() + vec3(size_.get()[0], 0, 0), vec3(0.0f, 1.0f, 0.0f));
+		axisRenderers_[1].render(&camera_.get(), dims, position_.get(), position_.get() + vec3(0, size_.get()[1], 0), vec3(1.0f, 0.0f, 0.0f));
+	
+		
 	}
 	else {
 		// Render with the 2d camera instead.
-		double width = 50;
-		double height = width / aspect;
-		double scale = width / (double)dims[0];
-		const vec3 startPos(-width / 2 * 0.9, -height / 2 * 0.9, 0);
+		const double width = 50;
+		const double height = width / aspect;
+		const double padding = 40 * width / (double)dims[0];
+		const vec3 startPos(-width / 2 + padding, -height / 2 + padding, 0);
 		camera2d_->setAspectRatio(aspect);
-		dynamic_cast<OrthographicCamera*>(camera2d_.get())->setFrustum({ -width / 2.0f, width / 2.0f, -width / 2.0f / aspect, +width / 2.0f / aspect });
-		axisRenderers_[0].render(camera2d_.get(), dims, startPos, startPos + vec3(width*0.9, 0, 0), vec3(0.0f, 1.0f, 1.0f));
-		axisRenderers_[1].render(camera2d_.get(), dims, startPos, startPos + vec3(0, height*0.9, 0), vec3(1.0f, 0.0f, 1.0f));
+		static_cast<OrthographicCamera*>(camera2d_.get())->setFrustum({ -width / 2.0f, width / 2.0f, -width / 2.0f / aspect, +width / 2.0f / aspect });
+		axisRenderers_[0].render(camera2d_.get(), dims, startPos, startPos + vec3(width - padding*2, 0, 0), vec3(0.0f, 1.0f, 0.0f));
+		axisRenderers_[1].render(camera2d_.get(), dims, startPos, startPos + vec3(0, height - padding*2, 0), vec3(1.0f, 0.0f, 0.0f));
 	}
+
+	if (toggle3d_.get()) {
+		shader_.activate();
+		utilgl::setUniforms(shader_, lightingProperty_);
+		utilgl::setShaderUniforms(shader_, camera_.get(), "camera");
+		utilgl::setShaderUniforms(shader_, *meshDrawer_->getMesh(), "geometry");
+		shader_.setUniform("pickingEnabled", meshutil::hasPickIDBuffer(meshDrawer_->getMesh()));
+		meshDrawer_->draw();
+		shader_.deactivate();
+	}
+	else {
+		shader2d_.activate();
+		utilgl::setShaderUniforms(shader_, *camera2d_.get(), "camera");
+		utilgl::setShaderUniforms(shader_, *meshDrawer_->getMesh(), "geometry");
+		meshDrawer_->draw();
+		shader_.deactivate();
+		//shader_.setUniform("projectionMatrix", proj);
+
+	}
+	//utilgl::setUniforms(shader_, camera_, lightingProperty_);
+	//utilgl::addDefines(shader_);
+	//utilgl::
+	//utilgl::setUniforms()
+	//utilgl::setUniforms(shader_, camera2d_, lightingProperty_);
+	//
+	//utilgl::setShaderUniforms(shader_, *camera2d_.get(), "hello");
+	//camera2d_->getI 
+
+	
+	
+
+	meshOutport_.setData(lineMesh_);
 
 	utilgl::deactivateCurrentTarget();
 }
@@ -144,7 +245,6 @@ void Plot2dProcessor::reloadDatasets() {
 		yAxisSelection_.clearOptions();
 		return;
 	}
-
 	const std::shared_ptr<const DataFrame> dataframe = inport_.getData();
 	// Update column selection properties
 	std::vector<OptionPropertyStringOption> options;
@@ -190,6 +290,9 @@ void Plot2dProcessor::updateAxis() {
 	//xAxis_.set
 }
 
+void Plot2dProcessor::rebuildMesh() {
+
+}
 
 
 
