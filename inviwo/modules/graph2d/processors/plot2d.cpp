@@ -11,6 +11,11 @@
 #include <modules/opengl/shader/shaderutils.h>
 #include <modules/opengl/openglutils.h>
 
+
+#include <modules/opengl/openglutils.h>
+#include <inviwo/core/datastructures/coordinatetransformer.h>
+#include <modules/opengl/texture/textureutils.h>
+
 namespace inviwo {
 
 
@@ -33,8 +38,8 @@ Plot2dProcessor::Plot2dProcessor()
     , outport_("outport")
     , xAxis_("xAxis", "X Axis")
     , yAxis_("yAxis", "Y Axis")
-	, position_("position", "Position", vec3(0), vec3(-1000), vec3(1000), vec3(0.01))
-	, size_("size", "Size", vec2(3), vec2(0), vec2(100), vec2(0.01))
+	, position_("position", "Position", vec3(0), vec3(-25), vec3(25), vec3(0.01))
+	, size_("size", "Size", vec2(3), vec2(0.01), vec2(25), vec2(0.01))
     , camera_("camera", "Camera")
     , trackball_(&camera_)
 	, axisRenderers_({ {xAxis_, yAxis_} })
@@ -71,7 +76,7 @@ Plot2dProcessor::Plot2dProcessor()
 	//LogInfo("INDICES1 : " + std::to_string(lineMesh_->get));
 
 	//lineMesh_->clearRepresentations();
-	indices_->clear();
+	//indices_->clear();
 	indices_->add(lineMesh_->addVertex(p1, p1, p1, col));
 	indices_->add(lineMesh_->addVertex(p4, p4, p4, col));
 
@@ -137,9 +142,18 @@ Plot2dProcessor::Plot2dProcessor()
 	toggle3d_.onChange([this] {
 		position_.setVisible(toggle3d_.get());
 		size_.setVisible(toggle3d_.get());
+
+		position_.setVisible(true);
+		size_.setVisible(true);
 		camera_.setVisible(toggle3d_.get());
 		trackball_.setVisible(toggle3d_.get());
+
+		updateDimensions();
+
 	});
+	size_.onChange([this] { updateDimensions(); });
+	position_.onChange([this] { updateDimensions(); });
+
 	xAxisSelection_.onChange([this] { updateAxis(); });
 	yAxisSelection_.onChange([this] { updateAxis(); });
 
@@ -160,6 +174,7 @@ Plot2dProcessor::Plot2dProcessor()
 		axis->minorTicks_.style_.set(plot::TickStyle::Outside);
 		axis->minorTicks_.setCurrentStateAsDefault();
 	}
+	updateDimensions();
 }
 
 
@@ -179,56 +194,114 @@ void Plot2dProcessor::process() {
 		utilgl::activateAndClearTarget(outport_, ImageType::ColorDepth);
 	}
 
+	
+	if (!toggle3d_.get() && oldDims_ != outport_.getDimensions()) {
+		updateDimensions();
+		updateDimensions();
+
+	}
 	const size2_t dims = outport_.getDimensions();
 	double aspect = (double)dims[0] / (double)dims[1];
 	
 
 	
 	if (toggle3d_.get()) {
+
+		lineMesh_->setBasis(Matrix<3U, float>(size_.get()[0], 0, 0, 0, size_.get()[1], 0, 0, 0, 1));
+		lineMesh_->setOffset(position_.get());
+
+		
 		// Render with the camera property
-		axisRenderers_[0].render(&camera_.get(), dims, position_.get(), position_.get() + vec3(size_.get()[0], 0, 0), vec3(0.0f, 1.0f, 0.0f));
-		axisRenderers_[1].render(&camera_.get(), dims, position_.get(), position_.get() + vec3(0, size_.get()[1], 0), vec3(1.0f, 0.0f, 0.0f));
+		axisRenderers_[0].render(&camera_.get(), dims, origin_, origin_ + vec3(graphDims_[0], 0, 0), vec3(0.0f, 1.0f, 0.0f));
+		axisRenderers_[1].render(&camera_.get(), dims, origin_, origin_ + vec3(0, graphDims_[1], 0), vec3(1.0f, 0.0f, 0.0f));
 	
 		
 	}
 	else {
+		//auto v = origin_;
+		//LogInfo("Ori1: " << std::to_string(origin_[0]) << ", " << std::to_string(origin_[1]));
+		//updateDimensions();
+		//LogInfo("Ori2: " << std::to_string(origin_[0]) << ", " << std::to_string(origin_[1]));
+		//LogInfo((v == origin_));
 		// Render with the 2d camera instead.
-		const double width = 50;
+		const double scale = (double)dims[0] / 512;
+		const double width = 50 * scale;
 		const double height = width / aspect;
 		const double padding = 40 * width / (double)dims[0];
-		const vec3 startPos(-width / 2 + padding, -height / 2 + padding, 0);
-		camera2d_->setAspectRatio(aspect);
-		static_cast<OrthographicCamera*>(camera2d_.get())->setFrustum({ -width / 2.0f, width / 2.0f, -width / 2.0f / aspect, +width / 2.0f / aspect });
-		axisRenderers_[0].render(camera2d_.get(), dims, startPos, startPos + vec3(width - padding*2, 0, 0), vec3(0.0f, 1.0f, 0.0f));
-		axisRenderers_[1].render(camera2d_.get(), dims, startPos, startPos + vec3(0, height - padding*2, 0), vec3(1.0f, 0.0f, 0.0f));
+		//const vec3 startPos(-width / 2 + padding, -height / 2 + padding, 0);
+		//const vec3 startPos = origin_;
+
+		//LogInfo("diff: " << std::to_string(origin_[0] - startPos[0]) << ", " << std::to_string(origin_[1] - startPos[1]) << ", " << std::to_string(origin_[2] - startPos[2]))
+
+		//LogInfo("Pos: " << std::to_string(startPos[0]) << ", " << std::to_string(startPos[1]));
+		//LogInfo("Ori: " << std::to_string(origin_[0]) << ", " << std::to_string(origin_[1]));
+		//lineMesh_->setBasis(Matrix<3U, float>(scale, 0, 0, 0, scale, 0, 0, 0, 1));
+		//lineMesh_->setOffset(startPos);
+
+		//lineMesh_->setBasis(Matrix<3U, float>(size_.get()[0], 0, 0, 0, size_.get()[1], 0, 0, 0, 1));
+		////lineMesh_->setOffset(position_.get());
+		//LogInfo("Offset: " + std::to_string(startPos[0]) + ", " + std::to_string(startPos[1]) + ", " + std::to_string(startPos[2]));
+		//LogInfo("basis: " + std::to_string(size_.get()[0]) + ", " + std::to_string(size_.get()[1]));
+
+		//camera2d_->setAspectRatio(aspect);
+		//static_cast<OrthographicCamera*>(camera2d_.get())->setFrustum({ -width / 2.0f, +width / 2.0f, -width / 2.0f / aspect, +width / 2.0f / aspect });
+
+		axisRenderers_[0].render(camera2d_.get(), dims, origin_, origin_ + vec3(width - padding*2, 0, 0), vec3(0.0f, 1.0f, 0.0f));
+		axisRenderers_[1].render(camera2d_.get(), dims, origin_, origin_ + vec3(0, height - padding*2, 0), vec3(1.0f, 0.0f, 0.0f));
 	}
 
 	if (toggle3d_.get()) {
 		shader_.activate();
 		utilgl::setUniforms(shader_, lightingProperty_);
+		
 		utilgl::setShaderUniforms(shader_, camera_.get(), "camera");
 		utilgl::setShaderUniforms(shader_, *meshDrawer_->getMesh(), "geometry");
 		shader_.setUniform("pickingEnabled", meshutil::hasPickIDBuffer(meshDrawer_->getMesh()));
 		meshDrawer_->draw();
+
+		//Matrix<3U, float> m(1, 0, 0, 0, 1, 0, 0, 0, 1);
+		
+		//const Mesh* mesh = meshDrawer_->getMesh();
+
+		//meshDrawer_->getMesh()->setBasis(basis);
+		//meshDrawer_->getMesh()->setBasis(basis);
+		
 		shader_.deactivate();
 	}
 	else {
-		shader2d_.activate();
+
+		const double scalex = (double)dims[0] / 512;
+		const double scaley = (double)dims[1] / 512;
+		shader_.activate();
+		//mat4 proj1 = glm::ortho(-size_.get()[0], 1.0f, -size_.get()[1], 1.0f, -200.0f, 100.0f);
+		//proj1[0][0] *= scalex;
+		//proj1[1][1] *= scaley;
+		//proj1[3][0] += size_.get()[0];
+		//proj1[3][1] += size_.get()[1];
+		
 		utilgl::setShaderUniforms(shader_, *camera2d_.get(), "camera");
 		utilgl::setShaderUniforms(shader_, *meshDrawer_->getMesh(), "geometry");
+		shader_.setUniform("pickingEnabled", meshutil::hasPickIDBuffer(meshDrawer_->getMesh()));
+		meshDrawer_->draw();
+		/*mat4 proj = glm::ortho(-0.0f, 1.0f, -0.0f, 1.0f, -200.0f, 100.0f);
+		LogInfo("Projection1: \n" 
+			<< proj1[0][0] << ", " << proj1[0][1] << ", " << proj1[0][2] << ", " << proj1[0][3] << "\n"
+			<< proj1[1][0] << ", " << proj1[1][1] << ", " << proj1[1][2] << ", " << proj1[1][3] << "\n"
+			<< proj1[2][0] << ", " << proj1[2][1] << ", " << proj1[2][2] << ", " << proj1[2][3] << "\n"
+			<< proj1[3][0] << ", " << proj1[3][1] << ", " << proj1[3][2] << ", " << proj1[3][3] << "\n");
+		LogInfo("Projection2: \n"
+			<< proj[0][0] << ", " << proj[0][1] << ", " << proj[0][2] << ", " << proj[0][3] << "\n"
+			<< proj[1][0] << ", " << proj[1][1] << ", " << proj[1][2] << ", " << proj[1][3] << "\n"
+			<< proj[2][0] << ", " << proj[2][1] << ", " << proj[2][2] << ", " << proj[2][3] << "\n"
+			<< proj[3][0] << ", " << proj[3][1] << ", " << proj[3][2] << ", " << proj[3][3] << "\n");*/
+		
+		//shader2d_.setUniform("projectionMatrix", proj1);
+		//utilgl::setShaderUniforms(shader2d_, *camera2d_.get(), "camera");
+		//utilgl::setShaderUniforms(shader2d_, *meshDrawer_->getMesh(), "geometry_");
 		meshDrawer_->draw();
 		shader_.deactivate();
-		//shader_.setUniform("projectionMatrix", proj);
 
 	}
-	//utilgl::setUniforms(shader_, camera_, lightingProperty_);
-	//utilgl::addDefines(shader_);
-	//utilgl::
-	//utilgl::setUniforms()
-	//utilgl::setUniforms(shader_, camera2d_, lightingProperty_);
-	//
-	//utilgl::setShaderUniforms(shader_, *camera2d_.get(), "hello");
-	//camera2d_->getI 
 
 	
 	
@@ -290,8 +363,35 @@ void Plot2dProcessor::updateAxis() {
 	//xAxis_.set
 }
 
-void Plot2dProcessor::rebuildMesh() {
+void Plot2dProcessor::updateDimensions() {
+	//LogInfo("Updating dimensions");
+	if (toggle3d_.get()) {
+		origin_ = position_.get();
+		graphDims_ = size_.get();
+	}
+	else {
+		const size2_t dims = outport_.getDimensions();
+		const float aspect = (float)dims[0] / (float)dims[1];
+		const float scale = (double)dims[0] / 512;
+		const float width = 50 * scale;
+		const float height = width / aspect;
+		const float padding = 40 * width / (double)dims[0];
+		oldDims_ = dims;
 
+		origin_[0] = -50 * scale / 2 + padding;
+		origin_[1] = -50 * scale / aspect / 2 + padding;
+		origin_[2] = 0;
+
+		graphDims_[0] = width - 2 * padding;
+		graphDims_[1] = height - 2 * padding;
+
+		static_cast<OrthographicCamera*>(camera2d_.get())->setFrustum({ -width / 2.0f, +width / 2.0f, -width / 2.0f / aspect, +width / 2.0f / aspect });
+
+	}
+}
+
+void Plot2dProcessor::rebuildMesh() {
+	// Set the line mesh indices to represent the selected dataframe data.
 }
 
 

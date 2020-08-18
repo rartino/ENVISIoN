@@ -92,14 +92,14 @@ private:
 	//Shader lineShader_;
 
 	vec3 origin_;
-	double width_;
-	double height_;
+	vec2 graphDims_;
 	Camera* activeCamera_;
 
-
+	size2_t oldDims_;
 
 	void reloadDatasets();
 	void updateAxis();
+	void updateDimensions();
 	void rebuildMesh();
 
 };
