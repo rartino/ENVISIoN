@@ -71,7 +71,6 @@ private:
 	FloatVec2Property size_;
 
     CameraProperty camera_;
-	//OrthographicCamera camera2d_;
 	std::unique_ptr<Camera> camera2d_;
 
     CameraTrackball trackball_;
@@ -86,21 +85,15 @@ private:
 	std::unique_ptr<MeshDrawer> meshDrawer_;
 	Shader shader_;
 	SimpleLightingProperty lightingProperty_;
-	Shader shader2d_;
-	//Mesh lines_;
-	//MeshDrawerGL lineDrawer_;
-	//Shader lineShader_;
 
 	vec3 origin_;
 	vec2 graphDims_;
 	Camera* activeCamera_;
-
 	size2_t oldDims_;
 
 	void reloadDatasets();
-	void updateAxis();
 	void updateDimensions();
-	void rebuildMesh();
+	void updatePlotData();
 
 };
 
