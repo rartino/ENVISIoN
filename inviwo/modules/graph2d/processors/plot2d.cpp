@@ -160,9 +160,85 @@ void Plot2dProcessor::process() {
 	else
 		activeCamera = camera2d_.get();
 
+
+	auto dot = [](const vec3& v1, const vec3& v2) { return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;  };
+	auto cross = [](const vec3& v1, const vec3& v2) { return vec3(
+		v1.y * v2.z - v1.z * v2.y,
+		v1.z * v2.x - v1.x * v2.z,
+		v1.x * v2.y - v1.y * v2.x); };
+	auto length = [](const vec3& v) { return std::sqrt(v.x*v.x + v.y*v.y + v.z*v.z); };
+	auto normalize = [length](const vec3& v) { return v / length(v); };
+
+	vec3 xDir(1, 0, 0);
+	vec3 yDir(0, 1, 0);
+
+	if (toggle3d_.get()) {
+		// Direct the graph to face the camera.
+		auto from = camera_.getLookFrom();
+		auto to = camera_.getLookTo();
+		auto up = camera_.getLookUp();
+		//glm::dot(from, to);
+
+		auto normal = from - to;
+		normal = normalize(normal);
+		xDir = vec3(normal[1], -normal[0], 0);
+		auto a = normal * xDir;
+		yDir = cross(normal, xDir);
+
+		xDir = normalize(xDir);
+		yDir = normalize(yDir);
+
+		xDir = xDir * dot(xDir, up) + yDir * dot(yDir, up);
+		xDir = normalize(xDir);
+
+		yDir = cross(normal, xDir);
+		yDir = -normalize(yDir);
+		
+
+		std::swap(yDir, xDir);
+
+		LogInfo("Camera: \n"
+			<< from[0] << ", " << from[1] << ", " << from[2] << "\n"
+			<< to[0] << ", " << to[1] << ", " << to[2] << "\n"
+			<< up[0] << ", " << up[1] << ", " << up[2] << "\n"
+		);
+		//camera_.setLookFrom(vec3(0, 0, from[2]));
+		//camera_.setLookUp(vec3(0, 1, 0));
+		/*lineMesh_->setBasis(Matrix<3U, float>(
+			graphDims_[0], 0, 0, 
+			0, graphDims_[1], 0, 
+			0, 0, 1));*/
+		/*lineMesh_->setBasis(Matrix<3U, float>(
+			graphDims_[0]*xDir.x, yDir.x, 0,
+			xDir.y, graphDims_[1]*yDir.y, 0,
+			xDir.z, yDir.z, 1));*/
+		/*lineMesh_->setBasis(Matrix<3U, float>(
+			graphDims_[0] * xDir.x, xDir.y, xDir.z,
+			yDir.x, graphDims_[1] * yDir.y, yDir.z,
+			0, 0, 1));*/
+
+		lineMesh_->setBasis(Matrix<3U, float>(
+			graphDims_[0] * xDir.x, graphDims_[0] * xDir.y, graphDims_[0] * xDir.z,
+			graphDims_[1] * yDir.x, graphDims_[1] * yDir.y, graphDims_[1] * yDir.z,
+			0, 0, 1));
+
+		//lineMesh_->setOffset(origin_);
+
+		LogInfo("Normal: \n"
+			<< length(normal) << ", " << length(xDir) << ", " << length(yDir) << "\n"
+			<< dot(normal, xDir) << ", " << dot(normal, yDir) << ", " << dot(xDir, yDir) << "\n"
+			<< normal[0] << ", " << normal[1] << ", " << normal[2] << "\n"
+		);
+		//camera_.setLookFrom(vec3(from[0], 0, 0));
+	}
+
 	// Render x and y axis
-	axisRenderers_[0].render(activeCamera, dims, origin_, origin_ + vec3(graphDims_[0], 0, 0), vec3(0.0f, 1.0f, 0.0f));
-	axisRenderers_[1].render(activeCamera, dims, origin_, origin_ + vec3(0, graphDims_[1], 0), vec3(1.0f, 0.0f, 0.0f));
+
+	axisRenderers_[0].render(activeCamera, dims, origin_, origin_ + xDir * graphDims_[0], yDir);
+	axisRenderers_[1].render(activeCamera, dims, origin_, origin_ + yDir * graphDims_[1], xDir);
+
+	//axisRenderers_[0].render(activeCamera, dims, origin_, origin_ + xDir*graphDims_[0], vec3(0.0f, 1.0f, 0.0f));
+	//axisRenderers_[1].render(activeCamera, dims, origin_, origin_ + yDir*graphDims_[1], vec3(1.0f, 0.0f, 0.0f));
 	
 	// Render lines.
 	shader_.activate();
