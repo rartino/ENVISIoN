@@ -23,9 +23,7 @@ ivw_group("Source Files" ${SOURCE_FILES})
 
 #--------------------------------------------------------------------
 # Add shaders
-set(SHADER_FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/lineplot.vert
-    ${CMAKE_CURRENT_SOURCE_DIR}/lineplot.frag    
+set(SHADER_FILES  
 )
 ivw_group("Shader Files" ${SHADER_FILES})
 
