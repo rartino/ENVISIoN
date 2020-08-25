@@ -58,7 +58,6 @@ private:
 	DataInport<DataFrame, 1, false> inport_;
 	ImageInport imageInport_;
     ImageOutport outport_;
-	MeshOutport meshOutport_;
 
     OptionPropertyString xAxisSelection_;
 	OptionPropertyString yAxisSelection_;
@@ -72,19 +71,16 @@ private:
 
     CameraProperty camera_;
 	std::unique_ptr<Camera> camera2d_;
-
     CameraTrackball trackball_;
+
 
     std::vector<plot::AxisRenderer3D> axisRenderers_;
 
 
-	//BasicMesh lineMesh_;
-	//BasicMesh lineMesh_;
 	std::shared_ptr<BasicMesh> lineMesh_;
 	std::shared_ptr<IndexBufferRAM> indices_;
 	std::unique_ptr<MeshDrawer> meshDrawer_;
 	Shader shader_;
-	SimpleLightingProperty lightingProperty_;
 
 	vec3 origin_;
 	vec2 graphDims_;
