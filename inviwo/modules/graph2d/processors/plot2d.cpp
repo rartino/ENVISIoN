@@ -39,6 +39,7 @@ Plot2dProcessor::Plot2dProcessor()
     , yAxis_("yAxis", "Y Axis")
 	, position_("position", "Position", vec3(0), vec3(-25), vec3(25), vec3(0.01))
 	, size_("size", "Size", vec2(3), vec2(0.01), vec2(25), vec2(0.01))
+	, margins_("margins", "Margins", 5, 5, 5, 5)
     , camera_("camera", "Camera")
 	, camera2d_{ InviwoApplication::getPtr()->getCameraFactory()->create("OrthographicCamera") }
     , trackball_(&camera_)
@@ -69,9 +70,11 @@ Plot2dProcessor::Plot2dProcessor()
 	addProperty(position_);
 	addProperty(size_);
 	addProperties(xAxisSelection_, yAxisSelection_);
+	addProperty(margins_);
 	addProperties(xAxis_, yAxis_);
 	addProperty(camera_);
 	addProperty(trackball_);
+
 
 	// Set up property default values
 	toggle3d_.set(false);
@@ -133,6 +136,7 @@ Plot2dProcessor::Plot2dProcessor()
 	yAxis_.range_.onChange([this] { updatePlotData(); });
 	xAxis_.useDataRange_.onChange([this] { updatePlotData(); });
 	yAxis_.useDataRange_.onChange([this] { updatePlotData(); });
+	margins_.onChange([this] { updateDimensions(); });
 }
 
 
@@ -240,11 +244,9 @@ void Plot2dProcessor::updateDimensions() {
 		const float scale = (double)dims[0] / 512;
 		const float width = 50 * scale;
 		const float height = width / aspect;
-		const float padding = 50 * width / (double)dims[0];
-
 		oldDims_ = dims;
-		origin_ = vec3(-width / 2 + padding, -height / 2 + padding, 0);
-		graphDims_ = vec2(width - 2 * padding, height - 2 * padding);
+		origin_ = vec3(-width / 2 + margins_.getLeft(), -height / 2 + margins_.getBottom(), 0);
+		graphDims_ = vec2(width - margins_.getLeft() - margins_.getRight(), height - margins_.getBottom() - margins_.getTop());
 		// Update 2d camera to fit new dimensions.
 		static_cast<OrthographicCamera*>(camera2d_.get())->setFrustum({ -width / 2.0f, +width / 2.0f, -width / 2.0f / aspect, +width / 2.0f / aspect });
 	}
@@ -306,7 +308,7 @@ void Plot2dProcessor::updatePlotData() {
 		return (p.x >= 0 && p.x <= 1 && p.y >= 0 && p.y <= 1);
 	};
 
-	auto boundIntersection = [this](const vec3& p1, const vec3& p2) {
+	auto boundIntersection = [](const vec3& p1, const vec3& p2) {
 		// Return the point on the edge of the bounding rectangle of the graph
 		// given the line segment p1->p2. p1 is inside the bounds.
 		const vec3 v = p2 - p1;
@@ -314,11 +316,6 @@ void Plot2dProcessor::updatePlotData() {
 		for (const float n : { -p1.x / v.x, (1 - p1.x) / v.x, -p1.y / v.y, (1 - p1.y) / v.y })
 			if (n > 0 && n < t) t = n;
 		if (t == 1) t = 0;
-		LogInfo("Interpolation: "
-			<< p1 << "\n"
-			<< p2 << "\n"
-			<< v << "\n"
-			<< t);
 		return p1 + t * v;
 	};
 

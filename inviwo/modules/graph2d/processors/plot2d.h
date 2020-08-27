@@ -35,6 +35,7 @@
 #include <inviwo/core/rendering/meshdrawer.h>
 #include <modules/opengl/shader/shader.h>
 #include <inviwo/core/properties/simplelightingproperty.h>
+#include <modules/plotting/properties/marginproperty.h>
 
 
 
@@ -68,6 +69,8 @@ private:
 	BoolProperty toggle3d_;
 	FloatVec3Property position_;
 	FloatVec2Property size_;
+	
+	plot::MarginProperty margins_;
 
     CameraProperty camera_;
 	std::unique_ptr<Camera> camera2d_;
