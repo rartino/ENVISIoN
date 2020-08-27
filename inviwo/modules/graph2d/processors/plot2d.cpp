@@ -108,9 +108,9 @@ Plot2dProcessor::Plot2dProcessor()
 		axis->minorTicks_.setCurrentStateAsDefault();
 
 		axis->setCollapsed(true);
-		axis->orientation_.setVisible(false);
-		axis->placement_.setVisible(false);
-		axis->flipped_.setVisible(false);
+		//axis->orientation_.setVisible(false);
+		//axis->placement_.setVisible(false);
+		//axis->flipped_.setVisible(false);
 	}
 
 	// Event callbacks
@@ -300,20 +300,43 @@ void Plot2dProcessor::updatePlotData() {
 
 	std::shared_ptr<IndexBufferRAM> indices = lineMesh_->addIndexBuffer(DrawType::Lines, ConnectivityType::None);
 	vec4 color(0.5, 0.3, 0.8, 1);
-
-	auto getPoint = [xCol, yCol, offsetX, offsetY, scaleX, scaleY](const size_t index) {
-		return vec3((xCol->getAsDouble(index) + offsetX)*scaleX, (yCol->getAsDouble(index) + offsetY)*scaleY, 0);
+	
+	auto inBounds = [](const vec3 p) {
+		// Is point inside the bounds of the graph
+		return (p.x >= 0 && p.x <= 1 && p.y >= 0 && p.y <= 1);
 	};
-	//// Add point from dataframe to line mesh
+
+	auto boundIntersection = [this](const vec3& p1, const vec3& p2) {
+		// Return the point on the edge of the bounding rectangle of the graph
+		// given the line segment p1->p2. p1 is inside the bounds.
+		const vec3 v = p2 - p1;
+		float t = 1;
+		for (const float n : { -p1.x / v.x, (1 - p1.x) / v.x, -p1.y / v.y, (1 - p1.y) / v.y })
+			if (n > 0 && n < t) t = n;
+		if (t == 1) t = 0;
+		LogInfo("Interpolation: "
+			<< p1 << "\n"
+			<< p2 << "\n"
+			<< v << "\n"
+			<< t);
+		return p1 + t * v;
+	};
+
+
+	// Add point from dataframe to line mesh
 	for (size_t i = 0; i < nValues - 1; ++i) {
-		const vec3 p1((xCol->getAsDouble(i) + offsetX)*scaleX, (yCol->getAsDouble(i) + offsetY)*scaleY, 0);
-		const vec3 p2((xCol->getAsDouble(i+1) + offsetX)*scaleX, (yCol->getAsDouble(i+1) + offsetY)*scaleY, 0);
-		if (p1.x < 0 || p1.x > 1) continue;
-		if (p2.x < 0 || p2.x > 1) continue;
+		// Get points from columns and scale them to be in the value range [0,1]
+		vec3 p1((xCol->getAsDouble(i) + offsetX)*scaleX, (yCol->getAsDouble(i) + offsetY)*scaleY, 0);
+		vec3 p2((xCol->getAsDouble(i + 1) + offsetX)*scaleX, (yCol->getAsDouble(i + 1) + offsetY)*scaleY, 0);
+		
+		if ( !inBounds(p1) && !inBounds(p2) ) continue;
+		// If one of the points inside bounds, interpolate the edge intersection point
+		else if ( !inBounds(p2) ) p2 = boundIntersection(p1, p2);
+		else if ( !inBounds(p1) ) p1 = boundIntersection(p2, p1);
+
 		indices->add(lineMesh_->addVertex(p1, p1, p1, color));
 		indices->add(lineMesh_->addVertex(p2, p2, p2, color));
 	}
-	
 
 	// Update the dimensions of the mesh.
 	updateDimensions();
