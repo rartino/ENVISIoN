@@ -1,4 +1,4 @@
-#include <modules/graph2d/processors/plot2d.h>
+#include <modules/lineplot/processors/lineplotprocessor.h>
 
 #include <modules/plotting/utils/axisutils.h>
 #include <modules/opengl/texture/textureutils.h>
@@ -15,22 +15,23 @@
 #include <modules/opengl/openglutils.h>
 #include <inviwo/core/datastructures/coordinatetransformer.h>
 #include <modules/opengl/texture/textureutils.h>
+#include <inviwo/core/datastructures/camerafactory.h>
 
 namespace inviwo {
 
 
 // The Class Identifier has to be globally unique. Use a reverse DNS naming scheme
-const ProcessorInfo Plot2dProcessor::processorInfo_{
-    "org.inviwo.Plot2D",    // Class identifier
-    "Plot2D",                 // Display name
+const ProcessorInfo LinePlotProcessor::processorInfo_{
+    "org.inviwo.LinePlot",    // Class identifier
+    "Line Plot",               // Display name
     "Plotting",               // Category
     CodeState::Stable,        // Code state
     "Plotting",           // Tags
 };
 
-const ProcessorInfo Plot2dProcessor::getProcessorInfo() const { return processorInfo_; }
+const ProcessorInfo LinePlotProcessor::getProcessorInfo() const { return processorInfo_; }
 
-Plot2dProcessor::Plot2dProcessor()
+LinePlotProcessor::LinePlotProcessor()
     : Processor()
     , inport_("inport")
     , imageInport_("imageInport")
@@ -48,17 +49,13 @@ Plot2dProcessor::Plot2dProcessor()
 	, yAxisSelection_("yAxisSelection", "Y Axis")
 	, toggle3d_("toggle3d", "Render in 3D space")
 	, lineMesh_( std::make_shared<BasicMesh>() )
-	, meshDrawer_( std::unique_ptr<MeshDrawer>() )
+	, meshDrawer_( std::move(InviwoApplication::getPtr()->getMeshDrawerFactory()->create(lineMesh_.get())) )
 	, shader_("linerenderer.vert", "linerenderer.geom", "linerenderer.frag", false)
     {
-
 	shader_.onReload([this]() { invalidate(InvalidationLevel::InvalidResources); });
-	
+	//CameraFactory* a = InviwoApplication::getPtr()->getCameraFactory()->create("asda");
+	//;
 
-	MeshDrawerFactory* factory = InviwoApplication::getPtr()->getMeshDrawerFactory();
-	meshDrawer_ = std::move(factory->create(lineMesh_.get()));
-
-	
 	// Setup ports
     imageInport_.setOptional(true);
     addPort(inport_);
@@ -121,7 +118,7 @@ Plot2dProcessor::Plot2dProcessor()
 		position_.setVisible(toggle3d_.get());
 		size_.setVisible(toggle3d_.get());
 		camera_.setVisible(toggle3d_.get());
-		trackball_.setVisible(toggle3d_.get());
+		margins_.setVisible(!toggle3d_.get());
 		updateDimensions();
 	});
 	size_.onChange([this] { updateDimensions(); });
@@ -140,13 +137,10 @@ Plot2dProcessor::Plot2dProcessor()
 }
 
 
-void Plot2dProcessor::initializeResources() {
-	LogInfo("Initializing resources plot2d");
-
+void LinePlotProcessor::initializeResources() {
 	shader_[ShaderType::Geometry]->addShaderDefine("ENABLE_ADJACENCY", "0");
 	//shader_[ShaderType::Fragment]->addShaderDefine("ENABLE_ROUND_DEPTH_PROFILE");
 
-	// See createLineStripMesh()
 	shader_[ShaderType::Vertex]->addInDeclaration("in_" + toString(BufferType::PositionAttrib),
 		static_cast<int>(BufferType::PositionAttrib),
 		"vec3");
@@ -164,7 +158,7 @@ void Plot2dProcessor::initializeResources() {
 }
 
 
-void Plot2dProcessor::process() {
+void LinePlotProcessor::process() {
 	LogInfo("Process start");
 	if (imageInport_.isReady()) {
 		utilgl::activateTargetAndCopySource(outport_, imageInport_, ImageType::ColorDepth);
@@ -214,7 +208,7 @@ void Plot2dProcessor::process() {
 }
 
 
-void Plot2dProcessor::reloadDatasets() {
+void LinePlotProcessor::reloadDatasets() {
 	if (!inport_.hasData()) {
 		xAxisSelection_.clearOptions();
 		yAxisSelection_.clearOptions();
@@ -233,7 +227,7 @@ void Plot2dProcessor::reloadDatasets() {
 	yAxisSelection_.setCurrentStateAsDefault();
 }
 
-void Plot2dProcessor::updateDimensions() {
+void LinePlotProcessor::updateDimensions() {
 	if (toggle3d_.get()) {
 		origin_ = position_.get();
 		graphDims_ = size_.get();
@@ -255,7 +249,7 @@ void Plot2dProcessor::updateDimensions() {
 	lineMesh_->setOffset(origin_);
 }
 
-void Plot2dProcessor::updatePlotData() {
+void LinePlotProcessor::updatePlotData() {
 	// Reset line mesh
 	lineMesh_ = std::make_shared<BasicMesh>(); 
 	meshDrawer_ = std::move(InviwoApplication::getPtr()->getMeshDrawerFactory()->create(lineMesh_.get()));
@@ -269,7 +263,6 @@ void Plot2dProcessor::updatePlotData() {
 
 	if (xCol->getSize() < 2 || yCol->getSize() < 2 || yCol->getSize() != xCol->getSize()) return;
 	
-
 	// Set ranges for x and y axis
 	if (xAxis_.getUseDataRange()) {
 		dvec2 xrange(xCol->getAsDouble(0), xCol->getAsDouble(0));

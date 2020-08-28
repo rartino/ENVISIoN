@@ -1,4 +1,4 @@
-#include <modules/graph2d/processors/hdf5todataframe.h>
+#include <modules/lineplot/processors/hdf5todataframe.h>
 
 namespace inviwo {
 

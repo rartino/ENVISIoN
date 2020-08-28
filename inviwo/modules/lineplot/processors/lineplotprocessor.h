@@ -1,7 +1,7 @@
-#ifndef IVW_PLOT2DPROCESSOR_H
-#define IVW_PLOT2DPROCESSOR_H
+#ifndef IVW_LINEPLOTPROCESSOR_H
+#define IVW_LINEPLOTPROCESSOR_H
 
-#include <modules/graph2d/graph2dmoduledefine.h>
+#include <modules/lineplot/lineplotmoduledefine.h>
 #include <inviwo/core/common/inviwo.h>
 
 #include <inviwo/core/processors/processor.h>
@@ -36,17 +36,17 @@
 #include <modules/opengl/shader/shader.h>
 #include <inviwo/core/properties/simplelightingproperty.h>
 #include <modules/plotting/properties/marginproperty.h>
-
-
+#include <inviwo/core/properties/compositeproperty.h>
+#include <modules/plotting/plottingmoduledefine.h>
 
 
 namespace inviwo {
 
-class IVW_MODULE_GRAPH2D_API Plot2dProcessor : public Processor {
+class IVW_MODULE_LINEPLOT_API LinePlotProcessor : public Processor {
 public:
 
-    Plot2dProcessor();
-    virtual ~Plot2dProcessor() = default;
+	LinePlotProcessor();
+    virtual ~LinePlotProcessor() = default;
     virtual const ProcessorInfo getProcessorInfo() const override;
 
 
@@ -96,6 +96,5 @@ private:
 
 };
 
-}  // namespace inviwo
-
-#endif  // IVW_VOLUMEAXIS_H
+} // namespace inviwo
+#endif  // IVW_LINEPLOTPROCESSOR_H
