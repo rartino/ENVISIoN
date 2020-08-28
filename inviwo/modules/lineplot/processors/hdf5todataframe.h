@@ -1,7 +1,7 @@
 #ifndef IVW_HDF5TODATAFRAME_H
 #define IVW_HDF5TODATAFRAME_H
 
-#include <modules/graph2d/graph2dmoduledefine.h>
+#include <modules/lineplot/lineplotmoduledefine.h>
 
 #include <inviwo/core/common/inviwo.h>
 #include <inviwo/core/processors/processor.h>
@@ -37,7 +37,7 @@
 
 namespace inviwo {
 
-class IVW_MODULE_GRAPH2D_API HDF5ToDataframe : public Processor {
+class IVW_MODULE_LINEPLOT_API HDF5ToDataframe : public Processor {
 public:
     HDF5ToDataframe();
     virtual ~HDF5ToDataframe() = default;
