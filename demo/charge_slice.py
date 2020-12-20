@@ -15,7 +15,7 @@ HDF5_FILE2 = path_to_current_folder + "/../../HDF5-demo/charge_demo.hdf5"
 # Parse for charge density visualisation.
 envisionpy.hdf5parser.charge(HDF5_FILE, VASP_DIR)
 #envisionpy.hdf5parser.elf(HDF5_FILE, VASP_DIR2)
-#envisionpy.hdf5parser.unitcell(HDF5_FILE, VASP_DIR)
+envisionpy.hdf5parser.unitcell(HDF5_FILE, VASP_DIR)
 
 # Clear any old network
 inviwopy.app.network.clear()
@@ -25,7 +25,7 @@ visManager = VisualisationManager(HDF5_FILE, inviwopy.app)
 
 #visManager.start("elf")
 visManager.start("charge")
-#visManager.start("atom")
+visManager.start("atom")
 #visManager.stop("atom")
 #visManager.start("atom")
 #visManager.start("multi")

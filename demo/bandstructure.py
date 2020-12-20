@@ -6,14 +6,12 @@ import envisionpy
 import envisionpy.hdf5parser
 from envisionpy.network import VisualisationManager
 
-# VASP_DIR = path_to_current_folder + "/../unit_testing/resources/FCC-Cu"
-HDF5_FILE = "C:/Kandidatprojekt/HDF5-2020/cubb.hdf5"
+VASP_DIR = path_to_current_folder + "/../unit_testing/resources/Cu_band_CUB"
+HDF5_FILE = path_to_current_folder + "/../demo_bandstruct2.hdf5"
+
 # Parse for charge density visualisation.
-# envisionpy.hdf5parser.bandstructure(PATH_TO_HDF5, PATH_TO_VASP_CALC)
-# envisionpy.hdf5parser.fermi_energy(PATH_TO_HDF5, PATH_TO_VASP_CALC)
-
-
-
+envisionpy.hdf5parser.bandstructure(HDF5_FILE, VASP_DIR)
+envisionpy.hdf5parser.fermi_energy(HDF5_FILE, VASP_DIR)
 
 
 # Clear any old network
