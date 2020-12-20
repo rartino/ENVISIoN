@@ -31,12 +31,6 @@
 // TODO: This file is pretty long and difficult to read. Events callbacks could be moved out to each HTML files <script> tag.
 //       That way functions are at the same place as their html elements.
 
-function resetCanvasPositions(visId) {
-    let xPos = window.screenX + window.outerWidth;
-    let yPos = window.screenY;
-    send_data("envision request", ["position_canvases", visId, [xPos, yPos]]);
-    // send_data("envision request", ["toggle_tf_editor", activeVisId, [true]]);
-}
 
 function showVolumeDist() {
     send_data("envision request", ["show_volume_dist", activeVisId, []]);
@@ -205,76 +199,3 @@ function loadGraph2DUiData(data) {
     if (ySelectionInfo[0]==1) $("#yMultiSelectInput").val(ySelectionInfo[1]);
 }
 
-function loadBands(data) {
-    let [bands, activeBand]  = data;
-
-    $("#bandSelection").empty();
-    for (let i = 0; i < bands.length; i++) {
-        if (i == bands.length - 1)
-            $("#bandSelection").append("<option selected>" + bands[i] + "</option>")
-        else
-            $("#bandSelection").append("<option>" + bands[i] + "</option>")
-    }
-    $("#bandSelection")[0][activeBand].selected = true;
-}
-
-function loadAvailablePartials(options) {
-    $("#partialBandSelection > option").slice(1).remove();
-    $("#partialModeSelection > option").slice(1).remove();
-    for (let i = 0; i < options[0].length; i++)
-        $("#partialBandSelection").append("<option>" + options[0][i] + "</option>");
-    for (let i = 0; i < options[1].length; i++)
-        $("#partialModeSelection").append("<option>" + options[1][i] + "</option>");
-}
-
-function loadActivePartials(partials) {
-    $("#partialBands").empty();
-    for (let i = 0; i < partials[0].length; i++) {
-        addPartialBandElement(partials[0][i], partials[1][i]);
-    }
-}
-
-
-function addPartialBandElement(band, mode) {
-    let elem = $(`
-    <form class="row row-margin">
-      <div class="input-group col-sm-10">
-        <div class="input-group-prepend medium">
-          <label class="input-group-text">Active band</label>
-        </div>
-        <select class="custom-select" name="bandSelect">
-        </select>
-        <select class="custom-select" name="modeSelect">
-        </select>
-        <div class="input-group-append">
-          <button class="btn btn-primary" type="submit">&nbsp;-</button>
-        </div>
-      </div>
-    </form>`);
-
-    // Copy options from the original element, excluding first option.
-    elem.find('[name="bandSelect"]').append($("#partialBandSelection > option").clone().slice(1));
-    elem.find('[name="modeSelect"]').append($("#partialModeSelection > option").clone().slice(1));
-
-    // Set correct selected option.
-    elem.find('[name="bandSelect"]').val(band);
-    elem.find('[name="modeSelect"]')[0][mode].selected = true;
-
-    elem.on("submit", partialBandRemoved)
-    elem.find('[name="bandSelect"],[name="modeSelect"]').on("change", partialBandChanged);
-    $("#partialBands").append(elem);
-}
-
-function getPartialBandSelections() {
-    // Return two lists containing active bands and corresponding modes
-    let bands = [];
-    let modes = [];
-    for (let i = 0; i < $("#partialBands")[0].children.length; i++) {
-        let inputGroup = $("#partialBands")[0].children[i].children[0];
-        let band = parseInt(inputGroup.children[1].value);
-        let mode = inputGroup.children[2].selectedIndex
-        bands.push(band)
-        modes.push(mode)
-    }
-    return [bands, modes];
-}
