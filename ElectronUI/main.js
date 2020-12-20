@@ -38,10 +38,10 @@ function createWindow () {
     height: 800,
     webPreferences: {
       nodeIntegration: true
-    }
-  })
-
-  // and load the index.html of the app.
+    },
+    autoHideMenuBar: true
+  });
+  
   win.loadFile('ElectronUI/index.html')
 
   // Open the DevTools.
