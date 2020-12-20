@@ -17,7 +17,7 @@ class VolumeSubnetwork(Subnetwork):
         self.transperancy_before = True
         self.tf_enabled = True
         self.iso_enabled = False
-        self.iso_color = [0, 0, 0, 0]
+        self.iso_color = [1, 1, 1, 1]
         self.iso_value = 0.5
         
         self.setup_network(hdf5_path, hdf5_outport, xpos, ypos)
@@ -170,7 +170,9 @@ class VolumeSubnetwork(Subnetwork):
             if enable:
                 self.set_iso_surface(self.iso_value, self.iso_color)
             else:
+                tmp = self.iso_color[3]
                 self.set_iso_surface(self.iso_value, [self.iso_color[0], self.iso_color[1], self.iso_color[2], 0])
+                self.iso_color[3] = tmp
         else:
             if enable:
                 self.get_processor('Raycaster').raycaster.renderingType.selectedIndex = 1
