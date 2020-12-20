@@ -1,5 +1,5 @@
 {
-    "startWithDevTools": true,
+    "startWithDevTools": false,
     "logSentPackets": false,
     "logRecievedPackets": false,
     "logFailedRequests": true,
