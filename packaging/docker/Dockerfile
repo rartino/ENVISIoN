@@ -4,14 +4,12 @@
 
 # Build and run final image:
 # docker build -f packaging/docker/Dockerfile -t envision .
-# docker run -it --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:ro envision
+# xhost +local:docker
+# docker run -it --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:ro -v $(pwd):/input_files envision
 
 # Generate packagees:
-# docker build -f packaging/docker/Dockerfile --target envision_builder -t envision-builder .
-# docker run -it --rm -v /path/to/output:/package_output envision-builder
-
-
-
+# docker build -f packaging/docker/Dockerfile --target envision_packager -t envision_packager .
+# docker run -it --rm -v $(pwd):/package_output envision_packager
 
 # __Build stage to build inviwo__
 FROM ubuntu:20.04 as inviwo_builder
@@ -36,8 +34,13 @@ COPY /inviwo/patches /ENVISIoN/inviwo/patches
 COPY /inviwo/modules /ENVISIoN/inviwo/modules
 
 # Download and initialize inviwo
-RUN git clone https://github.com/inviwo/inviwo --single-branch --branch v0.9.11 --recurse-submodules -j4 --depth 1
+# RUN git clone https://github.com/inviwo/inviwo --single-branch --branch v0.9.11 --recurse-submodules -j4 --depth 1
+
+RUN git clone https://github.com/inviwo/inviwo --recurse-submodules -j4
 WORKDIR /inviwo
+RUN git checkout v0.9.11
+RUN git submodule update
+# RUN git fetch --all --tags && git checkout v0.9.11 && git submodule update
 RUN git apply /ENVISIoN/inviwo/patches/deppack_fix.patch /ENVISIoN/inviwo/patches/filesystem_env.patch /ENVISIoN/inviwo/patches/ftl_fix.patch /ENVISIoN/inviwo/patches/transferfunction_extras.patch
 
 # Configure and build inviwo.
@@ -50,7 +53,7 @@ RUN cmake -G "Unix Makefiles" \
     -DIVW_USE_EXTERNAL_IMG=ON \
     -DIVW_EXTERNAL_MODULES="/ENVISIoN/inviwo/modules" \
     -DIVW_MODULE_CRYSTALVISUALIZATION=ON \
-    -DIVW_MODULE_LINEPLOT=ON \
+    -DIVW_MODULE_GRAPH2D=ON \
     -DIVW_MODULE_HDF5=ON \
     -DIVW_USE_EXTERNAL_HDF5=ON \
     -DIVW_MODULE_PYTHON3=ON \
