@@ -6,8 +6,11 @@ import envisionpy
 import envisionpy.hdf5parser
 from envisionpy.network import VisualisationManager
 
-HDF5_FILE = "C:/Kandidatprojekt/HDF5-demo/dos_demo.hdf5"
+VASP_DIR = path_to_current_folder + "/../unit_testing/resources/TiPO4_DoS"
+HDF5_FILE = path_to_current_folder + "/../dos_demo.hdf5"
 
+
+envisionpy.hdf5parser.dos(HDF5_FILE, VASP_DIR)
 
 # Clear any old network
 inviwopy.app.network.clear()
