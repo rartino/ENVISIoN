@@ -1,7 +1,7 @@
 {
     "startWithDevTools": true,
-    "logSentPackets": true,
-    "logRecievedPackets": true,
+    "logSentPackets": false,
+    "logRecievedPackets": false,
     "logFailedRequests": true,
     "logPyPrint": false,
     "logPyError": true,
