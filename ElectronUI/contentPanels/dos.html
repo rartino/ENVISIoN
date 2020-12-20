@@ -26,7 +26,6 @@
  ############################################################################################## -->
 
 <!-- Settings panel -->
-<h2 class="border-bottom">Density of states</h2>
 
 <div class="form-check">
   <label class="form-check-label">
@@ -42,57 +41,74 @@
   </label>
 </div>
 
-<div class="row row-margin">
-  <div class="input-group col-sm-10">
-    <div class="input-group-prepend medium">
-      <label class="input-group-text" for="partialSelection">Select partial</label>
-    </div>
-    <select class="custom-select" id="partialSelection">
-      <!-- <option selected>final</option>
-      <option>1</option> -->
-    </select>
+<div class="input-group">
+  <div class="input-group-prepend medium">
+    <label class="input-group-text" for="partialSelection">Select partial</label>
   </div>
+  <select class="custom-select" id="partialSelection">
+    <!-- <option selected>final</option>
+    <option>1</option> -->
+  </select>
 </div>
 
-<div id="graphSettings"></div>
+<div id="dosGraphSettings">
+  
+</div>
 
 
 <script>
-  $("#graphSettings").load("contentPanels/graph2D.html", function () {
-    loadGraph2DUiData(uiData[1]);
-    console.log()
-    for (let i = 0; i < uiData[2]; i++){
-      let option;
-      console.log(uiData[3]);
-      if (i == uiData[3])
-        option = $("<option selected>"+i+"</option>");
-      else
-        option = $("<option>"+i+"</option>");
-      $("#partialSelection").append(option);
-    }
-    $("#totalDosCheck").prop("checked", uiData[4]);
-    $("#partialDosCheck").prop("checked", uiData[5]);
+  $(document).ready(function () {
+    // $("#dosGraphSettings").load('contentPanels/graph2D.html');
 
-    console.log("dos control element loaded");
+    $('<div id="loaded-content" />').load("contentPanels/graph2D.html", function () {
+        let html = $(this).html();
+        html = html.replace(/VISTYPE/g, 'dos'); // Replace VISTYPE to avoid duplicate ids.
+        $("#dosGraphSettings").append(html);
+        // $("#parchg_volumeSelectionGroup").remove();
+    });
+
+
   });
-
-  $("#partialSelection").on("change", dosPartialSelected);
-  $("#totalDosCheck").on("change", totalDosChanged)
-  $("#partialDosCheck").on("change", partialDosChanged)
-
-  function dosPartialSelected(){
-    let index = $("#partialSelection")[0].selectedIndex;
-    send_data("envision request", ["set_partial_selection", activeVisId, [index]]);
-    send_data("envision request", ["get_ui_data", activeVisId, []])
+  function dos_load_ui_data(uiData){
+    console.log(uiData);
   }
 
-  function totalDosChanged(){
-    let checked = $("#totalDosCheck").is(":checked");
-    send_data("envision request", ["toggle_total", activeVisId, [checked]]);
-  }
+  
+  // $("#graphSettings").load("contentPanels/graph2D.html", function () {
+  //   loadGraph2DUiData(uiData[1]);
+  //   console.log()
+  //   for (let i = 0; i < uiData[2]; i++){
+  //     let option;
+  //     console.log(uiData[3]);
+  //     if (i == uiData[3])
+  //       option = $("<option selected>"+i+"</option>");
+  //     else
+  //       option = $("<option>"+i+"</option>");
+  //     $("#partialSelection").append(option);
+  //   }
+  //   $("#totalDosCheck").prop("checked", uiData[4]);
+  //   $("#partialDosCheck").prop("checked", uiData[5]);
 
-  function partialDosChanged(){
-    let checked = $("#partialDosCheck").is(":checked");
-    send_data("envision request", ["toggle_partial", activeVisId, [checked]]);
-  }
+  //   console.log("dos control element loaded");
+  // });
+
+  // $("#partialSelection").on("change", dosPartialSelected);
+  // $("#totalDosCheck").on("change", totalDosChanged)
+  // $("#partialDosCheck").on("change", partialDosChanged)
+
+  // function dosPartialSelected(){
+  //   let index = $("#partialSelection")[0].selectedIndex;
+  //   send_data("envision request", ["set_partial_selection", activeVisId, [index]]);
+  //   send_data("envision request", ["get_ui_data", activeVisId, []])
+  // }
+
+  // function totalDosChanged(){
+  //   let checked = $("#totalDosCheck").is(":checked");
+  //   send_data("envision request", ["toggle_total", activeVisId, [checked]]);
+  // }
+
+  // function partialDosChanged(){
+  //   let checked = $("#partialDosCheck").is(":checked");
+  //   send_data("envision request", ["toggle_partial", activeVisId, [checked]]);
+  // }
 </script>
