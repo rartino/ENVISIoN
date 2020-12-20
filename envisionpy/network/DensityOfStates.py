@@ -25,9 +25,6 @@ class DensityOfStates(LinePlotSubnetwork):
     def valid_hdf5(hdf5_file):
         return '/DOS' in hdf5_file and '/DOS/Partial' in hdf5_file and '/DOS/Total' in hdf5_file
 
-    def decoration_is_valid(self, vis_type):
-        return vis_type in []
-
     def get_ui_data(self):
         return []
 

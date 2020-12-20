@@ -31,9 +31,6 @@ class VolumeSubnetwork(Subnetwork):
         self.set_iso_surface(0.5, [1, 1, 1, 1])
         self.toggle_iso(False)
 
-    def decoration_is_valid(self, vis_type):
-        return vis_type in ['charge', 'elf', 'atom']
-
     def show(self, show_volume=True, show_slice=False):
         if show_volume:
             self.get_processor('VolumeCanvas').widget.show()
