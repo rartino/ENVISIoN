@@ -39,6 +39,8 @@
       Partial Charge Density
     </label>
 </div>
+<div id="parchgSettings" class="visualisationPanel" data-type="parchg">
+</div>
 
 <!-- fermi surface -->
 <div class="form-check visStart" data-type="fermi">
@@ -99,7 +101,7 @@
       });
       
       set_response_callback('get_ui_data', function(available_vis_types, active_vis_types, ui_data) {
-        console.log("STARTING UI LOAD")
+        // Response to requested ui data. Reload all the UI elements with data from active visualisation.
         let divs = $(".visStart");
         divs.find(".visCheck").prop('checked', false);
         divs.find(".visCheck").prop('disabled', true);
@@ -113,6 +115,7 @@
           div.next('.visualisationPanel').toggle(active)
         });
 
+        // Load UI data to specific visualisation control panels.
         for (type in ui_data) {
           let func = window[type + "_load_ui_data"];
           if (typeof func == 'function')
@@ -139,11 +142,13 @@
 
       $("#multiSettings").load("contentPanels/multiVolumeControls.html");
       $("#atomSettings").load("contentPanels/AtomControls.html");
-      $("#chargeSettings").show();
-      $("#elfSettings").show();
-      $("#fermiSettings").show();
-      $("#atomSettings").show();
-      $("#multiSettings").show();
+      $("#parchgSettings").load("contentPanels/parchg.html");
+      // $("#chargeSettings").show();
+      // $("#elfSettings").show();
+      // $("#parchgSettings").show();
+      // $("#fermiSettings").show();
+      // $("#atomSettings").show();
+      // $("#multiSettings").show();
 
     });
 
