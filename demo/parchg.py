@@ -18,8 +18,7 @@ inviwopy.app.network.clear()
 
 # Initialize inviwo network
 visManager = VisualisationManager(HDF5_FILE, inviwopy.app)
-visManager.start("atom")
-visManager.start("parchg", [1,2,3], ["total", "total", "total"])
-visManager.subnetworks["parchg"].select_bands([1, 2], ["total", "total"])
+visManager.start("parchg", [1, 4], ["total", "total"])
+# visManager.subnetworks["parchg"].toggle_iso(True)
 
 
