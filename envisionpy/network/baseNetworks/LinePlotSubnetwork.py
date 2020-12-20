@@ -17,8 +17,12 @@ class LinePlotSubnetwork(Subnetwork):
 
     def show(self):
         self.get_processor('Canvas').widget.show()
+
     def hide(self, hide_volume=True, hide_slice=True):
         self.get_processor('Canvas').widget.hide()
+
+    def get_ui_data(self):
+        return []
 
 # ------------------------------------------
 # ------- Property control functions -------

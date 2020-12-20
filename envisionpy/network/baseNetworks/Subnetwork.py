@@ -23,6 +23,9 @@ class Subnetwork():
     def show(self):
         raise EnvisionError('Subnetwork needs to have a show function overloaded.')
 
+    def get_ui_data(self):
+        raise EnvisionError('Subnetwork needs to have ui data function overloaded.')
+
     def disconnect_decorations_port(self, deco_outport):
         # Remove a decoration from this visualisaiton.
         
