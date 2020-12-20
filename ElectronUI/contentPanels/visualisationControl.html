@@ -62,6 +62,27 @@
 <div id="atomSettings" class="visualisationPanel" data-type="atom">
 </div>
 
+<!-- bandstructure -->
+<!-- <div class="form-check visStart" data-type="band">
+  <input class="form-check-input visCheck" type="checkbox" value="" id="bandCheck">
+  <label class="form-check-label" for="bandCheck">
+    Bandstructure
+  </label>
+</div>
+<div id="bandSettings" class="visualisationPanel" data-type="band">
+</div> -->
+
+<!-- density of states -->
+<!-- <div class="form-check visStart" data-type="dos">
+  <input class="form-check-input visCheck" type="checkbox" value="" id="dosCheck">
+  <label class="form-check-label" for="dosCheck">
+    Density of States
+  </label>
+</div>
+<div id="dosSettings" class="visualisationPanel" data-type="dos">
+</div> -->
+
+
 
 <script>
 
@@ -139,10 +160,17 @@
         html = html.replace(/VISTYPE/g, 'fermi') // Replace VISTYPE to avoid duplicate ids.
         $("#fermiSettings").append(html);
       });
+      $('<div id="loaded-content" />').load("contentPanels/graph2D.html", function () {
+        let html = $(this).html();
+        html = html.replace(/VISTYPE/g, 'band') // Replace VISTYPE to avoid duplicate ids.
+        $("#bandSettings").append(html);
+      });
 
       $("#multiSettings").load("contentPanels/multiVolumeControls.html");
       $("#atomSettings").load("contentPanels/AtomControls.html");
       $("#parchgSettings").load("contentPanels/parchg.html");
+      $("#dosSettings").load("contentPanels/dos.html");
+      $("#dosSettings").show();
       // $("#chargeSettings").show();
       // $("#elfSettings").show();
       // $("#parchgSettings").show();

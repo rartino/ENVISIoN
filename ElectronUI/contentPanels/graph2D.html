@@ -25,212 +25,205 @@
 
  ############################################################################################## -->
 
-<div id="graph2D">
 
-  <h5 class="border-top">Graph settings</h5>
-  <div class="row row-margin">
-    <form class="needs-validation col-sm-9" id="xRangeForm">
-      <div class="input-group">
-        <div class="input-group-prepend small">
-          <label class="input-group-text">X range</label>
-        </div>
-        <input type="text" class="form-control" placeholder="min" id="xRangeMin" required>
-        <input type="text" class="form-control" placeholder="max" id="xRangeMax" required>
-        <div class="input-group-append">
-          <button class="btn btn-primary" type="submit">&#x2713</button>
-        </div>
-      </div>
-    </form>
+
+<h5 class="border-top">Graph settings</h5>
+<div class="input-group">
+  <div class="input-group-prepend small">
+    <label class="input-group-text">X range</label>
   </div>
-  <div class="row row-margin">
-    <form class="needs-validation col-sm-9" id="yRangeForm">
-      <div class="input-group">
-        <div class="input-group-prepend small">
-          <label class="input-group-text">Y range</label>
-        </div>
-        <input type="text" class="form-control" placeholder="min" id="yRangeMin" required>
-        <input type="text" class="form-control" placeholder="max" id="yRangeMax" required>
-        <div class="input-group-append">
-          <button class="btn btn-primary" type="submit">&#x2713</button>
-        </div>
-      </div>
-    </form>
+  <input type="text" class="form-control" placeholder="min" id="VISTYPE_xRangeMin">
+  <input type="text" class="form-control" placeholder="max" id="VISTYPE_xRangeMax">
+  <div class="input-group-append">
+    <button class="btn btn-primary" id="VISTYPE_xRangeSubmit">&#x2713</button>
   </div>
+</div>
 
-  <!-- Vertical line -->
-  <div class="form-check">
-    <label class="form-check-label">
-      <input type="checkbox" class="form-check-input" id="verticalLineCheck">
-      Enable vertical line
-    </label>
+
+<div class="input-group">
+  <div class="input-group-prepend small">
+    <label class="input-group-text">Y range</label>
   </div>
-  <div class="row row-margin">
-    <form class="needs-validation col-sm-6" id="verticalLineForm">
-      <div class="input-group">
-        <div class="input-group-prepend medium">
-          <label class="input-group-text">Line position</label>
-        </div>
-        <input type="text" class="form-control" placeholder="0" id="verticalLineXInput" required>
-        <div class="input-group-append">
-          <button class="btn btn-primary" type="submit">&#x2713</button>
-        </div>
-      </div>
-    </form>
+  <input type="text" class="form-control" placeholder="min" id="yRangeMin" required>
+  <input type="text" class="form-control" placeholder="max" id="yRangeMax" required>
+  <div class="input-group-append">
+    <button class="btn btn-primary" type="submit">&#x2713</button>
   </div>
+</div>
 
-  <!-- Grid -->
-  <div class="form-check">
-    <label class="form-check-label">
-      <input type="checkbox" class="form-check-input" id="gridCheck">
-      Enable grid
-    </label>
+<div class="form-check">
+  <label class="form-check-label">
+    <input type="checkbox" class="form-check-input" id="verticalLineCheck">Enable vertical line
+  </label>
+</div>
+
+<div class="input-group">
+  <div class="input-group-prepend medium">
+    <label class="input-group-text">Line position</label>
   </div>
-  <div class="row row-margin">
-    <form class="needs-validation col-sm-6" id="gridForm">
-      <div class="input-group">
-        <div class="input-group-prepend medium">
-          <label class="input-group-text">Grid line width</label>
-        </div>
-        <input type="text" class="form-control" placeholder="0" id="gridSizeInput" required>
-        <div class="input-group-append">
-          <button class="btn btn-primary" type="submit">&#x2713</button>
-        </div>
-      </div>
-    </form>
+  <input type="text" class="form-control" placeholder="0" id="verticalLineXInput" required>
+  <div class="input-group-append">
+    <button class="btn btn-primary" type="submit">&#x2713</button>
   </div>
+</div>
 
-  <!-- Labels -->
-  <div class="form-check">
-    <label class="form-check-label">
-      <input type="checkbox" class="form-check-input" id="xLabelCheck" checked>
-      x labels
-    </label>
+<div class="form-check">
+  <label class="form-check-label">
+    <input type="checkbox" class="form-check-input" id="gridCheck">
+    Enable grid
+  </label>
+</div>
+
+<div class="input-group">
+  <div class="input-group-prepend medium">
+    <label class="input-group-text">Grid line width</label>
   </div>
-  <div class="form-check">
-    <label class="form-check-label">
-      <input type="checkbox" class="form-check-input" id="yLabelCheck" checked>
-      y labels
-    </label>
+  <input type="text" class="form-control" placeholder="0" id="gridSizeInput" required>
+  <div class="input-group-append">
+    <button class="btn btn-primary" type="submit">&#x2713</button>
   </div>
-  <div class="row row-margin">
-    <form class="needs-validation col-sm-6" id="labelCountForm">
-      <div class="input-group">
-        <div class="input-group-prepend medium">
-          <label class="input-group-text">Label count</label>
-        </div>
-        <input type="text" class="form-control" placeholder="0" id="labelCountInput" required>
-        <div class="input-group-append">
-          <button class="btn btn-primary" type="submit">&#x2713</button>
-        </div>
-      </div>
-    </form>
+</div>
+
+<!-- Labels -->
+<div class="form-check">
+  <label class="form-check-label">
+    <input type="checkbox" class="form-check-input" id="xLabelCheck" checked>
+    x labels
+  </label>
+</div>
+<div class="form-check">
+  <label class="form-check-label">
+    <input type="checkbox" class="form-check-input" id="yLabelCheck" checked>
+    y labels
+  </label>
+</div>
+
+<div class="input-group">
+  <div class="input-group-prepend medium">
+    <label class="input-group-text">Label count</label>
   </div>
-
-  <!-- Y dataset selection-->
-  <h5 class="border-top">Dataset selection</h5>
-  <div class="form-check col">
-    <label class="form-check-label">
-      <input type="radio" class="form-check-input" id="allYCheck" name="datasetRadios" checked>
-      Use all Y datasets
-    </label>
+  <input type="text" class="form-control" placeholder="0" id="labelCountInput" required>
+  <div class="input-group-append">
+    <button class="btn btn-primary" type="submit">&#x2713</button>
   </div>
-  <div class="form-check">
-    <label class="form-check-label">
-      <input type="radio" class="form-check-input" id="specificYCheck" name="datasetRadios">
-      Select one Y dataset
-    </label>
+</div>
+
+<!-- Y dataset selection-->
+<h5 class="border-top">Dataset selection</h5>
+
+<div class="form-check">
+  <label class="form-check-label">
+    <input type="radio" class="form-check-input" id="allYCheck" name="datasetRadios" checked>
+    Use all Y datasets
+  </label>
+</div>
+
+<div class="form-check">
+  <label class="form-check-label">
+    <input type="radio" class="form-check-input" id="specificYCheck" name="datasetRadios">
+    Select one Y dataset
+  </label>
+</div>
+
+<div class="input-group">
+  <div class="input-group-prepend medium">
+    <label class="input-group-text" for="ySingleSelection">Select dataset</label>
   </div>
+  <select class="custom-select" id="ySingleSelection">
+    <option selected>band1</option>
+    <option>band2</option>
+  </select>
+</div>
 
-  <div class="row row-margin" id="specificY" style="display:none">
-    <div class="input-group col-sm-10">
-      <div class="input-group-prepend medium">
-        <label class="input-group-text" for="ySingleSelection">Select dataset</label>
-      </div>
-      <select class="custom-select" id="ySingleSelection">
-        <option selected>band1</option>
-        <option>band2</option>
-      </select>
-    </div>
+<div class="form-check">
+  <label class="form-check-label">
+    <input type="radio" class="form-check-input" id="multipleYCheck" name="datasetRadios">
+    Select multiple datasets
+  </label>
+</div>
+
+<div class="input-group">
+  <div class="input-group-prepend">
+      <label class="input-group-text" for="possibleYDatasets">Possible datasets</label>
   </div>
+  <select class="custom-select" id="possibleYDatasets">
+      <option selected>band1</option>
+      <option>band2</option>
+  </select>
+</div>
 
-  <div class="form-check">
-    <label class="form-check-label">
-      <input type="radio" class="form-check-input" id="multipleYCheck" name="datasetRadios">
-      Select multiple datasets
-    </label>
+<div class="input-group" id="yMultiSelectForm">
+  <div class="input-group-prepend">
+    <label class="input-group-text" for="possibleYDatasets">Selection</label>
   </div>
-
-  <div id="multipleY" style="display:none">
-    <div class="row row-margin">
-      <div class="input-group col-sm-10">
-        <div class="input-group-prepend">
-          <label class="input-group-text" for="possibleYDatasets">Possible datasets</label>
-        </div>
-        <select class="custom-select" id="possibleYDatasets">
-          <option selected>band1</option>
-          <option>band2</option>
-        </select>
-
-      </div>
-    </div>
-    <div class="row row-margin">
-      <form class="input-group col-sm-10" id="yMultiSelectForm">
-        <input type="text" class="form-control" placeholder="ex: 0:10, 20:25, 29" id="yMultiSelectInput" required>
-        <div class="input-group-append">
-          <button class="btn btn-primary" type="submit">&#x2713</button>
-        </div>
-      </form>
-    </div>
-
+  <input type="text" class="form-control" placeholder="ex: 0:10, 20:25, 29" id="yMultiSelectInput" required>
+  <div class="input-group-append">
+    <button class="btn btn-primary" type="submit">&#x2713</button>
   </div>
+</form>
 
-  <script>
 
-    $(document).ready(function () {
-      // Restricts input for each element in the set of matched elements to the given inputFilter.
-      $.fn.inputFilter = function (inputFilter) {
-        return this.on("input keydown keyup mousedown mouseup select contextmenu drop", function () {
-          if (inputFilter(this.value)) {
-            this.oldValue = this.value;
-            this.oldSelectionStart = this.selectionStart;
-            this.oldSelectionEnd = this.selectionEnd;
-          } else if (this.hasOwnProperty("oldValue")) {
-            this.value = this.oldValue;
-            this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
-          }
-        });
-      };
+<script>
 
-      // Setup input filters
-      $("#yMultiSelectInput").inputFilter(function (value) {
-        return /^(\d*(,|:)?)*$/.test(value); //Allow numbers separated by , and :
-      });
+  $(document).ready(function () {
 
-      $("#verticalLineXInput,#gridSizeInput").inputFilter(function (value) {
-        return /^(\d*\.?\d*)?$/.test(value); //Allow any positive float
-      });
+    // Setup callbacks for ui interactions
 
-      $("#xRangeMin,#xRangeMax,#yRangeMin,#yRangeMax").inputFilter(function (value) {
-        return /^-?(\d*\.?\d*)?$/.test(value); //Allow any float
-      });
-      
-
-      $("#labelCountInput").inputFilter(function (value) {
-        return /^\d*$/.test(value); //Allow any float
-      });
-
-      // Setup normal event bindings
-      $("#xRangeForm").on("submit", xRangeSubmitted);
-      $("#yRangeForm").on("submit", yRangeSubmitted);
-      $("#verticalLineCheck").on("change", verticalLineChecked);
-      $("#verticalLineForm").on("submit", verticalLineXSubmitted);
-      $("#gridCheck").on("change", gridChecked);
-      $("#gridForm").on("submit", gridSizeSubmitted);
-      $("#xLabelCheck").on("change", xLabelChecked);
-      $("#yLabelCheck").on("change", yLabelChecked);
-      $("#labelCountForm").on("submit", nLabelsSubmitted);
-      $("#ySingleSelection").on("change", ySingleSelectionChanged);
-      $("#yMultiSelectForm").on("submit", yMultiSelectionSubmitted);
-      $('[name="datasetRadios"]').on("change", ySelectionRadiosChanged);
+    $("#VISTYPE_xRangeSubmit").on('click', ()=>{
+      let min = $("#VISTYPE_xRangeMin").val();
+      let max = $("#VISTYPE_xRangeMax").val();
+      if (!min) min = 0;
+      if (!max) max = 1;
+      send_request("visualisation_request", [activeDatasetID, "VISTYPE", "set_x_range", [min, max]]);
     });
-  </script>
+
+  });
+
+  // $(document).ready(function () {
+  //   // Restricts input for each element in the set of matched elements to the given inputFilter.
+  //   $.fn.inputFilter = function (inputFilter) {
+  //     return this.on("input keydown keyup mousedown mouseup select contextmenu drop", function () {
+  //       if (inputFilter(this.value)) {
+  //         this.oldValue = this.value;
+  //         this.oldSelectionStart = this.selectionStart;
+  //         this.oldSelectionEnd = this.selectionEnd;
+  //       } else if (this.hasOwnProperty("oldValue")) {
+  //         this.value = this.oldValue;
+  //         this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+  //       }
+  //     });
+  //   };
+
+  //   // Setup input filters
+  //   $("#yMultiSelectInput").inputFilter(function (value) {
+  //     return /^(\d*(,|:)?)*$/.test(value); //Allow numbers separated by , and :
+  //   });
+
+  //   $("#verticalLineXInput,#gridSizeInput").inputFilter(function (value) {
+  //     return /^(\d*\.?\d*)?$/.test(value); //Allow any positive float
+  //   });
+
+  //   $("#xRangeMin,#xRangeMax,#yRangeMin,#yRangeMax").inputFilter(function (value) {
+  //     return /^-?(\d*\.?\d*)?$/.test(value); //Allow any float
+  //   });
+    
+
+  //   $("#labelCountInput").inputFilter(function (value) {
+  //     return /^\d*$/.test(value); //Allow any float
+  //   });
+
+  //   // Setup normal event bindings
+  //   $("#xRangeForm").on("submit", xRangeSubmitted);
+  //   $("#yRangeForm").on("submit", yRangeSubmitted);
+  //   $("#verticalLineCheck").on("change", verticalLineChecked);
+  //   $("#verticalLineForm").on("submit", verticalLineXSubmitted);
+  //   $("#gridCheck").on("change", gridChecked);
+  //   $("#gridForm").on("submit", gridSizeSubmitted);
+  //   $("#xLabelCheck").on("change", xLabelChecked);
+  //   $("#yLabelCheck").on("change", yLabelChecked);
+  //   $("#labelCountForm").on("submit", nLabelsSubmitted);
+  //   $("#ySingleSelection").on("change", ySingleSelectionChanged);
+  //   $("#yMultiSelectForm").on("submit", yMultiSelectionSubmitted);
+  //   $('[name="datasetRadios"]').on("change", ySelectionRadiosChanged);
+  // });
+</script>
