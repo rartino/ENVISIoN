@@ -28,6 +28,9 @@ class DensityOfStates(LinePlotSubnetwork):
     def decoration_is_valid(self, vis_type):
         return vis_type in []
 
+    def get_ui_data(self):
+        return []
+
     def toggle_total(self, enable):
         self.totalEnabled = enable
         totalCollector = self.get_processor("TotalCollector")
