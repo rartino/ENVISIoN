@@ -17,6 +17,7 @@ rm -r unpack/usr/share/envision/inviwo/lib/cmake unpack/usr/share/envision/inviw
 
 echo "Building envision electron package..."
 npm run-script build-package --prefix $1
+sed -i 's/ElectronUI\/nodeInterface.py/\/usr\/share\/envision\/ENVISIoN\/resources\/app\/ElectronUI\/nodeInterface.py/g' $1/envision-linux-x64/resources/app/ElectronUI/js/pythonInterface.js
 
 echo "Inserting envision app..."
 mkdir -p unpack/usr/share/envision/ENVISIoN
