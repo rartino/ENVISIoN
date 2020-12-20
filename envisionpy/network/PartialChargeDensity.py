@@ -78,6 +78,32 @@ class PartialChargeDensity(VolumeSubnetwork):
             self.network.removeLink(self.camera_prop, other.camera_prop)
         self.disconnect_decorations_port(other.decoration_outport)
 
+    def get_ui_data(self):
+        rc = self.get_processor('Raycaster')
+        vCanvas = self.get_processor('VolumeCanvas')
+        sCanvas = self.get_processor('SliceCanvas')
+        volumeSlice = self.get_processor('VolumeSlice')
+
+        return [
+            not vCanvas.widget.visibility,
+            self.get_partial_selections(),
+            rc.lighting.shadingMode.selectedDisplayName,
+            self.get_background_info(),
+            self.transperancy_before,
+            self.get_tf_points(),
+            [self.iso_enabled, self.iso_value, self.iso_color],
+            [
+                sCanvas.widget.visibility, 
+                rc.positionindicator.enable.value, 
+                volumeSlice.planePosition.value.x, 
+                volumeSlice.trafoGroup.imageScale.value,
+                volumeSlice.trafoGroup.volumeWrapping.selectedDisplayName,
+                [volumeSlice.planeNormal.value.x, volumeSlice.planeNormal.value.y, volumeSlice.planeNormal.value.z]
+            ],
+            self.get_available_bands(),
+            self.get_available_modes()
+        ]
+
 
     def get_available_modes(self):
         return self.available_modes
@@ -149,15 +175,16 @@ class PartialChargeDensity(VolumeSubnetwork):
         volume_outports = []
         for i in range(len(band_list)):
             if mode_list[i] == 'total' or mode_list[i] == 'magnetic':
-                volumeTotal = self.add_processor('org.inviwo.hdf5.ToVolume', 'Band ' + str(band_list[i]) + ' ' + mode_list[i], xpos+7*(i+1), ypos+3)
+                volumeTotal = self.add_processor('org.inviwo.hdf5.ToVolume', str(i) + '_Band ' + str(band_list[i]) + ' ' + mode_list[i], xpos+7*(i+1), ypos+3)
+                
                 self.basis_props.append(volumeTotal.basisGroup.basis)
                 self.volume_processors.append(volumeTotal)
                 hdf5_inports.append(volumeTotal.getInport('inport'))
                 volume_outports.append(volumeTotal.getOutport('outport'))
             else:
-                volumeInPlus = self.add_processor('org.inviwo.hdf5.ToVolume', 'Band ' + str(band_list[i]) + ' total', xpos+7*(i+1), ypos+3)
-                volumeInMinus = self.add_processor('org.inviwo.hdf5.ToVolume', 'Band ' + str(band_list[i]) + ' magnetic', xpos-1+7*(i+1) , ypos+6)
-                volumeCombine = self.add_processor('org.inviwo.VolumeCombiner', 'Band ' + str(band_list[i]) + ' ' + mode_list[i], xpos+7*(i+1), ypos+9)
+                volumeInPlus = self.add_processor('org.inviwo.hdf5.ToVolume', str(i) + '_Band ' + str(band_list[i]) + ' total', xpos+7*(i+1), ypos+3)
+                volumeInMinus = self.add_processor('org.inviwo.hdf5.ToVolume', str(i) + '_Band ' + str(band_list[i]) + ' magnetic', xpos-1+7*(i+1) , ypos+6)
+                volumeCombine = self.add_processor('org.inviwo.VolumeCombiner', str(i) + '_Band ' + str(band_list[i]) + ' ' + mode_list[i], xpos+7*(i+1), ypos+9)
 
                 self.network.addConnection(volumeInPlus.getOutport('outport'), volumeCombine.getInport('inport'))
                 self.network.addConnection(volumeInMinus.getOutport('outport'), volumeCombine.getInport('inport'))
@@ -187,6 +214,21 @@ class PartialChargeDensity(VolumeSubnetwork):
         for i in range(len(volume_outports)):
             self.network.addConnection(volume_outports[i], volume_inports[i])
 
+
+        # Paths of the volume processors are set here because they need to be updated after the ports are connected.
+        i = 0
+        j = 0
+        while j < len(self.volume_processors):
+            if mode_list[i] == 'total' or mode_list[i] == 'magnetic':
+                self.volume_processors[j].volumeSelection.selectedValue = '/' + str(band_list[i]) + '/' + mode_list[i]
+                j += 1
+            else:
+                self.volume_processors[j].volumeSelection.selectedValue = '/' + str(band_list[i]) + '/total'
+                self.volume_processors[j+1].volumeSelection.selectedValue = '/' + str(band_list[i]) + '/magnetic'
+                j += 3
+            i += 1
+
+
     def modify_network(self, hdf5_path, hdf5_output, xpos, ypos):
         # Change the volume selection compared to the default volume network.
         
@@ -209,5 +251,7 @@ class PartialChargeDensity(VolumeSubnetwork):
         if self.is_multichannel:
             isoRaycaster = self.get_processor('IsoRaycaster')
             self.network.addConnection(merger.getOutport('outputVolume'), isoRaycaster.getInport('volume'))
+
+        self.set_hdf5_subpath('/PARCHG/Bands')
         
 

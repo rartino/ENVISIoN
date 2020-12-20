@@ -26,46 +26,168 @@
  ############################################################################################## -->
 
 <!-- Settings panel -->
-<h2 class="border-bottom">Partial charge density</h2>
-
-<div id="visSettings">
-  <h5 class="border-top">Partial selection</h5>
-  <div id="partialBands">
-  </div>
-
-  <form class="row row-margin" id="partialBandAddForm">
-    <div class="input-group col-sm-10">
-      <div class="input-group-prepend medium">
-        <label class="input-group-text" for="partialBandSelection">Add band</label>
-      </div>
-      <select class="custom-select" id="partialBandSelection">
-        <option selected>band</option>
-      </select>
-      <select class="custom-select" id="partialModeSelection">
-        <option selected>mode</option>
-      </select>
-      <div class="input-group-append">
-        <button class="btn btn-primary" type="submit">+</button>
-      </div>
+<h5>Partial Selection</h5>
+<div>
+  <div id="partialAdder" class="input-group">
+    <div class="input-group-prepend medium">
+      <label class="input-group-text" for="partialBandSelection">Add partial</label>
     </div>
-  </form>
-
-  <div id="volumeSettings">
+    <select class="custom-select" id="partialBandSelection">
+      <option selected>band</option>
+    </select>
+    <select class="custom-select" id="partialModeSelection">
+      <option selected>mode</option>
+    </select>
+    <div class="input-group-append" id="partialAddButton">
+      <button class="btn btn-primary" style="width:35px;">+</button>
+    </div>
   </div>
+  <div id="partialBands">
+
+  </div>
+</div>
+<br>
+
+
+<div id="parchgVolumeSettings">
 </div>
 
 
 <script>
-  $("#volumeSettings").load("contentPanels/volumePanel.html", function () {
+   $(document).ready(function () {
+    
+    // Add the default volume controls
+    $('<div id="loaded-content" />').load("contentPanels/VolumeControls.html", function () {
+        let html = $(this).html();
+        html = html.replace(/VISTYPE/g, 'parchg'); // Replace VISTYPE to avoid duplicate ids.
+        html = html.replace(/parchg_load_ui_data/g, 'null_function');
+        $("#parchgVolumeSettings").append(html);
+        $("#parchg_volumeSelectionGroup").remove();
+    });
 
-    loadVolumeUiData(uiData[1]);
-    loadAtoms(uiData[2].slice(1, 3));
-    loadAvailablePartials(uiData[3]);
-    loadActivePartials(uiData[4]);
+    // Set up the parchg specific controls
+    $("#partialAddButton").on("click", ()=>{
+      // TODO max 4 bands are allowed because of inviwo limitations.
+      let band = $("#partialBandSelection").val();
+      let mode = $("#partialModeSelection").val();
+      if (band == "band" || mode == "mode") return;
+      parchg_bands.unshift(band);
+      parchg_modes.unshift(mode);
+      load_partial_selection_ui(parchg_bands, parchg_modes);
+      send_request("visualisation_request", [activeDatasetID, "parchg", "select_bands", [parchg_bands, parchg_modes]]);
+    });
   });
 
+  parchg_bands = [];
+  parchg_modes = [];
 
-  $(document).ready(function (){
-    $("#partialBandAddForm").on("submit", partialBandAdded)
-  });
+  function load_partial_selection_ui(bands, modes, avail_bands, avail_modes){
+    // Load the ui for band selections from band and mode arrays
+    parchg_bands = bands;
+    parchg_modes = modes;
+
+    if (avail_bands!=undefined && avail_modes!=undefined){
+      // Clear all options except first default one
+      $("#partialBandSelection").children().slice(1).remove();
+      $("#partialModeSelection").children().slice(1).remove();
+      // Add valid options from arrays
+      avail_bands.forEach(band=>{$("#partialBandSelection").append('<option>'+band+'</option>')});
+      avail_modes.forEach(mode=>{$("#partialModeSelection").append('<option>'+mode+'</option>')});
+    }
+
+    $("#partialBands").empty();
+    for (let i = 0; i < bands.length; i++) {
+      let elem = $(`
+        <div class="input-group">
+          <div class="input-group-prepend medium">
+            <label class="input-group-text">Active band</label>
+          </div>
+          <select class="custom-select" name="bandSelect"></select>
+          <select class="custom-select" name="modeSelect"></select>
+          <div class="input-group-append"><button class="btn btn-primary">-</button></div>
+        </div>`);
+
+      // Copy options from the original element, excluding first option.
+      elem.find('[name="bandSelect"]').append($("#partialBandSelection > option").clone().slice(1));
+      elem.find('[name="modeSelect"]').append($("#partialModeSelection > option").clone().slice(1));
+
+      // Set correct selected option.
+      elem.find('[name="bandSelect"]').val(bands[i]);
+      elem.find('[name="modeSelect"]').val(modes[i]);
+      
+      elem.find('button').on("click", ()=>{});
+      elem.find('[name="bandSelect"],[name="modeSelect"]').on("change", function(){
+        // One of the active selections is changed
+        node = $(this).parent();
+        parchg_bands[node.index()] = node.find('[name="bandSelect"]').val();
+        parchg_modes[node.index()] = node.find('[name="modeSelect"]').val();
+        send_request("visualisation_request", [activeDatasetID, "parchg", "select_bands", [parchg_bands, parchg_modes]]);
+      });
+      elem.find('button').on('click', function(){
+        // One of the active selections is removed
+        node = $(this).parent().parent();
+        parchg_bands.splice(node.index(), 1);
+        parchg_modes.splice(node.index(), 1);
+        node.remove();
+        send_request("visualisation_request", [activeDatasetID, "parchg", "select_bands", [parchg_bands, parchg_modes]]);
+      });
+      $("#partialBands").append(elem);
+    }
+  }
+
+  function parchg_load_ui_data(uiData){
+  
+    $("#parchg_hideCheck").prop("checked", uiData[0]);
+
+    // Reload volume selections.
+    $("#parchg_volumeSelection").empty();
+    uiData[1][1].forEach(option => {
+      $("#parchg_volumeSelection").append('<option selected>'+option+'</option>');
+    });
+
+    load_partial_selection_ui(uiData[1][0], uiData[1][1], uiData[8], uiData[9]);
+
+    $("#parchg_shadingModeSelection").val(uiData[2]);
+
+    let bgData = uiData[3];
+    $("#parchg_backgroundColor1").val(rgbArrToHex(bgData[0]));
+    $("#parchg_backgroundColor2").val(rgbArrToHex(bgData[1]));
+    $("#parchg_backgroundStyleSelection").val(bgData[2]);
+
+    $("#parchg_transperancyCheckbox").prop('checked', uiData[4]);
+    let tfData = uiData[5];
+    $("#parchg_tfPoints").empty();
+    tfData.forEach(tfPoint => {
+      parchg_addTfPointElement(tfPoint[0], tfPoint[1]);
+    });
+
+    let isoData = uiData[6];
+    $("#parchg_isoCheck").prop('checked', isoData[0]);
+    $("#parchg_isoRange,#parchg_isoText").val(isoData[1]);
+
+    let sliceData = uiData[7];
+    $("#parchg_sliceCanvasCheck").prop('checked', sliceData[0]);
+    $("#parchg_slicePlaneCheck").prop('checked', sliceData[1]);
+    $("#parchg_sliceHeightRange,#parchg_sliceHeightText").val(sliceData[2]);
+    $("#parchg_sliceZoomRange,#parchg_sliceZoomText").val(sliceData[3]);
+    $("#parchg_sliceWrapSelection").val(sliceData[4]);
+    $("#parchg_sliceNormX").val(sliceData[5][0]);
+    $("#parchg_sliceNormY").val(sliceData[5][1]);
+    $("#parchg_sliceNormZ").val(sliceData[5][2]);
+  }
+    // 
+  // }
+  // $("#volumeSettings").load("contentPanels/volumePanel.html", function () {
+
+  //   loadVolumeUiData(uiData[1]);
+  //   loadAtoms(uiData[2].slice(1, 3));
+  //   loadAvailablePartials(uiData[3]);
+  //   loadActivePartials(uiData[4]);
+  // });
 </script>
+ 
+    
+  
+
+
+
