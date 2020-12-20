@@ -22,6 +22,4 @@ class Bandstructure(LinePlotSubnetwork):
     def valid_hdf5(hdf5_file):
         return hdf5_file.get('/Bandstructure/Bands') != None
 
-    def decoration_is_valid(self, vis_type):
-        return vis_type in []
 
