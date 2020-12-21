@@ -25,26 +25,21 @@
 #
 ##############################################################################################
 
-# CONFIGURE FILE PATHS HERE
-
-# Path to your envision installation
-PATH_TO_ENVISION = "C:/Kandidatprojekt/ENVISIoN-sommar"
-
-# Path to the vasp output directory you wish to visualise
-PATH_TO_VASP_CALC = "C:/Kandidatprojekt/VASP/LiC_pair_corr_func"
-
-# Path to where you want to save the resulting hdf5 file 
-PATH_TO_HDF5 = "C:/Kandidatprojekt/HDF5-demo/pcf_demo.hdf5"
-
+import sys, os, inspect
 import os, sys, inspect, inviwopy
-sys.path.append(PATH_TO_ENVISION)
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.append(path_to_current_folder + "/../")
 import envisionpy
 import envisionpy.hdf5parser
 from envisionpy.processor_network.PCFNetworkHandler import PCFNetworkHandler
 
+
+VASP_DIR = path_to_current_folder + "/../unit_testing/resources/LiC_pair_corr_func"
+HDF5_FILE = path_to_current_folder + "/../demo_pcf.hdf5"
+
 # Parse for charge density visualisation.
-envisionpy.hdf5parser.paircorrelation(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+envisionpy.hdf5parser.paircorrelation(HDF5_FILE, VASP_DIR)
 
 inviwopy.app.network.clear()
-networkHandler = PCFNetworkHandler(PATH_TO_HDF5, inviwopy.app)
+networkHandler = PCFNetworkHandler(HDF5_FILE, inviwopy.app)
 

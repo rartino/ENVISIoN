@@ -1,6 +1,6 @@
 #  ENVISIoN
 #
-#  Copyright (c) 2018 Jesper Ericsson
+#  Copyright (c) 2020 Jesper Ericsson
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -25,28 +25,22 @@
 #
 ##############################################################################################
 
-# CONFIGURE FILE PATHS HERE
-
-# Path to your envision installation
-PATH_TO_ENVISION = "C:/Users/Lina/ENVISIoN2/envision"
-
-# Path to the vasp output directory you wish to visualise
-PATH_TO_VASP_CALC = "C:/Users/Lina/ENVISIoN2/data/BCC-Cu"
-
-# Path to where you want to save the resulting hdf5 file 
-PATH_TO_HDF5 = "C:/Users/Lina/ENVISIoN2/unitcelldemo.hdf5"
-
+import sys, os, inspect
 import os, sys, inspect, inviwopy
-sys.path.append(PATH_TO_ENVISION)
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.append(path_to_current_folder + "/../")
 import envisionpy
 import envisionpy.hdf5parser
-from envisionpy.processor_network.UnitcellNetworkHandler import UnitcellNetworkHandler
+import inviwopy.glm as glm
+from envisionpy.processor_network.Bandstructure3DNetworkHandler import Bandstructure3DNetworkHandler
+
+# Path to the vasp output directory you wish to visualise
+VASP_DIR = path_to_current_folder + "/../unit_testing/resources/Cu_band_CUB"
+HDF5_FILE = path_to_current_folder + "/../demo_band3d2.hdf5"
 
 # Parse for charge density visualisation.
-envisionpy.hdf5parser.unitcell(PATH_TO_HDF5, PATH_TO_VASP_CALC)
+envisionpy.hdf5parser.bandstructure(HDF5_FILE, VASP_DIR)
+envisionpy.hdf5parser.fermi_energy(HDF5_FILE, VASP_DIR)
 
-# Initialize inviwo network
 inviwopy.app.network.clear()
-networkHandler = UnitcellNetworkHandler(PATH_TO_HDF5, inviwopy.app)
-
-networkHandler.set_atom_radius(1)
+networkHandler = Bandstructure3DNetworkHandler(HDF5_FILE, inviwopy.app)
