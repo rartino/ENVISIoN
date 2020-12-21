@@ -6,20 +6,16 @@ import envisionpy
 import envisionpy.hdf5parser
 from envisionpy.network import VisualisationManager
 
-# Path to the vasp output directory you wish to visualise
-VASP_DIR = path_to_current_folder + "/../unit_testing/resources/TiPO4_ELF"
-HDF5_FILE = path_to_current_folder + "/../demo_elf2.hdf5"
+VASP_DIR = path_to_current_folder + "/../unit_testing/resources/FCC-Cu"
+HDF5_FILE = path_to_current_folder + "/../demo_fermi.hdf5"
 
-# Parse for charge density visualisation.
-envisionpy.hdf5parser.elf(HDF5_FILE, VASP_DIR)
-envisionpy.hdf5parser.unitcell(HDF5_FILE, VASP_DIR)
+#envisionpy.hdf5parser.fermi_parser(HDF5_FILE, VASP_DIR)
 
 # Clear any old network
 inviwopy.app.network.clear()
 
 # Initialize inviwo network
 visManager = VisualisationManager(HDF5_FILE, inviwopy.app)
-visManager.start("elf")
-#visManager.add_decoration("atom")
-
-
+visManager.start("fermi")
+visManager.subnetworks['fermi'].toggle_iso(True)
+visManager.subnetworks['fermi'].clear_tf()

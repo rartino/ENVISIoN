@@ -19,10 +19,16 @@ class FermiSurface(VolumeSubnetwork):
         self.set_hdf5_subpath("/fermi_bands")
         
         # Set some default visualisation settings.
-        self.add_tf_point(0.45, [0.1, 0.1, 0.8, 0.05])
+        # self.add_tf_point(0.45, [0.1, 0.1, 0.8, 0.05])
+        # self.add_tf_point(0.5, [0.2, 0.8, 0.1, 0.1])
+        # self.add_tf_point(0.8, [0.9, 0.1, 0.1, 0.5])
+        # self.set_iso_surface(0.5, [1, 1, 1, 1])
+
+        self.add_tf_point(0, [0.1, 0.1, 0.8, 0])
+        self.add_tf_point(0.35, [0.6, 0.12, 0.6, 0.015])
         self.add_tf_point(0.5, [0.2, 0.8, 0.1, 0.1])
-        self.add_tf_point(0.8, [0.9, 0.1, 0.1, 0.5])
-        self.set_iso_surface(0.5, [1, 1, 1, 1])
+        self.add_tf_point(0.7, [0.9, 0.1, 0.1, 0])
+
         self.toggle_iso(False)
 
     @staticmethod
