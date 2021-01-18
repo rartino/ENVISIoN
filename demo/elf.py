@@ -20,6 +20,5 @@ inviwopy.app.network.clear()
 # Initialize inviwo network
 visManager = VisualisationManager(HDF5_FILE, inviwopy.app)
 visManager.start("elf")
-#visManager.add_decoration("atom")
 
 
