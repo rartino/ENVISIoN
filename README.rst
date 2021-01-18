@@ -95,6 +95,7 @@ Apply the ENVISIoN patches to Inviwo (paths may need to be changed based on loca
     /ENVISIoN/inviwo/patches/transferfunction_extras.patch \
 
 Configure and build Inviwo (change /inviwo and /inviwo-build paths based on desired directories)::
+
   mkdir inviwo-build
   cd inviwo-build/
   cmake -G "Unix Makefiles" \
@@ -116,6 +117,7 @@ Configure and build Inviwo (change /inviwo and /inviwo-build paths based on desi
   make -j4
 
 Test run Inviwo to make sure it built properly::
+
   ./inviwo-build/bin/inviwo
 
 Run ENVISIoN
