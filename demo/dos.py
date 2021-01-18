@@ -18,5 +18,4 @@ inviwopy.app.network.clear()
 # Initialize inviwo network
 visManager = VisualisationManager(HDF5_FILE, inviwopy.app)
 visManager.start("dos")
-# visManager.main_visualisation.hide(False, True)
 

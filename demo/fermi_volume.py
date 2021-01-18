@@ -9,7 +9,7 @@ from envisionpy.network import VisualisationManager
 VASP_DIR = path_to_current_folder + "/../unit_testing/resources/FCC-Cu"
 HDF5_FILE = path_to_current_folder + "/../demo_fermi.hdf5"
 
-#envisionpy.hdf5parser.fermi_parser(HDF5_FILE, VASP_DIR)
+envisionpy.hdf5parser.fermi_parser(HDF5_FILE, VASP_DIR)
 
 # Clear any old network
 inviwopy.app.network.clear()
