@@ -1092,12 +1092,23 @@ Volymen som skapas av *HDF5ToVolume*-processor skickas även parallellt till en 
    De resulterande bilderna.
 
 
+.. _sec:NetworkManager och Subnetwork:
 
+NetworkManager och Subnetwork
+-----------------------------
+För att hantera mer avancerade inviwonätverk och för att kunna köra flera visualiseringar parallellt så finns en pythonklass *Subnetwork*. Implementationer av denna klass har i uppgift att överse en specifik visualisering och har funktioner för att sätta upp och påverka denna visulisering. Alla visualiseringar som ska startas via detta system kräver att en klass vilken ärver *Subnetwork* skapas. Se filen *ExampleSubnetwork.py* för ett exempel på hur en klass som ärver *Subnetwork* bör implementeras. 
+
+En klass för att hantera de *Subnetworks* som intieras har också skapats. Denna heter *NetworkManager*. *NetworkManager*-klassen har funktioner för att initera och spara olika *Subnetworks*. Den hanterar också interaktion mellan olika *Subnetworks* då detta behövs.
+
+Filer relaterade till detta ligger under *envisionpy*-modulen i *envisionpy/network*.
+
+För nuvarande så finns de visualiseringar relaterade till 2d-grafvisualisering inte implementerade i detta system. Dessa använder fortfarande det gamla *NetworkHandler*-systemet.
 
 .. _sec:NetworkHandlers:
 
 NetworkHandlers
 ---------------
+DETTA SYSTEM ÄR ERSATT MED *NetworkManager och Subnetwork* SOM BESKRIVS I DET OVANSTÅENDE KAPITLET. Kapitlet finns kvar då det beskriver hur visualiserningarna fungerar även om det inte längre är det som används för att implementera nya visualiserningar.
 
 För att andra delsystem enkelt ska kunna sätta upp och ändra parametrar
 i inviwonätverken så har python-klasser, kallade *NetworkHandlers*,

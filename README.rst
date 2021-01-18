@@ -43,8 +43,90 @@ After Anaconda is installed, download the appropriate packaged version of ENVISI
 
 You should now be able to start ENVISIoN using ``envision`` (and the ENVISIoN-adapted Inviwo using ``envision-inviwo``) in your terminal.
 
-Build for Linux from source
----------------------------
+
+Build for Linux (Ubunty 20.04) from source
+------------------------------------------
+
+Install ENVISIoN files
+~~~~~~~~~~~~~~~~~~~~~~ 
+
+Install dependencies for ENVISIoN:
+
+  apt install \
+    python3 python3-pip \
+    git \ 
+    npm
+  pip3 install numpy h5py pybind11 scipy regex
+
+Download and install ENVISIoN:
+
+  git clone https://github.com/rartino/ENVISIoN/
+  cd ENVISIoN
+  npm install
+
+Building Inviwo
+~~~~~~~~~~~~~~~
+
+The first step is building and getting Inviwo to work. 
+
+Install dependencies for building Inviwo:
+
+  apt install \
+        build-essential gcc-8 g++-8 cmake git freeglut3-dev xorg-dev \
+        openexr zlib1g zlib1g-dev \
+        qt5-default qttools5-dev qttools5-dev-tools \
+        python3 python3-pip \
+        libjpeg-dev libtiff-dev libqt5svg5-dev libtirpc-dev libhdf5-dev &&\
+  pip3 install numpy h5py pybind11
+
+Download and checkout the correct version of the Inviwo source
+
+  git clone https://github.com/inviwo/inviwo --recurse-submodules
+  cd inviwo
+  git checkout v0.9.11
+  git submodule update
+
+Apply the ENVISIoN patches to Inviwo (paths may need to be changed based on location of the ENVISIoN directory):
+
+  git apply \
+    /ENVISIoN/inviwo/patches/deppack_fix.patch \
+    /ENVISIoN/inviwo/patches/filesystem_env.patch \
+    /ENVISIoN/inviwo/patches/ftl_fix.patch \
+    /ENVISIoN/inviwo/patches/transferfunction_extras.patch \
+
+Configure and build Inviwo (change /inviwo and /inviwo-build paths based on desired directories):
+  mkdir inviwo-build
+  cd inviwo-build/
+  cmake -G "Unix Makefiles" \
+    -DCMAKE_C_COMPILER="gcc-8" \
+    -DCMAKE_CXX_COMPILER="g++-8" \
+    -DBUILD_SHARED_LIBS=ON \
+    -DIVW_USE_EXTERNAL_IMG=ON \
+    -DIVW_EXTERNAL_MODULES="/ENVISIoN/inviwo/modules" \
+    -DIVW_MODULE_CRYSTALVISUALIZATION=ON \
+    -DIVW_MODULE_GRAPH2D=ON \
+    -DIVW_MODULE_HDF5=ON \
+    -DIVW_USE_EXTERNAL_HDF5=ON \
+    -DIVW_MODULE_PYTHON3=ON \
+    -DIVW_MODULE_PYTHON3QT=ON \
+    -DIVW_MODULE_QTWIDGETS=ON \
+    -DIVW_PACKAGE_PROJECT=ON \
+    -DIVW_PACKAGE_INSTALLER=ON \
+    -S /inviwo -B ./
+  make -j4
+
+Test run Inviwo to make sure it built properly:
+  ./inviwo-build/bin/inviwo
+
+Run ENVISIoN
+~~~~~~~~~~~~
+
+ENVISIoN should now run with the following run in the ENVISIoN root directory:
+  export INVIWO_HOME=/inviwo-build/bin
+  npm start
+
+Build for Linux from source using Anaconda
+------------------------------------------
 
 ENVISIoN requires Python 3 and quite specific versions of some dependencies.
 You can choose to satisfy the dependences either by `Anaconda <https://www.anaconda.com/>`__ or by system packages.
@@ -275,21 +357,13 @@ Package ENVISIoN for distribution
 Installation packages for Linux
 -------------------------------
 
-ENVISIoN can be built into an installable .deb package with the following steps:
+ENVISIoN can be built into an installable .deb package using the Dockerfile located in `packaging/docker/`. Generate packages by building the docker image and running it.
 
-Start by building Inviwo and installing ENVISIoN following the steps in `Build for Linux from source`_.
-You may want to change ``CMAKE_BUILD_TYPE`` to ``Release`` in the cmake configuration as it will make the package size smaller and remove unneccicary debug flags.
+Build the docker image to the required build step:
+  docker build -f packaging/docker/Dockerfile --target envision_packager -t envision_packager .
 
-Build inviwo as package::
-
-   cd ~/ENVISIoN/inviwo-build/
-   sudo make package -j5
-
-This will create a .deb file containing Inviwo. This file needs some adjustments::
-
-   ~/ENVISIoN/ENVISIoN/packaging/deb-repack.sh ~/ENVISIoN/ENVISIoN ~/ENVISIoN/inviwo-build
-
-A new folder will be generated called envision_package. In this the .deb file containing Inviwo and ENVISIoN will be placed.
+Run the docker image. It will copy the built packages to the directory it is run from. Change `$(pwd)` to something else to selet another directory:
+  docker run -it --rm -v $(pwd):/package_output envision_packager
 
 
 Setup a development environment
