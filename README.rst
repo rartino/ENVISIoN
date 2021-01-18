@@ -50,7 +50,7 @@ Build for Linux (Ubunty 20.04) from source
 Install ENVISIoN files
 ~~~~~~~~~~~~~~~~~~~~~~ 
 
-Install dependencies for ENVISIoN:
+Install dependencies for ENVISIoN::
 
   apt install \
     python3 python3-pip \
@@ -58,7 +58,7 @@ Install dependencies for ENVISIoN:
     npm
   pip3 install numpy h5py pybind11 scipy regex
 
-Download and install ENVISIoN:
+Download and install ENVISIoN::
 
   git clone https://github.com/rartino/ENVISIoN/
   cd ENVISIoN
@@ -69,7 +69,7 @@ Building Inviwo
 
 The first step is building and getting Inviwo to work. 
 
-Install dependencies for building Inviwo:
+Install dependencies for building Inviwo::
 
   apt install \
         build-essential gcc-8 g++-8 cmake git freeglut3-dev xorg-dev \
@@ -79,14 +79,14 @@ Install dependencies for building Inviwo:
         libjpeg-dev libtiff-dev libqt5svg5-dev libtirpc-dev libhdf5-dev &&\
   pip3 install numpy h5py pybind11
 
-Download and checkout the correct version of the Inviwo source
+Download and checkout the correct version of the Inviwo source::
 
   git clone https://github.com/inviwo/inviwo --recurse-submodules
   cd inviwo
   git checkout v0.9.11
   git submodule update
 
-Apply the ENVISIoN patches to Inviwo (paths may need to be changed based on location of the ENVISIoN directory):
+Apply the ENVISIoN patches to Inviwo (paths may need to be changed based on location of the ENVISIoN directory)::
 
   git apply \
     /ENVISIoN/inviwo/patches/deppack_fix.patch \
@@ -94,7 +94,7 @@ Apply the ENVISIoN patches to Inviwo (paths may need to be changed based on loca
     /ENVISIoN/inviwo/patches/ftl_fix.patch \
     /ENVISIoN/inviwo/patches/transferfunction_extras.patch \
 
-Configure and build Inviwo (change /inviwo and /inviwo-build paths based on desired directories):
+Configure and build Inviwo (change /inviwo and /inviwo-build paths based on desired directories)::
   mkdir inviwo-build
   cd inviwo-build/
   cmake -G "Unix Makefiles" \
@@ -115,13 +115,13 @@ Configure and build Inviwo (change /inviwo and /inviwo-build paths based on desi
     -S /inviwo -B ./
   make -j4
 
-Test run Inviwo to make sure it built properly:
+Test run Inviwo to make sure it built properly::
   ./inviwo-build/bin/inviwo
 
 Run ENVISIoN
 ~~~~~~~~~~~~
 
-ENVISIoN should now run with the following run in the ENVISIoN root directory:
+ENVISIoN should now run with the following run in the ENVISIoN root directory::
   export INVIWO_HOME=/inviwo-build/bin
   npm start
 
