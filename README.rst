@@ -67,8 +67,6 @@ Download and install ENVISIoN::
 Building Inviwo
 ~~~~~~~~~~~~~~~
 
-The first step is building and getting Inviwo to work. 
-
 Install dependencies for building Inviwo::
 
   apt install \
