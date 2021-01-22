@@ -18,6 +18,7 @@ ENVISIoN is licenced under `BSD 2-Clause “Simplified” License </LICENSE>`__.
 
 | © 2017 - Josef Adamsson, Robert Cranston, David Hartman, Denise Härnström, Fredrik Segerhammar.
 | © 2018 - Anders Rehult, Andreas Kempe, Marian Brännvall, Viktor Bernholtz.
+| © 2018 - Elvis Jakobsson
 | © 2019 - Linda Le, Abdullatif Ismail, Anton Hjert, Lloyd Kizito, Jesper Ericsson.
 | © 2020 - Alexander Vevstad, Amanda Aasa, Amanda Svennblad, Daniel Thomas, Lina Larsson, Olav Berg.
 | © 2017 – 2019 - Johan Jönsson
