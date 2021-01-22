@@ -1,6 +1,8 @@
 
 envision-linux-x64
 
+docs/lips/lips_technical_documentation.pdf
+
 # Created by https://www.gitignore.io/api/c++,node,emacs,python,visualstudio,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=c++,node,emacs,python,visualstudio,visualstudiocode
 
@@ -661,3 +663,10 @@ MigrationBackup/
 .vscode
 *.hdf5
 *.HDF5
+
+## LaTeX ##
+
+docs/**/*.aux
+docs/**/*.fdb_latexmk
+docs/**/*.fls
+docs/**/*.toc
