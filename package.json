@@ -1,14 +1,85 @@
 {
   "name": "envision",
   "version": "2.1.0",
-  "description": "visualization tool",
+  "description": "ENVISIoN is an open source tool/toolkit for electron structure visualization based on the Inviwo visualization framework.",
   "main": "ElectronUI/main.js",
   "scripts": {
     "start": "electron . --no-sandbox",
     "build-package": "electron-packager . envision --overwrite --ignore='^/unit_testing|^/docs|\\.hdf5$|^\\.|packaging|inviwo'"
   },
-  "author": "Jesper Ericsson",
-  "license": "GPL-3",
+  "contributors": [
+    {
+      "name": "Josef Adamsson"
+    },
+    {
+      "name": "Robert Cranston"
+    },
+    {
+      "name": "David Hartman"
+    },
+    {
+      "name": "Denise Härnström"
+    },
+    {
+      "name": "Fredrik Segerhammar"
+    },
+    {
+      "name": "Anders Rehult"
+    },
+    {
+      "name": "Andreas Kempe"
+    },
+    {
+      "name": "Marian Brännvall"
+    },
+    {
+      "name": "Viktor Bernholtz"
+    },
+    {
+      "name": "Linda Le"
+    },
+    {
+      "name": "Abdullatif Ismail"
+    },
+    {
+      "name": "Anton Hjert"
+    },
+    {
+      "name": "Lloyd Kizito"
+    },
+    {
+      "name": "Jesper Ericsson"
+    },
+    {
+      "name": "Alexander Vevstad"
+    },
+    {
+      "name": "Amanda Aasa"
+    },
+    {
+      "name": "Amanda Svennblad"
+    },
+    {
+      "name": "Daniel Thomas"
+    },
+    {
+      "name": "Lina Larsson"
+    },
+    {
+      "name": "Olav Berg"
+    },
+    {
+      "name": "Johan Jönsson"
+    },
+    {
+      "name": "Joel Davidsson"
+    },
+    {
+      "name": "Rickard Armiento",
+      "url": "https://rickard.armiento.se/"
+    }
+  ],
+  "license": "BSD-2-Clause",
   "devDependencies": {
     "electron": "^6.0.0",
     "electron-packager": "^15.0.0"
