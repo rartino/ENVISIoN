@@ -81,7 +81,7 @@
   ],
   "license": "BSD-2-Clause",
   "devDependencies": {
-    "electron": "^6.0.0",
+    "electron": "^9.4.0",
     "electron-packager": "^15.0.0"
   },
   "dependencies": {
