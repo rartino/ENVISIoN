@@ -377,11 +377,17 @@ For more details on how to use the ENVISIoN application than given here, see the
 Starting ENVISIoN in GUI mode
 -----------------------------
 
-Once properly installed, the ENVISIoN GUI can be started this way::
+If ENVISIoN was installed from binaries, it should be possible to start simply by::
 
   envision
 
 You should now see the main window from where ENVISIoN can be controlled.
+
+If ENVISIoN was build from source using the instructions in this document, start it this way::
+
+  cd ~/ENVISIoN/ENVISIoN
+  export INVIWO_HOME="$HOME/ENVISIoN/inviwo-build/bin"
+  npm start
 
 Using ENVISIoN from inside the Inviwo GUI
 -----------------------------------------
@@ -390,16 +396,21 @@ ENVISIoN is implemented as python 3 scripts that do visualisations in Inviwo.
 For development work or to access more visualization features, the ENVISIoN scripts can be run directly inside the main Inviwo GUI.
 This is, however, less user-firendly than the dedicated ENVISIoN GUI.
 
-Start the inviwo GUI::
+If ENVISIoN was installed from binaries, it should be possible to start the ENVISIoN-enabled Inviwo GUI by::
 
    envision-inviwo
 
-To setup a ENVISIoN visualisation take the following steps:
+If ENVISIoN was build from source using the instructions in this document, start it this way::
+
+  cd ~/ENVISIoN
+  inviwo-build/bin/inviwo
+
+Running an ENVISIoN visualisation from the Inviwo GUI is done by the following steps:
 
 1. Open up the Inviwo python editor.
 2. Click button to open a python file.
 3. A dialog prompts you to pick a file.
-   Scripts for visualisations are located in the directory ``scripts`` in your ENVISIoN directory.
+   Scripts for visualisations are located in the directory ``scripts`` in your ENVISIoN directory (`~/ENVISIoN/ENVISIoN/scripts`).
    Pick the script for what you want to visualise.
 4. Configure the paths in the python file to correspond to where you have installed ENVISIoN, where your VASP output data is, and where you wish to save the resulting HDF5 file.
 
