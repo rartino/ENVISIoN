@@ -76,7 +76,7 @@ Install dependencies for building Inviwo::
         libpng-dev libglu1-mesa-dev libxrandr-dev \
         libxinerama-dev libxcursor-dev
 
-Check that you have access to Qt 5.3 or later by this command::
+Check that you have access to Qt 5.12 or later by this command::
   
   qmake --version
 
@@ -89,7 +89,7 @@ Check that you have access to Qt 5.3 or later by this command::
       sudo ./qt-opensource-linux-x64-5.12.2.run
       qtchooser -install opt-qt5.12.2 /opt/Qt5.12.2/5.12.2/gcc_64/bin/qmake
 
-Check that you have access to cmake 3.12 or later by this command::
+Check that you have access to cmake 3.12.0 or later by this command::
 
   cmake --version
 
@@ -111,10 +111,10 @@ Download `the latest Python 3 version of Anaconda <https://www.anaconda.com/dist
 
 Create a conda environment with the needed dependencies::
 
-  conda create --name envision python=3 git cmake pybind11 \
+  conda create --name envision python=3 git pybind11 \
         numpy scipy matplotlib markdown regex wxpython \
-	h5py hdf5 qt=5 libpng libtiff jpeg cmake \
-        nodejs
+	h5py hdf5 libpng libtiff jpeg cmake \
+        nodejs "qt>=5.12" "cmake>=3.12.0" -c conda-forge 
   conda activate envision
 
   qtchooser -install envision "$CONDA_PREFIX/bin/qmake"
