@@ -30,11 +30,10 @@ For more details about the contributions and devlopment history of ENVISIoN, see
 .. contents::
    :depth: 3
 
-Installation
-============
 
-Binary distribution
--------------------
+Install ENVISIoN from binaries
+==============================
+
 Binary packages are provided for some systems/distributions (e.g. as ``.deb`` for Ubuntu Linux).
 
 Packages called ``<something>-anaconda`` are recommended.
@@ -44,57 +43,89 @@ After Anaconda is installed, download the appropriate packaged version of ENVISI
 
 You should now be able to start ENVISIoN using ``envision`` (and the ENVISIoN-adapted Inviwo using ``envision-inviwo``) in your terminal.
 
+Build ENVISIoN from source
+==========================
 
-Build for Linux (Ubunty 20.04) from source
-------------------------------------------
+If installing ENVISIoN from binaries does not work, or you want to be able to develop ENVISIoN yourself, then you may want to use the following instructions to build ENVISIoN from source code.
 
-Install ENVISIoN files
-~~~~~~~~~~~~~~~~~~~~~~
+Building on Ubuntu Linux 20.04
+------------------------------
+
+Install dependencies
+~~~~~~~~~~~~~~~~~~~~
 
 Install dependencies for ENVISIoN::
 
-  apt install \
+  sudo apt install \
     python3 python3-pip \
     git \
-    npm
-  pip3 install numpy h5py pybind11 scipy regex
-
-Download and install ENVISIoN::
-
-  git clone https://github.com/rartino/ENVISIoN/
-  cd ENVISIoN
-  npm install
-
-Building Inviwo
-~~~~~~~~~~~~~~~
+    python3-numpy python3-h5py python3-pybind11 python3-scipy python3-rexex
+    npm 
 
 Install dependencies for building Inviwo::
 
-  apt install \
+  sudo apt install \
         build-essential gcc-8 g++-8 cmake git freeglut3-dev xorg-dev \
         openexr zlib1g zlib1g-dev \
         qt5-default qttools5-dev qttools5-dev-tools \
         python3 python3-pip \
-        libjpeg-dev libtiff-dev libqt5svg5-dev libtirpc-dev libhdf5-dev &&\
-  pip3 install numpy h5py pybind11
+        libjpeg-dev libtiff-dev libqt5svg5-dev libtirpc-dev libhdf5-dev
+        libpng-dev libglu1-mesa-dev libxrandr-dev \
+        libxinerama-dev libxcursor-dev
+
+Setup ENVISIoN
+~~~~~~~~~~~~~~
+
+Create a directory under your home directory to build ENVISIoN::
+
+  mkdir ~/ENVISIoN
+  cd ~/ENVISIoN
+  
+Note: 
+
+* You may of course build ENVISIoN in any directory of your choosing.
+  However, the instructions below assumes the above path, which you will have to adjust accordingly.
+
+Download ENVISIoN and install the electron-based gui dependencies::
+
+  git clone https://github.com/rartino/ENVISIoN
+  cd ENVISIoN
+  npm install
+
+Note: 
+
+* This places the ENVISIoN source code in the directory `~/ENVISIoN/ENVISIoN`, which is intended.
+
+* The last command may issue security warnings. 
+  It should still be possible to build and run ENVISIoN despite these warnings, 
+  and you may want to do so the first time you try to build ENVISIoN to avoid unexpected build issues.)
+
+Build the ENVISIoN-enabled Inviwo
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Download and checkout the correct version of the Inviwo source::
 
-  git clone https://github.com/inviwo/inviwo --recurse-submodules
+  cd ~/ENVISIoN
+  git clone https://github.com/inviwo/inviwo
   cd inviwo
   git checkout v0.9.11
-  git submodule update
+  
+Install the Inviwo submodule dependencies (note: one repository has moved, which the first line fixes)::
+  
+  sed -i 's%https://github.com/live-clones/hdf5.git%https://github.com/HDFGroup/hdf5.git%' .gitmodules
+  git submodule update --init --recursive
 
-Apply the ENVISIoN patches to Inviwo (paths may need to be changed based on location of the ENVISIoN directory)::
+Apply the ENVISIoN patches to Inviwo::
 
   git apply \
-    /ENVISIoN/inviwo/patches/deppack_fix.patch \
-    /ENVISIoN/inviwo/patches/filesystem_env.patch \
-    /ENVISIoN/inviwo/patches/ftl_fix.patch \
-    /ENVISIoN/inviwo/patches/transferfunction_extras.patch \
+    "$HOME/ENVISIoN/ENVISIoN/inviwo/patches/deppack_fix.patch" \
+    "$HOME/ENVISIoN/ENVISIoN/inviwo/patches/filesystem_env.patch" \
+    "$HOME/ENVISIoN/ENVISIoN/inviwo/patches/ftl_fix.patch" \
+    "$HOME/ENVISIoN/ENVISIoN/inviwo/patches/transferfunction_extras.patch"
 
 Configure and build Inviwo (change /inviwo and /inviwo-build paths based on desired directories)::
 
+  cd ~/ENVISIoN
   mkdir inviwo-build
   cd inviwo-build/
   cmake -G "Unix Makefiles" \
@@ -102,7 +133,7 @@ Configure and build Inviwo (change /inviwo and /inviwo-build paths based on desi
     -DCMAKE_CXX_COMPILER="g++-8" \
     -DBUILD_SHARED_LIBS=ON \
     -DIVW_USE_EXTERNAL_IMG=ON \
-    -DIVW_EXTERNAL_MODULES="/ENVISIoN/inviwo/modules" \
+    -DIVW_EXTERNAL_MODULES="$HOME/ENVISIoN/ENVISIoN/inviwo/modules" \
     -DIVW_MODULE_CRYSTALVISUALIZATION=ON \
     -DIVW_MODULE_GRAPH2D=ON \
     -DIVW_MODULE_HDF5=ON \
@@ -112,40 +143,41 @@ Configure and build Inviwo (change /inviwo and /inviwo-build paths based on desi
     -DIVW_MODULE_QTWIDGETS=ON \
     -DIVW_PACKAGE_PROJECT=ON \
     -DIVW_PACKAGE_INSTALLER=ON \
-    -S /inviwo -B ./
+    -S ../inviwo -B ./
   make -j4
+
+Note:
+
+* The number in `make -j4` is the number of simultaneous build processes to run. 
+  Usually the best choice is the number of CPU cores in your build system.
+
+* If you are running into build errors, re-run make with `make -j1` to make sure
+  that the last printout pertains to the actual error.
 
 Test run Inviwo to make sure it built properly::
 
-  ./inviwo-build/bin/inviwo
+  ./bin/inviwo
 
-Run ENVISIoN
-~~~~~~~~~~~~
+Run the ENVISIoN GUI
+~~~~~~~~~~~~~~~~~~~~
 
-ENVISIoN should now run with the following run in the ENVISIoN root directory::
+Test that you can now execute the ENVISIoN GUI as follows:
+
+  cd ~/ENVISIoN/ENVISIoN
   export INVIWO_HOME=/inviwo-build/bin
   npm start
 
-Build for Linux from source using Anaconda
-------------------------------------------
+Alternative build using Anaconda
+--------------------------------
 
-ENVISIoN requires Python 3 and quite specific versions of some dependencies.
-You can choose to satisfy the dependences either by `Anaconda <https://www.anaconda.com/>`__ or by system packages.
-In many cases the system-installable software may be too old, in which case using Anaconda is recommended.
+The following instructions describe an alternative way of building ENVISIoN and Inviwo using Anaconda.
 
-**Note**: The last time we tested the installation path using Anaconda dependencies, it did not work but gave a late-stage compilation error for Inviwo. This will be investigated in the future.
+Note:
 
-The rest of these instructions describe building ENVISIoN and Inviwo under ``~/ENVISIoN``.
-This can be adapted as desired, but will require the corresponding changes of paths throughout the instructions.
-Furthermore, for Anaconda installs, it is assumed the user installs anaconda in the default user directory of ``~/anaonda3``. If this is not the case, paths needs to be adjusted accordingly.
+* The last time we tested the installation path using Anaconda dependencies, it did not work but gave a late-stage compilation error for Inviwo. This will be investigated in the future.
 
-Furthermore, the package manager instructions apply to recent versions of Ubuntu. They need to be adapted for other Linux distributions.
-
-Dependencies
-~~~~~~~~~~~~
-
-Dependencies using Anaconda
-"""""""""""""""""""""""""""
+Install dependencies
+~~~~~~~~~~~~~~~~~~~~
 
 Install system packages required by Anaconda. Follow the `instructions here <https://docs.anaconda.com/anaconda/install/linux/>`__, but specifically for Ubuntu Linux::
 
@@ -161,61 +193,19 @@ Download `the latest Python 3 version of Anaconda <https://www.anaconda.com/dist
 
 Create a conda environment with the needed dependencies::
 
-  conda create --name envision
-  conda activate envision
-  conda install python=3
-  conda install git pybind11 \
+  conda create --name envision python=3.8 git cmake pybind11 \
         numpy scipy matplotlib markdown regex wxpython \
-	h5py hdf5 \
-	qt=5 \
-	libpng libtiff jpeg cmake \
+	h5py hdf5 qt=5 libpng libtiff jpeg cmake \
         nodejs
-
-  qtchooser -install anaconda ~/anaconda3/envs/envision/bin/qmake
-
-**When doing new builds of ENVISIoN in a fresh environment, you need to remember to activate the envision conda environment**::
-
   conda activate envision
 
-Dependencies without Anaconda
-"""""""""""""""""""""""""""""
-Inviwo dependencies via the package manager::
+  qtchooser -install envision "$CONDA_PREFIX/bin/qmake"
 
-   sudo apt install \
-     git build-essential \
-     nodejs npm \
-     libpng-dev libglu1-mesa-dev libxrandr-dev \
-     libhdf5-dev libxinerama-dev libxcursor-dev \
-     libtirpc-dev gcc-8 g++-8
+Note:
 
-ENVISIoN dependencies via package manager::
+* When doing future builds of ENVISIoN in a new terminal, you must remember to activate the envision conda environment by the command `conda activate envision`.
 
-   sudo apt install \
-     python3-h5py python3-regex
-
-For cmake, version 3.12 or later required.
-As of writing this the version supplied by Ubuntu apt-get is not compatible with Inviwo.
-If the system provided cmake is too old, you need to uninstall it::
-
-   sudo apt purge --auto-remove cmake
-
-On Ubuntu you can get a newer version of cmake via snap::
-
-  sudo snap install cmake --classic
-
-Alternatively you can upgrade cmake manually from source:
-
-   Execute this::
-
-     mkdir ~/temp
-     cd ~/temp
-     wget https://cmake.org/files/v3.15/cmake-3.15.2-Linux-x86_64.sh
-     sudo mkdir /opt/cmake
-     sudo sh cmake-$version.$build-Linux-x86_64.sh --prefix=/opt/cmake
-
-   Add the installed binary link to /usr/local/bin/cmake by running this::
-
-     sudo ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
+Note that for cmake, version 3.12 or later is required.
 
 Verify that you have a working cmake of the correct version by running ``cmake -version``
 
@@ -245,7 +235,7 @@ Clone the Inviwo source code from the main repository into ``~/ENVISIoN/inviwo``
    cd ~/ENVISIoN
    git clone https://github.com/inviwo/inviwo.git
    cd inviwo
-   git checkout v0.9.10
+   git checkout v0.9.11
    git submodule update --init --recursive
 
 This checks out version v0.9.10. Later versions may work but have not been tested.
