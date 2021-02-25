@@ -161,7 +161,7 @@ Test run Inviwo to make sure it built properly::
 Run the ENVISIoN GUI
 ~~~~~~~~~~~~~~~~~~~~
 
-Test that you can now execute the ENVISIoN GUI as follows:
+Test that you can now execute the ENVISIoN GUI as follows::
 
   cd ~/ENVISIoN/ENVISIoN
   export INVIWO_HOME=/inviwo-build/bin
