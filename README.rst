@@ -111,7 +111,7 @@ Download `the latest Python 3 version of Anaconda <https://www.anaconda.com/dist
 
 Create a conda environment with the needed dependencies::
 
-  conda create --name envision python=3.8 git cmake pybind11 \
+  conda create --name envision python=3 git cmake pybind11 \
         numpy scipy matplotlib markdown regex wxpython \
 	h5py hdf5 qt=5 libpng libtiff jpeg cmake \
         nodejs
@@ -245,12 +245,14 @@ Test run Inviwo to make sure it built properly::
 
   ./bin/inviwo
 
-Alternative: cmake build using Anaconda compilers
+Alternative: cmake build using Anaconda libraries
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In difference to the above build, this build tries to satisfy as many of the library dependencies as possible with Anaconda, rather than use system libraries.
 
 Note: 
 
-* The last time we tested this installation path, it did not work but gave a late-stage compilation error for Inviwo. This will be investigated in the future.
+* The last time we tested this installation path, it did not work but gave a late-stage compilation error. This will be investigated in the future.
 
 .. comment:
 
@@ -286,6 +288,47 @@ Setup cmake the following way::
      -DIVW_PACKAGE_PROJECT=ON \
      -DIVW_PACKAGE_INSTALLER=ON \
      ../inviwo
+
+Alternative 2: cmake build using Anaconda libraries and compilers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Note: 
+
+* The last time we tested this installation path, it did not work but gave a late-stage compilation error. This will be investigated in the future.
+
+Add the compilers to the conda environment::
+
+  conda install gcc_linux-64 
+
+Setup cmake the following way::
+
+   export QT_SELECT=envision
+   eval `qtchooser --print-env`
+   export LIBRARY_PATH="$CONDA_PREFIX/ext-lib:$CONDA_PREFIX/x86_64-conda_cos6-linux-gnu/sysroot/usr/lib64:$CONDA_PREFIX/lib"
+   export CPATH="$CONDA_PREFIX/x86_64-conda_cos6-linux-gnu/sysroot/usr/include/:$CONDA_PREFIX/include"
+   cmake -G "Unix Makefiles" \
+     -DCMAKE_EXE_LINKER_FLAGS="-Wl,-rpath-link,$LIBRARY_PATH" \
+     -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-rpath-link,$LIBRARY_PATH" \
+     -DCMAKE_SYSTEM_PREFIX_PATH="$HOME/anaconda3/envs/envision" \
+     -DCMAKE_SYSTEM_LIBRARY_PATH="${LIBRARY_PATH//:/;}" \
+     -DCMAKE_C_COMPILER="x86_64-conda_cos6-linux-gnu-gcc" \
+     -DCMAKE_CXX_COMPILER="x86_64-conda_cos6-linux-gnu-g++" \
+     -DCMAKE_CXX_FLAGS="-isystem '$HOME/anaconda3/envs/envision/include'" \
+     -DCMAKE_C_FLAGS="-isystem '$HOME/anaconda3/envs/envision/include'" \
+     -DIVW_HDF5_USE_EXTERNAL:BOOL=ON \
+     -DIVW_IMG_USE_EXTERNAL:BOOL=ON \
+     -DIVW_EXTERNAL_MODULES="$HOME/ENVISIoN/ENVISIoN/inviwo/modules" \
+     -DIVW_MODULE_CRYSTALVISUALIZATION=ON \
+     -DIVW_MODULE_FERMI=OFF \
+     -DIVW_MODULE_GRAPH2D=ON \
+     -DIVW_MODULE_PYTHON3=ON \
+     -DIVW_MODULE_PYTHON3QT=ON \
+     -DIVW_MODULE_QTWIDGETS=ON \
+     -DIVW_MODULE_HDF5=ON \
+     -DIVW_PACKAGE_PROJECT=ON \
+     -DIVW_PACKAGE_INSTALLER=ON \
+     ../inviwo
+
 
 Run the ENVISIoN GUI
 --------------------
