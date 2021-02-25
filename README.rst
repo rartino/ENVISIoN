@@ -48,11 +48,14 @@ Build ENVISIoN from source
 
 If installing ENVISIoN from binaries does not work, or you want to be able to develop ENVISIoN yourself, then you may want to use the following instructions to build ENVISIoN from source code.
 
-Building on Ubuntu Linux 20.04
-------------------------------
-
 Install dependencies
-~~~~~~~~~~~~~~~~~~~~
+--------------------
+
+Dependencies on Ubuntu Linux 20.04
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These following instructions assume the use of Ubuntu Linux 20.04.
+For other systems you can try to adapt these instructions, or jump to the next section that install the dependencies using Anaconda instead.
 
 Install dependencies for ENVISIoN::
 
@@ -73,8 +76,76 @@ Install dependencies for building Inviwo::
         libpng-dev libglu1-mesa-dev libxrandr-dev \
         libxinerama-dev libxcursor-dev
 
+Check that you have access to Qt 5.3 or later by this command::
+  
+  qmake --version
+
+..
+
+    If you need to upgrade Qt beyond the version provided by the system, you can do so by following these instructions::
+
+      wget http://download.qt.io/official_releases/qt/5.12/5.12.2/qt-opensource-linux-x64-5.12.2.run
+      chmod +x qt-opensource-linux-x64-5.12.2.run
+      sudo ./qt-opensource-linux-x64-5.12.2.run
+      qtchooser -install opt-qt5.12.2 /opt/Qt5.12.2/5.12.2/gcc_64/bin/qmake
+
+Check that you have access to cmake 3.12 or later by this command::
+
+  cmake --version
+
+
+Alternative: dependencies using Anaconda
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Install system packages required by Anaconda. Follow the `instructions here <https://docs.anaconda.com/anaconda/install/linux/>`__, but specifically for Ubuntu Linux::
+
+  sudo apt install libgl1-mesa-glx libegl1-mesa libxrandr2 \
+                   libxrandr2 libxss1 libxcursor1 libxcomposite1 \
+	           libasound2 libxi6 libxtst6
+
+Furthermore, even with Anaconda, there are some additional system packages needed for building Inviwo::
+
+  sudo apt install build-essential gcc-8 g++-8
+
+Download `the latest Python 3 version of Anaconda <https://www.anaconda.com/distribution/#linux>`__ and install it.
+
+Create a conda environment with the needed dependencies::
+
+  conda create --name envision python=3.8 git cmake pybind11 \
+        numpy scipy matplotlib markdown regex wxpython \
+	h5py hdf5 qt=5 libpng libtiff jpeg cmake \
+        nodejs
+  conda activate envision
+
+  qtchooser -install envision "$CONDA_PREFIX/bin/qmake"
+
+Note:
+
+* When doing future builds of ENVISIoN in a new terminal, you must remember to activate the envision conda environment by the command `conda activate envision`.
+
+Verify version numbers of installed dependencies
+------------------------------------------------
+
+Check that you have access to Qt 5.3 or later by this command::
+  
+  qmake --version
+
+..
+
+    If you need to upgrade Qt beyond the version provided by the system, you can do so by following these instructions::
+
+      wget http://download.qt.io/official_releases/qt/5.12/5.12.2/qt-opensource-linux-x64-5.12.2.run
+      chmod +x qt-opensource-linux-x64-5.12.2.run
+      sudo ./qt-opensource-linux-x64-5.12.2.run
+      qtchooser -install opt-qt5.12.2 /opt/Qt5.12.2/5.12.2/gcc_64/bin/qmake
+
+Check that you have access to cmake 3.12 or later by this command::
+
+  cmake --version
+
+
 Setup ENVISIoN
-~~~~~~~~~~~~~~
+--------------
 
 Create a directory under your home directory to build ENVISIoN::
 
@@ -101,7 +172,7 @@ Note:
   and you may want to do so the first time you try to build ENVISIoN to avoid unexpected build issues.)
 
 Build the ENVISIoN-enabled Inviwo
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------
 
 Download and checkout the correct version of the Inviwo source::
 
@@ -122,6 +193,22 @@ Apply the ENVISIoN patches to Inviwo::
     "$HOME/ENVISIoN/ENVISIoN/inviwo/patches/filesystem_env.patch" \
     "$HOME/ENVISIoN/ENVISIoN/inviwo/patches/ftl_fix.patch" \
     "$HOME/ENVISIoN/ENVISIoN/inviwo/patches/transferfunction_extras.patch"
+
+Cmake build using system compilers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Normal builds should use the following steps to execute the cmake build of inviwo.
+However, the subsection below presents an alternative build that rather than the system compilers uses compulers installed by Anaconda.
+
+If you are using a Qt that is not the one provided by the system,
+you now need to select the version you want the build to use. 
+*You do not need to do this if you just installed Qt via the system package manager.* 
+However, if you followed the instructions to install dependencies via Anaconda above, you want to select the `envision` qt version.
+Select a Qt version by the following commands::
+
+  qtchooser -l
+  export QT_SELECT=<qt version>    
+  eval `qtchooser --print-env`
 
 Configure and build Inviwo (change /inviwo and /inviwo-build paths based on desired directories)::
 
@@ -158,107 +245,12 @@ Test run Inviwo to make sure it built properly::
 
   ./bin/inviwo
 
-Run the ENVISIoN GUI
-~~~~~~~~~~~~~~~~~~~~
+Alternative: cmake build using Anaconda compilers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Test that you can now execute the ENVISIoN GUI as follows::
+Note: 
 
-  cd ~/ENVISIoN/ENVISIoN
-  export INVIWO_HOME="$HOME/ENVISIoN/inviwo-build/bin"
-  npm start
-
-Alternative build using Anaconda
---------------------------------
-
-The following instructions describe an alternative way of building ENVISIoN and Inviwo using Anaconda.
-
-Note:
-
-* The last time we tested the installation path using Anaconda dependencies, it did not work but gave a late-stage compilation error for Inviwo. This will be investigated in the future.
-
-Install dependencies
-~~~~~~~~~~~~~~~~~~~~
-
-Install system packages required by Anaconda. Follow the `instructions here <https://docs.anaconda.com/anaconda/install/linux/>`__, but specifically for Ubuntu Linux::
-
-  sudo apt install libgl1-mesa-glx libegl1-mesa libxrandr2 \
-                   libxrandr2 libxss1 libxcursor1 libxcomposite1 \
-	           libasound2 libxi6 libxtst6
-
-Furthermore, even with Anaconda, there are some additional system packages needed for building Inviwo::
-
-  sudo apt install build-essential gcc-8 g++-8
-
-Download `the latest Python 3 version of Anaconda <https://www.anaconda.com/distribution/#linux>`__ and install it.
-
-Create a conda environment with the needed dependencies::
-
-  conda create --name envision python=3.8 git cmake pybind11 \
-        numpy scipy matplotlib markdown regex wxpython \
-	h5py hdf5 qt=5 libpng libtiff jpeg cmake \
-        nodejs
-  conda activate envision
-
-  qtchooser -install envision "$CONDA_PREFIX/bin/qmake"
-
-Note:
-
-* When doing future builds of ENVISIoN in a new terminal, you must remember to activate the envision conda environment by the command `conda activate envision`.
-
-Note that for cmake, version 3.12 or later is required.
-
-Verify that you have a working cmake of the correct version by running ``cmake -version``
-
-For qt 5, you need at least qt 5.3, but higher versions are recommended.
-If the system supplied version of qt is not new enough, you can follow these instructions::
-
-   wget http://download.qt.io/official_releases/qt/5.12/5.12.2/qt-opensource-linux-x64-5.12.2.run
-   chmod +x qt-opensource-linux-x64-5.12.2.run
-   sudo ./qt-opensource-linux-x64-5.12.2.run
-   qtchooser -install opt-qt5.12.2 /opt/Qt5.12.2/5.12.2/gcc_64/bin/qmake
-
-Verify that Qt was installed in an appropriate version by running ``qmake -version``
-
-Download ENVISIoN source
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-Clone the ENVISON source code into ``~/ENVISIoN/ENVISIoN`` from the main repository::
-
-  cd ~/ENVISIoN
-  git clone https://github.com/rartino/ENVISIoN
-
-Build Inviwo
-~~~~~~~~~~~~
-
-Clone the Inviwo source code from the main repository into ``~/ENVISIoN/inviwo``::
-
-   cd ~/ENVISIoN
-   git clone https://github.com/inviwo/inviwo.git
-   cd inviwo
-   git checkout v0.9.11
-   git submodule update --init --recursive
-
-This checks out version v0.9.10. Later versions may work but have not been tested.
-
-.. comment
-   old checkout was: 400de1a5af6a0400a314241b86982cfa2817dd9b
-
-Apply ENVISIoN patches to inviwo::
-
-   cd ~/ENVISIoN/inviwo
-   git apply ~/ENVISIoN/ENVISIoN/inviwo/patches/2019/transferfunctionFix.patch
-   git apply ~/ENVISIoN/ENVISIoN/inviwo/patches/2019/deb-package.patch
-   git apply ~/ENVISIoN/ENVISIoN/inviwo/patches/2019/paneProperty2019.patch
-   git apply ~/ENVISIoN/ENVISIoN/inviwo/patches/2019/sysmacro.patch
-   git apply ~/ENVISIoN/ENVISIoN/inviwo/patches/2019/inviwo-v0.9.10-extlibs.patch
-
-Setup a directory for building Inviwo::
-
-   cd ~/ENVISIoN
-   mkdir inviwo-build
-   cd inviwo-build
-
-Generate makefiles with cmake.
+* The last time we tested this installation path, it did not work but gave a late-stage compilation error for Inviwo. This will be investigated in the future.
 
 .. comment:
 
@@ -266,13 +258,13 @@ Generate makefiles with cmake.
 
      eval "$(~/anaconda3/bin/conda shell.bash hook)"
 
-If using anaconda, generate the build files this way::
+Setup cmake the following way::
 
-   export QT_SELECT=anaconda
+   export QT_SELECT=envision
    eval `qtchooser --print-env`
    #export LIBRARY_PATH="$HOME/anaconda3/envs/envision/lib"
    #export CPATH="$HOME/anaconda3/envs/envision/include"
-   /snap/bin/cmake -G "Unix Makefiles" \
+   cmake -G "Unix Makefiles" \
      -DCMAKE_EXE_LINKER_FLAGS="-Wl,-rpath-link,$LIBRARY_PATH" \
      -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-rpath-link,$LIBRARY_PATH" \
      -DCMAKE_SYSTEM_PREFIX_PATH="$HOME/anaconda3/envs/envision" \
@@ -295,67 +287,52 @@ If using anaconda, generate the build files this way::
      -DIVW_PACKAGE_INSTALLER=ON \
      ../inviwo
 
-If not using anaconda, first select a suitable Qt (system or manually installed)::
+Run the ENVISIoN GUI
+--------------------
 
-   qtchooser -l
-   export QT_SELECT=<qt version>
+Test that you can now execute the ENVISIoN GUI as follows::
 
-Where the first command list options to use in the second command.
+  cd ~/ENVISIoN/ENVISIoN
+  export INVIWO_HOME="$HOME/ENVISIoN/inviwo-build/bin"
+  npm start
 
-Then generate the build files::
 
-   eval `qtchooser --print-env`
-   /snap/bin/cmake -G "Unix Makefiles" \
-     -DCMAKE_PREFIX_PATH="$QTTOOLDIR/.." \
-     -DCMAKE_C_COMPILER="gcc-8" -DCMAKE_CXX_COMPILER="g++-8" \
-     -DIVW_HDF5_USE_EXTERNAL:BOOL=ON \
-     -DIVW_IMG_USE_EXTERNAL:BOOL=ON \
-     -DIVW_EXTERNAL_MODULES="$HOME/ENVISIoN/ENVISIoN/inviwo/modules" \
-     -DIVW_MODULE_CRYSTALVISUALIZATION=ON \
-     -DIVW_MODULE_FERMI=OFF \
-     -DIVW_MODULE_GRAPH2D=ON \
-     -DIVW_MODULE_PYTHON3=ON \
-     -DIVW_MODULE_PYTHON3QT=ON \
-     -DIVW_MODULE_QTWIDGETS=ON \
-     -DIVW_MODULE_HDF5=ON \
-     -DIVW_PACKAGE_PROJECT=ON \
-     -DIVW_PACKAGE_INSTALLER=ON \
-     ../inviwo
+Using ENVISIoN
+==============
 
-Now build inviwo::
+For more details on how to use the ENVISIoN application than given here, see the `User's guide <docs/users_guide/users_guide.rst>`__.
 
-   make -j5
+Starting ENVISIoN in GUI mode
+-----------------------------
 
-Once complete, verify that build worked by running ``./bin/inviwo``. The Inviwo GUI applicaiton should start.
+Once properly installed, the ENVISIoN GUI can be started this way::
 
-Configure ENVISIoN
-~~~~~~~~~~~~~~~~~~
+  envision
 
-Install required node modules for the ENVISIoN GUI::
+You should now see the main window from where ENVISIoN can be controlled.
 
-   cd ~/ENVISIoN/ENVISIoN
-   npm install
+Using ENVISIoN from inside the Inviwo GUI
+-----------------------------------------
 
-Depending on whether you changed the path to where you built Inviwo, you may need to set the environment variable ``INVIWO_HOME`` to your ``inviwo-build`` directory.
+ENVISIoN is implemented as python 3 scripts that do visualisations in Inviwo.
+For development work or to access more visualization features, the ENVISIoN scripts can be run directly inside the main Inviwo GUI.
+This is, however, less user-firendly than the dedicated ENVISIoN GUI.
 
-Finally, insert the ENVISIoN bin directory into your path::
+Start the inviwo GUI::
 
-  export PATH="$HOME/ENVISIoN/ENVISIoN/bin:$PATH"
+   envision-inviwo
 
-Package ENVISIoN for distribution
-=================================
+To setup a ENVISIoN visualisation take the following steps:
 
-Installation packages for Linux
--------------------------------
+1. Open up the Inviwo python editor.
+2. Click button to open a python file.
+3. A dialog prompts you to pick a file.
+   Scripts for visualisations are located in the directory ``scripts`` in your ENVISIoN directory.
+   Pick the script for what you want to visualise.
+4. Configure the paths in the python file to correspond to where you have installed ENVISIoN, where your VASP output data is, and where you wish to save the resulting HDF5 file.
 
-ENVISIoN can be built into an installable .deb package using the Dockerfile located in `packaging/docker/`. Generate packages by building the docker image and running it.
-
-Build the docker image to the required build step:
-  docker build -f packaging/docker/Dockerfile --target envision_packager -t envision_packager .
-
-Run the docker image. It will copy the built packages to the directory it is run from. Change `$(pwd)` to something else to selet another directory:
-  docker run -it --rm -v $(pwd):/package_output envision_packager
-
+A visualisation should now start.
+The visualisation can now be configured using the Inviwo network editor.
 
 Setup a development environment
 ===============================
@@ -438,45 +415,21 @@ Visual Studio Code
 
 Another popular development environment is `Visual Studio Code <https://code.visualstudio.com/download>`__.
 
-Starting ENVISIoN
-=================
 
-Starting ENVISIoN in GUI mode
------------------------------
 
-Once properly installed, the ENVISIoN GUI can be started this way::
+Package ENVISIoN for distribution
+=================================
 
-  envision
+Installation packages for Linux
+-------------------------------
 
-You should now see the main window from where ENVISIoN can be controlled.
+ENVISIoN can be built into an installable .deb package using the Dockerfile located in `packaging/docker/`. Generate packages by building the docker image and running it.
 
-Using ENVISIoN from inside the Inviwo GUI
-------------------------------------------
+Build the docker image to the required build step:
+  docker build -f packaging/docker/Dockerfile --target envision_packager -t envision_packager .
 
-ENVISIoN is implemented as python 3 scripts that do visualisations in Inviwo.
-For development work or to access more visualization features, the ENVISIoN scripts can be run directly inside the main Inviwo GUI.
-This is, however, less user-firendly than the dedicated ENVISIoN GUI.
-
-Start the inviwo GUI::
-
-   envision-inviwo
-
-To setup a ENVISIoN visualisation take the following steps:
-
-1. Open up the Inviwo python editor.
-2. Click button to open a python file.
-3. A dialog prompts you to pick a file.
-   Scripts for visualisations are located in the directory ``scripts`` in your ENVISIoN directory.
-   Pick the script for what you want to visualise.
-4. Configure the paths in the python file to correspond to where you have installed ENVISIoN, where your VASP output data is, and where you wish to save the resulting HDF5 file.
-
-A visualisation should now start.
-The visualisation can now be configured using the Inviwo network editor.
-
-Using ENVISIoN
-==============
-
-For more information on how to use the ENVISIoN application, see the `User's guide <docs/users_guide/users_guide.rst>`__.
+Run the docker image. It will copy the built packages to the directory it is run from. Change `$(pwd)` to something else to selet another directory:
+  docker run -it --rm -v $(pwd):/package_output envision_packager
 
 
 Contributors
