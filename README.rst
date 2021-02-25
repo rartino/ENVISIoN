@@ -59,7 +59,7 @@ Install dependencies for ENVISIoN::
   sudo apt install \
     python3 python3-pip \
     git \
-    python3-numpy python3-h5py python3-pybind11 python3-scipy python3-rexex
+    python3-numpy python3-h5py python3-pybind11 python3-scipy python3-regex \
     npm 
 
 Install dependencies for building Inviwo::
