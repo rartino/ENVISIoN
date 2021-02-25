@@ -241,14 +241,33 @@ Note:
 * If you are running into build errors, re-run make with `make -j1` to make sure
   that the last printout pertains to the actual error.
 
-Alternative: cmake build using Anaconda libraries
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Alternative: cmake build using system compilers with Anaconda libraries
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In difference to the above build, this build tries to satisfy as many of the library dependencies as possible with Anaconda, rather than use system libraries.
 
 Note: 
 
-* The last time we tested this installation path, it did not work but gave a late-stage compilation error. This will be investigated in the future.
+* The last time we tested this installation path, it did not work but gave a late-stage compilation error. 
+  This will be investigated in the future.
+
+Add the necessery libraries to the conda environment::
+
+   conda install libx11-devel-cos6-x86_64 libxrandr-devel-cos6-x86_64 libxinerama-devel-cos6-x86_64 \
+	libxcursor-devel-cos6-x86_64 libxrender-devel-cos6-x86_64 \
+	xorg-x11-proto-devel-cos6-x86_64 \
+        libxi-devel-cos6-x86_64 libxext-devel-cos6-x86_64 libglu \
+	libx11-devel-cos6-x86_64 libxcursor-cos6-x86_64 \
+	libxfixes-devel-cos6-x86_64 \
+	libxdamage-cos6-x86_64 libxxf86vm-cos6-x86_64 libxau-cos6-x86_64 \
+        libselinux-cos6-x86_64
+
+.. comment:
+
+        We once had these:
+ 
+        #mesa-libgl-devel-cos6-x86_64 #pyopengl libselinux
+
 
 .. comment:
 
@@ -263,8 +282,8 @@ Setup cmake the following way::
   cd inviwo-build/
   export QT_SELECT=envision
   eval `qtchooser --print-env`
-  #export LIBRARY_PATH="$HOME/anaconda3/envs/envision/lib"
-  #export CPATH="$HOME/anaconda3/envs/envision/include"
+  export LIBRARY_PATH="$CONDA_PREFIX/ext-lib:$CONDA_PREFIX/x86_64-conda_cos6-linux-gnu/sysroot/usr/lib64:$CONDA_PREFIX/lib"
+  export CPATH="$CONDA_PREFIX/x86_64-conda_cos6-linux-gnu/sysroot/usr/include/:$CONDA_PREFIX/include"
   cmake -G "Unix Makefiles" \
      -DCMAKE_EXE_LINKER_FLAGS="-Wl,-rpath-link,$LIBRARY_PATH" \
      -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-rpath-link,$LIBRARY_PATH" \
@@ -293,11 +312,14 @@ Alternative 2: cmake build using Anaconda libraries and compilers
 
 Note: 
 
-* The last time we tested this installation path, it did not work but gave a late-stage compilation error. This will be investigated in the future.
+* The last time we tested this installation path, it did not work but gave a late-stage compilation error. 
+  This will be investigated in the future.
+
+First add the necessary libraries to the conda environment by following the `conda install` command in the previous section.
 
 Add the compilers to the conda environment::
 
-  conda install gcc_linux-64 
+  conda install gcc_linux-64=7 gxx_linux-64=7
 
 Setup cmake the following way::
 
