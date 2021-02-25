@@ -164,7 +164,7 @@ Run the ENVISIoN GUI
 Test that you can now execute the ENVISIoN GUI as follows::
 
   cd ~/ENVISIoN/ENVISIoN
-  export INVIWO_HOME=/inviwo-build/bin
+  export INVIWO_HOME="$HOME/ENVISIoN/inviwo-build/bin"
   npm start
 
 Alternative build using Anaconda
