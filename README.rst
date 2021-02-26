@@ -260,7 +260,7 @@ Add the necessery libraries to the conda environment::
 	libx11-devel-cos6-x86_64 libxcursor-cos6-x86_64 \
 	libxfixes-devel-cos6-x86_64 \
 	libxdamage-cos6-x86_64 libxxf86vm-cos6-x86_64 libxau-cos6-x86_64 \
-        libselinux-cos6-x86_64
+        libselinux-cos6-x86_64 libpng-devel-cos6-x86_64 zlib
 
 .. comment:
 
@@ -285,27 +285,28 @@ Setup cmake the following way::
   export LIBRARY_PATH="$CONDA_PREFIX/ext-lib:$CONDA_PREFIX/x86_64-conda_cos6-linux-gnu/sysroot/usr/lib64:$CONDA_PREFIX/lib"
   export CPATH="$CONDA_PREFIX/x86_64-conda_cos6-linux-gnu/sysroot/usr/include/:$CONDA_PREFIX/include"
   cmake -G "Unix Makefiles" \
-     -DCMAKE_EXE_LINKER_FLAGS="-Wl,-rpath-link,$LIBRARY_PATH" \
-     -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-rpath-link,$LIBRARY_PATH" \
-     -DCMAKE_SYSTEM_PREFIX_PATH="$HOME/anaconda3/envs/envision" \
-     -DCMAKE_SYSTEM_LIBRARY_PATH="${LIBRARY_PATH//:/;}" \
-     -DCMAKE_C_COMPILER="gcc-8" \
-     -DCMAKE_CXX_COMPILER="g++-8" \
-     -DCMAKE_CXX_FLAGS="-isystem '$HOME/anaconda3/envs/envision/include'" \
-     -DCMAKE_C_FLAGS="-isystem '$HOME/anaconda3/envs/envision/include'" \
-     -DIVW_HDF5_USE_EXTERNAL:BOOL=ON \
-     -DIVW_IMG_USE_EXTERNAL:BOOL=ON \
-     -DIVW_EXTERNAL_MODULES="$HOME/ENVISIoN/ENVISIoN/inviwo/modules" \
-     -DIVW_MODULE_CRYSTALVISUALIZATION=ON \
-     -DIVW_MODULE_FERMI=OFF \
-     -DIVW_MODULE_GRAPH2D=ON \
-     -DIVW_MODULE_PYTHON3=ON \
-     -DIVW_MODULE_PYTHON3QT=ON \
-     -DIVW_MODULE_QTWIDGETS=ON \
-     -DIVW_MODULE_HDF5=ON \
-     -DIVW_PACKAGE_PROJECT=ON \
-     -DIVW_PACKAGE_INSTALLER=ON \
-     ../inviwo
+    -DCMAKE_EXE_LINKER_FLAGS="-Wl,-rpath-link,$LIBRARY_PATH" \
+    -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-rpath-link,$LIBRARY_PATH" \
+    -DCMAKE_SYSTEM_PREFIX_PATH="$HOME/anaconda3/envs/envision" \
+    -DCMAKE_SYSTEM_LIBRARY_PATH="${LIBRARY_PATH//:/;}" \
+    -DCMAKE_C_COMPILER="gcc-8" \
+    -DCMAKE_CXX_COMPILER="g++-8" \
+    -DCMAKE_CXX_FLAGS="-isystem '$HOME/anaconda3/envs/envision/include'" \
+    -DCMAKE_C_FLAGS="-isystem '$HOME/anaconda3/envs/envision/include'" \     
+    -DBUILD_SHARED_LIBS=ON \
+    -DIVW_USE_EXTERNAL_IMG=ON \
+    -DIVW_EXTERNAL_MODULES="$HOME/ENVISIoN/ENVISIoN/inviwo/modules" \
+    -DIVW_MODULE_CRYSTALVISUALIZATION=ON \
+    -DIVW_MODULE_GRAPH2D=ON \
+    -DIVW_MODULE_HDF5=ON \
+    -DIVW_USE_EXTERNAL_HDF5=ON \
+    -DIVW_MODULE_PYTHON3=ON \
+    -DIVW_MODULE_PYTHON3QT=ON \
+    -DIVW_MODULE_QTWIDGETS=ON \
+    -DIVW_PACKAGE_PROJECT=ON \
+    -DIVW_PACKAGE_INSTALLER=ON \
+    ../inviwo
+  make -j4
 
 Alternative 2: cmake build using Anaconda libraries and compilers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -352,7 +353,7 @@ Setup cmake the following way::
     -DIVW_PACKAGE_PROJECT=ON \
     -DIVW_PACKAGE_INSTALLER=ON \
     ../inviwo
-
+  make -j4
 
 Verify that the builds work
 ---------------------------
