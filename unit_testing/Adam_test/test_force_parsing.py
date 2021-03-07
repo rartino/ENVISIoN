@@ -10,8 +10,6 @@ start = timeit.default_timer()
 def test_atom():
     coordinate_start = 8
     initial_velocity_start = 137
-    coordinates = []
-    initial_velocity = []
     n = 0
     n2 = 0
     with open("POSCAR", 'r') as f:
@@ -21,22 +19,21 @@ def test_atom():
         total_amount = 0
         for i in atom_amount:
             total_amount += int(i)
-        while n < total_amount:
-            current = []
-            current.append(float(lines[coordinate_start+n].split()[0]))
-            current.append(float(lines[coordinate_start+n].split()[1]))
-            current.append(float(lines[coordinate_start+n].split()[2]))
-            coordinates.append(current)
-            n += 1
-        while n2 < total_amount:
-            print(n2)
-            current = []
-            current.append(float(lines[initial_velocity_start+n2].split()[0]))
-            current.append(float(lines[initial_velocity_start+n2].split()[1]))
-            current.append(float(lines[initial_velocity_start+n2].split()[2]))
-            initial_velocity.append(current)
-            n2 += 1
-        return  [atom_names, atom_amount, total_amount, coordinates, initial_velocity]
+        coordinates = get_data(total_amount,  lines, coordinate_start)
+        initial_velocity = get_data(total_amount,  lines, initial_velocity_start)
+    return  [atom_names, atom_amount, total_amount, coordinates, initial_velocity]
+def get_data(amount, data, start):
+    n = 0
+    list = []
+    while n < amount:
+        current = []
+        line = data[start+n].split()
+        current.append(np.float32(line[0]))
+        current.append(np.float32(line[1]))
+        current.append(np.float32(line[2]))
+        list.append(current)
+        n += 1
+    return list
 stop = timeit.default_timer()
 print(test_atom())
 print('Time: ', float(stop - start), " seconds")
