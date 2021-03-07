@@ -23,6 +23,13 @@ def test_atom(POSCAR):
         initial_velocity = get_data(total_amount,  lines, initial_velocity_start)
     return  [atom_names, atom_amount, total_amount, coordinates, initial_velocity]
 
+def get_basis(POSCAR):
+    with open(POSCAR, 'r') as f:
+        lines = f.readlines()
+        base_x = np.float32(lines[2].split())
+        base_y = np.float32(lines[3].split())
+        base_z = np.float32(lines[4].split())
+    return np.array([base_x, base_y, base_z])
 
 def get_data(amount, data, start):
     n = 0
@@ -41,12 +48,15 @@ def get_data(amount, data, start):
 def write_hdf(VASP_FILE):
     try:
         datas = test_atom(VASP_FILE)
+        base = get_basis(VASP_FILE)
         with h5py.File("FORCE.hdf5", 'a') as hdf_file:
-            if "coordinates" and "initial_velocity" in hdf_file:
+            if "coordinates" and "initial_velocity" and "basis" in hdf_file:
                 del hdf_file["coordinates"]
                 del hdf_file["initial_velocity"]
+                del hdf_file["basis"]
             hdf_file.create_dataset('coordinates', data=np.array(datas[3]))
             hdf_file.create_dataset('initial_velocity', data=np.array(datas[4]))
+            hdf_file.create_dataset("basis", data = base)
             hdf_file.close()
 
     except:
@@ -55,4 +65,5 @@ def write_hdf(VASP_FILE):
 
 stop = timeit.default_timer()
 write_hdf("POSCAR")
+
 print('Time: ', float(stop - start), " seconds")
