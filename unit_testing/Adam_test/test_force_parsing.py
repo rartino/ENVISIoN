@@ -41,12 +41,14 @@ def get_data(amount, data, start):
 def write_hdf(VASP_FILE):
     try:
         datas = test_atom(VASP_FILE)
-        with h5py.File("FORCEhdf", 'a') as hdf_file:
-            del hdf_file["coordinates"]
-            del hdf_file["initial_velocity"]
+        with h5py.File("FORCE.hdf5", 'a') as hdf_file:
+            if "coordinates" and "initial_velocity" in hdf_file:
+                del hdf_file["coordinates"]
+                del hdf_file["initial_velocity"]
             hdf_file.create_dataset('coordinates', data=np.array(datas[3]))
             hdf_file.create_dataset('initial_velocity', data=np.array(datas[4]))
             hdf_file.close()
+
     except:
         print("Error in reading POSCAR-file or writing HDF5")
 
