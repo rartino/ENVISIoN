@@ -11,9 +11,6 @@ path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect
 sys.path.append(path_to_current_folder + "/../")
 VASP_DIR2 = path_to_current_folder + "/resource"
 
-
-
-
 def _get_co_and_int(file_path, co_start, to_amount):
     coordinate_start = co_start
     initial_velocity_start = co_start + to_amount + 1
@@ -33,7 +30,7 @@ def _total_amount(file_path):
             total_amount += int(i)
     return [atom_amount, total_amount]
 
-def _atom_names(file_path):
+def _get_names(file_path):
     with file_path.open('r') as f:
         lines = f.readlines()
         atom_names = lines[5].split()
@@ -60,20 +57,20 @@ def _get_data(amount, data, start):
         n += 1
     return list
 
-def _write_hdf(hdf_file, datas, base):
+def _write_hdf(hdf_file, datas, base, names, amount):
     try:
-        with h5py.File(hdf_file, 'a') as hdf_file:
-            if "coordinates" and "initial_velocity" and "basis" in hdf_file:
-                del hdf_file["coordinates"]
-                del hdf_file["initial_velocity"]
-                del hdf_file["basis"]
-            hdf_file.create_dataset("coordinates", data=np.array(datas[0]))
-            hdf_file.create_dataset("initial_velocity", data=np.array(datas[1]))
-            hdf_file.create_dataset("basis", data = base)
-            hdf_file.close()
-
+        hf = h5py.File(hdf_file, 'a')
+        hdf_group = hf.create_group("group_1")
+        hdf_group.create_dataset("coordinates", data=np.array(datas[0]))
+        hdf_group.create_dataset("initial_velocity", data=np.array(datas[1]))
+        hdf_group.create_dataset("basis", data = base)
+        asciiList = [n.encode("ascii", "ignore") for n in names]
+        hdf_group.create_dataset('names', (len(asciiList),1),'S10', asciiList)
+        hdf_group.create_dataset("amount", data = np.array(amount))
+        hf.close()
+        print("Data written to HDF5")
     except:
-        print("Error in reading POSCAR-file or writing HDF5")
+        print("Error in writing to HDF5")
 
 def force_parser(hdf_file, vasp_dir_path):
     """
@@ -88,7 +85,11 @@ def force_parser(hdf_file, vasp_dir_path):
         [coordinates, initial_velocity] = _get_co_and_int(poscar_file_path,8
                                       ,amount)
         print("Coordinates and velocities succesfully parsed")
+        base = _get_basis(poscar_file_path)
+        print("Basis succesfully parsed")
+        names = _get_names(poscar_file_path)
+        print("Names succesfully parsed")
+        _write_hdf(hdf_file, [coordinates, initial_velocity], base, names, amount)
+
     except:
         print("Error in reading POSCAR")
-    base = _get_basis(poscar_file_path)
-    _write_hdf(hdf_file, [coordinates, initial_velocity], base)
