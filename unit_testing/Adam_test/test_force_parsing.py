@@ -93,5 +93,13 @@ def force_parser(hdf_file, vasp_dir_path):
 
 stop = timeit.default_timer()
 
+def test_hdf5():
+    with h5py.File('farce.hdf5','r') as hf:
+        dataset_names = list(hf.keys())
+        data = list(hf["basis"])
+    print(dataset_names)
+    print(data)
 
+
+test_hdf5()
 print('Time: ', float(stop - start), " seconds")

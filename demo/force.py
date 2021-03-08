@@ -9,4 +9,9 @@ from envisionpy.network import VisualisationManager
 VASP_DIR = path_to_current_folder + "/../unit_testing/resources/LiC_pair_corr_func"
 HDF5_FILE = path_to_current_folder + "/../demo_force.hdf5"
 
+try:
+    os.remove(HDF5_FILE)
+except:
+    print("no habla espanol")
+
 envisionpy.hdf5parser.force_parser(HDF5_FILE, VASP_DIR)
