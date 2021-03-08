@@ -12,7 +12,7 @@ sys.path.append(path_to_current_folder + "/../")
 VASP_DIR2 = path_to_current_folder + "/resource"
 
 
-start = timeit.default_timer()
+
 
 def _get_co_and_int(file_path, co_start, to_amount):
     coordinate_start = co_start
@@ -83,15 +83,12 @@ def force_parser(hdf_file, vasp_dir_path):
     if not poscar_file_path.exists():
         raise FileNotFoundError('Cannot find the vasp file in directory %s'
                                 % vasp_dir_path)
-
-    [coordinates, initial_velocity] = _get_co_and_int(poscar_file_path,8
-                                      ,int(_total_amount(poscar_file_path)[1]))
+    amount = int(_total_amount(poscar_file_path)[1])
+    try:
+        [coordinates, initial_velocity] = _get_co_and_int(poscar_file_path,8
+                                      ,amount)
+        print("Coordinates and velocities succesfully parsed")
+    except:
+        print("Error in reading POSCAR")
     base = _get_basis(poscar_file_path)
     _write_hdf(hdf_file, [coordinates, initial_velocity], base)
-
-#force_parser("farce.hdf5", VASP_DIR2)
-
-stop = timeit.default_timer()
-
-
-print('Time: ', float(stop - start), " seconds")
