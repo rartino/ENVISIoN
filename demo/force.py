@@ -6,7 +6,7 @@ import envisionpy
 import envisionpy.hdf5parser
 from envisionpy.network import VisualisationManager
 
-VASP_DIR = path_to_current_folder + "/../unit_testing/resources/LiC_pair_corr_func"
+VASP_DIR = path_to_current_folder + "/../unit_testing/resources/CuFeS2_band_CBT2"
 HDF5_FILE = path_to_current_folder + "/../demo_force.hdf5"
 
 try:
