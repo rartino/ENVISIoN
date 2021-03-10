@@ -15,3 +15,10 @@ except:
     print("no habla espanol")
 
 envisionpy.hdf5parser.force_parser(HDF5_FILE, VASP_DIR)
+
+inviwopy.app.network.clear()
+
+# Initialize inviwo network
+visManager = VisualisationManager(HDF5_FILE, inviwopy.app)
+#subnet = Subnetwork(inviwopy.app)
+visManager.start("force")

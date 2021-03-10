@@ -11,12 +11,14 @@ from .Bandstructure import Bandstructure
 from .DensityOfStates import DensityOfStates
 from .MultiVolume import MultiVolume
 from .baseNetworks.Decoration import Decoration
+from .ForceVectors import ForceVectors
 
 class VisualisationManager():
     '''
     Class for managing one visualisation instance from a single HDF5 file.
     '''
     def __init__(self, hdf5_path, inviwoApp):
+        print("Initialising VisMan")
         self.app = inviwoApp
         self.network = inviwoApp.network
         self.subnetworks = {}
@@ -49,13 +51,14 @@ class VisualisationManager():
                 self.available_visualisations.append("band")
             if DensityOfStates.valid_hdf5(file):
                 self.available_visualisations.append("dos")
+            if ForceVectors.valid_hdf5(file):
+                self.available_visualisations.append("force")
             if len(set(['charge', 'elf', 'fermi', 'parchg']) & set(self.available_visualisations)) > 0:
                 self.available_visualisations.append('multi')
-                
+
     def start(self, vis_type, *args):
         # Start a new main visualisation.
         subnetwork = self.get_subnetwork(vis_type, *args)
-
         # Decoration visualisation.
         if issubclass(type(subnetwork), Decoration):
             self.decorations[vis_type] = subnetwork
@@ -72,7 +75,7 @@ class VisualisationManager():
             subnetwork.show()
         # self.reset_canvas_positions()
         return subnetwork
-        
+
     def stop(self, vis_type=None):
         if vis_type == None:
             # Stop all visualisations and clear networks.
@@ -94,16 +97,19 @@ class VisualisationManager():
 
         if vis_type not in self.available_visualisations:
             raise EnvisionError('Cannot start visualisation ['+vis_type+'] with unsupported hdf5 file.')
-        
+
         if vis_type in self.subnetworks:
             return self.subnetworks[vis_type]
-        
+
         # Initialize a new subnetwork
         if vis_type == "charge":
             subnetwork = ChargeDensity(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
 
         elif vis_type == "elf":
             subnetwork = ELFVolume(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
+
+        elif vis_type == "force":
+            subnetwork = ForceVectors(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
 
         elif vis_type == "fermi":
             subnetwork = FermiSurface(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
@@ -125,8 +131,8 @@ class VisualisationManager():
             for t in ['charge', 'elf']:
                 if t in self.subnetworks:
                     subnetwork.connect_volume(
-                        self.subnetworks[t].volume_outport, 
-                        self.subnetworks[t].transfer_function_prop, 
+                        self.subnetworks[t].volume_outport,
+                        self.subnetworks[t].transfer_function_prop,
                         self.subnetworks[t].camera_prop)
 
         subnetwork.hide() # All new visualisations are hidden by default here.
@@ -141,7 +147,7 @@ class VisualisationManager():
         for subnetwork in self.subnetworks.values():
             for canvas in subnetwork.canvases:
                 if not canvas.widget.visibility: continue
-                if x_tmp > start_x+max_width: 
+                if x_tmp > start_x+max_width:
                     x_tmp = start_x
                     y_tmp += canvas.widget.dimensions[1]
                 canvas.widget.position = glm.ivec2(x_tmp, y_tmp)
@@ -162,5 +168,3 @@ class VisualisationManager():
         if function_name not in dir(self.get_subnetwork(vis_type)):
             raise EnvisionError("Invalid function call")
         return getattr(self.get_subnetwork(vis_type), function_name)(*param_list)
-        
-            
