@@ -42,7 +42,8 @@ def force_parser(hdf_file_path, vasp_dir_path):
                 base_y_direct = [float(x) for x in base_y_direct]
                 base_z_direct = re.findall(r'-?[\d.]+', lines[i + 3])[:3]
                 base_z_direct = [float(x) for x in base_z_direct]
-                basis_direct = np.array([base_x_direct, base_y_direct, base_z_direct])
+                basis_direct = np.array([base_x_direct, base_y_direct,
+                                        base_z_direct])
             if 'POSITION' in line:
                 k = i + 1
                 while k < pos:
@@ -56,10 +57,11 @@ def force_parser(hdf_file_path, vasp_dir_path):
     amount = len(forces)
     try:
         hdf_file = h5py.File(hdf_file_path, 'a')
-        hdf_file.create_dataset('reciprocal_basis', data=basis)
-        hdf_file.create_dataset('direct_basis', data=basis_direct)
-        hdf_file.create_dataset('forces', data=forces)
-        hdf_file.create_dataset('force position', data=force_position)
+        hdf_group = hdf_file.create_group("Force")
+        hdf_group.create_dataset('reciprocal_basis', data=basis)
+        hdf_group.create_dataset('direct_basis', data=basis_direct)
+        hdf_group.create_dataset('forces', data=forces)
+        hdf_group.create_dataset('force position', data=force_position)
         hdf_file.close()
         print("Succesfully written data to HDF5-file")
     except:
