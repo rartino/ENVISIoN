@@ -1,26 +1,86 @@
-import h5py
-import numpy as np
+import os,sys
+import inspect
+path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0, os.path.expanduser(path_to_current_folder+'/..'))
 import re
-import sys
-import scipy
-import timeit
+import numpy as np
+import h5py
+from h5writer import _write_basis, _write_scaling_factor, _write_coordinates, _write_forces
 from pathlib import Path
-import sys, os, inspect
-import os, sys, inspect
+# Define coordinates regex.
+coordinates_re = re.compile(r' +'.join([r'([+-]?[0-9]+\.[0-9]+)'] * 3))
+
+def _find_line(rgx, f):
+    match = None
+    while not match:
+        match = rgx.search(next(f))
+    return match
+
+def _parse_potcar(potcar_file):
+    # Look for elements in POTCAR
+    elements = []
+    with open(potcar_file, "r") as f:
+        element_re = re.compile('TITEL.*')
+        match = None
+        for line in f:
+            match = element_re.search(line)
+            if match:
+                elements.append(match.group().split()[3].split('_')[0])
+    return elements
+
+def _parse_lattice(fileobj):
+    # Read header.
+    header = next(fileobj)
+
+    # Read scaling factor
+    scaling_factor = float(next(fileobj).split()[0])
+
+    # Read lattice vectors
+    basis = []
+    basis.append([float(n) for n in next(fileobj).split()[:3]])
+    basis.append([float(n) for n in next(fileobj).split()[:3]])
+    basis.append([float(n) for n in next(fileobj).split()[:3]])
+
+    return scaling_factor, np.array(basis)
+
+def _cartesian(fileobj):
+    # Cartesian or direct coordinates
+    coord_re = re.compile(r'^[cCkKdD]')
+    coord_type = _find_line(coord_re,fileobj)
+    if (coord_type.group() == 'd') or (coord_type.group() == 'D'):
+        return False
+    else:
+        return True
 
 
-def force_parser(hdf_file_path, vasp_dir_path):
-    """
-    Comments
-    """
+def _parse_coordinates(fileobj, count, transform=False, matrix=None):
+    match = False
+    try:
+        coords_list = []
+        match = _find_line(coordinates_re, fileobj)
+        while match:
+            coords = [float(coordinate) for coordinate in match.groups()]
+            if transform:
+                coords = np.dot(matrix, coords)
+            coords_list.append(coords)
+            match = coordinates_re.search(next(fileobj))
+    except StopIteration:
+        pass # if EOF is reached here
+
+    if len(coords_list) != count:
+        raise Exception('Incorrect number of coordinates.', len(coords_list))
+    print(coords_list)
+    return coords_list
+
+def _parse_forces(vasp_dir, get_vector_tips = False, coordinates = []):
     forces = []
-    force_position = []
+    force_tips = []
     pos = 0
     amount = 0
-    outcar_file_path = Path(vasp_dir_path).joinpath('OUTCAR')
+    outcar_file_path = Path(vasp_dir).joinpath('OUTCAR')
     if not outcar_file_path.exists():
         raise FileNotFoundError('Cannot find the vasp file in directory %s'
-                                % vasp_dir_path)
+                                % vasp_dir)
     with outcar_file_path.open('r') as f:
 
         lines = f.readlines()
@@ -28,41 +88,86 @@ def force_parser(hdf_file_path, vasp_dir_path):
             if 'total drift' in line:
                 pos = n - 2
         for i, line in enumerate(lines):
-            if 'reciprocal lattice vectors' in line:
-                base_x = re.findall(r'-?[\d.]+', lines[i + 1])[3:]
-                base_x = [float(x) for x in base_x]
-                base_y = re.findall(r'-?[\d.]+', lines[i + 2])[3:]
-                base_y = [float(x) for x in base_y]
-                base_z = re.findall(r'-?[\d.]+', lines[i + 3])[3:]
-                base_z = [float(x) for x in base_z]
-                basis = np.array([base_x, base_y, base_z])
-                base_x_direct = re.findall(r'-?[\d.]+', lines[i + 1])[:3]
-                base_x_direct = [float(x) for x in base_x_direct]
-                base_y_direct = re.findall(r'-?[\d.]+', lines[i + 2])[:3]
-                base_y_direct = [float(x) for x in base_y_direct]
-                base_z_direct = re.findall(r'-?[\d.]+', lines[i + 3])[:3]
-                base_z_direct = [float(x) for x in base_z_direct]
-                basis_direct = np.array([base_x_direct, base_y_direct,
-                                        base_z_direct])
             if 'POSITION' in line:
                 k = i + 1
                 while k < pos:
                     force = (re.findall(r'-?[\d.]+', lines[k + 1])[3:])
                     force = [float(x) for x in force]
                     forces.append(force)
-                    position = (re.findall(r'-?[\d.]+', lines[k + 1])[:3])
-                    position = [float(x) for x in position]
-                    force_position.append(position)
                     k += 1
-    amount = len(forces)
+    if get_vector_tips:
+        for i in range(len(forces)):
+            list = [x + y for x, y in zip(coordinates[i], forces[i])]
+            force_tips.append(list)
+        return force_tips
+    return forces
+
+def _find_elements(fileobj, elements, vasp_dir):
+    atomcount_re=re.compile('^ *(([0-9]+) *)+$')
+    last_comment = None
+    poscar_elements = []
+    while True:
+        atoms_per_species = next(fileobj)
+        match = atomcount_re.match(atoms_per_species)
+        if match:
+            break
+        last_comment = atoms_per_species
+    if last_comment:
+        poscar_elements = last_comment.split()
+    # Number of atoms
+    atoms = [int(n) for n in atoms_per_species.split()]
+
+    # Parses number of atoms per species from POTCAR
+    if not elements:
+        try:
+            elements = _parse_potcar(os.path.join(vasp_dir, 'POTCAR'))
+        except FileNotFoundError:
+            elements = poscar_elements
+
+    if not elements:
+        raise Exception('Element symbols not found.')
+
+    if len(elements) != len(atoms):
+        raise Exception('Incorrect number of elements.')
+
+    return elements, atoms
+
+
+def force_parser(h5file, vasp_dir, elements=None, poscar_equiv='POSCAR'):
+    if os.path.isfile(h5file):
+        with h5py.File(h5file, 'r') as h5:
+            if "/UnitCell" in h5:
+                print("Already parsed. Skipping.")
+                return True
+
     try:
-        hdf_file = h5py.File(hdf_file_path, 'a')
-        hdf_group = hdf_file.create_group("Force")
-        hdf_group.create_dataset('reciprocal_basis', data=basis)
-        hdf_group.create_dataset('direct_basis', data=basis_direct)
-        hdf_group.create_dataset('forces', data=forces)
-        hdf_group.create_dataset('force position', data=force_position)
-        hdf_file.close()
-        print("Succesfully written data to HDF5-file")
-    except:
-        print("Failed to write to HDF5-file")
+        # Parses lattice vectors and atom positions from POSCAR
+        with open(os.path.join(vasp_dir,poscar_equiv), "r") as f:
+            scaling_factor, basis = _parse_lattice(f)
+            elements, atoms = _find_elements(f, elements, vasp_dir)
+            coords_list = _parse_coordinates(
+                f,
+                sum(atoms),
+                _cartesian(f),
+                np.linalg.inv(basis)
+            )
+            force_list = _parse_forces(vasp_dir, True, coords_list)
+            _write_basis(h5file, basis)
+            _write_scaling_factor(h5file, scaling_factor)
+            _write_coordinates(
+                h5file,
+                atoms,
+                coords_list,
+                elements,
+                '/UnitCell'
+            )
+            _write_forces(h5file,
+            atoms,
+            force_list,
+            elements,
+            '/UnitCell')
+
+            return True
+    except FileNotFoundError:
+        print("POSCAR file not found.")
+        return False

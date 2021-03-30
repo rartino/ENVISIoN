@@ -6,8 +6,8 @@ import envisionpy
 import envisionpy.hdf5parser
 from envisionpy.network import VisualisationManager
 
-VASP_DIR = path_to_current_folder + "/../unit_testing/resources/CuFeS2_band_CBT2"
-HDF5_FILE = path_to_current_folder + "/../demo_force.hdf5"
+VASP_DIR = path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstructure"
+HDF5_FILE = path_to_current_folder + "/../demo_force2.hdf5"
 
 try:
     os.remove(HDF5_FILE)
@@ -20,5 +20,4 @@ inviwopy.app.network.clear()
 
 # Initialize inviwo network
 visManager = VisualisationManager(HDF5_FILE, inviwopy.app)
-#subnet = Subnetwork(inviwopy.app)
 visManager.start("force")
