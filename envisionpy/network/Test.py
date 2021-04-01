@@ -5,7 +5,7 @@ from envisionpy.utils.exceptions import *
 from envisionpy.utils.atomData import atomic_radii, element_names, element_colors
 from .baseNetworks.Decoration import Decoration
 
-class ForceVectors(Decoration):
+class Test(Decoration):
     '''
     Manages a subnetwork for atom position rendering.
     '''
@@ -16,8 +16,7 @@ class ForceVectors(Decoration):
         self.nAtomTypes = 0
         self.setup_network(hdf5_path, hdf5_output, xpos, ypos)
 
-        #self.set_atom_radius(0.5)
-        self.toggle_full_mesh(True)
+
         self.hide()
 
     @staticmethod
@@ -48,11 +47,7 @@ class ForceVectors(Decoration):
             self.network.removeLink(self.camera_prop, other.camera_prop)
         other.disconnect_decorations_port(self.decoration_outport)
 
-    def show(self):
-        self.get_processor('UnitcellCanvas').widget.show()
 
-    def hide(self):
-        self.get_processor('UnitcellCanvas').widget.hide()
 
     def get_ui_data(self):
         return [
@@ -62,49 +57,22 @@ class ForceVectors(Decoration):
 # ------------------------------------------
 # ------- Property control functions -------
 
-    def set_atom_radius(self, radius, index=None):
-        structureMesh = self.get_processor('UnitcellMesh')
-        if structureMesh.fullMesh.value:
-            if index != None:
-                self.atom_radii[index] = radius
-                structureMesh.getPropertyByIdentifier("radius" + str(index)).value = radius
-            else:
-                for i in range(self.nAtomTypes):
-                    self.atom_radii[i] = radius
-                    self.set_atom_radius(radius, i)
-        else:
-            sphereRenderer = self.get_processor('UnitcellRenderer')
-            sphereRenderer.sphereProperties.defaultRadius.value = radius
-            for i in range(self.nAtomTypes):
-                self.atom_radii[i] = radius
+
 
     def hide_atoms(self):
         return self.set_atom_radius(0)
 
-    def toggle_full_mesh(self, enable):
-        structMesh = self.get_processor('UnitcellMesh')
-        structMesh.fullMesh.value = enable
-
-    def set_canvas_position(self, x, y):
-    # Updates the position of the canvas
-    # Upper left corner will be at coordinate (x, y)
-        unitcellCanvas = self.get_processor('UnitcellCanvas')
-        unitcellCanvas.position.value = inviwopy.glm.ivec2(x, y)
+    def hide(self):
+        return 0
 
 # ------------------------------------------
 # ------- Network building functions -------
 
     def setup_network(self, hdf5_path, hdf5_output, xpos, ypos):
         strucMesh = self.add_processor('envision.StructureMesh', 'UnitcellMesh', xpos, ypos+3)
-        meshRenderer = self.add_processor('org.inviwo.SphereRenderer', 'UnitcellRenderer', xpos, ypos+6)
-        background = self.add_processor('org.inviwo.Background', 'AtomBackground', xpos, ypos+9)
-        canvas = self.add_processor('org.inviwo.CanvasGL', 'UnitcellCanvas', xpos, ypos+12)
 
-        canvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)
 
-        self.network.addConnection(strucMesh.getOutport('mesh'), meshRenderer.getInport('geometry'))
-        self.network.addConnection(meshRenderer.getOutport('image'), background.getInport('inport'))
-        self.network.addConnection(background.getOutport('outport'), canvas.getInport('inport'))
+
 
         with h5py.File(hdf5_path, "r") as h5:
             # Set basis matrix and scaling
@@ -162,9 +130,3 @@ class ForceVectors(Decoration):
                 strucMesh_atom_property.maxValue = 0
 
                 self.nAtomTypes += 1
-
-
-        self.decoration_outport = meshRenderer.getOutport('image')
-        # self.decoration_inport =
-        self.decoration_inport = meshRenderer.getInport('imageInport')
-        self.camera_prop = meshRenderer.camera
