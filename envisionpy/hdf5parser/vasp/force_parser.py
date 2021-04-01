@@ -164,7 +164,7 @@ def force_parser(h5file, vasp_dir, elements=None, poscar_equiv='POSCAR'):
             _write_forces(h5file,
             atoms,
             force_list,
-            elements,
+            "Fo",
             '/UnitCell')
 
             return True
