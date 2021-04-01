@@ -12,6 +12,7 @@ from .DensityOfStates import DensityOfStates
 from .MultiVolume import MultiVolume
 from .baseNetworks.Decoration import Decoration
 from .ForceVectors import ForceVectors
+from .Test import Test
 
 class VisualisationManager():
     '''
@@ -52,6 +53,8 @@ class VisualisationManager():
             if DensityOfStates.valid_hdf5(file):
                 self.available_visualisations.append("dos")
             if ForceVectors.valid_hdf5(file):
+                self.available_visualisations.append("test")
+            if Test.valid_hdf5(file):
                 self.available_visualisations.append("force")
             if len(set(['charge', 'elf', 'fermi', 'parchg']) & set(self.available_visualisations)) > 0:
                 self.available_visualisations.append('multi')
@@ -125,7 +128,8 @@ class VisualisationManager():
 
         elif vis_type == "dos":
             subnetwork = DensityOfStates(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
-
+        elif vis_type == "test":
+            subnetwork = Test(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
         elif vis_type == "multi":
             subnetwork = MultiVolume(self.app, self.hdf5_path, self.hdf5Output, 30, 3)
             for t in ['charge', 'elf']:
