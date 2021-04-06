@@ -116,8 +116,7 @@ def mol_dynamic_parser(hdf5_file_path, vasp_dir_path, elements=None):
             coordinates_list = []
             for i, line in enumerate(lines):
                 if 'Direct configuration' in line:
-                    coordinates_list += get_coordinates_for_time_step(lines[i+1:i+sum(atoms)+1])
-            while time_steps > time_step:
-                _write_md(hdf5_file_path, atoms, coordinates_list, elements, time_step)
-                time_step += 1
+                    coordinates_list = get_coordinates_for_time_step(lines[i+1:i+sum(atoms)+1])
+                    _write_md(hdf5_file_path, atoms, coordinates_list, elements, time_step)
+                    time_step += 1
         f.close()
