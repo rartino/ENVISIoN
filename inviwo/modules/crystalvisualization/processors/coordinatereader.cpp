@@ -28,7 +28,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *********************************************************************************/
-
+ #include <iostream>       // std::cout
+ #include <string>         // std::string
+ #include <cstddef>         // std::size_t
 #include <modules/crystalvisualization/processors/coordinatereader.h>
 #include <modules/hdf5/datastructures/hdf5handle.h>
 #include <modules/hdf5/datastructures/hdf5path.h>
@@ -65,16 +67,51 @@ CoordinateReader::CoordinateReader()
 }
 
 void CoordinateReader::process() {
-    const auto h5path = hdf5::Path(path_.get());
-    const auto data = inport_.getData();
-    
-/*
-if ibrion = 0
-  timeh5 = h5path.split('/')
-else
 
 
-*/
+//Replacement string for path
+auto path = path_.get();
+
+//Find last '/' of path_ to be able to insert numbers
+  int posStart = path.find_last_of('/') - 4;
+
+//Function for counting how many digits
+  int timestepINT = timestep_.get();
+  int temp = timestep_.get();
+  int count = 0;
+    while (temp >= 1)
+    {
+        temp = temp / 10;
+        ++count;
+    }
+
+ //If only one digit
+  if (count == 1)
+  {
+    path.replace(posStart, 4, ("000" +  std::to_string(timestepINT)));
+  }
+  //If two digits
+  if (count == 2)
+  {
+   path.replace(posStart, 4, ("00" +  std::to_string(timestepINT)));
+  }
+  //If three digits
+  if (count == 3)
+  {
+   path.replace(posStart, 4, ("0" +  std::to_string(timestepINT)));
+  }
+  //If four digits
+  if (count == 4)
+  {
+   path.replace(posStart, 4,  std::to_string(timestepINT));
+  }
+
+  path_.set(path);
+
+  const auto h5path = hdf5::Path(path_.get());
+  const auto data = inport_.getData();
+
+
 
     auto vecptr = std::make_shared<std::vector<vec3>>(data->getVectorOfVec3AtPath<float>(h5path));
     outport_.setData(vecptr);
