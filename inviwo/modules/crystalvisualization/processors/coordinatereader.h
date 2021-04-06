@@ -76,9 +76,12 @@ private:
     DataOutport<std::vector<vec3>> outport_;
     hdf5::Inport inport_;
     StringProperty path_;
+
+    // New property for animations
+    IntProperty timestep_;
+
 };
 
 } // namespace
 
 #endif // IVW_COORDINATEREADER_H
-

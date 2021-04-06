@@ -82,6 +82,28 @@
 <div id="dosSettings" class="visualisationPanel" data-type="dos">
 </div> -->
 
+<!-- force-->
+
+<!-- forces -->
+<div class="form-check visStart" data-type="force">
+    <input class="form-check-input visCheck" type="checkbox" value="" id="forceCheck">
+    <label class="form-check-label" for="forceCheck">
+      Force
+    </label>
+</div>
+<div id="forceSettings" class="visualisationPanel" data-type="force">
+</div>
+
+<!-- animation -->
+<div class="form-check visStart" data-type="animation">
+    <input class="form-check-input visCheck" type="checkbox" value="" id="animationCheck">
+    <label class="form-check-label" for="animationCheck">
+      Animation
+    </label>
+</div>
+<div id="animationSettings" class="visualisationPanel" data-type="animation">
+</div>
+
 
 
 <script>
@@ -89,16 +111,16 @@
 
   function disableVisControls(){
     $(".visualisationPanel").hide();
-    $(".visCheck").prop("disabled", true); 
+    $(".visCheck").prop("disabled", true);
   }
-    
+
     $(document).ready(function () {
       $(".visStart").on("change", function(){
         let started = $(this).find(".form-check-input").is(":checked");
         let type = $(this).data("type");
         let panelDiv = $(this).next(".visualisationPanel");
         $(this).find(".form-check-input").prop("disabled", true);
-        
+
         if (started) {
           send_request('start_visualisation', [activeDatasetID, type]);
         }
@@ -114,13 +136,13 @@
         div.find(".form-check-input").prop("disabled", false);
         div.next(".visualisationPanel").show();
       });
-      
+
       set_response_callback('stop_visualisation', function(identifier, type){
         let div = $(".visStart").filter("[data-type="+type+"]");
         div.find(".form-check-input").prop("disabled", false);
         div.next(".visualisationPanel").hide();
       });
-      
+
       set_response_callback('get_ui_data', function(available_vis_types, active_vis_types, ui_data) {
         // Response to requested ui data. Reload all the UI elements with data from active visualisation.
         let divs = $(".visStart");
@@ -164,6 +186,16 @@
         let html = $(this).html();
         html = html.replace(/VISTYPE/g, 'band') // Replace VISTYPE to avoid duplicate ids.
         $("#bandSettings").append(html);
+      });
+      $('<div id="loaded-content" />').load("contentPanels/forceControls.html", function () {
+        let html = $(this).html();
+        html = html.replace(/VISTYPE/g, 'force') // Replace VISTYPE to avoid duplicate ids.
+        $("#forceSettings").append(html);
+      });
+      $('<div id="loaded-content" />').load("contentPanels/animationControls.html", function () {
+        let html = $(this).html();
+        html = html.replace(/VISTYPE/g, 'force') // Replace VISTYPE to avoid duplicate ids.
+        $("#animationSettings").append(html);
       });
 
       $("#multiSettings").load("contentPanels/multiVolumeControls.html");
