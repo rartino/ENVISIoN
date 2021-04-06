@@ -75,13 +75,13 @@ def _write_forces(h5file, atom_count, coordinates_list, elements, path):
     with h5py.File(h5file, "a") as h5:
         p=0
         for n in range(0,len(atom_count)):
-            dataset_name = path+'/Forces/'+format(n,'04d')
+            dataset_name = path+'/Atoms/'+format(n,'04d')+"F"
             h5.create_dataset(
                 dataset_name,
                 data=np.asarray(coordinates_list[p:atom_count[n]+p]),
                 dtype=np.float32
             )
-            h5[dataset_name].attrs["element"] = elements[n]
+            h5[dataset_name].attrs["element"] = elements
             p=p+atom_count[n]
     return
 
