@@ -51,10 +51,16 @@ CoordinateReader::CoordinateReader()
     : Processor()
     , outport_("outport")
     , inport_("inport")
+
+    // New property for animations
+    , timestep_("timestep", "Time step", false)
     , path_("path", "Path", "", InvalidationLevel::InvalidOutput, PropertySemantics::Default) {
 
     addPort(outport_);
     addPort(inport_);
+
+    // New property for animations
+    addProperty(timestep_);
     addProperty(path_);
 }
 
@@ -66,4 +72,3 @@ void CoordinateReader::process() {
 }
 
 } // namespace
-
