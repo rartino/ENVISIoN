@@ -35,26 +35,28 @@
 #include <modules/crystalvisualization/properties/intvectorproperty.h>
 #include <modules/crystalvisualization/intvectorpropertywidgetqt.h>
 
+
 namespace inviwo {
 
-crystalvisualizationModule::crystalvisualizationModule(InviwoApplication* app) : InviwoModule(app, "crystalvisualization") {   
+crystalvisualizationModule::crystalvisualizationModule(InviwoApplication* app) : InviwoModule(app, "crystalvisualization") {
     registerProcessor<StructureMesh>();
     registerProcessor<CoordinateReader>();
+
     // Add a directory to the search path of the Shadermanager
     // ShaderManager::getPtr()->addShaderSearchPath(getPath(ModulePath::GLSL));
 
     // Register objects that can be shared with the rest of inviwo here:
-    
+
     // Processors
     // registerProcessor<crystalvisualizationProcessor>();
-    
+
     // Properties
     registerProperty<IntVectorProperty>();
-    
+
     // Readers and writes
     // registerDataReader(util::make_unique<crystalvisualizationReader>());
     // registerDataWriter(util::make_unique<crystalvisualizationWriter>());
-    
+
     // Data converters
     // registerRepresentationConverter(util::make_unique<crystalvisualizationDisk2RAMConverter>());
 
@@ -66,18 +68,18 @@ crystalvisualizationModule::crystalvisualizationModule(InviwoApplication* app) :
     // registerPropertyWidget<crystalvisualizationPropertyWidget, crystalvisualizationProperty>("Default");
 
     registerPropertyWidget<IntVectorPropertyWidgetQt, IntVectorProperty>("Default");
-    
-    
+
+
     // Dialogs
     // registerDialog<crystalvisualizationDialog>(crystalvisualizationOutport);
-    
+
     // Other varius things
     // registerCapabilities(util::make_unique<crystalvisualizationCapabilities>());
     // registerSettings(util::make_unique<crystalvisualizationSettings>());
-    // registerMetaData(util::make_unique<crystalvisualizationMetaData>());   
+    // registerMetaData(util::make_unique<crystalvisualizationMetaData>());
     // registerPortInspector("crystalvisualizationOutport", "path/workspace.inv");
     // registerProcessorWidget(std::string processorClassName, std::unique_ptr<ProcessorWidget> processorWidget);
-    // registerDrawer(util::make_unique_ptr<crystalvisualizationDrawer>());  
+    // registerDrawer(util::make_unique_ptr<crystalvisualizationDrawer>());
 }
 
 } // namespace
