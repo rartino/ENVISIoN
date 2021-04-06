@@ -13,7 +13,7 @@ VASP_DIR = path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstruct
 HDF5_FILE = path_to_current_folder + "/../demo_molecular_dynamicts.hdf5"
 
 #parse for molecular dynamics
-envisionpy.hdf5parser.molecular_dynamics_parser(HDF5_FILE, VASP_DIR)
+envisionpy.hdf5parser.mol_dynamic_parser(HDF5_FILE, VASP_DIR)
 
 #clear any old network
 inviwo.app.network.clear()
