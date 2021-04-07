@@ -110,6 +110,7 @@ class VisualisationManager():
 
         # Initialize a new subnetwork
         #Här behöver vi ändra subnetwork = ForceVectors(...) till subnetwork = Animation(...)
+        #Ändra animation till molecular_dynamics
         if vis_type == "animation":
             subnetwork = ForceVectors(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
 
