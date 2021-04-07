@@ -1,3 +1,6 @@
+
+<!-- Form-check that the user can fill in if he/she wants to see
+    the canvas-->
 <div class="form-check">
   <input type="checkbox" class="form-check-input" id="force_showCheck">
   <label class="form-check-label" for="force_showCheck">Show separate canvas</label>
@@ -5,6 +8,9 @@
 
 <br>
 <h5> Force Vectors </h5>
+
+<!-- Form control range that the user can drag to adjust the size of
+    the force-vectors-->
 
 <table>
   <td><label for="VISTYPE_isoRange">Vector sizes </label></td>
@@ -14,6 +20,7 @@
 
 <script>
 
+    //Script that handles the opening and closing of the canvas
     $(document).ready(function () {
       $("#force_showCheck").on('change', function() {
         if ($(this).is(':checked'))
