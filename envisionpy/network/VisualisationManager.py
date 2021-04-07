@@ -56,6 +56,7 @@ class VisualisationManager():
                 self.available_visualisations.append("test")
             if Test.valid_hdf5(file):
                 self.available_visualisations.append("force")
+                self.available_visualisations.append("animation")
             if len(set(['charge', 'elf', 'fermi', 'parchg']) & set(self.available_visualisations)) > 0:
                 self.available_visualisations.append('multi')
 
