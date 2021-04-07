@@ -1,16 +1,19 @@
 <h5>Force</h5>
 
 <div class="form-check">
-  <input type="checkbox" class="form-check-input" id="VISTYPE_hideCheck">
-  <label class="form-check-label" for="VISTYPE_hideCheck">Hide Canvas</label>
+  <input type="checkbox" class="form-check-input" id="force_showCheck">
+  <label class="form-check-label" for="force_showCheck">Show separate canvas</label>
 </div>
 
-<div id="VISTYPE_volumeSelectionGroup" class="input-group">
-  <div class="input-group-prepend medium">
-    <label class="input-group-text" for="VISTYPE_volumeSelection">Select volume</label>
-  </div>
-  <select class="custom-select" id="VISTYPE_volumeSelection">
-    <option selected>/DEFAULT</option>
-  </select>
-  <br>
-</div>
+<script>
+
+    $(document).ready(function () {
+      $("#force_showCheck").on('change', function() {
+        if ($(this).is(':checked'))
+          send_request('visualisation_request', [activeDatasetID, "force", "show", []]);
+        else
+          send_request('visualisation_request', [activeDatasetID, "force", "hide", []]);
+      });
+    });
+
+</script>
