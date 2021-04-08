@@ -1,0 +1,19 @@
+<h5>Molecular Dynamics</h5>
+
+<div class="form-check">
+  <input type="checkbox" class="form-check-input" id="moldyn_showCheck">
+  <label class="form-check-label" for="moldyn_showCheck">Show separate canvas</label>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+      $("#moldyn_showCheck").on('change', function() {
+        if ($(this).is(':checked'))
+          send_request('visualisation_request', [activeDatasetID, "moldyn", "show", []]);
+        else
+          send_request('visualisation_request', [activeDatasetID, "moldyn", "hide", []]);
+      });
+    });
+
+</script>
