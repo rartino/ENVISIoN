@@ -194,7 +194,7 @@
       });
       $('<div id="loaded-content" />').load("contentPanels/moldynControls.html", function () {
         let html = $(this).html();
-        html = html.replace(/VISTYPE/g, 'force') // Replace VISTYPE to avoid duplicate ids.
+        html = html.replace(/VISTYPE/g, 'moldyn') // Replace VISTYPE to avoid duplicate ids.
         $("#moldynSettings").append(html);
       });
 
