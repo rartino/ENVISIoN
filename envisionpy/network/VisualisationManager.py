@@ -59,7 +59,7 @@ class VisualisationManager():
             #och animation.valid_hdf5
             if Test.valid_hdf5(file):
                 self.available_visualisations.append("force")
-                self.available_visualisations.append("animation")
+                self.available_visualisations.append("moldyn")
             if len(set(['charge', 'elf', 'fermi', 'parchg']) & set(self.available_visualisations)) > 0:
                 self.available_visualisations.append('multi')
 
@@ -111,7 +111,7 @@ class VisualisationManager():
         # Initialize a new subnetwork
         #Här behöver vi ändra subnetwork = ForceVectors(...) till subnetwork = Animation(...)
         #Ändra animation till molecular_dynamics
-        if vis_type == "animation":
+        if vis_type == "moldyn":
             subnetwork = ForceVectors(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
 
         elif vis_type == "charge":
