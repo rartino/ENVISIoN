@@ -5,8 +5,29 @@
   <label class="form-check-label" for="moldyn_showCheck">Show separate canvas</label>
 </div>
 
+<!-- Form-check that the user can check if they want to visualise Molecular
+    Dynamics or not-->
+<div class="form-check">
+  <input type="checkbox" class="form-check-input" id="VISTYPE_moldynCheck">
+  <label class="form-check-label" for="VISTYPE_moldynCheck">Toggle molecular dynamics</label>
+</div>
+
+<!-- Form control range that the user can drag to adjust the speed of
+    the animation of the molecular dynamics-->
+<table>
+  <td><label for="VISTYPE_moldynSpeed">Animation speed </label></td>
+  <td><input class="form-control-range" type="range" min="0" max="1" step="0.05" value="0.5" id="VISTYPE_moldynSpeed" onchange="updateTextInput(this.value);"></td>
+  <td><input class="form-control" type="text" placeholder="0.5" id="VISTYPE_moldynText" style="max-width:60px;"></td>
+</table>
+
 <script>
 
+    //Script that updates the value on the grid. Might not be necessary
+    function updateTextInput(val) {
+          document.getElementById('VISTYPE_vectorText').value=val;
+        }
+
+    //Script that handles the opening and closing of the canvas
     $(document).ready(function () {
       $("#moldyn_showCheck").on('change', function() {
         if ($(this).is(':checked'))
@@ -14,6 +35,11 @@
         else
           send_request('visualisation_request', [activeDatasetID, "moldyn", "hide", []]);
       });
+    });
+
+    //Script that handles turning the molecular dynamics visualisation on or off
+    $("#VISTYPE_moldynCheck").on('change', function() {
+     send_request("visualisation_request", [activeDatasetID, "VISTYPE", "toggle_moldyn", [$(this).is(':checked')]]);
     });
 
 </script>
