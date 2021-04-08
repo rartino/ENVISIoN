@@ -1,0 +1,47 @@
+System = bcc_Fe
+PREC = Accurate
+ISTART    = 0 
+ICHARG    = 2 
+ENCUT  = 500
+LREAL = .FALSE.
+LWAVE =  .FALSE.
+LCHARG = .FALSE.
+ISMEAR = -1;          ! MP-smearing (metal) 0: Gaussian smearing
+SIGMA = 0.089875
+EDIFF = 1.E-5
+TEBEG = 1043
+TEEND = 1043
+
+NPAR=10
+KPAR=2
+
+#LSF
+#SF_TEMP = 1175
+#SF_TYPE = 1
+
+MDALGO = 3                     
+LANGEVIN_GAMMA = 10.0  
+         
+ISPIN=2
+
+! dynamic
+IBRION = 0           ! -1 Fix atoms, 1 quasi-Newton algorithm, 2 ConjGrad for relax
+POTIM = 1         ! Scaling factor for forces if ibrion = 1, 2 or 3
+NSW    = 8000
+ISIF   = 2           ! 2:relax ions, 3:relax volume & shape also, 4: relax ions & shape, volume constant
+NELM = 100
+
+LORBIT = 10
+RWIGS =  1.058
+
+NBANDS = 1280
+AMIX = 0.04
+AMIX_MAG = 0.16
+BMIX = 0.1
+BMIX_MAG = 0.1
+
+MAGMOM = 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0 3 0 0
+
+
+
+
