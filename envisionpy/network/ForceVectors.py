@@ -98,49 +98,60 @@ class ForceVectors(Decoration):
         strucMesh = self.add_processor('envision.StructureMesh', 'UnitcellMesh', xpos, ypos+3)
         meshRenderer = self.add_processor('org.inviwo.SphereRenderer', 'UnitcellRenderer', xpos, ypos+6)
         background = self.add_processor('org.inviwo.Background', 'AtomBackground', xpos, ypos+9)
+        vectorRenderer = self.add_processor('org.inviwo.GeometryRenderGL', 'VectorRenderer', xpos+7, ypos+6)
         canvas = self.add_processor('org.inviwo.CanvasGL', 'UnitcellCanvas', xpos, ypos+12)
-
+        #composite = self.add_processor('org.inviwo.CompositeProcessor', 'Vector Generation', xpos+7, ypos+2)
         canvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)
 
         self.network.addConnection(strucMesh.getOutport('mesh'), meshRenderer.getInport('geometry'))
         self.network.addConnection(meshRenderer.getOutport('image'), background.getInport('inport'))
         self.network.addConnection(background.getOutport('outport'), canvas.getInport('inport'))
-
+        self.network.addConnection(vectorRenderer.getOutport('image'),meshRenderer.getInport('imageInport'))
+        self.network.addLink(vectorRenderer.camera, meshRenderer.camera)
+        self.network.addLink(meshRenderer.camera, vectorRenderer.camera)
         with h5py.File(hdf5_path, "r") as h5:
             # Set basis matrix and scaling
-            basis_matrix = np.array(h5["/basis"], dtype='d')
-            strucMesh.basis.minValue = inviwopy.glm.mat3(
-                -1000, -1000, -1000,
-                -1000, -1000, -1000,
-                -1000, -1000, -1000)
-            strucMesh.basis.maxValue = inviwopy.glm.mat3(
-                1000,1000,1000,
-                1000,1000,1000,
-                1000,1000,1000)
+
             strucMesh.basis.value = inviwopy.glm.mat3(
-                basis_matrix[0,0], basis_matrix[0,1], basis_matrix[0,2],
-                basis_matrix[1,0], basis_matrix[1,1], basis_matrix[1,2],
-                basis_matrix[2,0], basis_matrix[2,1], basis_matrix[2,2])
-            strucMesh.scalingFactor.maxValue = h5['/scaling_factor'][()]
-            strucMesh.scalingFactor.value = h5['/scaling_factor'][()]
-
-
+                1, 0, 0,
+                0, 1, 0,
+                0, 0, 1)
             base_group = "/UnitCell"
+            force_group = "/Forces"
+            for i,key in enumerate(list(h5[force_group + "/Atoms"].keys())):
 
+                vectorelement = h5[force_group + "/Atoms/"+key].attrs['element']
+                vectorname = element_names.get(vectorelement, 'Unknown')
+                vectorcolor = element_colors.get(vectorelement, (0.5, 0.5, 0.5, 1.0))
+                vectorlength = atomic_radii.get(vectorelement, 0.5)
+                print(key)
+                for p,n in enumerate(h5[force_group + "/Atoms/"+key]):
+                    meshCreate = self.add_processor('org.inviwo.MeshCreator', '{0} {1} {2}'.format(i, p ,vectorname), xpos+7+7*i, ypos+2-2*p)
+                    self.network.addConnection(meshCreate.getOutport('outport'), vectorRenderer.getInport('geometry'))
+                    self.network.addLink(meshCreate.camera, meshRenderer.camera)
+                    self.network.addLink(meshRenderer.camera, meshCreate.camera)
+                    meshCreate.meshType.selectedIndex = 10
+                    meshCreate.scale.value = 0.01
+                    meshCreate.color.value = inviwopy.glm.vec4(0.643, 0, 0, 1)
+                    meshCreate.position1.value = inviwopy.glm.vec3(n[3]-0.5, n[4]-0.5, n[5]-0.5)
+                    meshCreate.position2.value = inviwopy.glm.vec3(n[0]-0.5, n[1]-0.5, n[2]-0.5)
+                    #self.network.addConnection(composite, meshCreate)
+                    print(n)
             for i,key in enumerate(list(h5[base_group + "/Atoms"].keys())):
+
                 element = h5[base_group + "/Atoms/"+key].attrs['element']
-                print(element)
                 name = element_names.get(element, 'Unknown')
-                print(name)
-                color = element_colors.get(element, (0.5, 0.5, 0.5, 1.0))
+                color = element_colors.get(element, (0.5, 0.5, 0.5, 0.5))
+                print(color)
+                y = list(color)
+                y[3] = 0.7
+                color = tuple(y)
+                radius = 0.03
 
-
-                radius = atomic_radii.get(element, 0.5)
-                print(radius)
                 self.atom_names.append(name)
                 self.atom_radii.append(radius)
 
-                coordReader = self.add_processor('envision.CoordinateReader', '{0} {1}'.format(i,name), xpos-i*7, ypos)
+                coordReader = self.add_processor('envision.CoordinateReader', '{0} {1}'.format(i ,name), xpos-i*7, ypos)
                 self.network.addConnection(hdf5_output, coordReader.getInport('inport'))
                 self.network.addConnection(coordReader.getOutport('outport'), strucMesh.getInport('coordinates'))
                 coordReader.path.value = base_group + '/Atoms/' + key

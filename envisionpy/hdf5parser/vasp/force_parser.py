@@ -69,7 +69,7 @@ def _parse_coordinates(fileobj, count, transform=False, matrix=None):
 
     if len(coords_list) != count:
         raise Exception('Incorrect number of coordinates.', len(coords_list))
-    print(coords_list)
+
     return coords_list
 
 def _parse_forces(vasp_dir, get_vector_tips = False, coordinates = []):
@@ -98,6 +98,8 @@ def _parse_forces(vasp_dir, get_vector_tips = False, coordinates = []):
     if get_vector_tips:
         for i in range(len(forces)):
             list = [x + y for x, y in zip(coordinates[i], forces[i])]
+            for p in coordinates[i]:
+                list.append(p)
             force_tips.append(list)
         return force_tips
     return forces
@@ -165,7 +167,7 @@ def force_parser(h5file, vasp_dir, elements=None, poscar_equiv='POSCAR'):
             atoms,
             force_list,
             "Fo",
-            '/UnitCell')
+            '/Forces')
 
             return True
     except FileNotFoundError:
