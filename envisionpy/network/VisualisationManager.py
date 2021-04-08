@@ -12,6 +12,7 @@ from .DensityOfStates import DensityOfStates
 from .MultiVolume import MultiVolume
 from .baseNetworks.Decoration import Decoration
 from .ForceVectors import ForceVectors
+#from .MolecularDynamics import MolecularDynamics
 from .Test import Test
 
 class VisualisationManager():
@@ -113,6 +114,7 @@ class VisualisationManager():
         #Ändra animation till molecular_dynamics
         if vis_type == "moldyn":
             subnetwork = ForceVectors(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
+            #subnetwork = MolecularDynamics(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
 
         elif vis_type == "charge":
             subnetwork = ChargeDensity(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
