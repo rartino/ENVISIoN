@@ -12,6 +12,7 @@ from .DensityOfStates import DensityOfStates
 from .MultiVolume import MultiVolume
 from .baseNetworks.Decoration import Decoration
 from .ForceVectors import ForceVectors
+#from .MolecularDynamics import MolecularDynamics
 from .Test import Test
 
 class VisualisationManager():
@@ -52,11 +53,14 @@ class VisualisationManager():
                 self.available_visualisations.append("band")
             if DensityOfStates.valid_hdf5(file):
                 self.available_visualisations.append("dos")
+            #Varför appenda "test"?
             if ForceVectors.valid_hdf5(file):
                 self.available_visualisations.append("test")
+            #Det här behöver ändras från Test.valid_hdf5 till force.valid_hdf5
+            #och animation.valid_hdf5
             if Test.valid_hdf5(file):
                 self.available_visualisations.append("force")
-                self.available_visualisations.append("animation")
+                self.available_visualisations.append("moldyn")
             if len(set(['charge', 'elf', 'fermi', 'parchg']) & set(self.available_visualisations)) > 0:
                 self.available_visualisations.append('multi')
 
@@ -106,7 +110,13 @@ class VisualisationManager():
             return self.subnetworks[vis_type]
 
         # Initialize a new subnetwork
-        if vis_type == "charge":
+        #Här behöver vi ändra subnetwork = ForceVectors(...) till subnetwork = Animation(...)
+        #Ändra animation till molecular_dynamics
+        if vis_type == "moldyn":
+            subnetwork = ForceVectors(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
+            #subnetwork = MolecularDynamics(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
+
+        elif vis_type == "charge":
             subnetwork = ChargeDensity(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
 
         elif vis_type == "elf":

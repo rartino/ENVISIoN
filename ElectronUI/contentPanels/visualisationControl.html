@@ -94,14 +94,14 @@
 <div id="forceSettings" class="visualisationPanel" data-type="force">
 </div>
 
-<!-- animation -->
-<div class="form-check visStart" data-type="animation">
-    <input class="form-check-input visCheck" type="checkbox" value="" id="animationCheck">
-    <label class="form-check-label" for="animationCheck">
-      Animation
+<!-- molecular dynamics -->
+<div class="form-check visStart" data-type="moldyn">
+    <input class="form-check-input visCheck" type="checkbox" value="" id="moldynCheck">
+    <label class="form-check-label" for="moldynCheck">
+      Molecular Dynamics
     </label>
 </div>
-<div id="animationSettings" class="visualisationPanel" data-type="animation">
+<div id="moldynSettings" class="visualisationPanel" data-type="moldyn">
 </div>
 
 
@@ -192,10 +192,10 @@
         html = html.replace(/VISTYPE/g, 'force') // Replace VISTYPE to avoid duplicate ids.
         $("#forceSettings").append(html);
       });
-      $('<div id="loaded-content" />').load("contentPanels/animationControls.html", function () {
+      $('<div id="loaded-content" />').load("contentPanels/moldynControls.html", function () {
         let html = $(this).html();
-        html = html.replace(/VISTYPE/g, 'force') // Replace VISTYPE to avoid duplicate ids.
-        $("#animationSettings").append(html);
+        html = html.replace(/VISTYPE/g, 'moldyn') // Replace VISTYPE to avoid duplicate ids.
+        $("#moldynSettings").append(html);
       });
 
       $("#multiSettings").load("contentPanels/multiVolumeControls.html");
