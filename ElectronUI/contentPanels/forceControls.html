@@ -1,16 +1,58 @@
-<h5>Force</h5>
 
+<!-- Form-check that the user can fill in if he/she wants to see
+    the canvas-->
 <div class="form-check">
-  <input type="checkbox" class="form-check-input" id="VISTYPE_hideCheck">
-  <label class="form-check-label" for="VISTYPE_hideCheck">Hide Canvas</label>
+  <input type="checkbox" class="form-check-input" id="VISTYPE_showCheck">
+  <label class="form-check-label" for="VISTYPE_showCheck">Show separate canvas</label>
 </div>
 
-<div id="VISTYPE_volumeSelectionGroup" class="input-group">
-  <div class="input-group-prepend medium">
-    <label class="input-group-text" for="VISTYPE_volumeSelection">Select volume</label>
-  </div>
-  <select class="custom-select" id="VISTYPE_volumeSelection">
-    <option selected>/DEFAULT</option>
-  </select>
-  <br>
+<br>
+<h5> Force Vectors </h5>
+
+<!-- Form-check that the user can check if they want to visualise Force-Vectors
+    or not-->
+<div class="form-check">
+  <input type="checkbox" class="form-check-input" id="VISTYPE_forceCheck">
+  <label class="form-check-label" for="VISTYPE_forceCheck">Toggle ForceVectors</label>
 </div>
+
+<!-- Form control range that the user can drag to adjust the size of
+    the force-vectors-->
+<table>
+  <td><label for="VISTYPE_vectorSize">Vector sizes </label></td>
+  <td><input class="form-control-range" type="range" min="0" max="1" step="0.05" value="0.5" id="VISTYPE_vectorSize" onchange="updateTextInput(this.value);"></td>
+  <td><input class="form-control" type="text" placeholder="0.5" id="VISTYPE_vectorText" style="max-width:60px;"></td>
+</table>
+
+<script>
+
+    //Script that updates the value on the grid. Might not be necessary
+    function updateTextInput(val) {
+          document.getElementById('VISTYPE_vectorText').value=val;
+        }
+
+    //Script that handles the opening and closing of the canvas
+    $(document).ready(function () {
+      $("#VISTYPE_showCheck").on('change', function() {
+        if ($(this).is(':checked'))
+          send_request('visualisation_request', [activeDatasetID, "force", "show", []]);
+        else
+          send_request('visualisation_request', [activeDatasetID, "force", "hide", []]);
+      });
+    });
+
+    //Script that handles turning the force-vector visualisation on or off
+    $("#VISTYPE_vectorCheck").on('change', function() {
+     send_request("visualisation_request", [activeDatasetID, "VISTYPE", "toggle_force", [$(this).is(':checked')]]);
+    });
+
+    //Script that changes the size of the force-vectors
+    $("#VISTYPE_forceSize,#VISTYPE_forceText").on('change input keydown keyup mousedown mouseup select contextmenu drop', function() {
+      let value = $(this).val();
+      $("#VISTYPE_vectorSize,#VISTYPE_vectorText").val(value);
+      if (value == "") value = 0.5;
+      else value = parseFloat(value);
+      send_request("visualisation_request", [activeDatasetID, "VISTYPE", "set_vector_size", [value]]);
+    });
+
+</script>
