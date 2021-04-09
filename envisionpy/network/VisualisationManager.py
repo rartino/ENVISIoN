@@ -53,7 +53,7 @@ class VisualisationManager():
             if DensityOfStates.valid_hdf5(file):
                 self.available_visualisations.append("dos")
             if ForceVectors.valid_hdf5(file):
-                self.available_visualisations.append("test")
+                self.available_visualisations.append("force")
             if Test.valid_hdf5(file):
                 self.available_visualisations.append("force")
                 self.available_visualisations.append("animation")
