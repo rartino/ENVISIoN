@@ -112,7 +112,7 @@ class EnvisionMain():
     def handle_request(self, request):
         # Request should be a dictionary with a string specifying a function in 'type'
         # and a list of function arguments in 'parameters'
-
+        print(request)
 
         # TODO: Allow only a subset of functions to pass.
         if request['type'] not in dir(self):
@@ -144,7 +144,7 @@ class EnvisionMain():
                 "Pair correlation function",
                 "Density of states",
                 "Fermi surface",
-                "Force"
+                "Force",
                 "Molecular dynamics"]
 
         parse_statuses = {}

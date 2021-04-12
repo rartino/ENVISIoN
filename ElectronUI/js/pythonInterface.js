@@ -80,11 +80,12 @@ function send_data(tag, data) {
     var json_data = {tag: tag, data: data}
     var packet = JSON.stringify(json_data) + "\r\n";
     try{
-        if (CONFIG.logSentPackets && (tag != 'ping' || CONFIG.logPings)) 
+        if (CONFIG.logSentPackets && (tag != 'ping' || CONFIG.logPings))
             console.log("Sending packet: \n", packet)
 	    pythonProcess.stdin.write(packet)
 	}
     catch {
+        alert()
         pythonCrashed = true;
 		const options = {
 			type: "warning", title: "ENVISIoN has stopped working!",
@@ -106,7 +107,7 @@ function on_data_recieve(packet) {
             if ("tag" in json_data){
                 if (CONFIG.logRecievedPackets && (json_data['tag'] != 'pong' || CONFIG.logPings))
                     console.log("Packet recieved:\n", JSON.stringify(json_data))
-                
+
                 if (json_data["tag"] == "response"){
                     handle_response_packet(json_data["data"])
                     nResponses += 1;
@@ -121,7 +122,7 @@ function on_data_recieve(packet) {
                     let errorDesc = error[1].replace(/\\n/g, "\n");
                     let options = {
                         type: "error", title: "Request failed to resolve.",
-                        message: errorType + "\n" + errorDesc + "\n" + req 
+                        message: errorType + "\n" + errorDesc + "\n" + req
                     }
                     dialog.showMessageBox(options)
                 }
@@ -136,7 +137,7 @@ function on_data_recieve(packet) {
         }
 
         // Packet could not be decoded as json.
-        catch(err) { 
+        catch(err) {
             if (CONFIG.logPyPrint)
                 console.log("Python print: \n" + data[i])
         }
