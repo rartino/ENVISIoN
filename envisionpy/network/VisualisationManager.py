@@ -55,12 +55,12 @@ class VisualisationManager():
                 self.available_visualisations.append("dos")
             #Varför appenda "test"?
             if ForceVectors.valid_hdf5(file):
-                self.available_visualisations.append("test")
+                self.available_visualisations.append("force")
             #Det här behöver ändras från Test.valid_hdf5 till force.valid_hdf5
             #och animation.valid_hdf5
-            if Test.valid_hdf5(file):
-                self.available_visualisations.append("force")
-                self.available_visualisations.append("moldyn")
+        #    if Test.valid_hdf5(file):
+        #        self.available_visualisations.append("force")
+        #        self.available_visualisations.append("moldyn")
             if len(set(['charge', 'elf', 'fermi', 'parchg']) & set(self.available_visualisations)) > 0:
                 self.available_visualisations.append('multi')
 
