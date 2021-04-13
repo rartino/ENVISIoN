@@ -1,6 +1,7 @@
 import inviwopy
 import numpy as np
 import h5py
+import time
 from envisionpy.utils.exceptions import *
 from envisionpy.utils.atomData import atomic_radii, element_names, element_colors
 from .baseNetworks.Decoration import Decoration
@@ -18,14 +19,15 @@ class ForceVectors(Decoration):
 
         #self.set_atom_radius(0.5)
         self.toggle_full_mesh(True)
-        self.hide()
+
+
 
     @staticmethod
     def valid_hdf5(hdf5_file):
         return hdf5_file.get("UnitCell") != None
 
     def valid_visualisations(self):
-        return ['charge', 'elf', 'parchg']
+        return ['charge', 'elf', 'parchg', 'force']
 
     def connect_decoration(self, other, vis_type):
         # Add a decoration by connecting data ports and linking properties.
@@ -119,14 +121,8 @@ class ForceVectors(Decoration):
             base_group = "/UnitCell"
             force_group = "/Forces"
             for i,key in enumerate(list(h5[force_group + "/Atoms"].keys())):
-
-                vectorelement = h5[force_group + "/Atoms/"+key].attrs['element']
-                vectorname = element_names.get(vectorelement, 'Unknown')
-                vectorcolor = element_colors.get(vectorelement, (0.5, 0.5, 0.5, 1.0))
-                vectorlength = atomic_radii.get(vectorelement, 0.5)
-                print(key)
                 for p,n in enumerate(h5[force_group + "/Atoms/"+key]):
-                    meshCreate = self.add_processor('org.inviwo.MeshCreator', '{0} {1} {2}'.format(i, p ,vectorname), xpos+7+7*i, ypos+2-2*p)
+                    meshCreate = self.add_processor('org.inviwo.MeshCreator', '{0} {1}'.format(i, p), xpos+7+7*i, ypos+2-2*p)
                     self.network.addConnection(meshCreate.getOutport('outport'), vectorRenderer.getInport('geometry'))
                     self.network.addLink(meshCreate.camera, meshRenderer.camera)
                     self.network.addLink(meshRenderer.camera, meshCreate.camera)
@@ -136,22 +132,18 @@ class ForceVectors(Decoration):
                     meshCreate.position1.value = inviwopy.glm.vec3(n[3]-0.5, n[4]-0.5, n[5]-0.5)
                     meshCreate.position2.value = inviwopy.glm.vec3(n[0]-0.5, n[1]-0.5, n[2]-0.5)
                     #self.network.addConnection(composite, meshCreate)
-                    print(n)
             for i,key in enumerate(list(h5[base_group + "/Atoms"].keys())):
-
                 element = h5[base_group + "/Atoms/"+key].attrs['element']
+
                 name = element_names.get(element, 'Unknown')
-                color = element_colors.get(element, (0.5, 0.5, 0.5, 0.5))
-                print(color)
+                color = element_colors.get(element, (0.5, 0.5, 0.5, 1.0))
+                radius = atomic_radii.get(element, 0.5)
+                self.atom_names.append(name)
+                self.atom_radii.append(radius)
                 y = list(color)
                 y[3] = 0.7
                 color = tuple(y)
-                radius = 0.03
-
-                self.atom_names.append(name)
-                self.atom_radii.append(radius)
-
-                coordReader = self.add_processor('envision.CoordinateReader', '{0} {1}'.format(i ,name), xpos-i*7, ypos)
+                coordReader = self.add_processor('envision.CoordinateReader', '{0} {1}'.format(i,name), xpos-i*7, ypos)
                 self.network.addConnection(hdf5_output, coordReader.getInport('inport'))
                 self.network.addConnection(coordReader.getOutport('outport'), strucMesh.getInport('coordinates'))
                 coordReader.path.value = base_group + '/Atoms/' + key
@@ -159,21 +151,19 @@ class ForceVectors(Decoration):
                 if strucMesh.getPropertyByIdentifier('radius{0}'.format(i)) == None:
                         continue
                 strucMesh_radius_property = strucMesh.getPropertyByIdentifier('radius{0}'.format(i))
-                strucMesh_radius_property.maxValue = 10
-                strucMesh_radius_property.minValue = 0.001
-                strucMesh_radius_property.value = radius
 
+                strucMesh_radius_property.maxValue = 10
+                print(radius)
+                strucMesh_radius_property.value = radius/30
                 strucMesh_color_property = strucMesh.getPropertyByIdentifier('color{0}'.format(i))
                 strucMesh_color_property.value = inviwopy.glm.vec4(color[0],color[1],color[2],color[3])
 
                 strucMesh_atom_property = strucMesh.getPropertyByIdentifier('atoms{0}'.format(i))
-                print('atoms{0}'.format(i))
                 strucMesh_atom_property.value = 0
                 strucMesh_atom_property.minValue = 0
                 strucMesh_atom_property.maxValue = 0
 
                 self.nAtomTypes += 1
-
 
         self.decoration_outport = meshRenderer.getOutport('image')
         # self.decoration_inport =
