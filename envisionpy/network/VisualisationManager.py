@@ -69,7 +69,7 @@ class VisualisationManager():
             for other_type, other_network in self.subnetworks.items():
                 if other_type in subnetwork.valid_visualisations():
                     subnetwork.connect_decoration(other_network, other_type)
-
+            subnetwork.show()
         # Normal visualisation.
         else:
             # Try to connect running decorations to this one.
