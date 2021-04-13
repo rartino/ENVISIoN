@@ -8,7 +8,7 @@ from .baseNetworks.Decoration import Decoration
 
 class ForceVectors(Decoration):
     '''
-    Manages a subnetwork for atom position rendering.
+    Manages a subnetwork for atom force rendering.
     '''
     def __init__(self, inviwoApp, hdf5_path, hdf5_output, xpos=0, ypos=0):
         Decoration.__init__(self, inviwoApp)
@@ -16,8 +16,6 @@ class ForceVectors(Decoration):
         self.atom_names = []
         self.nAtomTypes = 0
         self.setup_network(hdf5_path, hdf5_output, xpos, ypos)
-
-        #self.set_atom_radius(0.5)
         self.toggle_full_mesh(True)
 
 
@@ -103,14 +101,18 @@ class ForceVectors(Decoration):
         vectorRenderer = self.add_processor('org.inviwo.GeometryRenderGL', 'VectorRenderer', xpos+7, ypos+6)
         canvas = self.add_processor('org.inviwo.CanvasGL', 'UnitcellCanvas', xpos, ypos+12)
         #composite = self.add_processor('org.inviwo.CompositeProcessor', 'Vector Generation', xpos+7, ypos+2)
+
         canvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)
 
         self.network.addConnection(strucMesh.getOutport('mesh'), meshRenderer.getInport('geometry'))
         self.network.addConnection(meshRenderer.getOutport('image'), background.getInport('inport'))
         self.network.addConnection(background.getOutport('outport'), canvas.getInport('inport'))
+        #self.network.addConnection(meshRenderer.getOutport('image'),vectorRenderer.getInport('imageInport'))
         self.network.addConnection(vectorRenderer.getOutport('image'),meshRenderer.getInport('imageInport'))
+
         self.network.addLink(vectorRenderer.camera, meshRenderer.camera)
         self.network.addLink(meshRenderer.camera, vectorRenderer.camera)
+        
         with h5py.File(hdf5_path, "r") as h5:
             # Set basis matrix and scaling
 
@@ -165,7 +167,7 @@ class ForceVectors(Decoration):
 
                 self.nAtomTypes += 1
 
-        self.decoration_outport = meshRenderer.getOutport('image')
+        self.decoration_outport = vectorRenderer.getOutport('image')
         # self.decoration_inport =
-        self.decoration_inport = meshRenderer.getInport('imageInport')
-        self.camera_prop = meshRenderer.camera
+        self.decoration_inport = vectorRenderer.getInport('imageInport')
+        self.camera_prop = vectorRenderer.camera
