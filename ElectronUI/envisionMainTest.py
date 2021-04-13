@@ -16,29 +16,33 @@ def send_request(rtype, data):
 
 # Initialize ENVISIoN
 envisionMain = EnvisionMain()
-
 envisionMain.update()
-
+envisionMain.parse_vasp("TiPO4_bandstructure", "testEMT.hdf5","All")
+#envisionMain.parse_vasp("TiPO4_bandstructure", "testEMT.hdf5",["Force"])
+envisionMain.update()
+send_request('init_manager', ['testEMT.hdf5'])
+envisionMain.update()
+send_request('start_visualisation', ['testEMT', 'force'])
+envisionMain.update()
 #print("Careful ahead")
 #del envisionMain.app
 #print("1")
 #del envisionMain
 #print("2")
-#cidentifier = send_request('init_manager', ['C:/Kandidatprojekt/ENVISIoN-2020/nacl100.hdf5'])
+#cidentifier =
 #print(cidentifier)
-envisionMain.update()
-envisionMain.parse_vasp("TiPO4_bandstructure", "testEMT.hdf5",["Force"])
+
 #envisionMain.init_manager("force_test.hdf5", identifier=None)
 #cidentifier = send_request('start_visualisation', ['force_test', 'force'])
-envisionMain.update()
-envisionMain.update()
-envisionMain.update()
-envisionMain.update()
-envisionMain.update()
-envisionMain.update()
-envisionMain.update()
-envisionMain.update()
-envisionMain.update()
+#envisionMain.update()
+#envisionMain.update()
+#envisionMain.update()
+#envisionMain.update()
+#envisionMain.update()
+#envisionMain.update()
+#envisionMain.update()
+#envisionMain.update()
+#envisionMain.update()
 #while True:
 #    time_start = time.time()
 #    envisionMain.update()
@@ -50,8 +54,8 @@ envisionMain.update()
 # print("Deleting")
 # del envisionMain
 # print("Deleted")
-#while True:
-#    time.sleep(1)
+while True:
+    time.sleep(1)
 
 # send_packet("status", ["envision started", True])
 

@@ -158,6 +158,7 @@ class ForceVectors(Decoration):
 
                 if strucMesh.getPropertyByIdentifier('radius{0}'.format(i)) == None:
                         continue
+
                 strucMesh_radius_property = strucMesh.getPropertyByIdentifier('radius{0}'.format(i))
                 strucMesh_radius_property.maxValue = 10
                 strucMesh_radius_property.minValue = 0.001
@@ -167,6 +168,7 @@ class ForceVectors(Decoration):
                 strucMesh_color_property.value = inviwopy.glm.vec4(color[0],color[1],color[2],color[3])
 
                 strucMesh_atom_property = strucMesh.getPropertyByIdentifier('atoms{0}'.format(i))
+
                 print('atoms{0}'.format(i))
                 strucMesh_atom_property.value = 0
                 strucMesh_atom_property.minValue = 0
