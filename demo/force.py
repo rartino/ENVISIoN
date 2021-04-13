@@ -9,10 +9,10 @@ from envisionpy.network import VisualisationManager
 VASP_DIR = path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstructure"
 HDF5_FILE = path_to_current_folder + "/../demo_force2.hdf5"
 
-try:
-    os.remove(HDF5_FILE)
-except:
-    print("no habla espanol")
+#try:
+#    os.remove(HDF5_FILE)
+#except:
+#    print("no habla espanol")
 
 envisionpy.hdf5parser.force_parser(HDF5_FILE, VASP_DIR)
 
