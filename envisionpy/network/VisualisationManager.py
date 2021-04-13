@@ -80,7 +80,7 @@ class VisualisationManager():
             for deco_network in self.decorations.values():
                 if vis_type in deco_network.valid_visualisations():
                     deco_network.connect_decoration(subnetwork, vis_type)
-            subnetwork.show()
+                    subnetwork.show()
         # self.reset_canvas_positions()
         return subnetwork
 
