@@ -24,6 +24,8 @@ send_request('init_manager', ['testEMT.hdf5'])
 envisionMain.update()
 send_request('start_visualisation', ['testEMT', 'force'])
 envisionMain.update()
+send_request("visualisation_request", ['testEMT', 'force', "disable_force", 'True'])#, True])
+envisionMain.update()
 #print("Careful ahead")
 #del envisionMain.app
 #print("1")
@@ -55,7 +57,8 @@ envisionMain.update()
 # del envisionMain
 # print("Deleted")
 while True:
-    time.sleep(1)
+    time.sleep(0.5)
+    envisionMain.update()
 
 # send_packet("status", ["envision started", True])
 

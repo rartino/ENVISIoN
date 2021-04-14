@@ -190,6 +190,7 @@ class EnvisionMain():
         return [identifier, vis_type]
 
     def visualisation_request(self, identifier, vis_type, function_name, param_list=[]):
+        print(param_list)
         if identifier not in self.visualisation_managers:
             return False
         return self.visualisation_managers[identifier].call_subnetwork(vis_type, function_name, param_list)

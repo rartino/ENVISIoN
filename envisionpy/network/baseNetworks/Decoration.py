@@ -11,6 +11,7 @@ class Decoration(Subnetwork):
     def __init__(self, inviwoApp):
         Subnetwork.__init__(self, inviwoApp)
         self.other_subnetworks = {}
+        self.force_enabled = True;
         #self.force_enabled = False
 
     def __del__(self):
@@ -34,20 +35,8 @@ class Decoration(Subnetwork):
         pass
 
     #Skissat från toggle_iso i VolumeSubnetwork.py rad 164
-    # def toggle_force(self, enable)
-    #     #Kolla om vi vill visa kraftvektorpilar
-    #     self.force_enabled = enable
-    #     #Kolla om nåt villkor (is_multichannel) är uppfyllt
-    #     if self.is_multichannel:
-    #         if enable:
-    #             #Rita ut kraftvektorpilar
-    #             set_force_vectors
-    #         else:
-    #             #Avaktivera utritning av kraftvektorpilar
-    #             sätt inte ut kraftvektorpilar
-    #     else:
-    #         osäker på vad vi ska göra här
-    #
-    # def set_force_vectors(self, value, color=None):
-    #     Skriv den här funktionen som ska rita ut alternativt
-    #     ta bort kraftvektorpilar från visualiseringen
+    def disable_force(self, enable):
+        if enable:
+            self.force_enabled = False
+        else:
+            self.force_enabled = True
