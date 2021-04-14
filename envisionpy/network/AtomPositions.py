@@ -30,7 +30,7 @@ class AtomPositions(Decoration):
         # Add a decoration by connecting data ports and linking properties.
         if vis_type not in self.valid_visualisations():
             raise EnvisionError('Invalid visualisation type ['+vis_type+'].')
-        
+
         self.other_subnetworks[vis_type] = other
 
         # Link needed properties between networks.
@@ -39,7 +39,7 @@ class AtomPositions(Decoration):
             self.network.addLink(self.camera_prop, other.camera_prop)
             other.camera_prop.invalidate()
             print(dir(self.camera_prop))
-        
+
         other.connect_decoration_ports(self.decoration_outport)
 
     def disconnect_decoration(self, other, vis_type):
@@ -98,7 +98,7 @@ class AtomPositions(Decoration):
         meshRenderer = self.add_processor('org.inviwo.SphereRenderer', 'UnitcellRenderer', xpos, ypos+6)
         background = self.add_processor('org.inviwo.Background', 'AtomBackground', xpos, ypos+9)
         canvas = self.add_processor('org.inviwo.CanvasGL', 'UnitcellCanvas', xpos, ypos+12)
-        
+
         canvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)
 
         self.network.addConnection(strucMesh.getOutport('mesh'), meshRenderer.getInport('geometry'))
@@ -131,13 +131,13 @@ class AtomPositions(Decoration):
             strucMesh.timestep.maxValue = 0
             for i,key in enumerate(list(h5[base_group + "/Atoms"].keys())):
                 element = h5[base_group + "/Atoms/"+key].attrs['element']
-                
+
                 name = element_names.get(element, 'Unknown')
                 color = element_colors.get(element, (0.5, 0.5, 0.5, 1.0))
                 radius = atomic_radii.get(element, 0.5)
                 self.atom_names.append(name)
                 self.atom_radii.append(radius)
-                
+
                 coordReader = self.add_processor('envision.CoordinateReader', '{0} {1}'.format(i,name), xpos-i*7, ypos)
                 self.network.addConnection(hdf5_output, coordReader.getInport('inport'))
                 self.network.addConnection(coordReader.getOutport('outport'), strucMesh.getInport('coordinates'))
@@ -161,6 +161,6 @@ class AtomPositions(Decoration):
                 self.nAtomTypes += 1
 
         self.decoration_outport = meshRenderer.getOutport('image')
-        # self.decoration_inport = 
+        # self.decoration_inport =
         self.decoration_inport = meshRenderer.getInport('imageInport')
         self.camera_prop = meshRenderer.camera
