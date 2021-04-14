@@ -30,7 +30,7 @@ och smidigt att visualisera önskade och relevanta egenskaper hos olika
 system bestående av atomer. Mjukvaran tillgängliggör olika reglage och
 knappar för att på ett interaktivt sätt kunna ändra dess egenskaper. I
 följande dokument kommer de tekniska aspekterna av hur systemet är
-implementerat att redovisas.
+implementerat att redovisas. TEST123
 
 Definitioner
 ------------
@@ -1069,7 +1069,7 @@ Volymen skickas till två mesh renderare som omvandlare meshen till en bild.
 Elektrontäthet
 ~~~~~~~~~~~~~~~~
 
-Figuren nedan visar nätverket för visualisering av elektrontäthet. Först hämtar en *HDFSource*-processor HDF5-filen. En *HDF5ToVolume*-processor hämtar sedan elektrontätheten från HDF5-filen och genererar en volym för den. Processorerna *CubeProxyGeometry*, *EntryExitPoints* och *VolumeRayCasyer* skapar en bild utifrån volymen. Denna bild är en 3D-bild av elektrontätheten hos materialets enhetscell. Processorerna *VolumeBoundingBox* och *MeshRenderer* skapar en parallellepiped som omsluter volymen. Parallellepipeden skickas sedan vidare till *VolumeRayCaster*-processorn, där den sammanfogas med elektrontäthetsbilden. Till den resulterande bilden läggs det sedan på en bakgrund med hjälp av en *Background*-processor. Slutligen skickas bilden till en *Canvas*-processor, som gör att bilden visas upp. 
+Figuren nedan visar nätverket för visualisering av elektrontäthet. Först hämtar en *HDFSource*-processor HDF5-filen. En *HDF5ToVolume*-processor hämtar sedan elektrontätheten från HDF5-filen och genererar en volym för den. Processorerna *CubeProxyGeometry*, *EntryExitPoints* och *VolumeRayCasyer* skapar en bild utifrån volymen. Denna bild är en 3D-bild av elektrontätheten hos materialets enhetscell. Processorerna *VolumeBoundingBox* och *MeshRenderer* skapar en parallellepiped som omsluter volymen. Parallellepipeden skickas sedan vidare till *VolumeRayCaster*-processorn, där den sammanfogas med elektrontäthetsbilden. Till den resulterande bilden läggs det sedan på en bakgrund med hjälp av en *Background*-processor. Slutligen skickas bilden till en *Canvas*-processor, som gör att bilden visas upp.
 
 Volymen som skapas av *HDF5ToVolume*-processor skickas även parallellt till en *VolumeSlice*-procssor, som genererar ett tvådimensionellt tvärsnitt av elektrontätheten. Till den läggs det sedan till en bakgrund med hjälp av en *Background*-processor och slutligen skickas tvärsnittsbilden till en egen *Canvas*-processor, där den visas upp.
 
@@ -1096,7 +1096,7 @@ Volymen som skapas av *HDF5ToVolume*-processor skickas även parallellt till en 
 
 NetworkManager och Subnetwork
 -----------------------------
-För att hantera mer avancerade inviwonätverk och för att kunna köra flera visualiseringar parallellt så finns en pythonklass *Subnetwork*. Implementationer av denna klass har i uppgift att överse en specifik visualisering och har funktioner för att sätta upp och påverka denna visulisering. Alla visualiseringar som ska startas via detta system kräver att en klass vilken ärver *Subnetwork* skapas. Se filen *ExampleSubnetwork.py* för ett exempel på hur en klass som ärver *Subnetwork* bör implementeras. 
+För att hantera mer avancerade inviwonätverk och för att kunna köra flera visualiseringar parallellt så finns en pythonklass *Subnetwork*. Implementationer av denna klass har i uppgift att överse en specifik visualisering och har funktioner för att sätta upp och påverka denna visulisering. Alla visualiseringar som ska startas via detta system kräver att en klass vilken ärver *Subnetwork* skapas. Se filen *ExampleSubnetwork.py* för ett exempel på hur en klass som ärver *Subnetwork* bör implementeras.
 
 En klass för att hantera de *Subnetworks* som intieras har också skapats. Denna heter *NetworkManager*. *NetworkManager*-klassen har funktioner för att initera och spara olika *Subnetworks*. Den hanterar också interaktion mellan olika *Subnetworks* då detta behövs.
 
