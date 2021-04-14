@@ -63,6 +63,7 @@ def test_parse_force():
     if os.path.isfile(PATH_TO_HDF5):
             with h5py.File(PATH_TO_HDF5, 'r') as h5:
                 assert '/Forces' in h5
+                assert '/UnitCell' in h5
 
     # cleanup
     os.remove(PATH_TO_HDF5)

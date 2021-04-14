@@ -102,7 +102,7 @@ class ForceVectors(Decoration):
         canvas = self.add_processor('org.inviwo.CanvasGL', 'UnitcellCanvas', xpos, ypos+12)
         #composite = self.add_processor('org.inviwo.CompositeProcessor', 'Vector Generation', xpos+7, ypos+2)
 
-        canvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)
+        canvas.inputSize.dimensions.value = inviwopy.glm.size2_t(1000,1000)
 
         self.network.addConnection(strucMesh.getOutport('mesh'), meshRenderer.getInport('geometry'))
         self.network.addConnection(meshRenderer.getOutport('image'), background.getInport('inport'))
@@ -112,7 +112,7 @@ class ForceVectors(Decoration):
 
         self.network.addLink(vectorRenderer.camera, meshRenderer.camera)
         self.network.addLink(meshRenderer.camera, vectorRenderer.camera)
-        
+
         with h5py.File(hdf5_path, "r") as h5:
             # Set basis matrix and scaling
 
