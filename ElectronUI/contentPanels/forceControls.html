@@ -13,7 +13,7 @@
     or not-->
 <div class="form-check">
   <input type="checkbox" class="form-check-input" id="VISTYPE_forceCheck">
-  <label class="form-check-label" for="VISTYPE_forceCheck">Toggle ForceVectors</label>
+  <label class="form-check-label" for="VISTYPE_forceCheck">Disable force vectors</label>
 </div>
 
 <!-- Form control range that the user can drag to adjust the size of
@@ -43,7 +43,7 @@
 
     //Script that handles turning the force-vector visualisation on or off
     $("#VISTYPE_vectorCheck").on('change', function() {
-     send_request("visualisation_request", [activeDatasetID, "VISTYPE", "toggle_force", [$(this).is(':checked')]]);
+     send_request("visualisation_request", [activeDatasetID, "VISTYPE", "disable_force", [$(this).is(':checked')]]);
     });
 
     //Script that changes the size of the force-vectors

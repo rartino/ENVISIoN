@@ -100,7 +100,7 @@ class ForceVectors(Decoration):
         background = self.add_processor('org.inviwo.Background', 'AtomBackground', xpos, ypos+9)
         vectorRenderer = self.add_processor('org.inviwo.GeometryRenderGL', 'VectorRenderer', xpos+7, ypos+6)
         canvas = self.add_processor('org.inviwo.CanvasGL', 'UnitcellCanvas', xpos, ypos+12)
-        #composite = self.add_processor('org.inviwo.CompositeProcessor', 'Vector Generation', xpos+7, ypos+2)
+        composite = self.add_processor('org.inviwo.CompositeProcessor', 'Vector Generation', xpos+7, ypos+2)
         canvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)
 
         self.network.addConnection(strucMesh.getOutport('mesh'), meshRenderer.getInport('geometry'))
@@ -127,7 +127,8 @@ class ForceVectors(Decoration):
                 print(key)
                 for p,n in enumerate(h5[force_group + "/Atoms/"+key]):
                     meshCreate = self.add_processor('org.inviwo.MeshCreator', '{0} {1} {2}'.format(i, p ,vectorname), xpos+7+7*i, ypos+2-2*p)
-                    self.network.addConnection(meshCreate.getOutport('outport'), vectorRenderer.getInport('geometry'))
+                    if self.force_enabled == True:
+                        self.network.addConnection(meshCreate.getOutport('outport'), vectorRenderer.getInport('geometry'))
                     self.network.addLink(meshCreate.camera, meshRenderer.camera)
                     self.network.addLink(meshRenderer.camera, meshCreate.camera)
                     meshCreate.meshType.selectedIndex = 10
