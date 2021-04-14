@@ -57,8 +57,8 @@ envisionMain.update()
 # del envisionMain
 # print("Deleted")
 while True:
-    time.sleep(0.5)
     envisionMain.update()
+    time.sleep(0.01)
 
 # send_packet("status", ["envision started", True])
 
