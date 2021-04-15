@@ -5,6 +5,7 @@ import time
 from envisionpy.utils.exceptions import *
 from envisionpy.utils.atomData import atomic_radii, element_names, element_colors
 from .baseNetworks.Decoration import Decoration
+import time
 
 class ForceVectors(Decoration):
     '''
@@ -120,6 +121,7 @@ class ForceVectors(Decoration):
                 1, 0, 0,
                 0, 1, 0,
                 0, 0, 1)
+
             base_group = "/UnitCell"
             force_group = "/Forces"
             '''
@@ -155,9 +157,9 @@ class ForceVectors(Decoration):
                 self.network.addConnection(hdf5_output, coordReader.getInport('inport'))
                 self.network.addConnection(coordReader.getOutport('outport'), strucMesh.getInport('coordinates'))
                 coordReader.path.value = base_group + '/Atoms/' + key
-
                 if strucMesh.getPropertyByIdentifier('radius{0}'.format(i)) == None:
                         continue
+
                 strucMesh_radius_property = strucMesh.getPropertyByIdentifier('radius{0}'.format(i))
 
                 strucMesh_radius_property.maxValue = 10
