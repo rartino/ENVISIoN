@@ -79,6 +79,12 @@ class ForceVectors(Decoration):
             for i in range(self.nAtomTypes):
                 self.atom_radii[i] = radius
 
+    def show_vectors(self):
+        pass
+
+    def hide_vectors(self):
+        pass
+
     def hide_atoms(self):
         return self.set_atom_radius(0)
 
