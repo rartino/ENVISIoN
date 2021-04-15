@@ -122,7 +122,13 @@
         $(this).find(".form-check-input").prop("disabled", true);
 
         if (started) {
-          send_request('start_visualisation', [activeDatasetID, type]);
+          if (type = "force"){
+            send_request('start_visualisation', [activeDatasetID, type, false]);
+          }
+          else{
+            send_request('start_visualisation', [activeDatasetID, type]);
+          }
+
         }
         else {
           send_request('stop_visualisation', [activeDatasetID, type])

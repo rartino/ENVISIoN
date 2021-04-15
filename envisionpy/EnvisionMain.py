@@ -177,10 +177,10 @@ class EnvisionMain():
         del self.visualisation_managers[identifier]
         return identifier
 
-    def start_visualisation(self, identifier, vis_type):
+    def start_visualisation(self, identifier, vis_type, bool = True):
         if identifier not in self.visualisation_managers:
             raise EnvisionError('No visualisation manager with id:'+identifier+" has been initialized.")
-        self.visualisation_managers[identifier].start(vis_type)
+        self.visualisation_managers[identifier].start(vis_type, bool)
         return [identifier, vis_type]
 
     def stop_visualisation(self, identifier, vis_type):
