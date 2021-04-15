@@ -1,6 +1,6 @@
 
 #Filer att skriva i:
-# -VisualisationManager
+# -VisualisationManager (klart)
 # - EnvisionMain (kanske)
 
 import inviwopy
@@ -29,7 +29,7 @@ class MolecularDynamics(Decoration):
     def valid_hdf5(hdf5_file):
         #Test if the MD-section of the hdf5 file is empty.
         #Returns True if the MD-section of the hdf5 file is not empty.
-        return hdf5_file.get("MD") != None
+            return hdf5_file.get("MD") != None        #Kolla närmare på formatet för HDF5-filer. Detta verkar orsaka problem
 
     def get_ui_data(self):
         #Return a list of data to show on the user interface.

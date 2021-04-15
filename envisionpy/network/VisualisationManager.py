@@ -54,6 +54,8 @@ class VisualisationManager():
                 self.available_visualisations.append("dos")
             if ForceVectors.valid_hdf5(file):
                 self.available_visualisations.append("test")
+            if MolecularDynamics.valid_hdf5(file):                           #MD
+                self.available_visualisations.append("molecular_dynamics")
             if Test.valid_hdf5(file):
                 self.available_visualisations.append("force")
                 self.available_visualisations.append("animation")
@@ -114,6 +116,9 @@ class VisualisationManager():
 
         elif vis_type == "force":
             subnetwork = ForceVectors(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
+
+        elif vis_type == "molecular_dynamics":                                              #MD
+            subnetwork = MolecularDynamics(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
 
         elif vis_type == "fermi":
             subnetwork = FermiSurface(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
