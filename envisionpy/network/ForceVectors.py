@@ -79,6 +79,16 @@ class ForceVectors(Decoration):
             for i in range(self.nAtomTypes):
                 self.atom_radii[i] = radius
 
+    def show_vectors(self):
+        meshRenderer = self.get_processor('UnitcellRenderer')
+        vectorRenderer = self.get_processor('VectorRenderer')
+        self.network.addConnection(vectorRenderer.getOutport('image'),meshRenderer.getInport('imageInport'))
+
+    def hide_vectors(self):
+        meshRenderer = self.get_processor('UnitcellRenderer')
+        vectorRenderer = self.get_processor('VectorRenderer')
+        self.network.removeConnection(vectorRenderer.getOutport('image'),meshRenderer.getInport('imageInport'))
+
     def hide_atoms(self):
         return self.set_atom_radius(0)
 
@@ -179,3 +189,4 @@ class ForceVectors(Decoration):
         # self.decoration_inport =
         self.decoration_inport = vectorRenderer.getInport('imageInport')
         self.camera_prop = vectorRenderer.camera
+        self.hide_vectors()
