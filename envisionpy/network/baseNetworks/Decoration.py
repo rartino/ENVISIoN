@@ -11,6 +11,8 @@ class Decoration(Subnetwork):
     def __init__(self, inviwoApp):
         Subnetwork.__init__(self, inviwoApp)
         self.other_subnetworks = {}
+        self.force_enabled = True;
+        #self.force_enabled = False
 
     def __del__(self):
         # Disconnect this from other networks.
@@ -27,13 +29,14 @@ class Decoration(Subnetwork):
         if vis_type not in self.valid_visualisations():
             raise EnvisionError('Invalid visualisation type ['+vis_type+'].')
         self.other_subnetworks[vis_type] = other
-    
+
     # Should be overloaded in inheritor class
     def disconnect_decoration(self, other, vis_type):
         pass
-        
 
-    
-
-    
-
+    #Skissat från toggle_iso i VolumeSubnetwork.py rad 164
+    def disable_force(self, enable):
+        if enable:
+            self.force_enabled = False
+        else:
+            self.force_enabled = True

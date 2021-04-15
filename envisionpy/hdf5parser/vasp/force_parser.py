@@ -138,9 +138,11 @@ def _find_elements(fileobj, elements, vasp_dir):
 def force_parser(h5file, vasp_dir, elements=None, poscar_equiv='POSCAR'):
     if os.path.isfile(h5file):
         with h5py.File(h5file, 'r') as h5:
-            if "/UnitCell"  and "/Forces" in h5:
+            if "/Forces" in h5:
                 print("Already parsed. Skipping.")
                 return True
+            h5.close()
+
 
     try:
         # Parses lattice vectors and atom positions from POSCAR
@@ -154,15 +156,33 @@ def force_parser(h5file, vasp_dir, elements=None, poscar_equiv='POSCAR'):
                 np.linalg.inv(basis)
             )
             force_list = _parse_forces(vasp_dir, True, coords_list)
-            #_write_basis(h5file, basis)
-            #_write_scaling_factor(h5file, scaling_factor)
-            _write_coordinates(
-                h5file,
+            if os.path.isfile(h5file):
+                with h5py.File(h5file, 'r') as h5:
+                    if "/UnitCell" in h5:
+                        h5.close()
+                        _write_forces(h5file,
+                        atoms,
+                        force_list,
+                        '/Forces')
+                        return True
+                    else:
+                        h5.close()
+                        _write_basis(h5file, basis)
+                        _write_scaling_factor(h5file, scaling_factor)
+                        _write_coordinates(h5file,
+                        atoms,
+                        coords_list,
+                        elements,
+                        '/UnitCell')
+            else:
+                _write_basis(h5file, basis)
+                _write_scaling_factor(h5file, scaling_factor)
+                _write_coordinates(h5file,
                 atoms,
                 coords_list,
                 elements,
-                '/UnitCell'
-            )
+                '/UnitCell')
+
             _write_forces(h5file,
             atoms,
             force_list,

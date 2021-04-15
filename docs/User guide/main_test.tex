@@ -1,0 +1,88 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[titletoc]{appendix}
+\usepackage{amsmath}
+\usepackage{epstopdf}
+\usepackage{pdfpages}
+\usepackage{xparse}
+\usepackage{kantlipsum}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage{courier}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage[
+backend=biber,
+style=alphabetic,
+sorting=ynt
+]{biblatex}
+\addbibresource{ref.bib}
+
+\lstset{basicstyle=\footnotesize\ttfamily,breaklines=true}
+\graphicspath{ {./images/} }
+\input{LIPS.tex}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\newcommand{\LIPSdokumenttyp}{USER GUIDE}
+\newcommand{\LIPSprojektgrupp}{}
+\newcommand{\LIPSversion}{1.0}
+\newcommand{\LIPSdatum}{\dagensdatum}
+\newcommand{\LIPSartaltermin}{2020/Spring semester}
+\newcommand{\LIPSkursnamn}{TFYA75}
+\newcommand{\LIPSprojekttitel}{Visualisation of electron structures}
+\newcommand{\LIPSgranskare}{}
+\newcommand{\LIPSgranskatdatum}{}
+\newcommand{\LIPSgodkannare}{}
+\newcommand{\LIPSgodkantdatum}{}
+
+\lhead{}
+\chead{\textbf{\LIPSprojekttitel}}
+\rhead{\textbf{\textsl{LiTH}}\\\textbf{\dagensdatum}}
+\lfoot{\textbf{User guide}}
+\cfoot{\textbf{\thepage}}
+\rfoot{\textbf{\LIPSkursnamn}}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+
+\begin{document}
+    \pagenumbering{gobble}
+    \LIPStitelsida
+    \newpage
+    \pagenumbering{roman}
+    \input{Identity.tex}
+    \newpage
+    \tableofcontents{}
+    \newpage
+    \input{DocumentHistory.tex}
+    \newpage
+    \input{Licens.tex}
+    \newpage
+    \pagenumbering{arabic}
+    \input{Introduction.tex}
+    \newpage
+    \input{HowToUbuntu.tex}
+    \newpage
+    \input{HowToWindows.tex}
+    \newpage
+    \input{PreparingVASPBeforeENVISIoN.tex}
+    \input{StartENVISIoN.tex}
+    \newpage
+    \input{StartInviwo.tex}
+    \newpage
+    \input{GUI.tex}
+    \newpage
+    \input{CommonError.tex}
+    \newpage
+    \printbibliography[title={References}, heading=bibintoc]
+    \newpage
+    \begin{appendices}
+        \input{LicensAppendix.tex}
+    \end{appendices}
+\end{document}

@@ -78,7 +78,9 @@ class EnvisionMain():
             "dos": envisionpy.hdf5parser.dos,
             "Density of states": envisionpy.hdf5parser.dos,
             "fermisurface": envisionpy.hdf5parser.fermi_parser,
-            "Fermi surface": envisionpy.hdf5parser.fermi_parser
+            "Fermi surface": envisionpy.hdf5parser.fermi_parser,
+            "Force": envisionpy.hdf5parser.force_parser,
+            "Molecular dynamics": envisionpy.hdf5parser.mol_dynamic_parser
         }
 
     def update(self):
@@ -110,7 +112,7 @@ class EnvisionMain():
     def handle_request(self, request):
         # Request should be a dictionary with a string specifying a function in 'type'
         # and a list of function arguments in 'parameters'
-
+        print(request)
 
         # TODO: Allow only a subset of functions to pass.
         if request['type'] not in dir(self):
@@ -141,7 +143,9 @@ class EnvisionMain():
                 "Bandstructure",
                 "Pair correlation function",
                 "Density of states",
-                "Fermi surface"]
+                "Fermi surface",
+                "Force",
+                "Molecular dynamics"]
 
         parse_statuses = {}
         for parse_type in parse_types:
@@ -164,7 +168,7 @@ class EnvisionMain():
             n += 1
         visualisationManager = VisualisationManager(hdf5_path, self.app)
         self.visualisation_managers[identifier] = visualisationManager
-        return [identifier, hdf5_path, visualisationManager.available_visualisations] 
+        return [identifier, hdf5_path, visualisationManager.available_visualisations]
 
     def close_manager(self, identifier):
         if identifier not in self.visualisation_managers:
@@ -186,6 +190,7 @@ class EnvisionMain():
         return [identifier, vis_type]
 
     def visualisation_request(self, identifier, vis_type, function_name, param_list=[]):
+        print(param_list)
         if identifier not in self.visualisation_managers:
             return False
         return self.visualisation_managers[identifier].call_subnetwork(vis_type, function_name, param_list)
@@ -194,9 +199,9 @@ class EnvisionMain():
         for manager in self.visualisation_managers.values():
             manager.reset_canvas_positions(start_x, start_y)
             start_y += 500
-            
 
-        
+
+
     def get_ui_data(self, identifier):
         if identifier not in self.visualisation_managers:
             return False
