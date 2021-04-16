@@ -58,7 +58,7 @@ function start_python_process() {
     else {
         console.log("Python process already launched")
     }
-    
+
     // Send a ping every second to keep checking that python is responsive
     setInterval(()=>send_data('ping', nPings++), 1000)
 }
