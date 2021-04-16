@@ -16,9 +16,9 @@ class ForceVectors(Decoration):
         self.atom_radii = []
         self.atom_names = []
         self.nAtomTypes = 0
+        self.bool = bool
         self.setup_network(hdf5_path, hdf5_output, xpos, ypos, bool)
         self.toggle_full_mesh(True)
-
 
 
     @staticmethod
@@ -82,8 +82,8 @@ class ForceVectors(Decoration):
     def show_vectors(self):
         meshRenderer = self.get_processor('UnitcellRenderer')
         vectorRenderer = self.get_processor('VectorRenderer')
-        atomRenderer = selg.get_processor('AtomRenderer')
-        if bool:
+        atomRenderer = self.get_processor('AtomRenderer')
+        if self.bool:
             self.network.addConnection(vectorRenderer.getOutport('image'),meshRenderer.getInport('imageInport'))
         else:
             self.network.addConnection(vectorRenderer.getOutport('image'),atomRenderer.getInport('imageInport'))
@@ -91,8 +91,8 @@ class ForceVectors(Decoration):
     def hide_vectors(self):
         meshRenderer = self.get_processor('UnitcellRenderer')
         vectorRenderer = self.get_processor('VectorRenderer')
-        atomRenderer = selg.get_processor('AtomRenderer')
-        if bool:
+        atomRenderer = self.get_processor('AtomRenderer')
+        if self.bool:
             self.network.removeConnection(vectorRenderer.getOutport('image'),meshRenderer.getInport('imageInport'))
         else:
             self.network.removeConnection(vectorRenderer.getOutport('image'),atomRenderer.getInport('imageInport'))
