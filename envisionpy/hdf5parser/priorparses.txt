@@ -2,8 +2,8 @@ force_parser
 /home/adame/ENVISIoN/ENVISIoN/demo/../demo_force.hdf5
 /home/adame/ENVISIoN/ENVISIoN/demo/../unit_testing/resources/TiPO4_bandstructure
 bandstructure
-/home/adame/ENVISIoN/ENVISIoN/demo/../demo_band3d2.hdf5
-/home/adame/ENVISIoN/ENVISIoN/demo/../unit_testing/resources/Cu_band_CUB
+temp_0.hdf5
+/home/adame/ENVISIoN/ENVISIoN/unit_testing/resources/NaCl_charge_density
 dos
-/home/adame/ENVISIoN/ENVISIoN/demo/../dos_demo.hdf5
-/home/adame/ENVISIoN/ENVISIoN/demo/../unit_testing/resources/TiPO4_DoS
+temp_0.hdf5
+/home/adame/ENVISIoN/ENVISIoN/unit_testing/resources/NaCl_charge_density
