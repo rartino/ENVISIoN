@@ -4,9 +4,11 @@
 # - EnvisionMain (kanske)
 
 import inviwopy
+import numpy as np
 import h5py
 from envisionpy.utils.exceptions import *
-from .baseNetworks.Decoration import Decoration   #Ändra Subnetwork ---> Decoration?
+from envisionpy.utils.atomData import atomic_radii, element_names, element_colors
+from .baseNetworks.Decoration import Decoration
 
 class MolecularDynamics(Decoration):
     '''

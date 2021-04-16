@@ -12,6 +12,7 @@ from .DensityOfStates import DensityOfStates
 from .MultiVolume import MultiVolume
 from .baseNetworks.Decoration import Decoration
 from .ForceVectors import ForceVectors
+from .MolecularDynamics import MolecularDynamics
 from .Test import Test
 
 class VisualisationManager():
