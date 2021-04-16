@@ -189,4 +189,3 @@ class ForceVectors(Decoration):
         # self.decoration_inport =
         self.decoration_inport = vectorRenderer.getInport('imageInport')
         self.camera_prop = vectorRenderer.camera
-        self.hide_vectors()
