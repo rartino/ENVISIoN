@@ -1,9 +1,9 @@
 force_parser
-/home/adame/ENVISIoN/ENVISIoN/demo/../demo_force.hdf5
-/home/adame/ENVISIoN/ENVISIoN/demo/../unit_testing/resources/TiPO4_bandstructure
+temp_0.hdf5
+/home/adame/ENVISIoN/ENVISIoN/unit_testing/resources/TiPO4_bandstructure
 bandstructure
 temp_0.hdf5
-/home/adame/ENVISIoN/ENVISIoN/unit_testing/resources/NaCl_charge_density
+/home/adame/ENVISIoN/ENVISIoN/unit_testing/resources/TiPO4_bandstructure
 dos
 temp_0.hdf5
-/home/adame/ENVISIoN/ENVISIoN/unit_testing/resources/NaCl_charge_density
+/home/adame/ENVISIoN/ENVISIoN/unit_testing/resources/TiPO4_bandstructure
