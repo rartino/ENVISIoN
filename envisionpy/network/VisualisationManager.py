@@ -73,14 +73,14 @@ class VisualisationManager():
             for other_type, other_network in self.subnetworks.items():
                 if other_type in subnetwork.valid_visualisations():
                     subnetwork.connect_decoration(other_network, other_type)
-            subnetwork.hide()
+            subnetwork.show()
         # Normal visualisation.
         else:
             # Try to connect running decorations to this one.
             for deco_network in self.decorations.values():
                 if vis_type in deco_network.valid_visualisations():
                     deco_network.connect_decoration(subnetwork, vis_type)
-                    subnetwork.hide()
+            subnetwork.show()
         # self.reset_canvas_positions()
         return subnetwork
 
