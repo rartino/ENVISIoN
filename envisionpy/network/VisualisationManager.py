@@ -64,9 +64,9 @@ class VisualisationManager():
             if len(set(['charge', 'elf', 'fermi', 'parchg']) & set(self.available_visualisations)) > 0:
                 self.available_visualisations.append('multi')
 
-    def start(self, vis_type, *args):
+    def start(self, vis_type, bool = True, *args):
         # Start a new main visualisation.
-        subnetwork = self.get_subnetwork(vis_type, *args)
+        subnetwork = self.get_subnetwork(vis_type, bool, *args)
         # Decoration visualisation.
         if issubclass(type(subnetwork), Decoration):
             self.decorations[vis_type] = subnetwork
@@ -99,7 +99,7 @@ class VisualisationManager():
         self.subnetworks[vis_type].clear_processors()
         del self.subnetworks[vis_type]
 
-    def get_subnetwork(self, vis_type, *args):
+    def get_subnetwork(self, vis_type, bool = True, *args):
         # Return the subnetwork for specified visualisation type.
         # If it does not exist, try to create it.
 
@@ -123,7 +123,7 @@ class VisualisationManager():
             subnetwork = ELFVolume(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
 
         elif vis_type == "force":
-            subnetwork = ForceVectors(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
+            subnetwork = ForceVectors(self.app, self.hdf5_path, self.hdf5Output, 0, 3, bool)
 
         elif vis_type == "fermi":
             subnetwork = FermiSurface(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
