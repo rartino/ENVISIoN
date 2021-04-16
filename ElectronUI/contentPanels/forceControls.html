@@ -17,7 +17,7 @@
 
  <div class="form-check">
    <input type="checkbox" class="form-check-input" id="VISTYPE_showCheck">
-   <label class="form-check-label" for="VISTYPE_showCheck">Show separate canvas</label>
+   <label class="form-check-label" for="VISTYPE_showCheck">Hide canvas</label>
  </div>
 
 
@@ -40,9 +40,9 @@
 <script>
 
     //Script that updates the value on the grid. Might not be necessary
-    function updateTextInput(val) {
-          document.getElementById('VISTYPE_forceText').value=val;
-        }
+    //function updateTextInput(val) {
+    //      document.getElementById('VISTYPE_showText').value=val;
+    //    }
 
     //Script that handles the opening and closing of the canvas
     $(document).ready(function () {
@@ -56,14 +56,24 @@
 });
 
     $(document).ready(function () {
-        $("#VISTYPE_vectorCheck").on('change', function() {
+        $("#VISTYPE_showCheck").on('change', function() {
             if ($(this).is(':checked'))
                 send_request('visualisation_request', [activeDatasetID, "force", "hide", []]);
             else
                 send_request('visualisation_request', [activeDatasetID, "force", "show", []]);
-        });
+  });
 
 });
+
+//    $(document).ready(function () {
+//        $("#VISTYPE_vectorCheck").on('change', function() {
+//            if ($(this).is(':checked'))
+//                send_request('visualisation_request', [activeDatasetID, "force", "hide", []]);
+//            else
+//                send_request('visualisation_request', [activeDatasetID, "force", "show", []]);
+//        });
+
+//});
     //Script that handles turning the force-force visualisation on or off
     // $("#VISTYPE_forceCheck").on('change', function() {
       // if ($("#VISTYPE_forceCheck").is(':checked'))
@@ -73,15 +83,14 @@
       // });
 
     //Script that changes the size of the force-forces
-    $("#VISTYPE_forceSize,#VISTYPE_forceText").on('change input keydown keyup mousedown mouseup select contextmenu drop', function() {
-      let value = $(this).val();
-      $("#VISTYPE_forceSize,#VISTYPE_forceText").val(value);
-      if (value == "") value = 0.5;
-      else value = parseFloat(value);
-      send_request("visualisation_request", [activeDatasetID, "VISTYPE", "set_force_size", [value]]);
-    });
+//    $("#VISTYPE_forceSize,#VISTYPE_forceText").on('change input keydown keyup mousedown mouseup select contextmenu drop', function() {
+//      let value = $(this).val();
+//      $("#VISTYPE_forceSize,#VISTYPE_forceText").val(value);
+//      if (value == "") value = 0.5;
+//      else value = parseFloat(value);
+//      send_request("visualisation_request", [activeDatasetID, "VISTYPE", "set_force_size", [value]]);
+//    });
 
 
-});
 
 </script>
