@@ -96,7 +96,7 @@ class MolecularDynamics(Decoration):
 
     def toggle_full_mesh(self, enable):
         structMesh = self.get_processor('UnitcellMesh')
-        structMesh.fulMesh.value = enable
+        structMesh.fullMesh.value = enable
 
     def set_canvas_position(self, x, y):
         #Uppdates the position of the canvas
@@ -113,7 +113,7 @@ class MolecularDynamics(Decoration):
         meshRender = self.add_processor('org.inviwo.SphereRenderer', 'UnitcellRenderer', xpos, ypos+6)
         background = self.add_processor('org.inviwo.Background', 'AtomBackground', xpos, ypos+9)
         canvas = self.add_processor('org.inviwo.CanvasGL', 'UnitcellCanvas', xpos, ypos+12)
-        propertyAnimator = self.add_processor('org.inviwo.OrdinalPropertyAnimator', '', xpos+7, ypos+3) #Vet ej om notationen är rätt
+        propertyAnimator = self.add_processor('org.inviwo.OrdinalPropertyAnimator', 'Animator', xpos+7, ypos+3) #Vet ej om notationen är rätt
 
         canvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)
 
@@ -131,6 +131,10 @@ class MolecularDynamics(Decoration):
 
             #base_group = "/UnitCell"
             MD_group = "/MD"
+            # -----------TEMPORÄRT UTANFÖR LOOPEN PÅ RAD 139 --------------
+            coordReader = self.add_processor('envision.CoordinateReader', '{0} {1}'.format(0,"Fe"), xpos-1*7, ypos)
+            self.network.addConnection(hdf5_output, coordReader.getInport('inport'))
+            self.network.addConnection(coordReader.getOutport('outport'), strucMesh.getInport('coordinates'))
 
             for i, key in enumerate(list(h5[MD_group + "/Atoms"].keys())):  #Hur ser hdf5-filen ut nu igen?
                 # element = h5[MD_group + "/Atoms/"+key].attrs['element']
@@ -142,33 +146,34 @@ class MolecularDynamics(Decoration):
 
 
                 #Ersätt sträng i coordReader till variablen name när giltig name finns.
-                coordReader = self.add_processor('envision.CoordinateReader', '{0} {1}'.format(i,"Fe"), xpos-i*7, ypos)
-                self.network.addConnection(hdf5_output, coordReader.getInport('inport'))
-                self.network.addConnection(coordReader.getOutport('outport'), strucMesh.getInport('coordinates'))
-                self.network.addConnection(propertyAnimator.getOutport('outport'), coordReader.getInport('inport'))
+                #coordReader = self.add_processor('envision.CoordinateReader', '{0} {1}'.format(i,"Fe"), xpos-i*7, ypos)
+                # self.network.addConnection(hdf5_output, coordReader.getInport('inport'))
+                # self.network.addConnection(coordReader.getOutport('outport'), strucMesh.getInport('coordinates'))
+                #self.network.addLink(propertyAnimator.getOutport('outport'), coordReader.getInport('inport'))
+                #self.network.addConnection(propertyAnimator.getOutport('outport'), coordReader.getInport('inport'))
                 coordReader.path.value = MD_group + '/Atoms/' + key
                 #Koppla property_animator till CoordinateReader!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
                                                                             #Osäker på vad fan detta block gör för något
-                if strucMesh.getPropertyByIdentifier('radius{0}'.format(i)) == None:
-                        continue
-                strucMesh_radius_property = strucMesh.getPropertyByIdentifier('radius{0}'.format(i))
-                strucMesh_radius_property.maxValue = 10
-                strucMesh_radius_property.minValue = 0.001
-                strucMesh_radius_property.value = radius
-
-                strucMesh_color_property = strucMesh.getPropertyByIdentifier('color{0}'.format(i))
-                strucMesh_color_property.value = inviwopy.glm.vec4(color[0],color[1],color[2],color[3])
-
-                strucMesh_atom_property = strucMesh.getPropertyByIdentifier('atoms{0}'.format(i))
-                print('atoms{0}'.format(i))
-                strucMesh_atom_property.value = 0
-                strucMesh_atom_property.minValue = 0
-                strucMesh_atom_property.maxValue = 0
+                # if strucMesh.getPropertyByIdentifier('radius{0}'.format(i)) == None:
+                #         continue
+                # strucMesh_radius_property = strucMesh.getPropertyByIdentifier('radius{0}'.format(i))
+                # strucMesh_radius_property.maxValue = 10
+                # strucMesh_radius_property.minValue = 0.001
+                # strucMesh_radius_property.value = 0.5
+                #
+                # strucMesh_color_property = strucMesh.getPropertyByIdentifier('color{0}'.format(i))
+                # strucMesh_color_property.value = inviwopy.glm.vec4(color[0],color[1],color[2],color[3])
+                #
+                # strucMesh_atom_property = strucMesh.getPropertyByIdentifier('atoms{0}'.format(i))
+                # print('atoms{0}'.format(i))
+                # strucMesh_atom_property.value = 0
+                # strucMesh_atom_property.minValue = 0
+                # strucMesh_atom_property.maxValue = 0
 
                 self.nAtomTypes += 1
 
 
-        self.decoration_outport = meshRenderer.getOutport('image')
-        self.decoration_inport = meshRenderer.getInport('imageInport')
-        self.camera_prop = meshRenderer.camera
+        self.decoration_outport = meshRender.getOutport('image')
+        self.decoration_inport = meshRender.getInport('imageInport')
+        self.camera_prop = meshRender.camera
