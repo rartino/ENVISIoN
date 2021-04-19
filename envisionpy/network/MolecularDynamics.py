@@ -16,8 +16,8 @@ class MolecularDynamics(Decoration):
 
     *insert utförligare beskrivning here*
     '''
-    def _init_(self, inviwoApp, hdf5_path, hdf5_output, xpos=0, ypos=0):
-        Subnetwork._init_(self,inviwoApp)
+    def __init__(self, inviwoApp, hdf5_path, hdf5_output, xpos=0, ypos=0):
+        Decoration.__init__(self,inviwoApp)
         self.atom_radii = []
         self.atom_names = []
         self.nAtomTypes = 0
@@ -113,12 +113,12 @@ class MolecularDynamics(Decoration):
         meshRender = self.add_processor('org.inviwo.SphereRenderer', 'UnitcellRenderer', xpos, ypos+6)
         background = self.add_processor('org.inviwo.Background', 'AtomBackground', xpos, ypos+9)
         canvas = self.add_processor('org.inviwo.CanvasGL', 'UnitcellCanvas', xpos, ypos+12)
-        propertyAnimator = self.add_processor('org.inviwo.PropertyAnimatorGL', '', xpos+7, ypos+3) #Vet ej om notationen är rätt
+        propertyAnimator = self.add_processor('org.inviwo.OrdinalPropertyAnimator', '', xpos+7, ypos+3) #Vet ej om notationen är rätt
 
         canvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)
 
-        self.network.addConnection(strucMesh.getOutport('mesh'), meshRenderer.getInport('geometry'))
-        self.network.addConnection(meshRenderer.getOutport('image'), background.getInport('inport'))
+        self.network.addConnection(strucMesh.getOutport('mesh'), meshRender.getInport('geometry'))
+        self.network.addConnection(meshRender.getOutport('image'), background.getInport('inport'))
         self.network.addConnection(background.getOutport('outport'), canvas.getInport('inport'))
 
         with h5py.File(hdf5_path, "r") as h5:
@@ -133,14 +133,16 @@ class MolecularDynamics(Decoration):
             MD_group = "/MD"
 
             for i, key in enumerate(list(h5[MD_group + "/Atoms"].keys())):  #Hur ser hdf5-filen ut nu igen?
-                element = h5[MD_group + "/Atoms/"+key].attrs['element']
-                name = element_names.get(element, 'Unknown')
-                color = element_colors.get(element, (0.5, 0.5, 0.5, 0.5))
-                radius = atomic_radii.get(element, 0.5)
-                self.atom_names.append(name)
-                self.atom_radii.append(radius)
+                # element = h5[MD_group + "/Atoms/"+key].attrs['element']
+                # name = element_names.get(element, 'Unknown')
+                # color = element_colors.get(element, (0.5, 0.5, 0.5, 0.5))
+                # radius = atomic_radii.get(element, 0.5)
+                # self.atom_names.append(name)
+                # self.atom_radii.append(radius)
 
-                coordReader = self.add_processor('envision.CoordinateReader', '{0} {1}'.format(i,name), xpos-i*7, ypos)
+
+                #Ersätt sträng i coordReader till variablen name när giltig name finns.
+                coordReader = self.add_processor('envision.CoordinateReader', '{0} {1}'.format(i,"Fe"), xpos-i*7, ypos)
                 self.network.addConnection(hdf5_output, coordReader.getInport('inport'))
                 self.network.addConnection(coordReader.getOutport('outport'), strucMesh.getInport('coordinates'))
                 self.network.addConnection(propertyAnimator.getOutport('outport'), coordReader.getInport('inport'))
