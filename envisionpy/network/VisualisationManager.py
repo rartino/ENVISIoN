@@ -123,7 +123,7 @@ class VisualisationManager():
             subnetwork = ELFVolume(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
 
         elif vis_type == "force":
-            subnetwork = ForceVectors(self.app, self.hdf5_path, self.hdf5Output, 0, 3, False)
+            subnetwork = ForceVectors(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
 
         elif vis_type == "fermi":
             subnetwork = FermiSurface(self.app, self.hdf5_path, self.hdf5Output, 0, 3)

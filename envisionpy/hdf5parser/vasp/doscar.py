@@ -199,9 +199,11 @@ def dos(h5file, vasp_dir):
 		Return True if DOSCAR was parsed, False otherwise
 
     """
-    if has_been_parsed("dos", h5file, vasp_dir):
-        print("Already Parsed, skipping")
-        return True
+    if os.path.isfile(h5file):
+        with h5py.File(h5file, 'r') as h5:
+            if '/FermiEnergy' and 'DOS/Total' and 'DOS/Partial' in h5:
+                print('Density of states data already parsed. Skipping.')
+                return False
 
     incar(h5file, vasp_dir)
     try:

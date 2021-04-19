@@ -241,9 +241,11 @@ def bandstructure(h5file, vasp_dir):
         False otherwise
 
     """
-    if has_been_parsed("bandstructure", h5file, vasp_dir):
-        print("Already Parsed, skipping")
-        return True
+    if os.path.isfile(h5file):
+        with h5py.File(h5file, 'r') as h5:
+            if '/Bandstructure' and '/Highcoordinates' in h5:
+                print('Band structure data already parsed. Skipping.')
+                return False
     try:
         with open(os.path.join(vasp_dir, 'EIGENVAL'), 'r') as f:
             band_data, kval_list = bandstruct_parse(f)
