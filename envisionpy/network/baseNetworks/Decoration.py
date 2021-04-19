@@ -27,13 +27,7 @@ class Decoration(Subnetwork):
         if vis_type not in self.valid_visualisations():
             raise EnvisionError('Invalid visualisation type ['+vis_type+'].')
         self.other_subnetworks[vis_type] = other
-    
+
     # Should be overloaded in inheritor class
     def disconnect_decoration(self, other, vis_type):
         pass
-        
-
-    
-
-    
-
