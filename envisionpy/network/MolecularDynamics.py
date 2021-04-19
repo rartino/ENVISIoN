@@ -134,13 +134,13 @@ class MolecularDynamics(Decoration):
 
             for i, key in enumerate(list(h5[MD_group + "/Atoms"].keys())):  #Hur ser hdf5-filen ut nu igen?
                 element = h5[MD_group + "/Atoms/"+key].attrs['element']
-                name element_names.get(element, 'Unknown')
+                name = element_names.get(element, 'Unknown')
                 color = element_colors.get(element, (0.5, 0.5, 0.5, 0.5))
                 radius = atomic_radii.get(element, 0.5)
                 self.atom_names.append(name)
                 self.atom_radii.append(radius)
 
-                coordReader = delf.add_processor('envision.CoordinateReader'. '{0} {1}'.format(i,name), xpos-i*7, ypos)
+                coordReader = self.add_processor('envision.CoordinateReader', '{0} {1}'.format(i,name), xpos-i*7, ypos)
                 self.network.addConnection(hdf5_output, coordReader.getInport('inport'))
                 self.network.addConnection(coordReader.getOutport('outport'), strucMesh.getInport('coordinates'))
                 self.network.addConnection(propertyAnimator.getOutport('outport'), coordReader.getInport('inport'))
