@@ -23,7 +23,7 @@ class MolecularDynamics(Decoration):
         self.nAtomTypes = 0
         self.setup_network(hdf5_path, hdf5_output, xpos, ypos)
 
-        #self.set_atom_radius(0.5)
+        self.set_atom_radius(0.12)
         self.toggle_full_mesh(True)
         self.hide()
 
@@ -114,10 +114,11 @@ class MolecularDynamics(Decoration):
         background = self.add_processor('org.inviwo.Background', 'AtomBackground', xpos, ypos+9)
         canvas = self.add_processor('org.inviwo.CanvasGL', 'UnitcellCanvas', xpos, ypos+12)
         propertyAnimator = self.add_processor('org.inviwo.OrdinalPropertyAnimator', 'Animator', xpos+7, ypos+3) #Vet ej om notationen är rätt
-        print("hehopp")
         propertyAnimator.property.selectedIndex = 8
         propertyAnimator.add.press()
-        #propertyAnimator.Int.value.min = 0
+        propertyAnimator.Int.delta.value = 3
+
+        propertyAnimator.Int.boundary.selectedIndex = 1
 
 
         canvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)
@@ -125,6 +126,7 @@ class MolecularDynamics(Decoration):
         self.network.addConnection(strucMesh.getOutport('mesh'), meshRender.getInport('geometry'))
         self.network.addConnection(meshRender.getOutport('image'), background.getInport('inport'))
         self.network.addConnection(background.getOutport('outport'), canvas.getInport('inport'))
+
 
         with h5py.File(hdf5_path, "r") as h5:
             # Set basis matrix and scaling
@@ -136,13 +138,17 @@ class MolecularDynamics(Decoration):
 
             #base_group = "/UnitCell"
             MD_group = "/MD"
+            propertyAnimator.Int.value.minValue = 0
+            propertyAnimator.Int.value.maxValue = len(list(h5[MD_group + "/Atoms"].keys())) - 1
             # -----------TEMPORÄRT UTANFÖR LOOPEN PÅ RAD 139 --------------
-            coordReader = self.add_processor('envision.CoordinateReader', '{0} {1}'.format(0,"Fe"), xpos-1*7, ypos)
-            self.network.addConnection(hdf5_output, coordReader.getInport('inport'))
-            self.network.addConnection(coordReader.getOutport('outport'), strucMesh.getInport('coordinates'))
-            self.network.addLink(propertyAnimator.Int.value, coordReader.path)
+            # coordReader = self.add_processor('envision.CoordinateReader', '{0} {1}'.format(0,"Fe"), xpos-1*7, ypos)
+            # self.network.addConnection(hdf5_output, coordReader.getInport('inport'))
+            # self.network.addConnection(coordReader.getOutport('outport'), strucMesh.getInport('coordinates'))
+            # self.network.addLink(propertyAnimator.Int.value, coordReader.path)
 
-            for i, key in enumerate(list(h5[MD_group + "/Atoms"].keys())):  #Hur ser hdf5-filen ut nu igen?
+
+            for i, key in enumerate(list(h5[MD_group + "/Atoms/0000"].keys())):  #Hur ser hdf5-filen ut nu igen?
+                #print("Nu är vi på steg nummer: " + str(i))
                 # element = h5[MD_group + "/Atoms/"+key].attrs['element']
                 # name = element_names.get(element, 'Unknown')
                 # color = element_colors.get(element, (0.5, 0.5, 0.5, 0.5))
@@ -150,15 +156,14 @@ class MolecularDynamics(Decoration):
                 # self.atom_names.append(name)
                 # self.atom_radii.append(radius)
 
+                #Ersätt sträng i coordReader till variablen name när giltig name finns
+                coordReader = self.add_processor('envision.CoordinateReader', '{0} {1}'.format(0, key), xpos-i*7, ypos)
+                self.network.addConnection(hdf5_output, coordReader.getInport('inport'))
+                self.network.addConnection(coordReader.getOutport('outport'), strucMesh.getInport('coordinates'))
+                self.network.addLink(propertyAnimator.Int.value, coordReader.timestep)
 
-                #Ersätt sträng i coordReader till variablen name när giltig name finns.
-                #coordReader = self.add_processor('envision.CoordinateReader', '{0} {1}'.format(i,"Fe"), xpos-i*7, ypos)
-                # self.network.addConnection(hdf5_output, coordReader.getInport('inport'))
-                # self.network.addConnection(coordReader.getOutport('outport'), strucMesh.getInport('coordinates'))
-                #self.network.addLink(propertyAnimator.getOutport('outport'), coordReader.getInport('inport'))
-                #self.network.addConnection(propertyAnimator.getOutport('outport'), coordReader.getInport('inport'))
-                coordReader.path.value = MD_group + '/Atoms/' + key
-                #Koppla property_animator till CoordinateReader!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+                coordReader.path.value = MD_group + '/Atoms/0000/' + key
 
                                                                             #Osäker på vad fan detta block gör för något
                 # if strucMesh.getPropertyByIdentifier('radius{0}'.format(i)) == None:
@@ -179,7 +184,7 @@ class MolecularDynamics(Decoration):
 
                 self.nAtomTypes += 1
 
-
+        propertyAnimator.play.press()
         self.decoration_outport = meshRender.getOutport('image')
         self.decoration_inport = meshRender.getInport('imageInport')
         self.camera_prop = meshRender.camera
