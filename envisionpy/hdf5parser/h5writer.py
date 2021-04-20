@@ -62,6 +62,7 @@ def _write_coordinates(h5file, atom_count, coordinates_list, elements, path):
         p=0
         for n in range(0,len(atom_count)):
             dataset_name = path+'/Atoms/'+format(n,'04d')
+
             h5.create_dataset(
                 dataset_name,
                 data=np.asarray(coordinates_list[p:atom_count[n]+p]),
@@ -92,6 +93,7 @@ def _write_basis(h5file, basis):
     return
 
 def _write_scaling_factor(h5file, scaling_factor):
+    scaling_factor = 1
     with h5py.File(h5file, "a") as h5:
         if not "/scaling_factor" in h5:
             h5.create_dataset('/scaling_factor', data=scaling_factor, dtype=np.float32)
