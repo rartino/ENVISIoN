@@ -12,11 +12,7 @@ from .DensityOfStates import DensityOfStates
 from .MultiVolume import MultiVolume
 from .baseNetworks.Decoration import Decoration
 from .ForceVectors import ForceVectors
-<<<<<<< HEAD
-#from .MolecularDynamics import MolecularDynamics
-=======
 from .MolecularDynamics import MolecularDynamics
->>>>>>> MD_Network
 from .Test import Test
 
 class VisualisationManager():
@@ -59,13 +55,10 @@ class VisualisationManager():
                 self.available_visualisations.append("dos")
             #Varför appenda "test"?
             if ForceVectors.valid_hdf5(file):
-<<<<<<< HEAD
-=======
                 self.available_visualisations.append("test")
             if MolecularDynamics.valid_hdf5(file):                           #MD
                 self.available_visualisations.append("molecular_dynamics")
             if Test.valid_hdf5(file):
->>>>>>> MD_Network
                 self.available_visualisations.append("force")
             #Det här behöver ändras från Test.valid_hdf5 till force.valid_hdf5
             #och animation.valid_hdf5
