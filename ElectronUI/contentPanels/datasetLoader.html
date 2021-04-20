@@ -26,7 +26,7 @@
  ############################################################################################## -->
 
 <h2 class="border-top">Load datasets</h2>
-<p>Select either a VASP directory or an already parsed HDF5 file to load.</p>
+<p>Select either a VASP directory, ELK directory or an already parsed HDF5 file to load.</p>
 
 <div class="form-check col">
   <label class="form-check-label" for="vaspSourceCheckbox">
@@ -35,10 +35,16 @@
   </label>
 </div>
 <div class="form-check">
+    <label class="form-check-label">
+      <input type="radio" class="form-check-input" id="elkSourceCheckbox" name="sourceSelection">
+      ELK directory
+</label>
+<div class="form-check">
   <label class="form-check-label">
     <input type="radio" class="form-check-input" id="hdf5SourceCheckbox" name="sourceSelection">
     HDF5 file (faster loading)
   </label>
+
 </div>
 <div id="vaspSource" style="display:block">
   <div class="row row-margin">
@@ -54,6 +60,22 @@
     </div>
   </div>
 </div>
+
+</div>
+<div id="elkSource" style="display:none">
+  <div class="row row-margin">
+    <div class="input-group col-md">
+      <div class="input-group-prepend large">
+        <span class="input-group-text" id="elkLoadSpan">Load ELK directory</span>
+      </div>
+      <div class="custom-file">
+        <input type="file" class="custom-file-input" id="elkLoadInput" aria-describedby="elkLoadSpan" webkitdirectory
+          onchange="">
+        <label class="custom-file-label" for="elkLoadInput" style="white-space: nowrap; text-overflow: ellipsis;">Choose directory</label>
+      </div>
+    </div>
+  </div>
+ </div>
 
 <!-- Load existing HDF5 file -->
 <div id="hdf5Source" style="display:none">
@@ -98,13 +120,15 @@
 
     $("#vaspSourceCheckbox").on("click", togglePathType);
     $("#hdf5SourceCheckbox").on("click", togglePathType);
+    $("#elkSourceCheckbox").on("click", togglePathType);
     $(".custom-file-input").on("change", pathInputChanged);
-    
+
     $("#loadDatasetBtn").on("click", function(){
       $("#loadDatasetBtn").prop("disabled",true);
       $("#loadDatasetBtn").text("Loading...");
       let isVaspPath = $("#vaspSourceCheckbox").is(":checked");
       let isHdf5Path = $("#hdf5SourceCheckbox").is(":checked");
+      let isELKPath = $("#elkSourceCheckbox").is(":checked");
       let datasetName = $("#datasetNameText").val();
 
       let hdf5Path;
@@ -123,6 +147,23 @@
 
         if (datasetName == ""){
             let strs = vaspPath.split(/[\\/]/);
+            datasetName = strs[strs.length - 1];
+        }
+      }
+      else if (isELKPath) {
+        let elkPath = $("#elkLoadInput")[0].files[0].path;
+        hdf5Path = "temp_" + tempHdf5Files.length + ".hdf5";
+        tempHdf5Files.push(hdf5Path);
+
+        // Try to remove old temporary file
+        try {
+            fs.unlinkSync(hdf5Path);
+        }
+        catch (err) {}
+        send_request("parse_ELK", [elkPath, hdf5Path, "All"]);
+
+        if (datasetName == ""){
+            let strs = elkPath.split(/[\\/]/);
             datasetName = strs[strs.length - 1];
         }
       }
@@ -183,16 +224,24 @@
     function togglePathType() {
       let vaspDiv = $("#vaspSource")
       let hdf5Div = $("#hdf5Source")
+      let elkDiv = $("#elkSource")
       if ($("#vaspSourceCheckbox").is(":checked")) {
         vaspDiv.css("display", "block")
         hdf5Div.css("display", "none")
+        elkDiv.css("display", "none")
+      }
+      else if ($("#elkSourceCheckbox").is(":checked")) {
+        vaspDiv.css("display", "none")
+        hdf5Div.css("display", "none")
+        elkDiv.css("display", "block")
       }
       else if ($("#hdf5SourceCheckbox").is(":checked")) {
         vaspDiv.css("display", "none")
         hdf5Div.css("display", "block")
+        elkDiv.css("display", "none")
       }
     }
 
-    
+
   });
 </script>

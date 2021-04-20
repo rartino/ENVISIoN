@@ -70,7 +70,6 @@ def unitcell_parser(h5file, ELK_dir):
         elements,
         '/UnitCell'
     )
-
     return
 
 #unitcell_parser("ELK.HDF5","CuFeS2")
