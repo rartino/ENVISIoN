@@ -82,6 +82,9 @@ class EnvisionMain():
             "Force": envisionpy.hdf5parser.force_parser,
             "Molecular dynamics": envisionpy.hdf5parser.mol_dynamic_parser
         }
+        self.parse_functions_ELK = {
+            "UnitCell": envisionpy.hdf5parser.unitcell_parser
+        }
 
     def update(self):
         self.app.update()
@@ -151,6 +154,24 @@ class EnvisionMain():
         for parse_type in parse_types:
             try:
                 parse_statuses[parse_type] = self.parse_functions[parse_type](hdf5_path, vasp_path)
+            except Exception:
+                parse_statuses[parse_type] = False
+                print("Parser {} could not be parsed some functions may not work.".format(parse_type))
+
+        return [parse_statuses]
+
+    def parse_ELK(self, ELK_path, hdf5_path, parse_types):
+        if parse_types != 'All' and not all(elem in self.parse_functions_ELK for elem in parse_types):
+            raise EnvisionError('Invalid parse type.')
+
+
+        if parse_types == "All":
+            parse_types = ["Unitcell"]
+
+        parse_statuses = {}
+        for parse_type in parse_types:
+            try:
+                parse_statuses[parse_type] = self.parse_functions_ELK[parse_type](hdf5_path, vasp_path)
             except Exception:
                 parse_statuses[parse_type] = False
                 print("Parser {} could not be parsed some functions may not work.".format(parse_type))
