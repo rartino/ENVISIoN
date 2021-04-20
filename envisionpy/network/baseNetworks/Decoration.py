@@ -33,6 +33,7 @@ class Decoration(Subnetwork):
     # Should be overloaded in inheritor class
     def disconnect_decoration(self, other, vis_type):
         pass
+<<<<<<< HEAD
 
     #Skissat från toggle_iso i VolumeSubnetwork.py rad 164
     def disable_force(self, enable):
@@ -40,3 +41,5 @@ class Decoration(Subnetwork):
             self.force_enabled = False
         else:
             self.force_enabled = True
+=======
+>>>>>>> MD_Network
