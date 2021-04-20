@@ -7,6 +7,7 @@ import numpy as np
 import h5py
 from h5writer import _write_basis, _write_scaling_factor, _write_coordinates, _write_forces
 from pathlib import Path
+from check_for_parse import has_been_parsed
 # Define coordinates regex.
 coordinates_re = re.compile(r' +'.join([r'([+-]?[0-9]+\.[0-9]+)'] * 3))
 
@@ -135,13 +136,10 @@ def _find_elements(fileobj, elements, vasp_dir):
     return elements, atoms
 
 
-def force_parser(h5file, vasp_dir, elements=None, poscar_equiv='POSCAR'):
-    if os.path.isfile(h5file):
-        with h5py.File(h5file, 'r') as h5:
-            if "/Forces" in h5:
-                print("Already parsed. Skipping.")
-                return True
-            h5.close()
+def force_parser(h5file, vasp_dir, inviwo = False, elements=None, poscar_equiv='POSCAR'):
+    if has_been_parsed("force_parser", h5file, vasp_dir) and inviwo:
+        print("Already Parsed, skipping")
+        return True
 
 
     try:

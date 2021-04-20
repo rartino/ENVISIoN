@@ -46,7 +46,7 @@ PATH_TO_VASP_CALC = os.path.join(TEST_DIR, "resources/CuFeS2_band_CBT2")
 PATH_TO_HDF5 = os.path.join(TEST_DIR, "unitcell_demo.hdf5")
 
 def test_parse_force():
-    """Testing if correct unitcell parsing of a VASP-directory.
+    """Testing if correct force parsing of a VASP-directory.
     Parameters
     ----------
     None
