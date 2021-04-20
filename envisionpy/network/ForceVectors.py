@@ -147,8 +147,8 @@ class ForceVectors(Decoration):
             '''
             for i,key in enumerate(list(h5[force_group + "/Atoms"].keys())):
                 for p,n in enumerate(h5[force_group + "/Atoms/"+key]):
-                    meshCreate = self.add_processor('org.inviwo.MeshCreator', '{0} {1}'.format(i, p), xpos+7+7*i, ypos+2-2*p)
-                    #meshCreate = self.add_processor('org.inviwo.MeshCreator', '{0} {1}'.format(i, p), xpos+7, ypos)
+                    #meshCreate = self.add_processor('org.inviwo.MeshCreator', '{0} {1}'.format(i, p), xpos+7+7*i, ypos+2-2*p)
+                    meshCreate = self.add_processor('org.inviwo.MeshCreator', '{0} {1}'.format(i, p), xpos+7, ypos)
                     self.network.addConnection(meshCreate.getOutport('outport'), vectorRenderer.getInport('geometry'))
                     self.network.addLink(meshCreate.camera, meshRenderer.camera)
                     self.network.addLink(meshRenderer.camera, meshCreate.camera)
@@ -157,9 +157,9 @@ class ForceVectors(Decoration):
                     meshCreate.color.value = inviwopy.glm.vec4(0.643, 0, 0, 1)
                     meshCreate.position1.value = inviwopy.glm.vec3(n[3]-0.5, n[4]-0.5, n[5]-0.5)
                     meshCreate.position2.value = inviwopy.glm.vec3(n[0]-0.5, n[1]-0.5, n[2]-0.5)
-                    #meshCreate.meta.selected = True
+                    meshCreate.meta.selected = True
                     #print(meshCreate.meta.selected)
-            #self.network.replaceSelectionWithCompositeProcessor()
+            self.network.replaceSelectionWithCompositeProcessor()
             if self.inviwo:
 
 
