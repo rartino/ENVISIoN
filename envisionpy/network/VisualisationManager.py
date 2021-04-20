@@ -23,13 +23,13 @@ class VisualisationManager():
     '''
     Class for managing one visualisation instance from a single HDF5 file.
     '''
-    def __init__(self, hdf5_path, inviwoApp):
+    def __init__(self, hdf5_path, inviwoApp, inviwo = False):
         print("Initialising VisMan")
         self.app = inviwoApp
         self.network = inviwoApp.network
         self.subnetworks = {}
         self.decorations = {}
-
+        self.inviwo = inviwo
         self.main_vis_type = None
         self.available_visualisations = []
 
@@ -91,7 +91,7 @@ class VisualisationManager():
             for deco_network in self.decorations.values():
                 if vis_type in deco_network.valid_visualisations():
                     deco_network.connect_decoration(subnetwork, vis_type)
-                    subnetwork.show()
+            subnetwork.show()
         # self.reset_canvas_positions()
         return subnetwork
 
@@ -134,7 +134,7 @@ class VisualisationManager():
             subnetwork = ELFVolume(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
 
         elif vis_type == "force":
-            subnetwork = ForceVectors(self.app, self.hdf5_path, self.hdf5Output, 0, 3, bool)
+            subnetwork = ForceVectors(self.app, self.hdf5_path, self.hdf5Output, 0, 3, self.inviwo)
 
         elif vis_type == "molecular_dynamics":                                              #MD
             subnetwork = MolecularDynamics(self.app, self.hdf5_path, self.hdf5Output, 0, 3)

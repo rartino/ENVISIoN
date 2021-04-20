@@ -6,18 +6,18 @@ import envisionpy
 import envisionpy.hdf5parser
 from envisionpy.network import VisualisationManager
 
-VASP_DIR = path_to_current_folder + "/../unit_testing/resources/TiO2_band_TET"
-HDF5_FILE = path_to_current_folder + "/../demo_force4.hdf5"
+VASP_DIR = path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstructure"
+HDF5_FILE = path_to_current_folder + "/../demo_force.hdf5"
 
 #try:
 #    os.remove(HDF5_FILE)
 #except:
 #    print("no habla espanol")
 
-envisionpy.hdf5parser.force_parser(HDF5_FILE, VASP_DIR)
+envisionpy.hdf5parser.force_parser(HDF5_FILE, VASP_DIR, True)
 
 inviwopy.app.network.clear()
 
 # Initialize inviwo network
-visManager = VisualisationManager(HDF5_FILE, inviwopy.app)
+visManager = VisualisationManager(HDF5_FILE, inviwopy.app, True)
 visManager.start("force")

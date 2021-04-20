@@ -1,4 +1,4 @@
-<!-- 
+<!--
   This html is used multiple times in the same html document.
   In order to avoid duplicate id:s all id:s have "VISTYPE" prepended.
   Before adding this to a html document replace all instances of VISTYPE
@@ -10,8 +10,8 @@
 <h5>Volume</h5>
 
 <div class="form-check">
-  <input type="checkbox" class="form-check-input" id="VISTYPE_hideCheck">
-  <label class="form-check-label" for="VISTYPE_hideCheck">Hide Canvas</label>
+  <input type="checkbox" class="form-check-input" id="VISTYPE_showCheck">
+  <label class="form-check-label" for="VISTYPE_showCheck">Show Canvas</label>
 </div>
 
 <div id="VISTYPE_volumeSelectionGroup" class="input-group">
@@ -136,7 +136,7 @@
 
   function VISTYPE_load_ui_data(uiData){
     console.log("RELOADING UI");
-    $("#VISTYPE_hideCheck").prop("checked", uiData[0]);
+    //$("#VISTYPE_showCheck").prop("checked", uiData[0]);
 
     // Reload volume selections.
     $("#VISTYPE_volumeSelection").empty();
@@ -151,7 +151,7 @@
     $("#VISTYPE_backgroundColor1").val(rgbArrToHex(bgData[0]));
     $("#VISTYPE_backgroundColor2").val(rgbArrToHex(bgData[1]));
     $("#VISTYPE_backgroundStyleSelection").val(bgData[2]);
-    
+
     $("#VISTYPE_transperancyCheckbox").prop('checked', uiData[4]);
     let tfData = uiData[5];
     $("#VISTYPE_tfPoints").empty();
@@ -228,12 +228,13 @@
 
     // Set callbacks on ui inputs.
 
-    $("#VISTYPE_hideCheck").on("change", function() {
-      let checked = $(this).is(":checked");
-      if (checked)
-        send_request("visualisation_request", [activeDatasetID, "VISTYPE", "hide", [true, false]])
-      else
+    $("#VISTYPE_showCheck").on("change", function() {
+      //let checked = $(this).is(":checked");
+      //if (checked)
+      if ($(this).is(":checked"))
         send_request("visualisation_request", [activeDatasetID, "VISTYPE", "show", [true, false]])
+      else
+        send_request("visualisation_request", [activeDatasetID, "VISTYPE", "hide", [true, false]])
     });
 
     $("#VISTYPE_volumeSelection").on("change", function() {
@@ -252,7 +253,7 @@
       let styleIndex = $("#VISTYPE_backgroundStyleSelection")[0].selectedIndex;
       send_request("visualisation_request", [activeDatasetID, "VISTYPE", "set_volume_background", [color1, color2, styleIndex]])
     });
-    
+
     // Transfer function
 
     $("#VISTYPE_transperancyCheckbox").on('change', function() {
@@ -329,16 +330,16 @@
       return false;
     });
 
-    
 
 
-  
 
-  
+
+
+
 
   });
 
-  
+
 
 
 </script>
