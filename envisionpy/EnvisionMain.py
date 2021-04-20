@@ -83,7 +83,7 @@ class EnvisionMain():
             "Molecular dynamics": envisionpy.hdf5parser.mol_dynamic_parser
         }
         self.parse_functions_ELK = {
-            "UnitCell": envisionpy.hdf5parser.unitcell_parser
+            "Unitcell": envisionpy.hdf5parser.unitcell_parser
         }
 
     def update(self):
@@ -171,7 +171,7 @@ class EnvisionMain():
         parse_statuses = {}
         for parse_type in parse_types:
             try:
-                parse_statuses[parse_type] = self.parse_functions_ELK[parse_type](hdf5_path, vasp_path)
+                parse_statuses[parse_type] = self.parse_functions_ELK[parse_type](hdf5_path, ELK_path)
             except Exception:
                 parse_statuses[parse_type] = False
                 print("Parser {} could not be parsed some functions may not work.".format(parse_type))
