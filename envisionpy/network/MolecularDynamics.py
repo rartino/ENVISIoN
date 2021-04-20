@@ -115,9 +115,10 @@ class MolecularDynamics(Decoration):
         canvas = self.add_processor('org.inviwo.CanvasGL', 'UnitcellCanvas', xpos, ypos+12)
         propertyAnimator = self.add_processor('org.inviwo.OrdinalPropertyAnimator', 'Animator', xpos+7, ypos+3) #Vet ej om notationen är rätt
         print("hehopp")
-        #propertyAnimator.property = 'Int'
-        #propertyAnimator.add
-        propertyAnimator.delay = 25
+        propertyAnimator.property.selectedIndex = 8
+        propertyAnimator.add.press()
+        #propertyAnimator.Int.value.min = 0
+
 
         canvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)
 
@@ -139,7 +140,7 @@ class MolecularDynamics(Decoration):
             coordReader = self.add_processor('envision.CoordinateReader', '{0} {1}'.format(0,"Fe"), xpos-1*7, ypos)
             self.network.addConnection(hdf5_output, coordReader.getInport('inport'))
             self.network.addConnection(coordReader.getOutport('outport'), strucMesh.getInport('coordinates'))
-            self.network.addLink(propertyAnimator.delay, coordReader.timestep)
+            self.network.addLink(propertyAnimator.Int.value, coordReader.path)
 
             for i, key in enumerate(list(h5[MD_group + "/Atoms"].keys())):  #Hur ser hdf5-filen ut nu igen?
                 # element = h5[MD_group + "/Atoms/"+key].attrs['element']
