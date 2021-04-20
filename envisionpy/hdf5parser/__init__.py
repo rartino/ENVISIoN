@@ -8,4 +8,5 @@ from .vasp.fermiEnergy import fermi_energy
 from .vasp.fermi_parser import fermi_parser
 from .vasp.force_parser import force_parser
 from .vasp.molecular_dynamics_parser import mol_dynamic_parser
+from .ELK.unitcell_parser import unitcell_parser
 # import envisionpy.hdf5parser.vasp
