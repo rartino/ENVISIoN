@@ -137,12 +137,9 @@ def _find_elements(fileobj, elements, vasp_dir):
 
 
 def force_parser(h5file, vasp_dir, inviwo = False, elements=None, poscar_equiv='POSCAR'):
-    if os.path.isfile(h5file) and inviwo:
-        with h5py.File(h5file, 'r') as h5:
-            if "/Forces" in h5:
-                print("Already parsed. Skipping.")
-                return True
-            h5.close()
+    if has_been_parsed("force_parser", h5file, vasp_dir) and inviwo:
+        print("Already Parsed, skipping")
+        return True
 
 
     try:
