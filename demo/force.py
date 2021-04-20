@@ -14,10 +14,10 @@ HDF5_FILE = path_to_current_folder + "/../demo_force.hdf5"
 #except:
 #    print("no habla espanol")
 
-envisionpy.hdf5parser.force_parser(HDF5_FILE, VASP_DIR)
+envisionpy.hdf5parser.force_parser(HDF5_FILE, VASP_DIR, True)
 
 inviwopy.app.network.clear()
 
 # Initialize inviwo network
-visManager = VisualisationManager(HDF5_FILE, inviwopy.app)
+visManager = VisualisationManager(HDF5_FILE, inviwopy.app, True)
 visManager.start("force")

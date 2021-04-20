@@ -1,6 +1,6 @@
 force_parser
-temp_0.hdf5
-/home/adame/ENVISIoN/ENVISIoN/unit_testing/resources/LiC_pair_corr_func
+/home/labb/ENVISIoN/ENVISIoN/demo/../demo_force.hdf5
+/home/labb/ENVISIoN/ENVISIoN/demo/../unit_testing/resources/TiPO4_bandstructure
 bandstructure
 temp_0.hdf5
 /home/adame/ENVISIoN/ENVISIoN/unit_testing/resources/LiC_pair_corr_func
