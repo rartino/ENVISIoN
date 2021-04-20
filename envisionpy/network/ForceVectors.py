@@ -11,12 +11,12 @@ class ForceVectors(Decoration):
     '''
     Manages a subnetwork for atom force rendering.
     '''
-    def __init__(self, inviwoApp, hdf5_path, hdf5_output, xpos=0, ypos=0, bool=True):
+    def __init__(self, inviwoApp, hdf5_path, hdf5_output, xpos=0, ypos=0, inviwo=False):
         Decoration.__init__(self, inviwoApp)
         self.atom_radii = []
         self.atom_names = []
         self.nAtomTypes = 0
-        self.bool = bool
+        self.inviwo = inviwo
         self.setup_network(hdf5_path, hdf5_output, xpos, ypos, bool)
         self.toggle_full_mesh(True)
 
@@ -83,7 +83,7 @@ class ForceVectors(Decoration):
         meshRenderer = self.get_processor('UnitcellRenderer')
         vectorRenderer = self.get_processor('VectorRenderer')
         atomRenderer = self.get_processor('AtomRenderer')
-        if self.bool:
+        if self.inviwo:
             self.network.addConnection(vectorRenderer.getOutport('image'),meshRenderer.getInport('imageInport'))
         else:
             self.network.addConnection(vectorRenderer.getOutport('image'),atomRenderer.getInport('imageInport'))
@@ -92,7 +92,7 @@ class ForceVectors(Decoration):
         meshRenderer = self.get_processor('UnitcellRenderer')
         vectorRenderer = self.get_processor('VectorRenderer')
         atomRenderer = self.get_processor('AtomRenderer')
-        if self.bool:
+        if self.inviwo:
             self.network.removeConnection(vectorRenderer.getOutport('image'),meshRenderer.getInport('imageInport'))
         else:
             self.network.removeConnection(vectorRenderer.getOutport('image'),atomRenderer.getInport('imageInport'))
@@ -160,7 +160,7 @@ class ForceVectors(Decoration):
                     #meshCreate.meta.selected = True
                     #print(meshCreate.meta.selected)
             #self.network.replaceSelectionWithCompositeProcessor()
-            if bool:
+            if self.inviwo:
 
 
                 for i,key in enumerate(list(h5[base_group + "/Atoms"].keys())):
