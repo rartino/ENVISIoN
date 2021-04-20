@@ -119,27 +119,19 @@ class ForceVectors(Decoration):
         background = self.add_processor('org.inviwo.Background', 'AtomBackground', xpos, ypos+9)
         vectorRenderer = self.add_processor('org.inviwo.GeometryRenderGL', 'VectorRenderer', xpos+7, ypos+6)
         canvas = self.add_processor('org.inviwo.CanvasGL', 'UnitcellCanvas', xpos, ypos+12)
-        #composite = self.add_processor('org.inviwo.CompositeProcessor', 'Vector Generation', xpos+7, ypos+2)
-
         canvas.inputSize.dimensions.value = inviwopy.glm.size2_t(1000,1000)
-
         self.network.addConnection(strucMesh.getOutport('mesh'), meshRenderer.getInport('geometry'))
         self.network.addConnection(meshRenderer.getOutport('image'), background.getInport('inport'))
         self.network.addConnection(background.getOutport('outport'), canvas.getInport('inport'))
-        #self.network.addConnection(meshRenderer.getOutport('image'),vectorRenderer.getInport('imageInport'))
         self.network.addConnection(vectorRenderer.getOutport('image'),meshRenderer.getInport('imageInport'))
-
         self.network.addLink(vectorRenderer.camera, meshRenderer.camera)
         self.network.addLink(meshRenderer.camera, vectorRenderer.camera)
         print(bool)
         with h5py.File(hdf5_path, "r") as h5:
-            # Set basis matrix and scaling
-
             strucMesh.basis.value = inviwopy.glm.mat3(
                 1, 0, 0,
                 0, 1, 0,
                 0, 0, 1)
-
             base_group = "/UnitCell"
             force_group = "/Forces"
             '''
@@ -147,7 +139,6 @@ class ForceVectors(Decoration):
             '''
             for i,key in enumerate(list(h5[force_group + "/Atoms"].keys())):
                 for p,n in enumerate(h5[force_group + "/Atoms/"+key]):
-                    #meshCreate = self.add_processor('org.inviwo.MeshCreator', '{0} {1}'.format(i, p), xpos+7+7*i, ypos+2-2*p)
                     meshCreate = self.add_processor('org.inviwo.MeshCreator', '{0} {1}'.format(i, p), xpos+7, ypos)
                     self.network.addConnection(meshCreate.getOutport('outport'), vectorRenderer.getInport('geometry'))
                     self.network.addLink(meshCreate.camera, meshRenderer.camera)
@@ -158,14 +149,10 @@ class ForceVectors(Decoration):
                     meshCreate.position1.value = inviwopy.glm.vec3(n[3]-0.5, n[4]-0.5, n[5]-0.5)
                     meshCreate.position2.value = inviwopy.glm.vec3(n[0]-0.5, n[1]-0.5, n[2]-0.5)
                     meshCreate.meta.selected = True
-                    #print(meshCreate.meta.selected)
             self.network.replaceSelectionWithCompositeProcessor()
             if self.inviwo:
-
-
                 for i,key in enumerate(list(h5[base_group + "/Atoms"].keys())):
                     element = h5[base_group + "/Atoms/"+key].attrs['element']
-
                     name = element_names.get(element, 'Unknown')
                     color = element_colors.get(element, (0.5, 0.5, 0.5, 1.0))
                     radius = atomic_radii.get(element, 0.5)
@@ -180,9 +167,7 @@ class ForceVectors(Decoration):
                     coordReader.path.value = base_group + '/Atoms/' + key
                     if strucMesh.getPropertyByIdentifier('radius{0}'.format(i)) == None:
                             continue
-
                     strucMesh_radius_property = strucMesh.getPropertyByIdentifier('radius{0}'.format(i))
-
                     strucMesh_radius_property.maxValue = 10
                     print(radius)
                     strucMesh_radius_property.value = radius/30
@@ -203,7 +188,6 @@ class ForceVectors(Decoration):
                 self.network.addLink(meshRenderer.camera, atomRenderer.camera)
                 for i,key in enumerate(list(h5[base_group + "/Atoms"].keys())):
                     element = h5[base_group + "/Atoms/"+key].attrs['element']
-
                     color = element_colors.get(element, (0.5, 0.5, 0.5, 1.0))
                     radius = atomic_radii.get(element, 0.5)
                     for p,n in enumerate(h5[base_group + "/Atoms/"+key]):
@@ -211,14 +195,11 @@ class ForceVectors(Decoration):
                         self.network.addConnection(meshCreate.getOutport('outport'), atomRenderer.getInport('geometry'))
                         self.network.addLink(meshCreate.camera, meshRenderer.camera)
                         self.network.addLink(meshRenderer.camera, meshCreate.camera)
-
                         meshCreate.meshType.selectedIndex = 13
                         meshCreate.scale.value = radius/30
                         meshCreate.color.value = inviwopy.glm.vec4(color[0],color[1],color[2],0.7)
                         meshCreate.position1.value = inviwopy.glm.vec3(n[0]-0.5, n[1]-0.5, n[2]-0.5)
 
-
         self.decoration_outport = vectorRenderer.getOutport('image')
-        # self.decoration_inport =
         self.decoration_inport = vectorRenderer.getInport('imageInport')
         self.camera_prop = vectorRenderer.camera
