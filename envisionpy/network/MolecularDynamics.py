@@ -116,7 +116,7 @@ class MolecularDynamics(Decoration):
         propertyAnimator = self.add_processor('org.inviwo.OrdinalPropertyAnimator', 'Animator', xpos+7, ypos+3) #Vet ej om notationen är rätt
         propertyAnimator.property.selectedIndex = 8
         propertyAnimator.add.press()
-        propertyAnimator.Int.delta.value = 3
+        propertyAnimator.Int.delta.value = 1
 
         propertyAnimator.Int.boundary.selectedIndex = 1
 
