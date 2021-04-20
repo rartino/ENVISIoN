@@ -192,7 +192,8 @@ Apply the ENVISIoN patches to Inviwo::
     "$HOME/ENVISIoN/ENVISIoN/inviwo/patches/deppack_fix.patch" \
     "$HOME/ENVISIoN/ENVISIoN/inviwo/patches/filesystem_env.patch" \
     "$HOME/ENVISIoN/ENVISIoN/inviwo/patches/ftl_fix.patch" \
-    "$HOME/ENVISIoN/ENVISIoN/inviwo/patches/transferfunction_extras.patch"
+    "$HOME/ENVISIoN/ENVISIoN/inviwo/patches/transferfunction_extras.patch" \
+    "$HOME/ENVISIoN/ENVISIoN/inviwo/patches/composite_add.patch"
 
 Cmake build using system compilers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
