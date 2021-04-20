@@ -136,8 +136,8 @@ def _find_elements(fileobj, elements, vasp_dir):
     return elements, atoms
 
 
-def force_parser(h5file, vasp_dir, elements=None, poscar_equiv='POSCAR'):
-    if os.path.isfile(h5file):
+def force_parser(h5file, vasp_dir, inviwo = False, elements=None, poscar_equiv='POSCAR'):
+    if os.path.isfile(h5file) and inviwo:
         with h5py.File(h5file, 'r') as h5:
             if "/Forces" in h5:
                 print("Already parsed. Skipping.")
