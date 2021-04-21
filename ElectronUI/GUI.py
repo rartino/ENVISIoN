@@ -4,6 +4,7 @@ import select
 import json
 import random as rd
 import PySimpleGUI as sg
+os.popen('export INVIWO_HOME="$HOME/ENVISIoN/inviwo-build/bin"')
 path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 sys.path.append(path_to_current_folder + "/../")
 from envisionpy.EnvisionMain import EnvisionMain
@@ -46,6 +47,19 @@ vasp_path = [path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstru
             path_to_current_folder + "/../unit_testing/resources/TiPO4_DoS",
             path_to_current_folder + "/../unit_testing/resources/TiPO4_ELF"]
 
+force_attr = ['Toggle Canvas',
+              'Toggle Force Vectors']
+
+moldyn_attr = ['Toggle Canvas',
+               'Play/Pause',
+               'Change Color']
+
+atom_attr = ['Toggle Canvas']
+
+charge_attr = ['Toggle Canvas']
+
+elf_attr = ['Toggle Canvas']
+
 visualisations = ['Force',
                  'Molecular Dynamics',
                  'Atom Positions',
@@ -57,20 +71,6 @@ visualisations_t = ('Force',
                  'Atom Positions',
                  'Charge Density',
                  'ELF')
-
-force_attr = ['Toggle Canvas',
-              'Toggle Force Vectors']
-
-moldyn_attr = ['Toggle Canvas',
-               'Play/Pause',
-               'Change Color']
-
-atom_attr = ['Toggle Canvas']
-
-
-charge_attr = ['Toggle Canvas']
-
-elf_attr = ['Toggle Canvas']
 
 visualisations_d = {'Force' : force_attr,
                     'Molecular Dynamics' : moldyn_attr,
@@ -91,16 +91,22 @@ attr = ['Toggle Canvas',
 
 attr_keys = ('opt0', 'opt1', 'opt2', 'opt3')
 
-layout = [[
-    [sg.Text('Choose the VASP', background_color = back_color, text_color = t_color)]],
+layout = [
+
+    [[sg.Text('ENVISIoN GUI v0.0.0.1', background_color = back_color, justification = 'center', text_color = t_color, font = ("Helvetica", 40, 'bold'))]],
+    [[sg.Text('Choose the preferred VASP directory:', background_color = back_color, text_color = t_color, font = ("Helvetica", 14, 'bold'))]],
     [[sg.Radio(vasp_directory[i], 'VASP', enable_events=True, key=vasp_path[i], background_color = back_color, text_color = t_color)] for i in range(len(vasp_path))],
     [[sg.Button('Parse', button_color = 'green')]],
     [[sg.Text(text = ' '*80 + '\n' + ' '*80 + '\n' + ' '*80, key = 'parse_status', background_color = back_color, text_color = t_color)]],
-    [[sg.Text('Choose what you want to visualize: ', background_color = back_color, text_color = t_color)]],
+    [[sg.Text('Choose what you want to visualize:', background_color = back_color, text_color = t_color, font = ("Helvetica", 14, 'bold'))]],
     [[sg.Button('Force'), sg.Button('Molecular Dynamics'), sg.Button('Atom Positions'), sg.Button('Charge Density'), sg.Button('ELF')]],
     [[sg.Button('1', key = 'opt0', visible = False), sg.Button('2', key = 'opt1', visible = False), sg.Button('3', key = 'opt2', visible = False), sg.Button('4', key = 'opt3', visible = False)]],
     [[sg.Button('Exit', button_color = 'red')]],
-    [[sg.Multiline(default_text='Welcome to GUI Numero Dos', key = 'textbox',size=(35, 6), no_scrollbar = True, autoscroll = True, write_only = True)]]]
+    [[sg.Text(text = ' '*80 + '\n' + ' '*80 + '\n' + ' '*80, background_color = back_color, text_color = t_color)]],
+    [[sg.Multiline(default_text='Welcome to GUI Numero Dos', key = 'textbox',size=(35, 6), no_scrollbar = True, autoscroll = True, write_only = True)]]
+
+
+    ]
 
 window = sg.Window('GUI',layout, background_color = back_color)
 active_dataset = False
@@ -182,6 +188,7 @@ def find_selection_parse(values):
             return key
     return False
 
+
 def create_vis_attributes(attr):
     for i in range(len(attr)):
         window.FindElement('opt' + str(i)).Update(text = attr[i], visible = True, button_color = 'green')
@@ -229,9 +236,11 @@ name_to_function = {'Toggle Canvas' : toggle_canvas,
                     'Play/Pause' : unfinished,
                     'Change Color' : unfinished}
 
+
 while True:
-    event, values = window.read(timeout = 15)
-    envisionMain.update()
+
+    event, values = window.read(timeout = 10) #Timeout inversely sets framerate
+    envisionMain.update()                     #Update envisionMain when we draw a new frame
     if event == 'Parse':
         try:
             stop_visualisation(envisonMain_equivalent.get(active_vis))
@@ -240,10 +249,12 @@ while True:
                 active_vis = ''
             if find_selection_parse(values):
                 parse_progress_bar(str(find_selection_parse(values)))
-                window.FindElement('parse_status').Update('Succesfully parsed: ' + find_selection_parse(values))
+                window.FindElement('parse_status').Update('Succesfully parsed: ' +
+                                                          find_selection_parse(values))
                 active_dataset = True
             else:
-                sg.Popup('Please select a VASP directory to parse', title = 'Warning', keep_on_top=True)
+                sg.Popup('Please select a VASP directory to parse',
+                         title = 'Warning', keep_on_top=True)
         except:
             pass
     if event in visualisations_t and active_dataset == True:
@@ -253,7 +264,6 @@ while True:
             disable_button(event)
             try:
                 start_visualisation(envisonMain_equivalent[event])
-
             except:
                 console_message('Error in starting visualisation, choose something else')
             active_vis = event
