@@ -1,6 +1,6 @@
 force_parser
-testEMT.hdf5
-/home/labb/ENVISIoN/ENVISIoN/unit_testing/resources/TiPO4_bandstructure
+/home/adame/ENVISIoN/ENVISIoN/ElectronUI/../GUI.hdf5
+/home/adame/ENVISIoN/ENVISIoN/ElectronUI/../unit_testing/resources/TiPO4_ELF
 bandstructure
 temp_0.hdf5
 /home/adame/ENVISIoN/ENVISIoN/unit_testing/resources/LiC_pair_corr_func
