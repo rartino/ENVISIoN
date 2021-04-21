@@ -2,6 +2,7 @@ import sys, os, inspect
 import time
 import select
 import json
+import PySimpleGUI as sg
 path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 sys.path.append(path_to_current_folder + "/../")
 from envisionpy.EnvisionMain import EnvisionMain
@@ -17,8 +18,8 @@ def send_request(rtype, data):
 # Initialize ENVISIoN
 envisionMain = EnvisionMain()
 envisionMain.update()
-envisionMain.parse_ELK("CuFeS2", "testEMT.hdf5",["Unitcell"])
-#envisionMain.parse_vasp("TiPO4_bandstructure", "testEMT.hdf5",["Unitcell"])
+#envisionMain.parse_ELK("CuFeS2", "testEMT.hdf5",["Unitcell"])
+envisionMain.parse_vasp("TiPO4_bandstructure", "testEMT.hdf5","All")
 envisionMain.update()
 #send_request('init_manager', ['testEMT.hdf5'])
 #envisionMain.update()
@@ -70,3 +71,40 @@ envisionMain.update()
 # send_packet("status", ["envision started", True])
 
 # main()
+
+text = ['TiPO4_bandstructure', 'LiC_pair_corr_func']
+a = [path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstructure", 'liC']
+
+layout = [
+    [sg.Text('Choose the VASP')]] + [
+    [sg.Radio(text[i], 'VASP', enable_events=True, key=a[i])]
+        for i in range(len(a))] + [[sg.Button('Cancel')] + [sg.Button('PARSE')]]
+
+window = sg.Window('test', layout)
+
+def parse(vasp, hdf5, type):
+    envisionMain.update()
+    envisionMain.parse_vasp(vasp, hdf5, type)
+    envisionMain.update()
+#parse("TiPO4_bandstructure", "test2.hdf5",["Unitcell"])
+def find_selection_parse(values):
+    for key, value in values.items():
+        if value:
+            return key
+
+    return False
+
+
+while True :
+
+    event, values = window.read()
+    if event == 'PARSE':
+        if find_selection_parse(values):
+            print('Selection made')
+        else:
+            print('Select a VASP_DIR')
+    if event in (sg.WINDOW_CLOSED, 'Cancel'):
+        break
+
+window.close()
+#parse("Cu_band_CUB", "test1234.hdf5",["Unitcell"])
