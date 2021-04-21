@@ -14,7 +14,8 @@ class MolecularDynamics(Decoration):
     '''
     Manages a subnetwork for animation of molecular dynamics.
 
-    *insert utförligare beskrivning here*
+    setup_network: Makes a processornetwork
+    set_atom_radius: Sets the atom radius, which is visualised.
     '''
     def __init__(self, inviwoApp, hdf5_path, hdf5_output, xpos=0, ypos=0):
         Decoration.__init__(self,inviwoApp)
@@ -31,7 +32,7 @@ class MolecularDynamics(Decoration):
     def valid_hdf5(hdf5_file):
         #Test if the MD-section of the hdf5 file is empty.
         #Returns True if the MD-section of the hdf5 file is not empty.
-            return hdf5_file.get("MD") != None        #Kolla närmare på formatet för HDF5-filer. Detta verkar orsaka problem
+            return hdf5_file.get("MD") != None
 
     def get_ui_data(self):
         #Return a list of data to show on the user interface.
@@ -40,7 +41,7 @@ class MolecularDynamics(Decoration):
             self.atom_radii
         ]
 
-    def valid_visualisations(self):         #Osäker på funktionaliteten kring denna funktion, behövs den?
+    def valid_visualisations(self):
         #Return a list of valid decorations.
         return ['charge', 'elf', 'parchg']
 
@@ -52,7 +53,7 @@ class MolecularDynamics(Decoration):
         self.other_subnetworks[vis_type] = otherwise
 
         #Link needed properties between networks.
-        if vis_type == 'molecular_dynamics':                        #ändra till md??
+        if vis_type == 'molecular_dynamics':
             self.network.addLink(other.camera_prop, self.camera_prop)
             self.network.addLink(self.camera_prop, other.camera_prop)
             other.camera_prop.invalidate()
@@ -61,20 +62,21 @@ class MolecularDynamics(Decoration):
 
     def disconnect_decoration(self, other, vis_type):
         # Disconnect properties and ports between visualisations.
-        if vis_type == 'molecular_dynamics':                           #samma här
+        if vis_type == 'molecular_dynamics':
             self.network.removeLink(self.camera_prop, other.camera_prop)
         other.disconnect_decorations_port(self.decoration_outport)
 
     def show(self):
+        #Shows the visualisation in the canvas
         self.get_processor('UnitcellCanvas').widget.show()
 
     def hide(self):
+        #Hides the visualisation in the canvas
         self.get_processor('UnitcellCanvas').widget.hide()
 
 # ------------------------------------------
 # ------- Property control functions -------
 
-#Om vi inte kallar på denna function, behövs den då?
     def set_atom_radius(self, radius, index=None):
         structureMesh = self.get_processor('UnitcellMesh')
         if structureMesh.fullMesh.value:
@@ -86,12 +88,14 @@ class MolecularDynamics(Decoration):
                     self.atom_radii[i] = radius
                     self.set_atom_radius(radius, i)
         else:
+            #Sets the radius of the atoms.
             sphereRenderer = self.get_processor('UnitcellRenderer')
             sphereRenderer.sphereProperties.defaultRadius.value = radius
             for i in range(self.nAtomTypes):
                 self.atom_radii[i] = radius
 
     def hide_atoms(self):
+        #Sets the atom radiuses to 0.
         return self.set_atom_radius(0)
 
     def toggle_full_mesh(self, enable):
@@ -108,12 +112,15 @@ class MolecularDynamics(Decoration):
 # ------- Network building functions -------
 
     def setup_network(self, hdf5_path, hdf5_output, xpos, ypos):
-        # Set up the processor network for this visualistion.
+        #Property animator is the processor which changes the properties of the coordinate-reader.
+        #selectedIndex chooses which type of property to change.
+        #add.press() presses the add button.
+        #delta.value changes how fast the animation is rendered.
         strucMesh = self.add_processor('envision.StructureMesh', 'UnitcellMesh', xpos, ypos+3)
         meshRender = self.add_processor('org.inviwo.SphereRenderer', 'UnitcellRenderer', xpos, ypos+6)
         background = self.add_processor('org.inviwo.Background', 'AtomBackground', xpos, ypos+9)
         canvas = self.add_processor('org.inviwo.CanvasGL', 'UnitcellCanvas', xpos, ypos+12)
-        propertyAnimator = self.add_processor('org.inviwo.OrdinalPropertyAnimator', 'Animator', xpos+7, ypos+3) #Vet ej om notationen är rätt
+        propertyAnimator = self.add_processor('org.inviwo.OrdinalPropertyAnimator', 'Animator', xpos+7, ypos+3)
         propertyAnimator.property.selectedIndex = 8
         propertyAnimator.add.press()
         propertyAnimator.Int.delta.value = 1
@@ -130,22 +137,14 @@ class MolecularDynamics(Decoration):
 
         with h5py.File(hdf5_path, "r") as h5:
             # Set basis matrix and scaling
-                                                #Osäker på vad detta gör och om det behövs?
             strucMesh.basis.value = inviwopy.glm.mat3(
                 1, 0, 0,
                 0, 1, 0,
                 0, 0, 1)
 
-            #base_group = "/UnitCell"
             MD_group = "/MD"
             propertyAnimator.Int.value.minValue = 0
             propertyAnimator.Int.value.maxValue = len(list(h5[MD_group + "/Atoms"].keys())) - 1
-            # -----------TEMPORÄRT UTANFÖR LOOPEN PÅ RAD 139 --------------
-            # coordReader = self.add_processor('envision.CoordinateReader', '{0} {1}'.format(0,"Fe"), xpos-1*7, ypos)
-            # self.network.addConnection(hdf5_output, coordReader.getInport('inport'))
-            # self.network.addConnection(coordReader.getOutport('outport'), strucMesh.getInport('coordinates'))
-            # self.network.addLink(propertyAnimator.Int.value, coordReader.path)
-
 
             for i, key in enumerate(list(h5[MD_group + "/Atoms/0000"].keys())):  #Hur ser hdf5-filen ut nu igen?
                 #print("Nu är vi på steg nummer: " + str(i))
@@ -156,7 +155,6 @@ class MolecularDynamics(Decoration):
                 # self.atom_names.append(name)
                 # self.atom_radii.append(radius)
 
-                #Ersätt sträng i coordReader till variablen name när giltig name finns
                 coordReader = self.add_processor('envision.CoordinateReader', '{0} {1}'.format(0, key), xpos-i*7, ypos)
                 self.network.addConnection(hdf5_output, coordReader.getInport('inport'))
                 self.network.addConnection(coordReader.getOutport('outport'), strucMesh.getInport('coordinates'))
@@ -164,8 +162,6 @@ class MolecularDynamics(Decoration):
 
 
                 coordReader.path.value = MD_group + '/Atoms/0000/' + key
-
-                                                                            #Osäker på vad fan detta block gör för något
                 # if strucMesh.getPropertyByIdentifier('radius{0}'.format(i)) == None:
                 #         continue
                 # strucMesh_radius_property = strucMesh.getPropertyByIdentifier('radius{0}'.format(i))

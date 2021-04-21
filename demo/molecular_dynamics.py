@@ -6,12 +6,13 @@ import envisionpy
 import envisionpy.hdf5parser
 from envisionpy.network import VisualisationManager
 
-VASP_DIR = path_to_current_folder + "/../unit_testing/resources/Cu_band_CUB"
+#VASP_DIR = path_to_current_folder + "/../unit_testing/resources/Cu_band_CUB"
+VASP_DIR = path_to_current_folder + "/../unit_testing/resources/MD/VASP/Al_300K"
 #HDF5_FILE = path_to_current_folder + "/../demo_molecular_dynamics.hdf5"
 
 #Temporär testning med färdig-genererad HDF5-fil
-#HDF5_FILE = path_to_current_folder + "/../md_test.hdf5"
-HDF5_FILE = path_to_current_folder + "/../test_md_2punkt0.hdf5"
+HDF5_FILE = path_to_current_folder + "/../md_test.hdf5"
+#HDF5_FILE = path_to_current_folder + "/../test_md_2punkt0.hdf5"
 
 #parse for molecular dynamics
 #envisionpy.hdf5parser.mol_dynamic_parser(HDF5_FILE, VASP_DIR)
