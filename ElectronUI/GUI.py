@@ -14,17 +14,17 @@ import queue
 def send_request(rtype, data):
     return envisionMain.handle_request({'type': rtype, 'parameters': data})
 
-#sys.stdout = open(os.devnull, "w")
-#sys.stderr = open(os.devnull, "w")
+sys.stdout = open(os.devnull, "w")
+sys.stderr = open(os.devnull, "w")
 
 canvas = True
 vectors = True
-back_color = 'pink'
+back_color = 'lightblue'
 t_color = 'black'
-# Initialize ENVISIoN
+
 envisionMain = EnvisionMain()
 
-text = ['TiPO4_bandstructure',
+vasp_directory = ['TiPO4_bandstructure',
         'NaCl_charge_density',
         'Animation',
         'Cu_band_CUB',
@@ -35,7 +35,7 @@ text = ['TiPO4_bandstructure',
         'TiPO4_DoS',
         'TiPO4_ELF']
 
-vasp_dir = [path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstructure",
+vasp_path = [path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstructure",
             path_to_current_folder + "/../unit_testing/resources/NaCl_charge_density",
             path_to_current_folder + "/../unit_testing/resources/Animation",
             path_to_current_folder + "/../unit_testing/resources/Cu_band_CUB",
@@ -93,33 +93,28 @@ attr_keys = ('opt0', 'opt1', 'opt2', 'opt3')
 
 layout = [[
     [sg.Text('Choose the VASP', background_color = back_color, text_color = t_color)]],
-    [[sg.Radio(text[i], 'VASP', enable_events=True, key=vasp_dir[i], background_color = back_color, text_color = t_color)] for i in range(len(vasp_dir))],
+    [[sg.Radio(vasp_directory[i], 'VASP', enable_events=True, key=vasp_path[i], background_color = back_color, text_color = t_color)] for i in range(len(vasp_path))],
     [[sg.Button('Parse', button_color = 'green')]],
     [[sg.Text(text = ' '*80 + '\n' + ' '*80 + '\n' + ' '*80, key = 'parse_status', background_color = back_color, text_color = t_color)]],
     [[sg.Text('Choose what you want to visualize: ', background_color = back_color, text_color = t_color)]],
     [[sg.Button('Force'), sg.Button('Molecular Dynamics'), sg.Button('Atom Positions'), sg.Button('Charge Density'), sg.Button('ELF')]],
-    [[sg.Button('1', key = 'opt0', enable_events=True, visible = False), sg.Button('2', key = 'opt1', visible = False), sg.Button('3', key = 'opt2', visible = False), sg.Button('4', key = 'opt3', visible = False)]],
+    [[sg.Button('1', key = 'opt0', visible = False), sg.Button('2', key = 'opt1', visible = False), sg.Button('3', key = 'opt2', visible = False), sg.Button('4', key = 'opt3', visible = False)]],
     [[sg.Button('Exit', button_color = 'red')]],
     [[sg.Multiline(default_text='Welcome to GUI Numero Dos', key = 'textbox',size=(35, 6), no_scrollbar = True, autoscroll = True, write_only = True)]]]
 
-
-
-
 window = sg.Window('GUI',layout, background_color = back_color)
 active_dataset = False
-last_vis = None
 active_vis = ''
 
-
-def parse(vasp_dir):
+def parse(vasp_path):
     try:
         envisionMain.update()
-        envisionMain.parse_vasp(vasp_dir, path_to_current_folder + '/../GUI.hdf5','All')
+        envisionMain.parse_vasp(vasp_path, path_to_current_folder + '/../GUI.hdf5','All')
         envisionMain.update()
         send_request('init_manager', [path_to_current_folder + '/../GUI.hdf5'])
         envisionMain.update()
     except:
-        pass
+        console_message('Failed to parse the chosen directory')
 
 def toggle_canvas(type):
     global canvas
@@ -136,7 +131,7 @@ def toggle_canvas(type):
             canvas = True
         console_message('Canvas Toggled')
     except:
-        pass
+        console_message('Failed to toggle Canvas')
     return
 
 def toggle_force_vectors(type):
@@ -154,7 +149,7 @@ def toggle_force_vectors(type):
                 envisionMain.update()
                 vectors = True
         else:
-            pass
+            console_message('Failed to toggle Vectors')
         console_message('Vectors Toggled')
     except:
         pass
@@ -179,7 +174,7 @@ def stop_visualisation(type):
         send_request('stop_visualisation', ['GUI', type])
         envisionMain.update()
     except:
-        pass
+        console_message('Could not find active visualisation to terminate')
 
 def find_selection_parse(values):
     for key, value in values.items():
@@ -196,7 +191,7 @@ def create_vis_attributes(attr):
         p += 1
     return
 
-def parse_progress_bar(vasp_dir):
+def parse_progress_bar(vasp_path):
     stop1 = rd.randint(10,30)
     stop2 = rd.randint(40,60)
     stop3 = rd.randint(70,90)
@@ -211,7 +206,7 @@ def parse_progress_bar(vasp_dir):
         if i == stop1:
             time.sleep(0.4)
         if i == stop2:
-            parse(vasp_dir)
+            parse(vasp_path)
         if i == stop3:
             time.sleep(0.3)
         if event == 'Cancel'  or event == sg.WIN_CLOSED:
@@ -253,14 +248,14 @@ while True:
             pass
     if event in visualisations_t and active_dataset == True:
         if active_vis == '':
-            console_message('Showing: ' + event)
+            console_message('Starting: ' + event)
             create_vis_attributes(visualisations_d[event])
             disable_button(event)
             try:
                 start_visualisation(envisonMain_equivalent[event])
 
             except:
-                console_message('Error in starting visualisation')
+                console_message('Error in starting visualisation, choose something else')
             active_vis = event
         elif active_vis != event:
             try:
@@ -269,14 +264,14 @@ while True:
                 pass
             console_message('Ending: ' + active_vis)
             enable_button(active_vis)
-            console_message('Showing: ' + event)
+            console_message('Starting: ' + event)
             create_vis_attributes(visualisations_d[event])
             disable_button(event)
             try:
                 start_visualisation(envisonMain_equivalent[event])
 
             except:
-                console_message('Error in starting visualisation')
+                console_message('Error in starting visualisation, choose something else')
             active_vis = event
 
         else:
