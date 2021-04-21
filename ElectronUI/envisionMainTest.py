@@ -49,9 +49,9 @@ envisionMain.update()
 #envisionMain.update()
 #envisionMain.update()
 #envisionMain.update()
-#while True:
+while True:
 #    time_start = time.time()
-#    envisionMain.update()
+   envisionMain.update()
 
 #     # Try to loop at 60 fps
 #    time_elapsed = time.time() - time_start
@@ -72,39 +72,5 @@ envisionMain.update()
 
 # main()
 
-text = ['TiPO4_bandstructure', 'LiC_pair_corr_func']
-a = [path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstructure", 'liC']
 
-layout = [
-    [sg.Text('Choose the VASP')]] + [
-    [sg.Radio(text[i], 'VASP', enable_events=True, key=a[i])]
-        for i in range(len(a))] + [[sg.Button('Cancel')] + [sg.Button('PARSE')]]
-
-window = sg.Window('test', layout)
-
-def parse(vasp, hdf5, type):
-    envisionMain.update()
-    envisionMain.parse_vasp(vasp, hdf5, type)
-    envisionMain.update()
-#parse("TiPO4_bandstructure", "test2.hdf5",["Unitcell"])
-def find_selection_parse(values):
-    for key, value in values.items():
-        if value:
-            return key
-
-    return False
-
-
-while True :
-
-    event, values = window.read()
-    if event == 'PARSE':
-        if find_selection_parse(values):
-            print('Selection made')
-        else:
-            print('Select a VASP_DIR')
-    if event in (sg.WINDOW_CLOSED, 'Cancel'):
-        break
-
-window.close()
 #parse("Cu_band_CUB", "test1234.hdf5",["Unitcell"])
