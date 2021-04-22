@@ -188,5 +188,5 @@ def force_parser(h5file, vasp_dir, inviwo = False, elements=None, poscar_equiv='
 
             return True
     except FileNotFoundError:
-        print("POSCAR file not found.")
+        print("POSCAR file not found........")
         return False
