@@ -16,8 +16,8 @@ import queue
 def send_request(rtype, data):
     return envisionMain.handle_request({'type': rtype, 'parameters': data})
 
-sys.stdout = open(os.devnull, "w")
-sys.stderr = open(os.devnull, "w")
+#sys.stdout = open(os.devnull, "w")
+#sys.stderr = open(os.devnull, "w")
 
 canvas = True
 vectors = True
@@ -36,11 +36,6 @@ parsers = {path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstruct
            path_to_current_folder + "/../unit_testing/resources/TiPO4_ELF" : [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.elf, envisionpy.hdf5parser.unitcell],
            path_to_current_folder + "/../unit_testing/resources/MD/VASP/Al_300K" : [envisionpy.hdf5parser.mol_dynamic_parser, envisionpy.hdf5parser.unitcell],
            path_to_current_folder + "/../unit_testing/resources/FCC-Cu" : [envisionpy.hdf5parser.fermi_parser]}
-
-vasp_directory = [i.rsplit('/', 1)[-1] for i in list(parsers.keys())]
-
-vasp_paths = [i for i in list(parsers.keys())]
-
 
 parsers_vises = {'All' : ['Force', 'Charge', 'MolecularDynamics', 'AtomPositions', 'ELF', 'Dos', 'FermiVolume'],
                  path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstructure" : ['Force', 'AtomPositions'],
@@ -89,6 +84,10 @@ visualisations = ['Force',
                  'Dos',
                  'FermiVolume']
 
+vasp_directory = [i.rsplit('/', 1)[-1] for i in list(parsers.keys())]
+
+vasp_paths = [i for i in list(parsers.keys())]
+
 visualisations_t = tuple(visualisations)
 
 visualisations_d = {'Force' : force_attr,
@@ -128,12 +127,11 @@ layout = [
     [[sg.Button('1', key = 'opt0', visible = False), sg.Button('2', key = 'opt1', visible = False), sg.Button('3', key = 'opt2', visible = False), sg.Button('4', key = 'opt3', visible = False)]],
     [[sg.Button('Exit', button_color = 'red')]],
     [[sg.Text(text = ' '*80 + '\n' + ' '*80 + '\n' + ' '*80, background_color = back_color, text_color = t_color)]],
-    [[sg.Multiline(default_text='Welcome to GUI Numero Dos', key = 'textbox',size=(35, 6), no_scrollbar = True, autoscroll = True, write_only = True)]]
+    [[sg.Multiline(default_text='Welcome to GUI Numero Dos', key = 'textbox',size=(35, 6), no_scrollbar = True, autoscroll = True, write_only = True), sg.Text('Remember to unzip files in the \nAl_300K directory before parsing' ,background_color = back_color, text_color = t_color, font = ("Helvetica", 14, 'bold'))]]
 
     ]
-#print(TiPO4_bandstructure_parsers.get(vasp_path))
-#TiPO4_bandstructure_parsers[path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstructure"](path_to_current_folder + '/../GUI.hdf5', path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstructure")
-window = sg.Window('GUI',layout, background_color = back_color)
+
+window = sg.Window('GUI',layout, background_color = back_color, icon = 'Graphics/logotyp.png')
 active_dataset = False
 active_vis = ''
 
@@ -154,13 +152,12 @@ def parse(vasp_path):
                 if key == vasp_path:
                     for value in values:
                         value(path_to_current_folder + '/../' + filenames[value] + '.hdf5', vasp_path)
-            print(filenames[value])
             toggle_avaible_visualisations(vasp_path)
-            #send_request('init_manager', [path_to_current_folder + '/../GUI.hdf5'])
-            #envisionMain.update()
             console_message('Succesfully parsed the chosen directory')
         except:
+            console_message('Be patient')
             parse(vasp_path)
+
 
 def toggle_canvas(file, type):
     global canvas
@@ -216,11 +213,9 @@ def start_visualisation(file, type):
     send_request('start_visualisation', [file, type])
     envisionMain.update()
 
-
 def stop_visualisation(file, type):
     try:
         envisionMain.update()
-
         send_request('stop_visualisation', [file, type])
         envisionMain.update()
     except:
@@ -285,7 +280,6 @@ name_to_function = {'Toggle Canvas' : toggle_canvas,
                     'Toggle Force Vectors' : toggle_force_vectors,
                     'Play/Pause' : unfinished,
                     'Change Color' : unfinished}
-
 
 while True:
 
