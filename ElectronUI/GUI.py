@@ -8,15 +8,16 @@ os.popen('export INVIWO_HOME="$HOME/ENVISIoN/inviwo-build/bin"')
 path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 sys.path.append(path_to_current_folder + "/../")
 from envisionpy.EnvisionMain import EnvisionMain
-
+import envisionpy
+from envisionpy.hdf5parser import *
 import threading
 import queue
 
 def send_request(rtype, data):
     return envisionMain.handle_request({'type': rtype, 'parameters': data})
 
-sys.stdout = open(os.devnull, "w")
-sys.stderr = open(os.devnull, "w")
+#sys.stdout = open(os.devnull, "w")
+#sys.stderr = open(os.devnull, "w")
 
 canvas = True
 vectors = True
@@ -27,25 +28,58 @@ envisionMain = EnvisionMain()
 
 vasp_directory = ['TiPO4_bandstructure',
         'NaCl_charge_density',
-        'Animation',
         'Cu_band_CUB',
         'CuFeS2_band_CBT2',
         'LiC_pair_corr_func',
         'partial_charges',
         'TiO2_band_TET',
         'TiPO4_DoS',
-        'TiPO4_ELF']
+        'TiPO4_ELF',
+        'Al_300K WARNING: Parse-time >2min',
+        'FCC-Cu  WARNING: Parse-time >5min']
 
-vasp_path = [path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstructure",
+vasp_paths = [path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstructure",
             path_to_current_folder + "/../unit_testing/resources/NaCl_charge_density",
-            path_to_current_folder + "/../unit_testing/resources/Animation",
             path_to_current_folder + "/../unit_testing/resources/Cu_band_CUB",
             path_to_current_folder + "/../unit_testing/resources/CuFeS2_band_CBT2",
-            path_to_current_folder + "/../unit_testing/resources/LiC_pair_corr_func",
+            path_to_current_folder + "/../unit_testing/resources/LiC_pair_corr_func", #Currently buggy
             path_to_current_folder + "/../unit_testing/resources/partial_charges",
             path_to_current_folder + "/../unit_testing/resources/TiO2_band_TET",
             path_to_current_folder + "/../unit_testing/resources/TiPO4_DoS",
-            path_to_current_folder + "/../unit_testing/resources/TiPO4_ELF"]
+            path_to_current_folder + "/../unit_testing/resources/TiPO4_ELF",
+            path_to_current_folder + "/../unit_testing/resources/MD/VASP/Al_300K",
+            path_to_current_folder + "/../unit_testing/resources/FCC-Cu"]
+
+parsers = {path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstructure" : [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.unitcell],
+           path_to_current_folder + "/../unit_testing/resources/NaCl_charge_density" : [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.charge, envisionpy.hdf5parser.unitcell],
+           path_to_current_folder + "/../unit_testing/resources/Cu_band_CUB": [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.charge, envisionpy.hdf5parser.unitcell],
+           path_to_current_folder + "/../unit_testing/resources/CuFeS2_band_CBT2": [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.charge, envisionpy.hdf5parser.unitcell],
+           path_to_current_folder + "/../unit_testing/resources/partial_charges" : [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.charge, envisionpy.hdf5parser.unitcell],
+           path_to_current_folder + "/../unit_testing/resources/TiO2_band_TET" : [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.charge, envisionpy.hdf5parser.unitcell],
+           path_to_current_folder + "/../unit_testing/resources/TiPO4_DoS" : [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.dos, envisionpy.hdf5parser.unitcell],
+           path_to_current_folder + "/../unit_testing/resources/TiPO4_ELF" : [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.elf, envisionpy.hdf5parser.unitcell],
+           path_to_current_folder + "/../unit_testing/resources/FCC-Cu" : [envisionpy.hdf5parser.fermi_parser],
+           path_to_current_folder + "/../unit_testing/resources/MD/VASP/Al_300K" : [envisionpy.hdf5parser.mol_dynamic_parser, envisionpy.hdf5parser.unitcell]}
+
+parsers_vises = {'All' : ['Force', 'Charge', 'MolecularDynamics', 'AtomPositions', 'ELF', 'Dos', 'FermiVolume'],
+                 path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstructure" : ['Force', 'AtomPositions'],
+                 path_to_current_folder + "/../unit_testing/resources/NaCl_charge_density" : ['Force', 'Charge', 'AtomPositions'],
+                 path_to_current_folder + "/../unit_testing/resources/Cu_band_CUB": ['Force', 'Charge', 'AtomPositions'],
+                 path_to_current_folder + "/../unit_testing/resources/CuFeS2_band_CBT2": ['Force', 'Charge', 'AtomPositions'],
+                 path_to_current_folder + "/../unit_testing/resources/partial_charges" : ['Force', 'Charge', 'AtomPositions'],
+                 path_to_current_folder + "/../unit_testing/resources/TiO2_band_TET" : ['Force', 'Charge', 'AtomPositions'],
+                 path_to_current_folder + "/../unit_testing/resources/TiPO4_DoS" : ['Force', 'Dos', 'AtomPositions'],
+                 path_to_current_folder + "/../unit_testing/resources/TiPO4_ELF" : ['Force', 'ELF', 'AtomPositions'],
+                 path_to_current_folder + "/../unit_testing/resources/FCC-Cu" : ['FermiVolume'],
+                 path_to_current_folder + "/../unit_testing/resources/MD/VASP/Al_300K" : ['MolecularDynamics', 'AtomPositions']}
+
+filenames  = {envisionpy.hdf5parser.force_parser : 'Force',
+              envisionpy.hdf5parser.charge : 'Charge',
+              envisionpy.hdf5parser.dos : 'Dos',
+              envisionpy.hdf5parser.elf : 'ELF',
+              envisionpy.hdf5parser.fermi_parser : 'FermiVolume',
+              envisionpy.hdf5parser.mol_dynamic_parser : 'MolecularDynamics',
+              envisionpy.hdf5parser.unitcell : 'AtomPositions'}
 
 force_attr = ['Toggle Canvas',
               'Toggle Force Vectors']
@@ -60,29 +94,45 @@ charge_attr = ['Toggle Canvas']
 
 elf_attr = ['Toggle Canvas']
 
+band_attr = ['Toggle Canvas']
+
+dos_attr = ['Toggle Canvas']
+
+fermi_attr = ['Toggle Canvas']
+
 visualisations = ['Force',
-                 'Molecular Dynamics',
-                 'Atom Positions',
-                 'Charge Density',
-                 'ELF']
+                 'MolecularDynamics',
+                 'AtomPositions',
+                 'Charge',
+                 'ELF',
+                 'Dos',
+                 'FermiVolume']
 
 visualisations_t = ('Force',
-                 'Molecular Dynamics',
-                 'Atom Positions',
-                 'Charge Density',
-                 'ELF')
+                 'MolecularDynamics',
+                 'AtomPositions',
+                 'Charge',
+                 'ELF',
+                 'Dos',
+                 'FermiVolume')
 
 visualisations_d = {'Force' : force_attr,
-                    'Molecular Dynamics' : moldyn_attr,
-                    'Atom Positions' : atom_attr,
-                    'Charge Density' : charge_attr,
-                    'ELF' : elf_attr}
+                    'MolecularDynamics' : moldyn_attr,
+                    'AtomPositions' : atom_attr,
+                    'Charge' : charge_attr,
+                    'ELF' : elf_attr,
+                    'Dos' : dos_attr,
+                    'FermiVolume' : fermi_attr}
 
 envisonMain_equivalent = {'Force' : 'force',
-                          'Molecular Dynamics' : 'molecular_dynamics',
-                          'Atom Positions' : 'atom',
-                          'Charge Density' : 'charge',
-                          'ELF' : 'elf'}
+                          'MolecularDynamics' : 'molecular_dynamics',
+                          'AtomPositions' : 'atom',
+                          'Charge' : 'charge',
+                          'ELF' : 'elf',
+                          'Dos' : 'dos',
+                          'FermiVolume' : 'fermi'}
+
+
 
 attr = ['Toggle Canvas',
         'Toggle Force Vectors',
@@ -95,44 +145,61 @@ layout = [
 
     [[sg.Text('ENVISIoN GUI v0.0.0.1', background_color = back_color, justification = 'center', text_color = t_color, font = ("Helvetica", 40, 'bold'))]],
     [[sg.Text('Choose the preferred VASP directory:', background_color = back_color, text_color = t_color, font = ("Helvetica", 14, 'bold'))]],
-    [[sg.Radio(vasp_directory[i], 'VASP', enable_events=True, key=vasp_path[i], background_color = back_color, text_color = t_color)] for i in range(len(vasp_path))],
+    [[sg.Radio(vasp_directory[i], 'VASP', enable_events=True, key=vasp_paths[i], background_color = back_color, text_color = t_color)] for i in range(len(vasp_paths))],
     [[sg.Button('Parse', button_color = 'green')]],
     [[sg.Text(text = ' '*80 + '\n' + ' '*80 + '\n' + ' '*80, key = 'parse_status', background_color = back_color, text_color = t_color)]],
     [[sg.Text('Choose what you want to visualize:', background_color = back_color, text_color = t_color, font = ("Helvetica", 14, 'bold'))]],
-    [[sg.Button('Force'), sg.Button('Molecular Dynamics'), sg.Button('Atom Positions'), sg.Button('Charge Density'), sg.Button('ELF')]],
+    [[sg.Button('Force'), sg.Button('MolecularDynamics'), sg.Button('AtomPositions'), sg.Button('Charge')]],
+    [[sg.Button('ELF'), sg.Button('Dos'), sg.Button('FermiVolume')]],
+    [[sg.Text('Options:', background_color = back_color, text_color = t_color, font = ("Helvetica", 14, 'bold'))]],
     [[sg.Button('1', key = 'opt0', visible = False), sg.Button('2', key = 'opt1', visible = False), sg.Button('3', key = 'opt2', visible = False), sg.Button('4', key = 'opt3', visible = False)]],
     [[sg.Button('Exit', button_color = 'red')]],
     [[sg.Text(text = ' '*80 + '\n' + ' '*80 + '\n' + ' '*80, background_color = back_color, text_color = t_color)]],
     [[sg.Multiline(default_text='Welcome to GUI Numero Dos', key = 'textbox',size=(35, 6), no_scrollbar = True, autoscroll = True, write_only = True)]]
 
-
     ]
-
+#print(TiPO4_bandstructure_parsers.get(vasp_path))
+#TiPO4_bandstructure_parsers[path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstructure"](path_to_current_folder + '/../GUI.hdf5', path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstructure")
 window = sg.Window('GUI',layout, background_color = back_color)
 active_dataset = False
 active_vis = ''
 
-def parse(vasp_path):
+def delete_prior_hdf5():
     try:
-        envisionMain.update()
-        envisionMain.parse_vasp(vasp_path, path_to_current_folder + '/../GUI.hdf5','All')
-        envisionMain.update()
-        send_request('init_manager', [path_to_current_folder + '/../GUI.hdf5'])
-        envisionMain.update()
+        test = os.listdir(path_to_current_folder + '/../')
+        for item in test:
+            if item.endswith(".hdf5"):
+                os.remove(os.path.join(path_to_current_folder + '/../',item))
+        return True
     except:
-        console_message('Failed to parse the chosen directory')
+        print('Couldnt remove')
 
-def toggle_canvas(type):
+def parse(vasp_path):
+    if delete_prior_hdf5():
+        try:
+            for key, values in parsers.items():
+                if key == vasp_path:
+                    for value in values:
+                        value(path_to_current_folder + '/../' + filenames[value] + '.hdf5', vasp_path)
+            print(filenames[value])
+            toggle_avaible_visualisations(vasp_path)
+            #send_request('init_manager', [path_to_current_folder + '/../GUI.hdf5'])
+            #envisionMain.update()
+            console_message('Succesfully parsed the chosen directory')
+        except:
+            parse(vasp_path)
+
+def toggle_canvas(file, type):
     global canvas
     try:
         if canvas:
             envisionMain.update()
-            send_request('visualisation_request', ["GUI", type, "hide", []])
+            send_request('visualisation_request', [file, type, "hide", []])
             envisionMain.update()
             canvas = False
         else:
             envisionMain.update()
-            send_request('visualisation_request', ["GUI", type, "show", []])
+            send_request('visualisation_request', [file, type, "show", []])
             envisionMain.update()
             canvas = True
         console_message('Canvas Toggled')
@@ -140,18 +207,18 @@ def toggle_canvas(type):
         console_message('Failed to toggle Canvas')
     return
 
-def toggle_force_vectors(type):
+def toggle_force_vectors(file, type):
     global vectors
     try:
         if type == 'force':
             if vectors:
                 envisionMain.update()
-                send_request("visualisation_request", ["GUI", type, "hide_vectors"])
+                send_request("visualisation_request", [file, type, "hide_vectors"])
                 envisionMain.update()
                 vectors = False
             else:
                 envisionMain.update()
-                send_request("visualisation_request", ["GUI", type, "show_vectors"])
+                send_request("visualisation_request", [file, type, "show_vectors"])
                 envisionMain.update()
                 vectors = True
         else:
@@ -161,7 +228,7 @@ def toggle_force_vectors(type):
         pass
     return
 
-def unfinished(type):
+def unfinished(file, type):
     console_message('Not yet implemented')
     return
 
@@ -169,15 +236,19 @@ def console_message(msg):
     window['textbox'].Update('\n' + msg, append = True)
     return
 
-def start_visualisation(type):
+def start_visualisation(file, type):
     envisionMain.update()
-    send_request('start_visualisation', ['GUI', type])
+    send_request('init_manager', [path_to_current_folder + '/../' + file + '.hdf5'])
+    envisionMain.update()
+    send_request('start_visualisation', [file, type])
     envisionMain.update()
 
-def stop_visualisation(type):
+
+def stop_visualisation(file, type):
     try:
         envisionMain.update()
-        send_request('stop_visualisation', ['GUI', type])
+
+        send_request('stop_visualisation', [file, type])
         envisionMain.update()
     except:
         console_message('Could not find active visualisation to terminate')
@@ -188,6 +259,12 @@ def find_selection_parse(values):
             return key
     return False
 
+def toggle_avaible_visualisations(vasp_path):
+    for i in parsers_vises['All']:
+        if i in parsers_vises[vasp_path]:
+            window.FindElement(i).Update(visible = True, button_color = 'green', disabled = False)
+        else:
+            window.FindElement(i).Update(visible = True, button_color = 'lightgrey', disabled = True)
 
 def create_vis_attributes(attr):
     for i in range(len(attr)):
@@ -243,7 +320,7 @@ while True:
     envisionMain.update()                     #Update envisionMain when we draw a new frame
     if event == 'Parse':
         try:
-            stop_visualisation(envisonMain_equivalent.get(active_vis))
+            stop_visualisation(active_vis, envisonMain_equivalent.get(active_vis))
             if active_vis != '':
                 enable_button(active_vis)
                 active_vis = ''
@@ -262,14 +339,14 @@ while True:
             console_message('Starting: ' + event)
             create_vis_attributes(visualisations_d[event])
             disable_button(event)
-            try:
-                start_visualisation(envisonMain_equivalent[event])
-            except:
-                console_message('Error in starting visualisation, choose something else')
+            #try:
+            start_visualisation(event, envisonMain_equivalent[event])
+            #except:
+                #console_message('Error in starting visualisation, choose something else')
             active_vis = event
         elif active_vis != event:
             try:
-                stop_visualisation(envisonMain_equivalent.get(active_vis))
+                stop_visualisation(active_vis, envisonMain_equivalent.get(active_vis))
             except:
                 pass
             console_message('Ending: ' + active_vis)
@@ -277,17 +354,15 @@ while True:
             console_message('Starting: ' + event)
             create_vis_attributes(visualisations_d[event])
             disable_button(event)
-            try:
-                start_visualisation(envisonMain_equivalent[event])
-
-            except:
-                console_message('Error in starting visualisation, choose something else')
+            #try:
+            start_visualisation(event, envisonMain_equivalent[event])
+            #except:
+            #    console_message('Error in starting visualisation, choose something else')
             active_vis = event
-
         else:
             continue
     if event in attr_keys:
-        name_to_function[window.FindElement(event).get_text()](envisonMain_equivalent.get(active_vis))
+        name_to_function[window.FindElement(event).get_text()](active_vis, envisonMain_equivalent.get(active_vis))
     if event in (sg.WINDOW_CLOSED, 'Exit'):
         break
 
