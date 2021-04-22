@@ -16,8 +16,8 @@ import queue
 def send_request(rtype, data):
     return envisionMain.handle_request({'type': rtype, 'parameters': data})
 
-#sys.stdout = open(os.devnull, "w")
-#sys.stderr = open(os.devnull, "w")
+sys.stdout = open(os.devnull, "w")
+sys.stderr = open(os.devnull, "w")
 
 canvas = True
 vectors = True
@@ -30,19 +30,17 @@ vasp_directory = ['TiPO4_bandstructure',
         'NaCl_charge_density',
         'Cu_band_CUB',
         'CuFeS2_band_CBT2',
-        'LiC_pair_corr_func',
         'partial_charges',
         'TiO2_band_TET',
         'TiPO4_DoS',
         'TiPO4_ELF',
         'Al_300K WARNING: Parse-time >2min',
-        'FCC-Cu  WARNING: Parse-time >5min']
+        'FCC-Cu  WARNING: Parse-time >2min']
 
 vasp_paths = [path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstructure",
             path_to_current_folder + "/../unit_testing/resources/NaCl_charge_density",
             path_to_current_folder + "/../unit_testing/resources/Cu_band_CUB",
             path_to_current_folder + "/../unit_testing/resources/CuFeS2_band_CBT2",
-            path_to_current_folder + "/../unit_testing/resources/LiC_pair_corr_func", #Currently buggy
             path_to_current_folder + "/../unit_testing/resources/partial_charges",
             path_to_current_folder + "/../unit_testing/resources/TiO2_band_TET",
             path_to_current_folder + "/../unit_testing/resources/TiPO4_DoS",
