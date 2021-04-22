@@ -26,28 +26,6 @@ t_color = 'black'
 
 envisionMain = EnvisionMain()
 
-vasp_directory = ['TiPO4_bandstructure',
-        'NaCl_charge_density',
-        'Cu_band_CUB',
-        'CuFeS2_band_CBT2',
-        'partial_charges',
-        'TiO2_band_TET',
-        'TiPO4_DoS',
-        'TiPO4_ELF',
-        'Al_300K WARNING: Parse-time >2min',
-        'FCC-Cu  WARNING: Parse-time >2min']
-
-vasp_paths = [path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstructure",
-            path_to_current_folder + "/../unit_testing/resources/NaCl_charge_density",
-            path_to_current_folder + "/../unit_testing/resources/Cu_band_CUB",
-            path_to_current_folder + "/../unit_testing/resources/CuFeS2_band_CBT2",
-            path_to_current_folder + "/../unit_testing/resources/partial_charges",
-            path_to_current_folder + "/../unit_testing/resources/TiO2_band_TET",
-            path_to_current_folder + "/../unit_testing/resources/TiPO4_DoS",
-            path_to_current_folder + "/../unit_testing/resources/TiPO4_ELF",
-            path_to_current_folder + "/../unit_testing/resources/MD/VASP/Al_300K",
-            path_to_current_folder + "/../unit_testing/resources/FCC-Cu"]
-
 parsers = {path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstructure" : [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.unitcell],
            path_to_current_folder + "/../unit_testing/resources/NaCl_charge_density" : [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.charge, envisionpy.hdf5parser.unitcell],
            path_to_current_folder + "/../unit_testing/resources/Cu_band_CUB": [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.charge, envisionpy.hdf5parser.unitcell],
@@ -56,8 +34,13 @@ parsers = {path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstruct
            path_to_current_folder + "/../unit_testing/resources/TiO2_band_TET" : [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.charge, envisionpy.hdf5parser.unitcell],
            path_to_current_folder + "/../unit_testing/resources/TiPO4_DoS" : [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.dos, envisionpy.hdf5parser.unitcell],
            path_to_current_folder + "/../unit_testing/resources/TiPO4_ELF" : [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.elf, envisionpy.hdf5parser.unitcell],
-           path_to_current_folder + "/../unit_testing/resources/FCC-Cu" : [envisionpy.hdf5parser.fermi_parser],
-           path_to_current_folder + "/../unit_testing/resources/MD/VASP/Al_300K" : [envisionpy.hdf5parser.mol_dynamic_parser, envisionpy.hdf5parser.unitcell]}
+           path_to_current_folder + "/../unit_testing/resources/MD/VASP/Al_300K" : [envisionpy.hdf5parser.mol_dynamic_parser, envisionpy.hdf5parser.unitcell],
+           path_to_current_folder + "/../unit_testing/resources/FCC-Cu" : [envisionpy.hdf5parser.fermi_parser]}
+
+vasp_directory = [i.rsplit('/', 1)[-1] for i in list(parsers.keys())]
+
+vasp_paths = [i for i in list(parsers.keys())]
+
 
 parsers_vises = {'All' : ['Force', 'Charge', 'MolecularDynamics', 'AtomPositions', 'ELF', 'Dos', 'FermiVolume'],
                  path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstructure" : ['Force', 'AtomPositions'],
@@ -106,13 +89,7 @@ visualisations = ['Force',
                  'Dos',
                  'FermiVolume']
 
-visualisations_t = ('Force',
-                 'MolecularDynamics',
-                 'AtomPositions',
-                 'Charge',
-                 'ELF',
-                 'Dos',
-                 'FermiVolume')
+visualisations_t = tuple(visualisations)
 
 visualisations_d = {'Force' : force_attr,
                     'MolecularDynamics' : moldyn_attr,
@@ -130,8 +107,6 @@ envisonMain_equivalent = {'Force' : 'force',
                           'Dos' : 'dos',
                           'FermiVolume' : 'fermi'}
 
-
-
 attr = ['Toggle Canvas',
         'Toggle Force Vectors',
         'Play/Pause',
@@ -141,7 +116,7 @@ attr_keys = ('opt0', 'opt1', 'opt2', 'opt3')
 
 layout = [
 
-    [[sg.Text('ENVISIoN GUI v0.0.0.1', background_color = back_color, justification = 'center', text_color = t_color, font = ("Helvetica", 40, 'bold'))]],
+    [[sg.Text('ENVISIoN GUI v0.0.0.2', background_color = back_color, justification = 'center', text_color = t_color, font = ("Helvetica", 40, 'bold'))]],
     [[sg.Text('Choose the preferred VASP directory:', background_color = back_color, text_color = t_color, font = ("Helvetica", 14, 'bold'))]],
     [[sg.Radio(vasp_directory[i], 'VASP', enable_events=True, key=vasp_paths[i], background_color = back_color, text_color = t_color)] for i in range(len(vasp_paths))],
     [[sg.Button('Parse', button_color = 'green')]],
