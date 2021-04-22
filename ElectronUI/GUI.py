@@ -16,8 +16,8 @@ import queue
 def send_request(rtype, data):
     return envisionMain.handle_request({'type': rtype, 'parameters': data})
 
-#sys.stdout = open(os.devnull, "w")
-#sys.stderr = open(os.devnull, "w")
+sys.stdout = open(os.devnull, "w")
+sys.stderr = open(os.devnull, "w")
 
 canvas = True
 vectors = True
@@ -127,7 +127,8 @@ layout = [
     [[sg.Button('1', key = 'opt0', visible = False), sg.Button('2', key = 'opt1', visible = False), sg.Button('3', key = 'opt2', visible = False), sg.Button('4', key = 'opt3', visible = False)]],
     [[sg.Button('Exit', button_color = 'red')]],
     [[sg.Text(text = ' '*80 + '\n' + ' '*80 + '\n' + ' '*80, background_color = back_color, text_color = t_color)]],
-    [[sg.Multiline(default_text='Welcome to GUI Numero Dos', key = 'textbox',size=(35, 6), no_scrollbar = True, autoscroll = True, write_only = True), sg.Text('Remember to unzip files in the \nAl_300K directory before parsing' ,background_color = back_color, text_color = t_color, font = ("Helvetica", 14, 'bold'))]]
+    [[sg.Multiline(default_text='Welcome to GUI Numero Dos', key = 'textbox',size=(35, 6), no_scrollbar = True, autoscroll = True, write_only = True),
+      sg.Text('Remember to unzip files in the \nAl_300K directory before parsing' ,background_color = back_color, text_color = t_color, font = ("Helvetica", 14, 'bold'))]]
 
     ]
 
