@@ -16,16 +16,22 @@ import queue
 def send_request(rtype, data):
     return envisionMain.handle_request({'type': rtype, 'parameters': data})
 
-sys.stdout = open(os.devnull, "w")
-sys.stderr = open(os.devnull, "w")
-
-canvas = True
-vectors = True
-back_color = 'lightblue'
-t_color = 'black'
-
 envisionMain = EnvisionMain()
 
+''' Suppress unwanted CMD output '''
+#sys.stdout = open(os.devnull, "w")
+#sys.stderr = open(os.devnull, "w")
+
+''' Global Variables, shouldnt have to be '''
+active_dataset = False
+active_vis = ''
+canvas = True
+vectors = True
+toggle_iso = True
+
+
+
+''' How things are connected is decided beneath '''
 parsers = {path_to_current_folder + "/../unit_testing/resources/TiPO4_bandstructure" : [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.unitcell],
            path_to_current_folder + "/../unit_testing/resources/NaCl_charge_density" : [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.charge, envisionpy.hdf5parser.unitcell],
            path_to_current_folder + "/../unit_testing/resources/Cu_band_CUB": [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.charge, envisionpy.hdf5parser.unitcell],
@@ -49,6 +55,17 @@ parsers_vises = {'All' : ['Force', 'Charge', 'MolecularDynamics', 'AtomPositions
                  path_to_current_folder + "/../unit_testing/resources/FCC-Cu" : ['FermiVolume'],
                  path_to_current_folder + "/../unit_testing/resources/MD/VASP/Al_300K" : ['MolecularDynamics', 'AtomPositions']}
 
+tooltips = ['Contains 48 atoms \n8 Titanium, 8 Phosphorus, 32 Oxygen',
+            'Contains 8 atoms \n4 Sodium, 4 Chlorine',
+            'Contains 1 Copper atom',
+            'Contains 8 atoms \n2 Copper, 2 Iron, 4 Sulfur',
+            'Contains 2 Carbon atoms',
+            'Contains 6 atoms \n4 Oxygen, 2 Titanium',
+            'Contains 48 atoms \n8 Titanium, 8 Phosphorus, 32 Oxygen',
+            'Contains 48 atoms \n8 Titanium, 8 Phosphorus, 32 Oxygen',
+            'Contains 1 Copper atom',
+            'Contains 32 Aluminium atoms']
+
 filenames  = {envisionpy.hdf5parser.force_parser : 'Force',
               envisionpy.hdf5parser.charge : 'Charge',
               envisionpy.hdf5parser.dos : 'Dos',
@@ -57,24 +74,32 @@ filenames  = {envisionpy.hdf5parser.force_parser : 'Force',
               envisionpy.hdf5parser.mol_dynamic_parser : 'MolecularDynamics',
               envisionpy.hdf5parser.unitcell : 'AtomPositions'}
 
-force_attr = ['Toggle Canvas',
-              'Toggle Force Vectors']
+force_attr = {'button0' : 'Toggle Canvas',
+              'button1' : 'Toggle Force Vectors'}
 
-moldyn_attr = ['Toggle Canvas',
-               'Play/Pause',
-               'Change Color']
+moldyn_attr = {'button0' : 'Toggle Canvas',
+               'button1' : 'Play/Pause',
+               'button2' : 'Change Color'}
 
-atom_attr = ['Toggle Canvas']
+atom_attr = {'button0' : 'Toggle Canvas'}
 
-charge_attr = ['Toggle Canvas']
+charge_attr = {'button0' : 'Toggle Canvas'}
 
-elf_attr = ['Toggle Canvas']
+elf_slider_attr = {'ISO Surface Value': [(0, 100), 50]}
 
-band_attr = ['Toggle Canvas']
+elf_combo_attr = {'Shading Mode' : ['No Shading', 'Ambient', 'Diffuse', 'Specular', 'Blinn Phong', 'Phong'],
+                  'Volume Selection' : ['/0', '/1', '/final']}
 
-dos_attr = ['Toggle Canvas']
+elf_attr = {'button0' : 'Toggle Canvas',
+            'button1' : 'Toggle ISO',
+            'combo' : elf_combo_attr,
+            'slider1' : elf_slider_attr}
 
-fermi_attr = ['Toggle Canvas']
+band_attr = {'button0' : 'Toggle Canvas'}
+
+dos_attr = {'button0' : 'Toggle Canvas'}
+
+fermi_attr = {'button' : 'Toggle Canvas'}
 
 visualisations = ['Force',
                  'MolecularDynamics',
@@ -109,33 +134,150 @@ envisonMain_equivalent = {'Force' : 'force',
 attr = ['Toggle Canvas',
         'Toggle Force Vectors',
         'Play/Pause',
-        'Change Color']
+        'Change Color',
+        'Toggle ISO']
 
 attr_keys = ('opt0', 'opt1', 'opt2', 'opt3')
+combo_keys = ('com0', 'com1', 'com2', 'com3')
+slider_keys = ('sli0', 'sli1', 'sli2', 'sli3')
+
+''' Layout and interface definitions '''
+sg.theme('DarkGrey14')
+
+radio = [[sg.Radio(vasp_directory[i], 'VASP', font = ("Helvetica", 11, 'bold'), tooltip = tooltips[i], enable_events=True, key=vasp_paths[i])] for i in range(len(vasp_paths))]
+
+vasp_layout = [
+              [sg.Text('Choose the preferred VASP directory:', font = ("Helvetica", 14, 'bold'))],
+              [sg.Frame(layout = radio, title = '',	border_width = 0)],
+              [sg.Button('Parse', button_color = 'green')],
+              [sg.Text(text = ' '*80 + '\n' + ' '*80 + '\n' + ' '*80, key = 'parse_status', visible = False)]
+              ]
+
+option_row = [[sg.Button('1', key = 'opt0', visible = False), sg.Button('2', key = 'opt1', visible = False),
+              sg.Button('3', key = 'opt2', visible = False), sg.Button('4', key = 'opt3', visible = False)]]
+
+combo_row = [
+             [sg.Text('Combo1', key = 'com0t', visible = False, size = (18,1))], [sg.Combo(['1'], key = 'com0', visible = False, readonly = True, enable_events = True)],
+             [sg.Text('Combo2', key = 'com1t', visible = False, size = (18,1))], [sg.Combo(['1'], key = 'com1', visible = False, readonly = True, enable_events = True)],
+             [sg.Text('Combo3', key = 'com2t', visible = False, size = (18,1))], [sg.Combo(['1'], key = 'com2', visible = False, readonly = True, enable_events = True)],
+             [sg.Text('Combo4', key = 'com3t', visible = False, size = (18,1))], [sg.Combo(['1'], key = 'com3', visible = False, readonly = True, enable_events = True)]
+            ]
+
+slider_row = [
+                                                                                   [sg.Slider(range = (0, 100), key = 'sli0', visible = False, orientation = 'horizontal', resolution = 5, default_value = 50, size = (15,20), enable_events = True, disable_number_display = True)],
+              [sg.Text('Slider1', key = 'sli0t', visible = False, size = (30,2))], [sg.Slider(range = (0, 100), key = 'sli1', visible = False, orientation = 'horizontal', resolution = 5, default_value = 50, size = (15,20), enable_events = True, disable_number_display = True)],
+              [sg.Text('Slider2', key = 'sli1t', visible = False, size = (30,2))], [sg.Slider(range = (0, 100), key = 'sli2', visible = False, orientation = 'horizontal', resolution = 5, default_value = 50, size = (15,20), enable_events = True, disable_number_display = True)],
+              [sg.Text('Slider3', key = 'sli2t', visible = False, size = (30,2))], [sg.Slider(range = (0, 100), key = 'sli3', visible = False, orientation = 'horizontal', resolution = 5, default_value = 50, size = (15,20), enable_events = True, disable_number_display = True)],
+              [sg.Text('Slider4', key = 'sli3t', visible = False, size = (30,2))]
+             ]
+
+vis_row = [
+          [sg.Button('Force'), sg.Button('MolecularDynamics'), sg.Button('AtomPositions'), sg.Button('Charge')],
+          [sg.Button('ELF'), sg.Button('Dos'), sg.Button('FermiVolume')]
+          ]
+
+exit_row = [
+           [sg.Button('Exit', button_color = 'red')]
+           ]
+
+console_row = [
+              [sg.Multiline(default_text='Welcome to GUI Numero Dos', key = 'textbox',size=(35, 6), no_scrollbar = True, autoscroll = True, write_only = True),
+               sg.Text('Remember to unzip files in the \nAl_300K directory before parsing', font = ("Helvetica", 14, 'bold'))]
+              ]
 
 layout = [
-
-    [[sg.Text('ENVISIoN GUI v0.0.0.2', background_color = back_color, justification = 'center', text_color = t_color, font = ("Helvetica", 40, 'bold'))]],
-    [[sg.Text('Choose the preferred VASP directory:', background_color = back_color, text_color = t_color, font = ("Helvetica", 14, 'bold'))]],
-    [[sg.Radio(vasp_directory[i], 'VASP', enable_events=True, key=vasp_paths[i], background_color = back_color, text_color = t_color)] for i in range(len(vasp_paths))],
-    [[sg.Button('Parse', button_color = 'green')]],
-    [[sg.Text(text = ' '*80 + '\n' + ' '*80 + '\n' + ' '*80, key = 'parse_status', background_color = back_color, text_color = t_color)]],
-    [[sg.Text('Choose what you want to visualize:', background_color = back_color, text_color = t_color, font = ("Helvetica", 14, 'bold'))]],
-    [[sg.Button('Force'), sg.Button('MolecularDynamics'), sg.Button('AtomPositions'), sg.Button('Charge')]],
-    [[sg.Button('ELF'), sg.Button('Dos'), sg.Button('FermiVolume')]],
-    [[sg.Text('Options:', background_color = back_color, text_color = t_color, font = ("Helvetica", 14, 'bold'))]],
-    [[sg.Button('1', key = 'opt0', visible = False), sg.Button('2', key = 'opt1', visible = False), sg.Button('3', key = 'opt2', visible = False), sg.Button('4', key = 'opt3', visible = False)]],
-    [[sg.Button('Exit', button_color = 'red')]],
-    [[sg.Text(text = ' '*80 + '\n' + ' '*80 + '\n' + ' '*80, background_color = back_color, text_color = t_color)]],
-    [[sg.Multiline(default_text='Welcome to GUI Numero Dos', key = 'textbox',size=(35, 6), no_scrollbar = True, autoscroll = True, write_only = True),
-      sg.Text('Remember to unzip files in the \nAl_300K directory before parsing' ,background_color = back_color, text_color = t_color, font = ("Helvetica", 14, 'bold'))]]
-
+         [sg.Text('ENVISIoN GUI v0.0.0.3', justification = 'center', font = ("Helvetica", 40, 'bold'))],
+         [sg.Frame(layout = vasp_layout, title = '',	border_width = 0)],
+         [sg.Frame(layout = vis_row, title = '',	border_width = 0)],
+         [sg.Text('Options:',font = ("Helvetica", 14, 'bold'), key = 'opt_text', visible = False)],
+         [sg.Frame(layout = option_row, title = '',	border_width = 0), sg.Frame(layout = combo_row, title = '',	border_width = 0), sg.Frame(layout = slider_row, title = '',	border_width = 0)],
+         [sg.Frame(layout = console_row, title = '',	border_width = 0)],
+         [sg.Frame(layout = exit_row, title = '',	border_width = 0)]
     ]
 
-window = sg.Window('GUI',layout, background_color = back_color, icon = 'Graphics/logotyp.png')
-active_dataset = False
-active_vis = ''
+window = sg.Window('GUI',layout, icon = 'Graphics/logotyp.png')
 
+''' Visualisation attribute functions '''
+def toggle_canvas(file, type):
+    global canvas
+    try:
+        if canvas:
+            envisionMain.update()
+            send_request('visualisation_request', [file, type, "hide", []])
+            envisionMain.update()
+            canvas = False
+        else:
+            envisionMain.update()
+            send_request('visualisation_request', [file, type, "show", []])
+            envisionMain.update()
+            canvas = True
+        console_message('Canvas Toggled')
+    except:
+        console_message('Failed to toggle Canvas')
+    return
+
+def set_shading_mode(file, type, key):
+    try:
+       send_request("visualisation_request", [file, type, "set_shading_mode", [key]])
+    except:
+       console_message('Could not set shading mode')
+
+def set_volume_selection(file, type, key):
+    try:
+       send_request("visualisation_request", [file, type, "set_volume_selection", [key]])
+    except:
+       console_message('Could not set volume selection')
+
+def toggle_force_vectors(file, type):
+    global vectors
+    try:
+        if type == 'force':
+            if vectors:
+                envisionMain.update()
+                send_request("visualisation_request", [file, type, "hide_vectors"])
+                envisionMain.update()
+                vectors = False
+            else:
+                envisionMain.update()
+                send_request("visualisation_request", [file, type, "show_vectors"])
+                envisionMain.update()
+                vectors = True
+        else:
+            console_message('Failed to toggle Vectors')
+        console_message('Vectors Toggled')
+    except:
+        console_message('Failed to toggle Vectors')
+    return
+
+def toggle_iso_surface(file, type):
+    global toggle_iso
+    try:
+        if toggle_iso:
+            envisionMain.update()
+            send_request("visualisation_request", [file, type, 'toggle_iso', [toggle_iso]])
+            envisionMain.update()
+            toggle_iso = False
+        else:
+            envisionMain.update()
+            send_request("visualisation_request", [file, type, 'toggle_iso', [toggle_iso]])
+            envisionMain.update()
+            toggle_iso = True
+        console_message('ISO Toggled')
+    except:
+        console_message('Failed to toggle ISO')
+    return
+
+def set_iso_surface(file, type, value):
+    try:
+        send_request("visualisation_request", [file, type, "set_iso_surface", [value]])
+    except:
+        console_message('Could not set ISO-surface value')
+
+def unfinished(file, type):
+    console_message('Not yet implemented')
+    return
+
+''' GUI control functions '''
 def delete_prior_hdf5():
     try:
         test = os.listdir(path_to_current_folder + '/../')
@@ -158,50 +300,6 @@ def parse(vasp_path):
         except:
             console_message('Be patient')
             parse(vasp_path)
-
-
-def toggle_canvas(file, type):
-    global canvas
-    try:
-        if canvas:
-            envisionMain.update()
-            send_request('visualisation_request', [file, type, "hide", []])
-            envisionMain.update()
-            canvas = False
-        else:
-            envisionMain.update()
-            send_request('visualisation_request', [file, type, "show", []])
-            envisionMain.update()
-            canvas = True
-        console_message('Canvas Toggled')
-    except:
-        console_message('Failed to toggle Canvas')
-    return
-
-def toggle_force_vectors(file, type):
-    global vectors
-    try:
-        if type == 'force':
-            if vectors:
-                envisionMain.update()
-                send_request("visualisation_request", [file, type, "hide_vectors"])
-                envisionMain.update()
-                vectors = False
-            else:
-                envisionMain.update()
-                send_request("visualisation_request", [file, type, "show_vectors"])
-                envisionMain.update()
-                vectors = True
-        else:
-            console_message('Failed to toggle Vectors')
-        console_message('Vectors Toggled')
-    except:
-        pass
-    return
-
-def unfinished(file, type):
-    console_message('Not yet implemented')
-    return
 
 def console_message(msg):
     window['textbox'].Update('\n' + msg, append = True)
@@ -236,11 +334,41 @@ def toggle_avaible_visualisations(vasp_path):
             window.FindElement(i).Update(visible = True, button_color = 'lightgrey', disabled = True)
 
 def create_vis_attributes(attr):
-    for i in range(len(attr)):
-        window.FindElement('opt' + str(i)).Update(text = attr[i], visible = True, button_color = 'green')
-    p = len(attr)
+    show_opt_text()
+    clear_options()
+    button_count = 0
+    combo_count = 0
+    slider_count = 0
+    for key, value in attr.items():
+        if 'button' in key:
+            window.FindElement('opt' + str(button_count)).Update(text = value, visible = True, button_color = 'green')
+            button_count += 1
+        elif 'combo' in key:
+            for key1, value1 in value.items():
+                window.FindElement('com' + str(combo_count) + 't').Update(value = key1, visible = True)
+                window.FindElement('com' + str(combo_count)).Update(values = value1, visible = True)
+                combo_count += 1
+        elif 'slider' in key:
+            for key2, value2 in value.items():
+                window.FindElement('sli' + str(combo_count) + 't').Update(value = key2 + ': ' + str(value2[1]/100), visible = True)
+                window.FindElement('sli' + str(combo_count)).Update(range = value2[0],  value = value2[1], visible = True, disabled = False)
+                slider_count += 1
+    return
+
+def show_opt_text():
+    window.FindElement('opt_text').Update(visible = True)
+
+def hide_opt_text():
+    window.FindElement('opt_text').Update(visible = False)
+
+def clear_options():
+    p=0
     while p < 4:
         window.FindElement('opt' + str(p)).Update(visible = False, button_color = 'green')
+        window.FindElement('com' + str(p)).Update(visible = False)
+        window.FindElement('sli' + str(p)).Update(visible = False)
+        window.FindElement('com' + str(p) + 't').Update(visible = False)
+        window.FindElement('sli' + str(p) + 't').Update(visible = False)
         p += 1
     return
 
@@ -257,7 +385,8 @@ def parse_progress_bar(vasp_path):
     for i in range(lenght):
         event, values = window2.read(timeout=10)
         if i == stop1:
-            time.sleep(0.4)
+            hide_opt_text()
+            clear_options()
         if i == stop2:
             parse(vasp_path)
         if i == stop3:
@@ -277,11 +406,19 @@ def enable_button(name):
     except:
         pass
 
-name_to_function = {'Toggle Canvas' : toggle_canvas,
+''' Name to function dictionaries '''
+button_to_function = {'Toggle Canvas' : toggle_canvas,
                     'Toggle Force Vectors' : toggle_force_vectors,
                     'Play/Pause' : unfinished,
-                    'Change Color' : unfinished}
+                    'Change Color' : unfinished,
+                    'Toggle ISO' : toggle_iso_surface}
 
+combo_to_function = {'Shading Mode' : set_shading_mode,
+                     'Volume Selection' : set_volume_selection}
+
+slider_to_function = {'ISO Surface Value' : set_iso_surface}
+
+''' GUI event loop '''
 while True:
 
     event, values = window.read(timeout = 10) #Timeout inversely sets framerate
@@ -330,8 +467,16 @@ while True:
         else:
             continue
     if event in attr_keys:
-        name_to_function[window.FindElement(event).get_text()](active_vis, envisonMain_equivalent.get(active_vis))
+        button_to_function[window.FindElement(event).get_text()](active_vis, envisonMain_equivalent.get(active_vis))
+    if event in combo_keys:
+        combo_to_function[window.FindElement(event + 't').get()](active_vis, envisonMain_equivalent.get(active_vis), values[event])
+    if event in slider_keys:
+        print(window.FindElement(event + 't').get())
+        text2 = window.FindElement(event + 't').get().split(':')
+        text1 = text2[0] + ': '
+        print(text1)
+        window.FindElement(event + 't').Update(value = text1 + str(round(values[event])/100))
+        slider_to_function[window.FindElement(event + 't').get().split(':')[0]](active_vis, envisonMain_equivalent.get(active_vis), round(values[event])/100)
     if event in (sg.WINDOW_CLOSED, 'Exit'):
         break
-
 window.close()
