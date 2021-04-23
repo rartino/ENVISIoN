@@ -26,9 +26,10 @@ envisionMain = EnvisionMain()
 active_dataset = False
 active_vis = ''
 canvas = True
+slice_canvas = False
 vectors = True
 toggle_iso = True
-
+slice_plane = True
 
 
 ''' How things are connected is decided beneath '''
@@ -83,23 +84,37 @@ moldyn_attr = {'button0' : 'Toggle Canvas',
 
 atom_attr = {'button0' : 'Toggle Canvas'}
 
-charge_attr = {'button0' : 'Toggle Canvas'}
+charge_slider_attr = {'ISO Surface Value' : [(0, 100), 50],
+                   'Slice Plane Height' : [(0, 100), 50]}
 
-elf_slider_attr = {'ISO Surface Value': [(0, 100), 50]}
+charge_combo_attr = {'Shading Mode' : ['No Shading', 'Ambient', 'Diffuse', 'Specular', 'Blinn Phong', 'Phong'],
+                  'Volume Selection' : ['/0', '/1', '/final']}
+
+charge_attr = {'button0' : 'Toggle Canvas',
+               'button1' : 'Toggle ISO',
+               'button2' : 'Toggle Slice Canvas',
+               'button3' : 'Toggle Slice Plane',
+               'combo' : charge_combo_attr,
+               'slider' : charge_slider_attr}
+
+elf_slider_attr = {'ISO Surface Value' : [(0, 100), 50],
+                   'Slice Plane Height' : [(0, 100), 50]}
 
 elf_combo_attr = {'Shading Mode' : ['No Shading', 'Ambient', 'Diffuse', 'Specular', 'Blinn Phong', 'Phong'],
                   'Volume Selection' : ['/0', '/1', '/final']}
 
 elf_attr = {'button0' : 'Toggle Canvas',
             'button1' : 'Toggle ISO',
+            'button2' : 'Toggle Slice Canvas',
+            'button3' : 'Toggle Slice Plane',
             'combo' : elf_combo_attr,
-            'slider1' : elf_slider_attr}
+            'slider' : elf_slider_attr}
 
 band_attr = {'button0' : 'Toggle Canvas'}
 
 dos_attr = {'button0' : 'Toggle Canvas'}
 
-fermi_attr = {'button' : 'Toggle Canvas'}
+fermi_attr = {'button0' : 'Toggle Canvas'}
 
 visualisations = ['Force',
                  'MolecularDynamics',
@@ -130,12 +145,6 @@ envisonMain_equivalent = {'Force' : 'force',
                           'ELF' : 'elf',
                           'Dos' : 'dos',
                           'FermiVolume' : 'fermi'}
-
-attr = ['Toggle Canvas',
-        'Toggle Force Vectors',
-        'Play/Pause',
-        'Change Color',
-        'Toggle ISO']
 
 attr_keys = ('opt0', 'opt1', 'opt2', 'opt3')
 combo_keys = ('com0', 'com1', 'com2', 'com3')
@@ -273,6 +282,48 @@ def set_iso_surface(file, type, value):
     except:
         console_message('Could not set ISO-surface value')
 
+def toggle_slice_canvas(file, type):
+    global slice_canvas
+    try:
+        if slice_canvas:
+            envisionMain.update()
+            send_request('visualisation_request', [file, type, "hide", [False, True]])
+            envisionMain.update()
+            slice_canvas = False
+        else:
+            envisionMain.update()
+            send_request('visualisation_request', [file, type, "show", [False, True]])
+            envisionMain.update()
+            slice_canvas = True
+        console_message('Slice Canvas Toggled')
+    except:
+        console_message('Failed to toggle Slice Canvas')
+    return
+
+def toggle_slice_plane(file, type):
+    global slice_plane
+    try:
+        if slice_plane:
+            envisionMain.update()
+            send_request("visualisation_request", [file, type, 'toggle_slice_plane', [slice_plane]])
+            envisionMain.update()
+            slice_plane = False
+        else:
+            envisionMain.update()
+            send_request("visualisation_request", [file, type, 'toggle_slice_plane', [slice_plane]])
+            envisionMain.update()
+            slice_plane = True
+        console_message('Slice Plane Toggled')
+    except:
+        console_message('Failed to toggle Slice Plane')
+    return
+
+def set_slice_plane_height(file, type, value):
+    try:
+        send_request("visualisation_request", [file, type, "set_plane_height", [value]])
+    except:
+        console_message('Could not set slice plane height')
+
 def unfinished(file, type):
     console_message('Not yet implemented')
     return
@@ -350,8 +401,8 @@ def create_vis_attributes(attr):
                 combo_count += 1
         elif 'slider' in key:
             for key2, value2 in value.items():
-                window.FindElement('sli' + str(combo_count) + 't').Update(value = key2 + ': ' + str(value2[1]/100), visible = True)
-                window.FindElement('sli' + str(combo_count)).Update(range = value2[0],  value = value2[1], visible = True, disabled = False)
+                window.FindElement('sli' + str(slider_count) + 't').Update(value = key2 + ': ' + str(value2[1]/100), visible = True)
+                window.FindElement('sli' + str(slider_count)).Update(range = value2[0],  value = value2[1], visible = True, disabled = False)
                 slider_count += 1
     return
 
@@ -411,12 +462,15 @@ button_to_function = {'Toggle Canvas' : toggle_canvas,
                     'Toggle Force Vectors' : toggle_force_vectors,
                     'Play/Pause' : unfinished,
                     'Change Color' : unfinished,
-                    'Toggle ISO' : toggle_iso_surface}
+                    'Toggle ISO' : toggle_iso_surface,
+                    'Toggle Slice Canvas' : toggle_slice_canvas,
+                    'Toggle Slice Plane' : toggle_slice_plane}
 
 combo_to_function = {'Shading Mode' : set_shading_mode,
                      'Volume Selection' : set_volume_selection}
 
-slider_to_function = {'ISO Surface Value' : set_iso_surface}
+slider_to_function = {'ISO Surface Value' : set_iso_surface,
+                      'Slice Plane Height' : set_slice_plane_height}
 
 ''' GUI event loop '''
 while True:
@@ -471,11 +525,7 @@ while True:
     if event in combo_keys:
         combo_to_function[window.FindElement(event + 't').get()](active_vis, envisonMain_equivalent.get(active_vis), values[event])
     if event in slider_keys:
-        print(window.FindElement(event + 't').get())
-        text2 = window.FindElement(event + 't').get().split(':')
-        text1 = text2[0] + ': '
-        print(text1)
-        window.FindElement(event + 't').Update(value = text1 + str(round(values[event])/100))
+        window.FindElement(event + 't').Update(value = (window.FindElement(event + 't').get().split(':'))[0] + ': ' + str(round(values[event])/100))
         slider_to_function[window.FindElement(event + 't').get().split(':')[0]](active_vis, envisonMain_equivalent.get(active_vis), round(values[event])/100)
     if event in (sg.WINDOW_CLOSED, 'Exit'):
         break
