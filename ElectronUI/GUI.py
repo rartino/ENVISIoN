@@ -50,9 +50,11 @@ atom_attr = config['DICTIONARIES']['ATTRIBUTES']['atom_attr']
 charge_attr = config['DICTIONARIES']['ATTRIBUTES']['charge_attr']
 elf_attr = config['DICTIONARIES']['ATTRIBUTES']['elf_attr']
 band_attr = config['DICTIONARIES']['ATTRIBUTES']['band_attr']
+band3d_attr = config['DICTIONARIES']['ATTRIBUTES']['band3d_attr']
 dos_attr = config['DICTIONARIES']['ATTRIBUTES']['dos_attr']
 pcf_attr = config['DICTIONARIES']['ATTRIBUTES']['pcf_attr']
 fermi_attr = config['DICTIONARIES']['ATTRIBUTES']['fermi_attr']
+band3d_attr = config['DICTIONARIES']['ATTRIBUTES']['band_attr']
 visualisations = config['LISTS']['visualisations']
 envisionMain_equivalent = config['DICTIONARIES']['envisionMain_equivalent']
 filenames  = {envisionpy.hdf5parser.force_parser : 'Force',
@@ -62,7 +64,11 @@ filenames  = {envisionpy.hdf5parser.force_parser : 'Force',
               envisionpy.hdf5parser.fermi_parser : 'FermiVolume',
               envisionpy.hdf5parser.mol_dynamic_parser : 'MolecularDynamics',
               envisionpy.hdf5parser.unitcell : 'AtomPositions',
-              envisionpy.hdf5parser.paircorrelation : 'PCF'}
+              envisionpy.hdf5parser.paircorrelation : 'PCF',
+              envisionpy.hdf5parser.bandstructure_combo3d : 'BandStructure3D',
+              envisionpy.hdf5parser.bandstructure_combo : 'BandStructure'
+              }
+
 new_keys = []
 new_values = []
 for key, values in parsers.items():
@@ -85,7 +91,10 @@ visualisations_d = {'Force' : force_attr,
                     'ELF' : elf_attr,
                     'Dos' : dos_attr,
                     'FermiVolume' : fermi_attr,
-                    'PCF' : pcf_attr }
+                    'PCF' : pcf_attr,
+                    'BandStructure3D' : band_attr,
+                    'BandStructure' : band3d_attr
+                    }
 
 ''' Layout and interface definitions '''
 sg.theme('DarkGrey14')

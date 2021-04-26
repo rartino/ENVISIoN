@@ -14,6 +14,8 @@ from .baseNetworks.Decoration import Decoration
 from .ForceVectors import ForceVectors
 from .MolecularDynamics import MolecularDynamics
 from envisionpy.processor_network import PCFNetworkHandler
+from envisionpy.processor_network import Bandstructure3DNetworkHandler
+from envisionpy.processor_network import BandstructureNetworkHandler
 from .Test import Test
 
 class VisualisationManager():
@@ -44,6 +46,10 @@ class VisualisationManager():
                 self.available_visualisations.append("charge")
             if ELFVolume.valid_hdf5(file):
                 self.available_visualisations.append("elf")
+            if BandstructureNetworkHandler.valid_hdf5(file):
+                self.available_visualisations.append("band2d")
+            if Bandstructure3DNetworkHandler.valid_hdf5(file):
+                self.available_visualisations.append("band3d")
             if AtomPositions.valid_hdf5(file):
                 self.available_visualisations.append("atom")
             if FermiSurface.valid_hdf5(file):
@@ -80,7 +86,7 @@ class VisualisationManager():
                 if other_type in subnetwork.valid_visualisations():
                     subnetwork.connect_decoration(other_network, other_type)
             subnetwork.show()
-        elif vis_type == 'pcf':
+        elif vis_type in ['pcf', 'band2d', 'band3d']:
             pass
         # Normal visualisation.
         else:
@@ -127,6 +133,12 @@ class VisualisationManager():
         elif vis_type == "pcf":
             subnetwork = PCFNetworkHandler(self.hdf5_path, self.app)
 
+        elif vis_type == "band2d":
+            subnetwork = BandstructureNetworkHandler(self.hdf5_path, self.app)
+
+        elif vis_type == "band3d":
+            subnetwork = Bandstructure3DNetworkHandler(self.hdf5_path, self.app)
+
         elif vis_type == "charge":
             subnetwork = ChargeDensity(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
 
@@ -163,7 +175,7 @@ class VisualisationManager():
                         self.subnetworks[t].volume_outport,
                         self.subnetworks[t].transfer_function_prop,
                         self.subnetworks[t].camera_prop)
-        if vis_type != "pcf":
+        if vis_type not in ['pcf', 'band2d', 'band3d']:
             subnetwork.hide() # All new visualisations are hidden by default here.
         self.subnetworks[vis_type] = subnetwork
         return subnetwork

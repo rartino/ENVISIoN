@@ -27,7 +27,7 @@
 
 
 
-# Name: Bandstructure3DNetworkHandler 
+# Name: Bandstructure3DNetworkHandler
 import sys,os,inspect
 import inviwopy as ivw
 import inviwopy.glm as glm
@@ -40,11 +40,16 @@ class Bandstructure3DNetworkHandler(NetworkHandler):
     def __init__(self, hdf5_path, inviwoApp):
         NetworkHandler.__init__(self, inviwoApp)
         self.setup_bandstructure_network(hdf5_path)
-        
+
+
+
+    @staticmethod
+    def valid_hdf5(hdf5_file):
+        return True
 
     def processorInfo():
         return ivw.ProcessorInfo(
-            classIdentifier = "org.inviwo.Bandstructure3DNetworkHandler", 
+            classIdentifier = "org.inviwo.Bandstructure3DNetworkHandler",
             displayName = "Bandstructure3DNetworkHandler",
             category = "Python",
             codeState = ivw.CodeState.Stable,
@@ -56,9 +61,21 @@ class Bandstructure3DNetworkHandler(NetworkHandler):
             "bandstructure3d"
             ]
 
+    def show(self):
+        try:
+            self.network.get_processor('Canvas').widget.show()
+        except:
+            pass
+
+    def hide(self):
+        try:
+            self.network.get_processor('Canvas').widget.hide()
+        except:
+            pass
+
     def getProcessorInfo(self):
         return Bandstructure3DNetworkHandler.processorInfo()
-    
+
     def initializeResources(self):
         print("init")
 
@@ -74,7 +91,7 @@ class Bandstructure3DNetworkHandler(NetworkHandler):
             iteration_list = []
             sym_it_list = []
 
-            for x in range(len(Symbols)): 
+            for x in range(len(Symbols)):
                 symbol = f.get('Highcoordinates').get(str(x)).get('Symbol')[()]
                 koord = f.get('Highcoordinates').get(str(x)).get('Coordinates')[()]
                 sym_list.append(
@@ -83,7 +100,7 @@ class Bandstructure3DNetworkHandler(NetworkHandler):
                 kpoint_list.append(
                     koord
                 )
-                
+
                 for i in range(len(KPoints)):
                     if np.array_equal(KPoints[i],kpoint_list[x]):
                         iteration_list.append(i)
@@ -110,7 +127,7 @@ class Bandstructure3DNetworkHandler(NetworkHandler):
         self.network.addProcessor(hdf5_path_selection)
 
         self.network.addConnection(
-            hdf5_source.getOutport('outport'), 
+            hdf5_source.getOutport('outport'),
             hdf5_path_selection.getInport('inport')
         )
 
@@ -120,7 +137,7 @@ class Bandstructure3DNetworkHandler(NetworkHandler):
         self.network.addProcessor(hdf5_path_selection_all_children)
 
         self.network.addConnection(
-            hdf5_path_selection.getOutport('outport'), 
+            hdf5_path_selection.getOutport('outport'),
             hdf5_path_selection_all_children.getInport('hdf5HandleInport')
         )
 
@@ -248,7 +265,7 @@ class Bandstructure3DNetworkHandler(NetworkHandler):
                     third_text_overlay.text.value = sym_it_list[q]
                     overlay_list.append(third_text_overlay)
                     new_iteration_list.append(iteration_list[q])
-                   
+
         self.network.addConnection(
             second_text_overlay.getOutport('outport'),
             overlay_list[0].getInport('inport')
@@ -263,7 +280,7 @@ class Bandstructure3DNetworkHandler(NetworkHandler):
                 overlay_list[w].getOutport('outport'),
                 overlay_list[w+1].getInport('inport')
             )
-        
+
 
 
 
@@ -286,7 +303,7 @@ class Bandstructure3DNetworkHandler(NetworkHandler):
             self.network.addConnection(
                 line_plot.getOutport('outport'),
                 mesh_render.getInport('inputMesh')
-            ) 
+            )
 
 
 #Canvas
@@ -307,10 +324,3 @@ class Bandstructure3DNetworkHandler(NetworkHandler):
         canvas.widget.show()
 
         hdf5_path_selection.selection.value = '/Bandstructure/Bands'
-
-
-
-
-
-
-       
