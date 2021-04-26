@@ -292,12 +292,12 @@ console_row = [
               [sg.Multiline(default_text='Welcome to GUI Numero Dos',
                             key = 'textbox',size=(35, 6), no_scrollbar = True,
                             autoscroll = True, write_only = True),
-    sg.Text('Remember to unzip files in the \nAl_300K directory before parsing',
+    sg.Text('Remember to unzip files \nin the Al_300K directory \nbefore parsing',
                        font = ("Helvetica", 14, 'bold'))]
               ]
 
 layout = [
-         [sg.Text('ENVISIoN GUI v0.0.0.3', justification = 'center',
+         [sg.Text('ENVISIoN GUI v0.3', justification = 'center',
                   font = ("Helvetica", 40, 'bold'))],
          [sg.Frame(layout = vasp_layout, title = '', border_width = 0,
                    vertical_alignment = "top")],
