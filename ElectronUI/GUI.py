@@ -30,7 +30,9 @@ slice_canvas = False
 vectors = True
 toggle_iso = True
 slice_plane = True
-
+number_of_buttons = 5
+number_of_comboboxes = 4
+number_of_sliders = 4
 
 ''' How things are connected is decided beneath '''
 parsers = {path_to_current_folder +
@@ -216,73 +218,65 @@ slider_keys = ('sli0', 'sli1', 'sli2', 'sli3')
 ''' Layout and interface definitions '''
 sg.theme('DarkGrey14')
 
-radio = [[sg.Radio(vasp_directory[i], 'VASP', font = ("Helvetica", 11, 'bold'),
-                   tooltip = tooltips[i], enable_events=True,
-                   key=vasp_paths[i])] for i in range(len(vasp_paths))]
+def setup_radio():
+    return [[sg.Radio(vasp_directory[i], 'VASP',
+                      font = ("Helvetica", 11, 'bold'),
+                      tooltip = tooltips[i], enable_events=True,
+                      key=vasp_paths[i])] for i in range(len(vasp_paths))]
+
 
 vasp_layout = [
               [sg.Text('Choose the preferred VASP directory:',
                        font = ("Helvetica", 14, 'bold'))],
-              [sg.Frame(layout = radio, title = '',	border_width = 0)],
+              [sg.Frame(layout = setup_radio(), title = '',	border_width = 0)],
               [sg.Button('Parse', button_color = 'green')],
               [sg.Text(text = ' '*80 + '\n' + ' '*80 + '\n' + ' '*80,
                        key = 'parse_status', visible = False)]
               ]
 
-option_row = [
-             [sg.Button('1', key = 'opt0', visible = False),
-              sg.Button('2', key = 'opt1', visible = False),
-              sg.Button('3', key = 'opt2', visible = False),
-              sg.Button('4', key = 'opt3', visible = False)]
-             ]
+def setup_option_buttons():
+    return [[sg.Button(i, key = 'opt' + str(i), visible = False)]
+             for i in range(number_of_buttons)]
 
-combo_row =  [
-             [sg.Text('Combo1', key = 'com0t', visible = False, size = (18,1))],
-             [sg.Combo(['1'], key = 'com0', visible = False, readonly = True,
-                       enable_events = True)],
-             [sg.Text('Combo2', key = 'com1t', visible = False, size = (18,1))],
-             [sg.Combo(['1'], key = 'com1', visible = False, readonly = True,
-                       enable_events = True)],
-             [sg.Text('Combo3', key = 'com2t', visible = False, size = (18,1))],
-             [sg.Combo(['1'], key = 'com2', visible = False, readonly = True,
-                       enable_events = True)],
-             [sg.Text('Combo4', key = 'com3t', visible = False, size = (18,1))],
-             [sg.Combo(['1'], key = 'com3', visible = False, readonly = True,
-                       enable_events = True)]
-             ]
+def setup_combo_boxes():
+    combo_row = []
+    for i in range(number_of_comboboxes):
+        combo_row.append([sg.Text('Combo' + str(i), key = 'com' + str(i) + 't',
+                 visible = False, size = (18, 1))])
+        combo_row.append([sg.Combo([str(i)], key = 'com' + str(i),
+                                   visible = False,
+                                   readonly = True, enable_events = True)])
+    return combo_row
 
-slider_row =  [
-              [sg.Slider(range = (0, 100), key = 'sli0', visible = False,
-                         orientation = 'horizontal', resolution = 5,
-                         default_value = 50, size = (15,20),
-                         enable_events = True, disable_number_display = True)],
-              [sg.Text('Slider1', key = 'sli0t', visible = False,
-                       size = (30,2))],
-              [sg.Slider(range = (0, 100), key = 'sli1', visible = False,
-                         orientation = 'horizontal', resolution = 5,
-                         default_value = 50, size = (15,20),
-                         enable_events = True, disable_number_display = True)],
-              [sg.Text('Slider2', key = 'sli1t', visible = False,
-                       size = (30,2))],
-              [sg.Slider(range = (0, 100), key = 'sli2', visible = False,
-                         orientation = 'horizontal', resolution = 5,
-                         default_value = 50, size = (15,20),
-                         enable_events = True, disable_number_display = True)],
-              [sg.Text('Slider3', key = 'sli2t', visible = False,
-                       size = (30,2))],
-              [sg.Slider(range = (0, 100), key = 'sli3', visible = False,
-                         orientation = 'horizontal', resolution = 5,
-                         default_value = 50, size = (15,20),
-                         enable_events = True, disable_number_display = True)],
-              [sg.Text('Slider4', key = 'sli3t', visible = False,
-                       size = (30,2))]
-              ]
+def setup_sliders():
+    slider_row = []
+    for i in range(number_of_sliders):
+        slider_row.append([sg.Slider(range = (0, 100), key = 'sli' + str(i),
+                                     visible = False,
+                                     orientation = 'horizontal', resolution = 5,
+                                     default_value = 50, size = (15,20),
+                                     enable_events = True,
+                                     disable_number_display = True)])
+        slider_row.append([sg.Text('Slider' + str(i), key = 'sli' + str(i) + \
+                                   't', visible = False,
+                 size = (30,2))])
+    return slider_row
 
-vis_row = [
-          [sg.Button('Force'), sg.Button('MolecularDynamics'),
-           sg.Button('AtomPositions'), sg.Button('Charge')],
-          [sg.Button('ELF'), sg.Button('Dos'), sg.Button('FermiVolume')]
-          ]
+def setup_buttons():
+    button_row = []
+    temp_row1 = []
+    temp_row2 = []
+    half_vis = round(len(visualisations)/2)
+    vis_first_half = visualisations[:half_vis]
+    vis_last_half = visualisations[half_vis:]
+    for i in vis_first_half:
+        temp_row1.append(sg.Button(i))
+    for i in vis_last_half:
+        temp_row2.append(sg.Button(i))
+    button_row.append(temp_row1)
+    button_row.append(temp_row2)
+    return button_row
+
 
 exit_row = [
            [sg.Button('Exit', button_color = 'red')]
@@ -292,7 +286,8 @@ console_row = [
               [sg.Multiline(default_text='Welcome to GUI Numero Dos',
                             key = 'textbox',size=(35, 6), no_scrollbar = True,
                             autoscroll = True, write_only = True),
-    sg.Text('Remember to unzip files \nin the Al_300K directory \nbefore parsing',
+               sg.Text('Remember to unzip files \nin the Al_300K directory \
+                       \nbefore parsing',
                        font = ("Helvetica", 14, 'bold'))]
               ]
 
@@ -301,15 +296,18 @@ layout = [
                   font = ("Helvetica", 40, 'bold'))],
          [sg.Frame(layout = vasp_layout, title = '', border_width = 0,
                    vertical_alignment = "top")],
-         [sg.Frame(layout = vis_row, title = '',border_width = 0,
+         [sg.Frame(layout = setup_buttons(), title = '',border_width = 0,
                    vertical_alignment = "top")],
          [sg.Text('Options:',font = ("Helvetica", 14, 'bold'), key = 'opt_text',
                   visible = False)],
-         [sg.Frame(layout = option_row, title = '',	border_width = 0,
+         [sg.Frame(layout = setup_option_buttons(), title = '',
+                   border_width = 0,
                    vertical_alignment = "top"),
-                   sg.Frame(layout = combo_row, title = '',	border_width = 0,
+                   sg.Frame(layout = setup_combo_boxes(), title = '',
+                            border_width = 0,
                             vertical_alignment = "top"),
-                   sg.Frame(layout = slider_row, title = '', border_width = 0,
+                   sg.Frame(layout = setup_sliders(), title = '',
+                            border_width = 0,
                             vertical_alignment = "top")],
          [sg.Frame(layout = console_row, title = '', border_width = 0,
                    vertical_alignment = "top")],
