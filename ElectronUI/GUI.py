@@ -12,112 +12,48 @@ import envisionpy
 from envisionpy.hdf5parser import *
 import threading
 import queue
+from yaml import load, dump
+#try:
+#    from yaml import CLoader as Loader, CDumper as Dumper
+#except ImportError:
+#    from yaml import Loader, Dumper
 
 def send_request(rtype, data):
     return envisionMain.handle_request({'type': rtype, 'parameters': data})
 
 envisionMain = EnvisionMain()
 
+with open('GUIconfig.yml') as c:
+    config = load(c)
+
+
 ''' Suppress unwanted CMD output '''
 #sys.stdout = open(os.devnull, "w")
 #sys.stderr = open(os.devnull, "w")
 
-''' Global Variables, shouldnt have to be '''
-active_dataset = False
-active_vis = ''
-canvas = True
-slice_canvas = False
-vectors = True
-toggle_iso = True
-slice_plane = True
-number_of_buttons = 5
-number_of_comboboxes = 4
-number_of_sliders = 4
-
-''' How things are connected is decided beneath '''
-parsers = {path_to_current_folder +
-           "/../unit_testing/resources/TiPO4_bandstructure" :
-           [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.unitcell],
-           path_to_current_folder +
-           "/../unit_testing/resources/NaCl_charge_density" :
-           [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.charge,
-            envisionpy.hdf5parser.unitcell],
-           path_to_current_folder +
-           "/../unit_testing/resources/Cu_band_CUB":
-           [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.charge,
-            envisionpy.hdf5parser.unitcell],
-           path_to_current_folder +
-           "/../unit_testing/resources/CuFeS2_band_CBT2":
-           [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.charge,
-            envisionpy.hdf5parser.unitcell],
-           path_to_current_folder +
-           "/../unit_testing/resources/partial_charges" :
-           [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.charge,
-            envisionpy.hdf5parser.unitcell],
-           path_to_current_folder +
-           "/../unit_testing/resources/TiO2_band_TET" :
-           [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.charge,
-            envisionpy.hdf5parser.unitcell],
-           path_to_current_folder +
-           "/../unit_testing/resources/TiPO4_DoS" :
-           [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.dos,
-            envisionpy.hdf5parser.unitcell],
-           path_to_current_folder +
-           "/../unit_testing/resources/TiPO4_ELF" :
-           [envisionpy.hdf5parser.force_parser, envisionpy.hdf5parser.elf,
-            envisionpy.hdf5parser.unitcell],
-           path_to_current_folder +
-           "/../unit_testing/resources/MD/VASP/Al_300K" :
-           [envisionpy.hdf5parser.mol_dynamic_parser,
-            envisionpy.hdf5parser.unitcell],
-           path_to_current_folder +
-           "/../unit_testing/resources/FCC-Cu" :
-           [envisionpy.hdf5parser.fermi_parser]}
-
-parsers_vises = {'All' : ['Force', 'Charge', 'MolecularDynamics',
-                          'AtomPositions', 'ELF', 'Dos', 'FermiVolume'],
-                 path_to_current_folder +
-                 "/../unit_testing/resources/TiPO4_bandstructure" :
-                 ['Force', 'AtomPositions'],
-                 path_to_current_folder +
-                 "/../unit_testing/resources/NaCl_charge_density" :
-                 ['Force', 'Charge', 'AtomPositions'],
-                 path_to_current_folder +
-                 "/../unit_testing/resources/Cu_band_CUB":
-                 ['Force', 'Charge', 'AtomPositions'],
-                 path_to_current_folder +
-                 "/../unit_testing/resources/CuFeS2_band_CBT2":
-                 ['Force', 'Charge', 'AtomPositions'],
-                 path_to_current_folder +
-                 "/../unit_testing/resources/partial_charges" :
-                 ['Force', 'Charge', 'AtomPositions'],
-                 path_to_current_folder +
-                 "/../unit_testing/resources/TiO2_band_TET" :
-                 ['Force', 'Charge', 'AtomPositions'],
-                 path_to_current_folder +
-                 "/../unit_testing/resources/TiPO4_DoS" :
-                 ['Force', 'Dos', 'AtomPositions'],
-                 path_to_current_folder +
-                 "/../unit_testing/resources/TiPO4_ELF" :
-                 ['Force', 'ELF', 'AtomPositions'],
-                 path_to_current_folder +
-                 "/../unit_testing/resources/FCC-Cu" :
-                 ['FermiVolume'],
-                 path_to_current_folder +
-                 "/../unit_testing/resources/MD/VASP/Al_300K" :
-                 ['MolecularDynamics', 'AtomPositions']}
-
-tooltips = ['Contains 48 atoms \n8 Titanium, 8 Phosphorus, 32 Oxygen',
-            'Contains 8 atoms \n4 Sodium, 4 Chlorine',
-            'Contains 1 Copper atom',
-            'Contains 8 atoms \n2 Copper, 2 Iron, 4 Sulfur',
-            'Contains 2 Carbon atoms',
-            'Contains 6 atoms \n4 Oxygen, 2 Titanium',
-            'Contains 48 atoms \n8 Titanium, 8 Phosphorus, 32 Oxygen',
-            'Contains 48 atoms \n8 Titanium, 8 Phosphorus, 32 Oxygen',
-            'Contains 1 Copper atom',
-            'Contains 32 Aluminium atoms']
-
+''' Setting up necessary data '''
+active_dataset = config['VARIABLES']['active_dataset']
+active_vis = config['VARIABLES']['active_vis']
+canvas = config['VARIABLES']['canvas']
+slice_canvas = config['VARIABLES']['slice_canvas']
+vectors = config['VARIABLES']['vectors']
+toggle_iso = config['VARIABLES']['toggle_iso']
+slice_plane = config['VARIABLES']['slice_plane']
+number_of_buttons = config['VARIABLES']['number_of_buttons']
+number_of_comboboxes = config['VARIABLES']['number_of_comboboxes']
+number_of_sliders = config['VARIABLES']['number_of_sliders']
+parsers = config['DICTIONARIES']['parsers']
+tooltips = config['DICTIONARIES']['tooltips']
+force_attr = config['DICTIONARIES']['ATTRIBUTES']['force_attr']
+moldyn_attr = config['DICTIONARIES']['ATTRIBUTES']['moldyn_attr']
+atom_attr = config['DICTIONARIES']['ATTRIBUTES']['atom_attr']
+charge_attr = config['DICTIONARIES']['ATTRIBUTES']['charge_attr']
+elf_attr = config['DICTIONARIES']['ATTRIBUTES']['elf_attr']
+band_attr = config['DICTIONARIES']['ATTRIBUTES']['band_attr']
+dos_attr = config['DICTIONARIES']['ATTRIBUTES']['dos_attr']
+fermi_attr = config['DICTIONARIES']['ATTRIBUTES']['fermi_attr']
+visualisations = config['LISTS']['visualisations']
+envisionMain_equivalent = config['DICTIONARIES']['envisionMain_equivalent']
 filenames  = {envisionpy.hdf5parser.force_parser : 'Force',
               envisionpy.hdf5parser.charge : 'Charge',
               envisionpy.hdf5parser.dos : 'Dos',
@@ -125,76 +61,21 @@ filenames  = {envisionpy.hdf5parser.force_parser : 'Force',
               envisionpy.hdf5parser.fermi_parser : 'FermiVolume',
               envisionpy.hdf5parser.mol_dynamic_parser : 'MolecularDynamics',
               envisionpy.hdf5parser.unitcell : 'AtomPositions'}
-
-force_attr = {'button0' : 'Toggle Canvas',
-              'button1' : 'Toggle Force Vectors'}
-
-moldyn_attr = {'button0' : 'Toggle Canvas',
-               'button1' : 'Play/Pause',
-               'button2' : 'Change Color'}
-
-atom_attr = {'button0' : 'Toggle Canvas'}
-
-charge_slider_attr = {'ISO Surface Value' : [(0, 100), 50],
-                   'Slice Plane Height' : [(0, 100), 50]}
-
-charge_combo_attr = {'Shading Mode' : ['No Shading', 'Ambient', 'Diffuse',
-                     'Specular', 'Blinn Phong', 'Phong'],
-                     'Volume Selection' : ['/0', '/1', '/final']}
-
-charge_attr = {'button0' : 'Toggle Canvas',
-               'button1' : 'Toggle ISO',
-               'button2' : 'Toggle Slice Canvas',
-               'button3' : 'Toggle Slice Plane',
-               'combo' : charge_combo_attr,
-               'slider' : charge_slider_attr}
-
-elf_slider_attr = {'ISO Surface Value' : [(0, 100), 50],
-                   'Slice Plane Height' : [(0, 100), 50]}
-
-elf_combo_attr = {'Shading Mode' : ['No Shading', 'Ambient', 'Diffuse',
-                  'Specular', 'Blinn Phong', 'Phong'],
-                  'Volume Selection' : ['/0', '/1', '/final']}
-
-elf_attr = {'button0' : 'Toggle Canvas',
-            'button1' : 'Toggle ISO',
-            'button2' : 'Toggle Slice Canvas',
-            'button3' : 'Toggle Slice Plane',
-            'combo' : elf_combo_attr,
-            'slider' : elf_slider_attr}
-
-band_attr = {'button0' : 'Toggle Canvas'}
-
-dos_attr = {'button0' : 'Toggle Canvas'}
-
-fermi_slider_attr = {'ISO Surface Value' : [(0, 100), 50],
-                   'Slice Plane Height' : [(0, 100), 50]}
-
-fermi_combo_attr = {'Shading Mode' : ['No Shading', 'Ambient', 'Diffuse',
-                    'Specular', 'Blinn Phong', 'Phong'],
-                    'Volume Selection' : ['/0', '/1', '/final']}
-
-fermi_attr = {'button0' : 'Toggle Canvas',
-            'button1' : 'Toggle ISO',
-            'button2' : 'Toggle Slice Canvas',
-            'button3' : 'Toggle Slice Plane',
-            'combo' : fermi_combo_attr,
-            'slider' : fermi_slider_attr}
-
-visualisations = ['Force',
-                 'MolecularDynamics',
-                 'AtomPositions',
-                 'Charge',
-                 'ELF',
-                 'Dos',
-                 'FermiVolume']
-
+new_keys = []
+new_values = []
+for key, values in parsers.items():
+    new_keys.append('{}{}'.format(path_to_current_folder, key))
+    new_value = []
+    for value in values:
+        new_value.append(list(filenames.keys())[list(filenames.values()).index(value)])
+    new_values.append(new_value)
+parsers_vises = dict(zip(new_keys, list(parsers.values())))
+parsers = dict(zip(new_keys, new_values))
+tooltips = [i for i in list(tooltips.values())]
+parsers_vises['All'] = [i for i in visualisations]
 vasp_directory = [i.rsplit('/', 1)[-1] for i in list(parsers.keys())]
-
 vasp_paths = [i for i in list(parsers.keys())]
-
 visualisations_t = tuple(visualisations)
-
 visualisations_d = {'Force' : force_attr,
                     'MolecularDynamics' : moldyn_attr,
                     'AtomPositions' : atom_attr,
@@ -202,18 +83,6 @@ visualisations_d = {'Force' : force_attr,
                     'ELF' : elf_attr,
                     'Dos' : dos_attr,
                     'FermiVolume' : fermi_attr}
-
-envisonMain_equivalent = {'Force' : 'force',
-                          'MolecularDynamics' : 'molecular_dynamics',
-                          'AtomPositions' : 'atom',
-                          'Charge' : 'charge',
-                          'ELF' : 'elf',
-                          'Dos' : 'dos',
-                          'FermiVolume' : 'fermi'}
-
-attr_keys = ('opt0', 'opt1', 'opt2', 'opt3')
-combo_keys = ('com0', 'com1', 'com2', 'com3')
-slider_keys = ('sli0', 'sli1', 'sli2', 'sli3')
 
 ''' Layout and interface definitions '''
 sg.theme('DarkGrey14')
@@ -234,33 +103,43 @@ vasp_layout = [
                        key = 'parse_status', visible = False)]
               ]
 
-def setup_option_buttons():
-    return [[sg.Button(i, key = 'opt' + str(i), visible = False)]
-             for i in range(number_of_buttons)]
+def setup_option_buttons(return_keys = False):
+    if not return_keys:
+        return [[sg.Button(i, key = 'opt' + str(i), visible = False)]
+                 for i in range(number_of_buttons)]
+    else:
+        return tuple('opt' + str(i) for i in range(number_of_buttons))
 
-def setup_combo_boxes():
-    combo_row = []
-    for i in range(number_of_comboboxes):
-        combo_row.append([sg.Text('Combo' + str(i), key = 'com' + str(i) + 't',
-                 visible = False, size = (18, 1))])
-        combo_row.append([sg.Combo([str(i)], key = 'com' + str(i),
-                                   visible = False,
-                                   readonly = True, enable_events = True)])
-    return combo_row
+def setup_combo_boxes(return_keys = False):
+    if not return_keys:
+        combo_row = []
+        for i in range(number_of_comboboxes):
+            combo_row.append([sg.Text('Combo' + str(i), key = 'com' + \
+                                      str(i) + 't',
+                                      visible = False, size = (18, 1))])
+            combo_row.append([sg.Combo([str(i)], key = 'com' + str(i),
+                                       visible = False,
+                                       readonly = True, enable_events = True)])
+        return combo_row
+    else:
+        return tuple('com' + str(i) for i in range(number_of_comboboxes))
 
-def setup_sliders():
-    slider_row = []
-    for i in range(number_of_sliders):
-        slider_row.append([sg.Slider(range = (0, 100), key = 'sli' + str(i),
-                                     visible = False,
-                                     orientation = 'horizontal', resolution = 5,
-                                     default_value = 50, size = (15,20),
-                                     enable_events = True,
-                                     disable_number_display = True)])
-        slider_row.append([sg.Text('Slider' + str(i), key = 'sli' + str(i) + \
-                                   't', visible = False,
-                 size = (30,2))])
-    return slider_row
+def setup_sliders(return_keys = False):
+    if not return_keys:
+        slider_row = []
+        for i in range(number_of_sliders):
+            slider_row.append([sg.Slider(range = (0, 100), key = 'sli' + str(i),
+                                         visible = False,
+                                         orientation = 'horizontal', resolution = 5,
+                                         default_value = 50, size = (15,20),
+                                         enable_events = True,
+                                         disable_number_display = True)])
+            slider_row.append([sg.Text('Slider' + str(i), key = 'sli' + str(i) + \
+                                       't', visible = False,
+                     size = (30,2))])
+        return slider_row
+    else:
+        return tuple('sli' + str(i) for i in range(number_of_sliders))
 
 def setup_buttons():
     button_row = []
@@ -547,16 +426,22 @@ def hide_opt_text():
     window.FindElement('opt_text').Update(visible = False)
 
 def clear_options():
-    p=0
-    while p < 4:
-        window.FindElement('opt' + str(p)).Update(visible = False,
+    b=0
+    c=0
+    s=0
+    while b < number_of_buttons:
+        window.FindElement('opt' + str(b)).Update(visible = False,
                            button_color = 'green')
-        window.FindElement('com' + str(p)).Update(visible = False)
-        window.FindElement('sli' + str(p)).Update(visible = False)
-        window.FindElement('com' + str(p) + 't').Update(visible = False)
-        window.FindElement('sli' + str(p) + 't').Update(visible = False)
-        p += 1
-    return
+        b += 1
+    while c < number_of_comboboxes:
+        window.FindElement('com' + str(c)).Update(visible = False)
+        window.FindElement('com' + str(c) + 't').Update(visible = False)
+        c += 1
+    while s < number_of_sliders:
+        window.FindElement('sli' + str(s) + 't').Update(visible = False)
+        window.FindElement('sli' + str(s)).Update(visible = False)
+        s += 1
+    return True
 
 def parse_progress_bar(vasp_path):
     stop1 = rd.randint(10,30)
@@ -616,7 +501,7 @@ while True:
     if event == 'Parse':
         try:
             stop_visualisation(active_vis,
-                               envisonMain_equivalent.get(active_vis))
+                               envisionMain_equivalent.get(active_vis))
             if active_vis != '':
                 enable_button(active_vis)
                 active_vis = ''
@@ -636,14 +521,14 @@ while True:
             create_vis_attributes(visualisations_d[event])
             disable_button(event)
             #try:
-            start_visualisation(event, envisonMain_equivalent[event])
+            start_visualisation(event, envisionMain_equivalent[event])
             #except:
                 #console_message('Error in starting visualisation, choose something else')
             active_vis = event
         elif active_vis != event:
             try:
                 stop_visualisation(active_vis,
-                                   envisonMain_equivalent.get(active_vis))
+                                   envisionMain_equivalent.get(active_vis))
             except:
                 pass
             console_message('Ending: ' + active_vis)
@@ -652,25 +537,25 @@ while True:
             create_vis_attributes(visualisations_d[event])
             disable_button(event)
             #try:
-            start_visualisation(event, envisonMain_equivalent[event])
+            start_visualisation(event, envisionMain_equivalent[event])
             #except:
             #    console_message('Error in starting visualisation, choose something else')
             active_vis = event
         else:
             continue
-    if event in attr_keys:
+    if event in setup_option_buttons(True):
         button_to_function[window.FindElement(event).get_text()](active_vis,
-                                         envisonMain_equivalent.get(active_vis))
-    if event in combo_keys:
+                                         envisionMain_equivalent.get(active_vis))
+    if event in setup_combo_boxes(True):
         combo_to_function[window.FindElement(event + 't').get()](active_vis,
-                          envisonMain_equivalent.get(active_vis), values[event])
-    if event in slider_keys:
+                          envisionMain_equivalent.get(active_vis), values[event])
+    if event in setup_sliders(True):
         window.FindElement(event + 't').Update(value =
                           (window.FindElement(event + 't').get().split(':'))[0]
                           + ': ' + str(round(values[event])/100))
         slider_to_function[window.FindElement(event +
                                         't').get().split(':')[0]](active_vis,
-               envisonMain_equivalent.get(active_vis), round(values[event])/100)
+               envisionMain_equivalent.get(active_vis), round(values[event])/100)
     if event in (sg.WINDOW_CLOSED, 'Exit'):
         break
 window.close()
