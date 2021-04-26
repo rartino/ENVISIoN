@@ -51,6 +51,7 @@ charge_attr = config['DICTIONARIES']['ATTRIBUTES']['charge_attr']
 elf_attr = config['DICTIONARIES']['ATTRIBUTES']['elf_attr']
 band_attr = config['DICTIONARIES']['ATTRIBUTES']['band_attr']
 dos_attr = config['DICTIONARIES']['ATTRIBUTES']['dos_attr']
+pcf_attr = config['DICTIONARIES']['ATTRIBUTES']['pcf_attr']
 fermi_attr = config['DICTIONARIES']['ATTRIBUTES']['fermi_attr']
 visualisations = config['LISTS']['visualisations']
 envisionMain_equivalent = config['DICTIONARIES']['envisionMain_equivalent']
@@ -60,7 +61,8 @@ filenames  = {envisionpy.hdf5parser.force_parser : 'Force',
               envisionpy.hdf5parser.elf : 'ELF',
               envisionpy.hdf5parser.fermi_parser : 'FermiVolume',
               envisionpy.hdf5parser.mol_dynamic_parser : 'MolecularDynamics',
-              envisionpy.hdf5parser.unitcell : 'AtomPositions'}
+              envisionpy.hdf5parser.unitcell : 'AtomPositions',
+              envisionpy.hdf5parser.paircorrelation : 'PCF'}
 new_keys = []
 new_values = []
 for key, values in parsers.items():
@@ -82,7 +84,8 @@ visualisations_d = {'Force' : force_attr,
                     'Charge' : charge_attr,
                     'ELF' : elf_attr,
                     'Dos' : dos_attr,
-                    'FermiVolume' : fermi_attr}
+                    'FermiVolume' : fermi_attr,
+                    'PCF' : pcf_attr }
 
 ''' Layout and interface definitions '''
 sg.theme('DarkGrey14')
@@ -92,7 +95,6 @@ def setup_radio():
                       font = ("Helvetica", 11, 'bold'),
                       tooltip = tooltips[i], enable_events=True,
                       key=vasp_paths[i])] for i in range(len(vasp_paths))]
-
 
 vasp_layout = [
               [sg.Text('Choose the preferred VASP directory:',
@@ -130,7 +132,8 @@ def setup_sliders(return_keys = False):
         for i in range(number_of_sliders):
             slider_row.append([sg.Slider(range = (0, 100), key = 'sli' + str(i),
                                          visible = False,
-                                         orientation = 'horizontal', resolution = 5,
+                                         orientation = 'horizontal',
+                                         resolution = 5,
                                          default_value = 50, size = (15,20),
                                          enable_events = True,
                                          disable_number_display = True)])
@@ -495,7 +498,6 @@ slider_to_function = {'ISO Surface Value' : set_iso_surface,
 
 ''' GUI event loop '''
 while True:
-
     event, values = window.read(timeout = 10) #Timeout inversely sets framerate
     envisionMain.update()                     #Update envisionMain when we draw a new frame
     if event == 'Parse':

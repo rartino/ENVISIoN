@@ -13,6 +13,7 @@ from .MultiVolume import MultiVolume
 from .baseNetworks.Decoration import Decoration
 from .ForceVectors import ForceVectors
 from .MolecularDynamics import MolecularDynamics
+from envisionpy.processor_network import PCFNetworkHandler
 from .Test import Test
 
 class VisualisationManager():
@@ -53,7 +54,8 @@ class VisualisationManager():
                 self.available_visualisations.append("band")
             if DensityOfStates.valid_hdf5(file):
                 self.available_visualisations.append("dos")
-            #Varför appenda "test"?
+            if PCFNetworkHandler.valid_hdf5(file):
+                self.available_visualisations.append("pcf")
             if ForceVectors.valid_hdf5(file):
                 self.available_visualisations.append("test")
             if MolecularDynamics.valid_hdf5(file):                           #MD
@@ -78,6 +80,8 @@ class VisualisationManager():
                 if other_type in subnetwork.valid_visualisations():
                     subnetwork.connect_decoration(other_network, other_type)
             subnetwork.show()
+        elif vis_type == 'pcf':
+            pass
         # Normal visualisation.
         else:
             # Try to connect running decorations to this one.
@@ -120,6 +124,9 @@ class VisualisationManager():
             subnetwork = ForceVectors(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
             #subnetwork = MolecularDynamics(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
 
+        elif vis_type == "pcf":
+            subnetwork = PCFNetworkHandler(self.hdf5_path, self.app)
+
         elif vis_type == "charge":
             subnetwork = ChargeDensity(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
 
@@ -156,8 +163,8 @@ class VisualisationManager():
                         self.subnetworks[t].volume_outport,
                         self.subnetworks[t].transfer_function_prop,
                         self.subnetworks[t].camera_prop)
-
-        subnetwork.hide() # All new visualisations are hidden by default here.
+        if vis_type != "pcf":
+            subnetwork.hide() # All new visualisations are hidden by default here.
         self.subnetworks[vis_type] = subnetwork
         return subnetwork
 
