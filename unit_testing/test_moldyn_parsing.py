@@ -45,7 +45,7 @@ PATH_TO_VASP_CALC = os.path.join(TEST_DIR, "resources/MD/VASP/Al_300K")
 # Path to the resulting hdf5 file
 PATH_TO_HDF5 = os.path.join(TEST_DIR, "md_demo.hdf5")
 
-def test_parse_force():
+def test_parse_md():
     """Testing if correct MD parsing of a VASP-directory.
     Parameters
     ----------
