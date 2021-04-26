@@ -19,6 +19,8 @@ DICTIONARIES:
     Dos : dos
     FermiVolume : fermi
     PCF : pcf
+    BandStructure3D : band3d
+    BandStructure : band2d
 
   parsers:
     /../unit_testing/resources/TiPO4_bandstructure :
@@ -32,6 +34,8 @@ DICTIONARIES:
       - Force
       - Charge
       - AtomPositions
+      - BandStructure3D
+      - BandStructure
     /../unit_testing/resources/CuFeS2_band_CBT2 :
       - Force
       - Charge
@@ -143,6 +147,8 @@ DICTIONARIES:
         Slice Plane Height :
           - !!python/tuple [0,100]
           - 50
+    band3d_attr:
+      button0 : Toggle Canvas
     band_attr:
       button0 : Toggle Canvas
     dos_attr:
@@ -184,3 +190,5 @@ LISTS:
     - Dos
     - FermiVolume
     - PCF
+    - BandStructure3D
+    - BandStructure

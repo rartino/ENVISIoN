@@ -51,6 +51,9 @@ class BandstructureNetworkHandler(LinePlotNetworkHandler):
             LinePlotNetworkHandler.get_ui_data(self)
             ]
 
+    @staticmethod
+    def valid_hdf5(hdf5_file):
+        return True
 # ------------------------------------------
 # ------- Network building functions -------
 
@@ -87,12 +90,12 @@ class BandstructureNetworkHandler(LinePlotNetworkHandler):
             function_to_dataframe = self.get_processor("Function to dataframe")
             self.network.addConnection(HDF5_to_function.getOutport("functionVectorOutport"),
                                         function_to_dataframe.getInport("functionFlatMultiInport"))
-                                        
+
             # if has_fermi_energy:
             #     self.network.addConnection(fermi_point.getOutport("pointVectorOutport"),
             #                         self.get_processor("Line plot").getInport("pointInport"))
 
-            
+
             if has_fermi_energy:
                 self.set_title("Energy - Fermi energy  [eV]")
             else:
