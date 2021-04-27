@@ -157,7 +157,7 @@ class ForceVectors(Decoration):
                     meshCreate.position1.value = inviwopy.glm.vec3(n[3]-0.5, n[4]-0.5, n[5]-0.5)
                     meshCreate.position2.value = inviwopy.glm.vec3(n[0]-0.5, n[1]-0.5, n[2]-0.5)
                     meshCreate.meta.selected = True
-            self.network.replaceSelectionWithCompositeProcessor()
+        #    self.network.replaceSelectionWithCompositeProcessor()
             if self.inviwo:
                 for i,key in enumerate(list(h5[base_group + "/Atoms"].keys())):
                     element = h5[base_group + "/Atoms/"+key].attrs['element']
