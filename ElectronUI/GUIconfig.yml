@@ -94,6 +94,10 @@ DICTIONARIES:
     force_attr:
       button0 : Toggle Canvas
       button1 : Toggle Force Vectors
+      slider:
+        Set Radius:
+          - !!python/tuple [0,100]
+          - 50
     moldyn_attr:
       button0 : Toggle Canvas
       button1 : Play/Pause

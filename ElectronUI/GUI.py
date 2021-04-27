@@ -185,7 +185,7 @@ console_row = [
 
 layout = [
          [sg.Text('ENVISIoN GUI v0.3', justification = 'center',
-                  font = ("Helvetica", 40, 'bold'))],
+                  font = ("Comic Sans MS", 40, 'bold', 'italic'))],
          [sg.Frame(layout = vasp_layout, title = '', border_width = 0,
                    vertical_alignment = "top")],
          [sg.Frame(layout = setup_buttons(), title = '',border_width = 0,
@@ -286,6 +286,13 @@ def set_iso_surface(file, type, value):
                      [value]])
     except:
         console_message('Could not set ISO-surface value')
+
+def set_radius(file, type, value):
+    try:
+        send_request("visualisation_request", [file, type, "set_radius",
+                     [value]])
+    except:
+        console_message('Could not set radius')
 
 def toggle_slice_canvas(file, type):
     global slice_canvas
@@ -515,7 +522,8 @@ combo_to_function = {'Shading Mode' : set_shading_mode,
                      'Volume Selection' : set_volume_selection}
 
 slider_to_function = {'ISO Surface Value' : set_iso_surface,
-                      'Slice Plane Height' : set_slice_plane_height}
+                      'Slice Plane Height' : set_slice_plane_height,
+                      'Set Radius' : set_radius}
 
 ''' GUI event loop '''
 while True:
