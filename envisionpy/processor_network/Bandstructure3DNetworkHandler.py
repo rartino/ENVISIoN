@@ -33,12 +33,15 @@ import inviwopy as ivw
 import inviwopy.glm as glm
 import h5py
 import numpy as np
+import time
 
 from envisionpy.processor_network.NetworkHandler import NetworkHandler
 
 class Bandstructure3DNetworkHandler(NetworkHandler):
     def __init__(self, hdf5_path, inviwoApp):
         NetworkHandler.__init__(self, inviwoApp)
+        self.canvas = 0
+        self.processors = {}
         self.setup_bandstructure_network(hdf5_path)
 
 
@@ -56,22 +59,26 @@ class Bandstructure3DNetworkHandler(NetworkHandler):
             tags = ivw.Tags.PY
         )
 
+    def stop_vis(self, vis_type = None):
+        self.hide()
+        #for processor in self.network.processors:
+        #        self.network.removeProcessor(processor)
+
+
     def get_ui_data(self):
         return [
             "bandstructure3d"
             ]
 
     def show(self):
-        try:
-            self.network.get_processor('Canvas').widget.show()
-        except:
-            pass
+        #canvas = self.network.getProcessor(canvas)
+        self.canvas.widget.show()
+
 
     def hide(self):
-        try:
-            self.network.get_processor('Canvas').widget.hide()
-        except:
-            pass
+        #canvas = self.network.getProcessor('org.inviwo.CanvasGL')
+        self.canvas.widget.hide()
+
 
     def getProcessorInfo(self):
         return Bandstructure3DNetworkHandler.processorInfo()
@@ -309,7 +316,7 @@ class Bandstructure3DNetworkHandler(NetworkHandler):
 #Canvas
         canvas = self.factory.create('org.inviwo.CanvasGL', glm.ivec2(0,825))
         canvas.identifier = 'Canvas'
-
+        self.canvas = canvas
         self.network.addProcessor(canvas)
 
         self.network.addConnection(

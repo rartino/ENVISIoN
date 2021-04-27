@@ -54,6 +54,9 @@ class BandstructureNetworkHandler(LinePlotNetworkHandler):
     @staticmethod
     def valid_hdf5(hdf5_file):
         return True
+
+    def stop_vis(self, vis_type = None):
+        print('Stopping 2d')
 # ------------------------------------------
 # ------- Network building functions -------
 

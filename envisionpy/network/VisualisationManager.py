@@ -99,6 +99,11 @@ class VisualisationManager():
         return subnetwork
 
     def stop(self, vis_type=None):
+
+        if vis_type in ['band2d', 'band3d']:
+            self.subnetworks[vis_type].stop_vis()
+            print('Stopping: ' + vis_type)
+
         if vis_type == None:
             # Stop all visualisations and clear networks.
             for subnetwork in self.subnetworks:
@@ -112,6 +117,7 @@ class VisualisationManager():
             del self.decorations[vis_type]
         self.subnetworks[vis_type].clear_processors()
         del self.subnetworks[vis_type]
+
 
     def get_subnetwork(self, vis_type, bool = True, *args):
         # Return the subnetwork for specified visualisation type.

@@ -79,6 +79,7 @@ for key, values in parsers.items():
     new_values.append(new_value)
 parsers_vises = dict(zip(new_keys, list(parsers.values())))
 parsers = dict(zip(new_keys, new_values))
+parsers_t = tuple(parsers.keys())
 tooltips = [i for i in list(tooltips.values())]
 parsers_vises['All'] = [i for i in visualisations]
 vasp_directory = [i.rsplit('/', 1)[-1] for i in list(parsers.keys())]
@@ -211,20 +212,20 @@ window = sg.Window('',layout, icon = 'Graphics/logotyp.png')
 ''' Visualisation attribute functions '''
 def toggle_canvas(file, type):
     global canvas
-    try:
-        if canvas:
-            envisionMain.update()
-            send_request('visualisation_request', [file, type, "hide", []])
-            envisionMain.update()
-            canvas = False
-        else:
-            envisionMain.update()
-            send_request('visualisation_request', [file, type, "show", []])
-            envisionMain.update()
-            canvas = True
-        console_message('Canvas Toggled')
-    except:
-        console_message('Failed to toggle Canvas')
+    #try:
+    if canvas:
+        envisionMain.update()
+        send_request('visualisation_request', [file, type, "hide", []])
+        envisionMain.update()
+        canvas = False
+    else:
+        envisionMain.update()
+        send_request('visualisation_request', [file, type, "show", []])
+        envisionMain.update()
+        canvas = True
+        #console_message('Canvas Toggled')
+    #except:
+        #console_message('Failed to toggle Canvas')
     return
 
 def set_shading_mode(file, type, key):
@@ -399,6 +400,17 @@ def toggle_avaible_visualisations(vasp_path):
                                          button_color = 'lightgrey',
                                          disabled = True)
 
+def toggle_avaible_visualisations_prior(vasp_path):
+    for i in parsers_vises['All']:
+        if i in parsers_vises[vasp_path]:
+            window.FindElement(i).Update(visible = True,
+                                         button_color = 'green',
+                                         disabled = True)
+        else:
+            window.FindElement(i).Update(visible = True,
+                                         button_color = 'lightgrey',
+                                         disabled = True)
+
 def create_vis_attributes(attr):
     show_opt_text()
     clear_options()
@@ -508,7 +520,9 @@ slider_to_function = {'ISO Surface Value' : set_iso_surface,
 ''' GUI event loop '''
 while True:
     event, values = window.read(timeout = 10) #Timeout inversely sets framerate
-    envisionMain.update()                     #Update envisionMain when we draw a new frame
+    envisionMain.update()  #Update envisionMain when we draw a new frame
+    if event in parsers_t:
+        toggle_avaible_visualisations_prior(event)
     if event == 'Parse':
         try:
             stop_visualisation(active_vis,
