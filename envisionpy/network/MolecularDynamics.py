@@ -24,12 +24,18 @@ class MolecularDynamics(Decoration):
         self.atom_radii = []
         self.atom_names = []
         self.nAtomTypes = 0
+        self.radii = 0.1
         self.inviwo = inviwo
+        self.speed = 16
         self.setup_network(hdf5_path, hdf5_output, xpos, ypos)
+
         if inviwo:
             self.set_atom_radius(0.12)
         self.toggle_full_mesh(True)
+
+
         self.hide()
+
 
     @staticmethod
     def valid_hdf5(hdf5_file):
@@ -79,6 +85,31 @@ class MolecularDynamics(Decoration):
 
 # ------------------------------------------
 # ------- Property control functions -------
+
+    def set_radius(self, radius = 0.5):
+        for i in range(self.nAtomTypes):
+            structureMesh = self.get_processor('UnitcellMesh')
+            structureMesh.getPropertyByIdentifier('radius{0}'.format(i)).value = self.radii*2*radius
+
+    def set_speed(self, speed = 16):
+        animator = self.get_processor('Animator')
+        animator.delay.value = speed
+
+    def set_opacity(self, value = 1):
+        for i in range(self.nAtomTypes):
+            structureMesh = self.get_processor('UnitcellMesh')
+            current = structureMesh.getPropertyByIdentifier('color{0}'.format(i)).value
+            structureMesh.getPropertyByIdentifier('color{0}'.format(i)).value = inviwopy.glm.vec4(current[0],current[1],current[2],value)
+
+    def set_color(self, color = [1, 1, 1]):
+        for i in range(self.nAtomTypes):
+            structureMesh = self.get_processor('UnitcellMesh')
+            current = structureMesh.getPropertyByIdentifier('color{0}'.format(i)).value
+            structureMesh.getPropertyByIdentifier('color{0}'.format(i)).value = inviwopy.glm.vec4(color[0],color[1],color[2],current[3])
+
+    def play_pause(self):
+        animator = self.get_processor('Animator')
+        animator.play.press()
 
     def set_atom_radius(self, radius, index=None):
         structureMesh = self.get_processor('UnitcellMesh')
