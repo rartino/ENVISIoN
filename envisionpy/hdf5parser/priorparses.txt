@@ -1,6 +1,6 @@
 force_parser
 /home/adame/ENVISIoN/ENVISIoN/ElectronUI/../Force.hdf5
-/home/adame/ENVISIoN/ENVISIoN/ElectronUI/../unit_testing/resources/TiPO4_bandstructure
+/home/adame/ENVISIoN/ENVISIoN/ElectronUI/../unit_testing/resources/TiPO4_DoS
 bandstructure
 /home/adame/ENVISIoN/ENVISIoN/ElectronUI/../GUI.hdf5
 /home/adame/ENVISIoN/ENVISIoN/ElectronUI/../unit_testing/resources/TiPO4_ELF

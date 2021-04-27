@@ -66,10 +66,9 @@ class ForceVectors(Decoration):
 # ------- Property control functions -------
 
     def set_radius(self, radius = 0.5):
-        for processor in self.atomprocessors.keys():
+        for processor, radii in self.atomprocessors.items():
             mesh = self.get_processor(processor)
-            mesh.scale.value = mesh.scale.value*2*radius
-            #= radius
+            mesh.scale.value = radii*2*radius
 
     def set_atom_radius(self, radius, index=None):
         structureMesh = self.get_processor('UnitcellMesh')
@@ -207,7 +206,7 @@ class ForceVectors(Decoration):
                         meshCreate.scale.value = radius/30
                         meshCreate.color.value = inviwopy.glm.vec4(color[0],color[1],color[2],0.7)
                         meshCreate.position1.value = inviwopy.glm.vec3(n[0]-0.5, n[1]-0.5, n[2]-0.5)
-                        self.atomprocessors[meshCreate.identifier] = meshCreate
+                        self.atomprocessors[meshCreate.identifier] = meshCreate.scale.value
 
         self.decoration_outport = vectorRenderer.getOutport('image')
         self.decoration_inport = vectorRenderer.getInport('imageInport')

@@ -184,8 +184,8 @@ console_row = [
               ]
 
 layout = [
-         [sg.Text('ENVISIoN GUI v0.3', justification = 'center',
-                  font = ("Comic Sans MS", 40, 'bold', 'italic'))],
+         [sg.Text('ENVISIoN GUI v0.4', justification = 'center',
+                  font = ("Helvetica", 40, 'bold', 'italic'))],
          [sg.Frame(layout = vasp_layout, title = '', border_width = 0,
                    vertical_alignment = "top")],
          [sg.Frame(layout = setup_buttons(), title = '',border_width = 0,
@@ -529,7 +529,7 @@ slider_to_function = {'ISO Surface Value' : set_iso_surface,
 while True:
     event, values = window.read(timeout = 10) #Timeout inversely sets framerate
     envisionMain.update()  #Update envisionMain when we draw a new frame
-    if event in parsers_t:
+    if event in parsers_t and active_vis == '' and not active_dataset:
         toggle_avaible_visualisations_prior(event)
     if event == 'Parse':
         try:
@@ -540,8 +540,8 @@ while True:
                 active_vis = ''
             if find_selection_parse(values):
                 parse_progress_bar(str(find_selection_parse(values)))
-                window.FindElement('parse_status').Update('Succesfully parsed: '
-                                                 + find_selection_parse(values))
+                window.FindElement('parse_status').Update('Currently parsed: '
+                                                 + find_selection_parse(values), visible = True)
                 active_dataset = True
             else:
                 sg.Popup('Please select a VASP directory to parse',
