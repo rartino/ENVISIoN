@@ -17,9 +17,11 @@ class ForceVectors(Decoration):
         self.atom_names = []
         self.nAtomTypes = 0
         self.inviwo = inviwo
+        self.atomprocessors = {}
         self.setup_network(hdf5_path, hdf5_output, xpos, ypos, bool)
         self.toggle_full_mesh(True)
-
+        print(self.atomprocessors)
+        self.set_radius()
 
     @staticmethod
     def valid_hdf5(hdf5_file):
@@ -62,6 +64,12 @@ class ForceVectors(Decoration):
         ]
 # ------------------------------------------
 # ------- Property control functions -------
+
+    def set_radius(self, radius = 0.5):
+        for processor in self.atomprocessors.keys():
+            mesh = self.get_processor(processor)
+            mesh.scale.value = mesh.scale.value*2*radius
+            #= radius
 
     def set_atom_radius(self, radius, index=None):
         structureMesh = self.get_processor('UnitcellMesh')
@@ -119,7 +127,7 @@ class ForceVectors(Decoration):
         background = self.add_processor('org.inviwo.Background', 'AtomBackground', xpos, ypos+9)
         vectorRenderer = self.add_processor('org.inviwo.GeometryRenderGL', 'VectorRenderer', xpos+7, ypos+6)
         canvas = self.add_processor('org.inviwo.CanvasGL', 'UnitcellCanvas', xpos, ypos+12)
-        canvas.inputSize.dimensions.value = inviwopy.glm.size2_t(1000,1000)
+        canvas.inputSize.dimensions.value = inviwopy.glm.size2_t(800,800)
         self.network.addConnection(strucMesh.getOutport('mesh'), meshRenderer.getInport('geometry'))
         self.network.addConnection(meshRenderer.getOutport('image'), background.getInport('inport'))
         self.network.addConnection(background.getOutport('outport'), canvas.getInport('inport'))
@@ -199,6 +207,7 @@ class ForceVectors(Decoration):
                         meshCreate.scale.value = radius/30
                         meshCreate.color.value = inviwopy.glm.vec4(color[0],color[1],color[2],0.7)
                         meshCreate.position1.value = inviwopy.glm.vec3(n[0]-0.5, n[1]-0.5, n[2]-0.5)
+                        self.atomprocessors[meshCreate.identifier] = meshCreate
 
         self.decoration_outport = vectorRenderer.getOutport('image')
         self.decoration_inport = vectorRenderer.getInport('imageInport')
