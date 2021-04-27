@@ -22,6 +22,28 @@ DICTIONARIES:
     BandStructure3D : band3d
     BandStructure : band2d
 
+  colors:
+    Red:
+      - 1
+      - 0
+      - 0
+    Green:
+      - 0
+      - 1
+      - 0
+    Blue:
+      - 0
+      - 0
+      - 1
+    White:
+      - 1
+      - 1
+      - 1
+    Black:
+      - 0
+      - 0
+      - 0
+
   parsers:
     /../unit_testing/resources/TiPO4_bandstructure :
       - Force
@@ -101,6 +123,23 @@ DICTIONARIES:
     moldyn_attr:
       button0 : Toggle Canvas
       button1 : Play/Pause
+      slider:
+        Set Radius:
+          - !!python/tuple [0,100]
+          - 50
+        Set Speed:
+          - !!python/tuple [0,100]
+          - 50
+        Set Opacity:
+          - !!python/tuple [0,100]
+          - 100
+      combo:
+        Color:
+          - Red
+          - Green
+          - Blue
+          - White
+          - Black
     atom_attr:
       button0 : Toggle Canvas
     charge_attr:
