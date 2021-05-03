@@ -46,6 +46,7 @@ from h5writer import _write_bandstruct
 from fermiEnergy import fermi_energy_parser
 from unitcell import _find_line, coordinates_re
 from check_for_parse import has_been_parsed
+from pathlib import Path
 
 line_reg_int = re.compile(r'^( *[+-]?[0-9]+){3} *$')
 line_reg_float = re.compile(r'( *[+-]?[0-9]*\.[0-9]+(?:[eE][+-]?[0-9]+)? *){4}')
@@ -153,6 +154,7 @@ def _symmetry_retriever(vasp_dir):
                         ['\u0393', 'L', 'M', 'N', 'R', 'X', 'Y', 'Z']]
 
     found_points = _parse_kpoints(vasp_dir)
+    print(found_points)
     found_lattype = _parse_lattype(vasp_dir)
     result_points = []
     result_symb = []
@@ -221,6 +223,9 @@ def bandstruct_parse(file_object):
     return band_data, kval_list
 
 
+
+
+
 def bandstructure(h5file, vasp_dir):
     """
     Parses band structure data from EIGENVAL and
@@ -262,6 +267,7 @@ def bandstructure(h5file, vasp_dir):
         return False
 
     parsed_coords, parsed_symbols = _symmetry_retriever(vasp_dir)
+    print(parsed_coords)
     if parsed_coords:
         _write_bandstruct(h5file, band_data, kval_list, parsed_symbols, parsed_coords)
         print('Band structure data was parsed successfully.')
@@ -271,3 +277,12 @@ def bandstructure(h5file, vasp_dir):
         return False
     else:
         return False
+
+def check_directory_bandstructure(vasp_path):
+    if Path(vasp_path).joinpath('EIGENVAL').exists() and Path(vasp_path).joinpath('OUTCAR').exists() and Path(vasp_path).joinpath('KPOINTS').exists(): # and Path(vasp_path).joinpath('DOSCAR').exists():
+        result_points, result_symb = _symmetry_retriever(vasp_path)
+        if result_points:
+            return True
+        else:
+            return False
+    return False

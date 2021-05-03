@@ -48,6 +48,7 @@ sys.path.insert(0, os.path.expanduser(path_to_current_folder+'/..'))
 import re
 import numpy as np
 import h5py
+from pathlib import Path
 from h5writer import _write_basis, _write_scaling_factor, _write_coordinates
 
 # Define coordinates regex.
@@ -171,7 +172,7 @@ def _parse_coordinates(fileobj, count, transform=False, matrix=None):
             match = coordinates_re.search(next(fileobj))
     except StopIteration:
         pass # if EOF is reached here
-    
+
     if len(coords_list) != count:
         raise Exception('Incorrect number of coordinates.', len(coords_list))
 
@@ -223,7 +224,7 @@ def _find_elements(fileobj, elements, vasp_dir):
             elements = _parse_potcar(os.path.join(vasp_dir, 'POTCAR'))
         except FileNotFoundError:
             elements = poscar_elements
-             
+
     if not elements:
         raise Exception('Element symbols not found.')
 
@@ -232,7 +233,13 @@ def _find_elements(fileobj, elements, vasp_dir):
 
     return elements, atoms
 
-    
+def check_directory_unitcell(vasp_path):
+	if Path(vasp_path).joinpath('POTCAR').exists() and Path(vasp_path).joinpath('POSCAR').exists():
+		return True
+	else:
+		return False
+
+
 def unitcell(h5file, vasp_dir, elements=None, poscar_equiv='POSCAR'):
     """POSCAR parser
 
@@ -264,7 +271,7 @@ def unitcell(h5file, vasp_dir, elements=None, poscar_equiv='POSCAR'):
             if "/UnitCell" in h5:
                 print("Already parsed. Skipping.")
                 return True
-        
+
     try:
         # Parses lattice vectors and atom positions from POSCAR
         with open(os.path.join(vasp_dir,poscar_equiv), "r") as f:
@@ -289,4 +296,3 @@ def unitcell(h5file, vasp_dir, elements=None, poscar_equiv='POSCAR'):
     except FileNotFoundError:
         print("POSCAR file not found.")
         return False
-

@@ -32,16 +32,17 @@ import numpy as np
 import re
 import sys
 import scipy
+from pathlib import Path
 
 def enlarge(matrix):
     '''
-    Inviwo requires volume data to be at least 48x48x48 in size. 
+    Inviwo requires volume data to be at least 48x48x48 in size.
     Interpolate volume data voxels until that size is reached.
     '''
 
     # Inviwo requires arrays to be above a certain size.
     # Volumes in hdf5 below 48x48x48 will not be detected
-    # Larger interpolated volume dimensions make slice look better. 
+    # Larger interpolated volume dimensions make slice look better.
     # 128 seem to be a good choice between size and looks.
     scale = 128/min(len(x) for x in matrix)
     if scale > 1:
@@ -184,6 +185,15 @@ def convert_fermi_volumes(band, basis, fermi_energy):
     # fermi_matrix = expand(fermi_matrix)
     return [fermi_matrix, brillouin_zone_matrix, expanded_matrix, normalized_fermi_energy]
 
+def check_directory_fermi(vasp_path):
+    if Path(vasp_path).joinpath('OUTCAR').exists() and Path(vasp_path).joinpath('EIGENVAL').exists():
+        with Path(vasp_path).joinpath('OUTCAR').open('r') as f:
+            lines = f.readlines()
+            for i, line in enumerate(lines):
+                if 'E-fermi' in line:
+                    return True
+    return False
+
 
 def fermi_parser(hdf_file_path, vasp_dir_path):
     """
@@ -241,7 +251,9 @@ def fermi_parser(hdf_file_path, vasp_dir_path):
         nelectrons, nkpoints, nbands = [int(v) for v in re.findall(r'[\d]+', lines[5])]
 
         kpoints = np.zeros(shape=(nkpoints, 4))
+        print(kpoints)
         evalues = np.zeros(shape=(nkpoints, nbands, nspin), dtype=np.float32)
+
 
         kpoint_index = 0
         for i, line in enumerate(lines[7:]):
@@ -257,6 +269,7 @@ def fermi_parser(hdf_file_path, vasp_dir_path):
                 band_index = int(regex[0])
                 values = [float(v) for v in regex[1:1+nspin:]]
                 evalues[kpoint_index - 1, band_index - 1, :] = values
+                
 
     # derive dimensions from unique kpoints
     nkpoints_x = len(set(kpoints[:, 0]))
