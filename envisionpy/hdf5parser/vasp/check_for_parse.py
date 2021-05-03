@@ -30,8 +30,11 @@ def has_been_parsed(parse_name, h5file, vasp_dir):
     if prior_h5 and prior_vasp:
         return True
     if prior_h5 and not prior_vasp:
-        os.remove(h5file)
-        return False
+        try:
+            os.remove(h5file)
+            return False
+        except:
+            pass
     if not prior_h5 and not prior_vasp:
         return False
     if prior_vasp and not prior_h5:
