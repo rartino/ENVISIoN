@@ -55,6 +55,7 @@ dos_attr = config['DICTIONARIES']['ATTRIBUTES']['dos_attr']
 pcf_attr = config['DICTIONARIES']['ATTRIBUTES']['pcf_attr']
 fermi_attr = config['DICTIONARIES']['ATTRIBUTES']['fermi_attr']
 band3d_attr = config['DICTIONARIES']['ATTRIBUTES']['band_attr']
+colors = config['DICTIONARIES']['colors']
 visualisations = config['LISTS']['visualisations']
 envisionMain_equivalent = config['DICTIONARIES']['envisionMain_equivalent']
 filenames  = {envisionpy.hdf5parser.force_parser : 'Force',
@@ -184,8 +185,8 @@ console_row = [
               ]
 
 layout = [
-         [sg.Text('ENVISIoN GUI v0.3', justification = 'center',
-                  font = ("Comic Sans MS", 40, 'bold', 'italic'))],
+         [sg.Text('ENVISIoN GUI v0.4', justification = 'center',
+                  font = ("Helvetica", 40, 'bold', 'italic'))],
          [sg.Frame(layout = vasp_layout, title = '', border_width = 0,
                    vertical_alignment = "top")],
          [sg.Frame(layout = setup_buttons(), title = '',border_width = 0,
@@ -234,6 +235,13 @@ def set_shading_mode(file, type, key):
                     [file, type, "set_shading_mode", [key]])
     except:
        console_message('Could not set shading mode')
+
+def set_color(file, type, key):
+    try:
+       send_request("visualisation_request",
+                    [file, type, "set_color", [colors[key]]])
+    except:
+       console_message('Could not set color')
 
 def set_volume_selection(file, type, key):
     try:
@@ -345,6 +353,42 @@ def unfinished(file, type):
     console_message('Not yet implemented')
     return
 
+def set_animation_speed(file, type, speed):
+    speed = round(-3.7647 + 103.7647*2.7182**(-3.3164*speed))
+    try:
+        send_request("visualisation_request", [file, type, "set_speed",
+                     [speed]])
+    except:
+        console_message('Could not set speed')
+
+def set_opacity(file, type, value):
+    try:
+        send_request("visualisation_request", [file, type, "set_opacity",
+                     [value]])
+    except:
+        console_message('Could not set opacity')
+
+def play_pause(file, type):
+    try:
+        send_request("visualisation_request", [file, type, "play_pause"])
+    except:
+        console_message('Could not set play/pause')
+
+def set_standard_parameters(file, type):
+    try:
+        set_radius(file, type, 0.5)
+    except:
+        pass
+    try:
+        set_animation_speed(file, type, 0.5)
+    except:
+        pass
+    try:
+        set_opacity(file, type, 1)
+    except:
+        pass
+
+
 ''' GUI control functions '''
 def delete_prior_hdf5():
     try:
@@ -381,6 +425,7 @@ def start_visualisation(file, type):
     envisionMain.update()
     send_request('start_visualisation', [file, type])
     envisionMain.update()
+
 
 def stop_visualisation(file, type):
     try:
@@ -512,24 +557,27 @@ def enable_button(name):
 ''' Name to function dictionaries '''
 button_to_function = {'Toggle Canvas' : toggle_canvas,
                     'Toggle Force Vectors' : toggle_force_vectors,
-                    'Play/Pause' : unfinished,
+                    'Play/Pause' : play_pause,
                     'Change Color' : unfinished,
                     'Toggle ISO' : toggle_iso_surface,
                     'Toggle Slice Canvas' : toggle_slice_canvas,
                     'Toggle Slice Plane' : toggle_slice_plane}
 
 combo_to_function = {'Shading Mode' : set_shading_mode,
-                     'Volume Selection' : set_volume_selection}
+                     'Volume Selection' : set_volume_selection,
+                     'Color' : set_color}
 
 slider_to_function = {'ISO Surface Value' : set_iso_surface,
                       'Slice Plane Height' : set_slice_plane_height,
-                      'Set Radius' : set_radius}
+                      'Set Radius' : set_radius,
+                      'Set Speed' : set_animation_speed,
+                      'Set Opacity' : set_opacity}
 
 ''' GUI event loop '''
 while True:
     event, values = window.read(timeout = 10) #Timeout inversely sets framerate
     envisionMain.update()  #Update envisionMain when we draw a new frame
-    if event in parsers_t:
+    if event in parsers_t and active_vis == '' and not active_dataset:
         toggle_avaible_visualisations_prior(event)
     if event == 'Parse':
         try:
@@ -540,8 +588,8 @@ while True:
                 active_vis = ''
             if find_selection_parse(values):
                 parse_progress_bar(str(find_selection_parse(values)))
-                window.FindElement('parse_status').Update('Succesfully parsed: '
-                                                 + find_selection_parse(values))
+                window.FindElement('parse_status').Update('Currently parsed: '
+                                                 + find_selection_parse(values), visible = True)
                 active_dataset = True
             else:
                 sg.Popup('Please select a VASP directory to parse',
@@ -555,6 +603,8 @@ while True:
             disable_button(event)
             #try:
             start_visualisation(event, envisionMain_equivalent[event])
+            set_standard_parameters(event, envisionMain_equivalent[event])
+
             #except:
                 #console_message('Error in starting visualisation, choose something else')
             active_vis = event
@@ -571,6 +621,7 @@ while True:
             disable_button(event)
             #try:
             start_visualisation(event, envisionMain_equivalent[event])
+            set_standard_parameters(event, envisionMain_equivalent[event])
             #except:
             #    console_message('Error in starting visualisation, choose something else')
             active_vis = event

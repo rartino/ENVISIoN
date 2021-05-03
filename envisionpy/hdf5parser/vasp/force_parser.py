@@ -73,6 +73,8 @@ def _parse_coordinates(fileobj, count, transform=False, matrix=None):
 
     return coords_list
 
+
+
 def _parse_forces(vasp_dir, get_vector_tips = False, coordinates = []):
     forces = []
     force_tips = []
@@ -136,6 +138,12 @@ def _find_elements(fileobj, elements, vasp_dir):
         raise Exception('Incorrect number of elements.')
 
     return elements, atoms
+
+def check_directory_force_parser(vasp_dir):
+    if os.path.exists(vasp_dir + '/POTCAR') and os.path.exists(vasp_dir + '/POSCAR'):
+        return True
+    else:
+        return False
 
 
 def force_parser(h5file, vasp_dir, inviwo = False, elements=None, poscar_equiv='POSCAR'):
