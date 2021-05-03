@@ -68,6 +68,25 @@ def _find_elements(fileobj, elements, vasp_dir):
         raise Exception('Incorrect number of elements.')
     return elements, atoms
 
+def check_directory_molecular_dynamics_parser(vasp_path):
+    if Path(vasp_path).joinpath('OUTCAR').exists() and Path(vasp_path).joinpath('XDATCAR').exists() and Path(vasp_path).joinpath('POSCAR').exists():
+        with Path(vasp_path).joinpath('OUTCAR').open('r') as f:
+            lines = f.readlines()
+            for i, line in enumerate(lines):
+                if 'IBRION' in line:
+                    line_list_IBRION = list(line.split(" "))
+                    new_line_list_IBRION = []
+                    for x in range(len(line_list_IBRION)):
+                        if line_list_IBRION[x] != "":
+                            new_line_list_IBRION.append(line_list_IBRION[x])
+                    line_list_IBRION = new_line_list_IBRION
+                    break
+            if line_list_IBRION[2] == "0":
+                return True
+            else:
+                return False
+    else:
+        return False
 
 def mol_dynamic_parser(hdf5_file_path, vasp_dir_path, elements=None):
     if os.path.isfile(hdf5_file_path):
@@ -87,13 +106,13 @@ def mol_dynamic_parser(hdf5_file_path, vasp_dir_path, elements=None):
     with outcar_file_path.open('r') as f:
         lines = f.readlines()
         for i, line in enumerate(lines):
-            if 'IBRION' in line:
-                line_list_IBRION = list(line.split(" "))
-                new_line_list_IBRION = []
-                for x in range(len(line_list_IBRION)):
-                    if line_list_IBRION[x] != "":
-                        new_line_list_IBRION.append(line_list_IBRION[x])
-                line_list_IBRION = new_line_list_IBRION
+            # if 'IBRION' in line:
+            #     line_list_IBRION = list(line.split(" "))
+            #     new_line_list_IBRION = []
+            #     for x in range(len(line_list_IBRION)):
+            #         if line_list_IBRION[x] != "":
+            #             new_line_list_IBRION.append(line_list_IBRION[x])
+            #     line_list_IBRION = new_line_list_IBRION
             if "NSW" in line:
                 line_list_NSW = list(line.split(" "))
                 new_line_list_NSW = []
@@ -101,22 +120,23 @@ def mol_dynamic_parser(hdf5_file_path, vasp_dir_path, elements=None):
                     if line_list_NSW[x] != "":
                         new_line_list_NSW.append(line_list_NSW[x])
                 line_list_NSW = new_line_list_NSW
-        if line_list_IBRION[2] == "0":
-            has_md_ok = True
+                break
+        # if line_list_IBRION[2] == "0":
+        #     has_md_ok = True
         time_steps = int(line_list_NSW[2])
         f.close()
 
-    if has_md_ok is True:
-        with poscar_file_path.open("r") as f:
-            elements, atoms = _find_elements(f, elements, vasp_dir_path)
-            f.close()
+    #if has_md_ok is True:
+    with poscar_file_path.open("r") as f:
+        elements, atoms = _find_elements(f, elements, vasp_dir_path)
+        f.close()
 
-        with xdatcar_file_path.open('r') as f:
-            lines = f.readlines()
-            coordinates_list = []
-            for i, line in enumerate(lines):
-                if 'Direct configuration' in line:
-                    coordinates_list = get_coordinates_for_time_step(lines[i+1:i+sum(atoms)+1])
-                    _write_md(hdf5_file_path, atoms, coordinates_list, elements, time_step)
-                    time_step += 1
+    with xdatcar_file_path.open('r') as f:
+        lines = f.readlines()
+        coordinates_list = []
+        for i, line in enumerate(lines):
+            if 'Direct configuration' in line:
+                coordinates_list = get_coordinates_for_time_step(lines[i+1:i+sum(atoms)+1])
+                _write_md(hdf5_file_path, atoms, coordinates_list, elements, time_step)
+                time_step += 1
         f.close()

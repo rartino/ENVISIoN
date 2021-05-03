@@ -154,6 +154,26 @@ def parse(vasp_path, current_dataset):
     if envisionpy.hdf5parser.check_directory_force_parser(vasp_path):
         pos_vises.append('Force')
         envisionpy.hdf5parser.force_parser('force' + current_dataset + '.hdf5', vasp_path)
+    if envisionpy.hdf5parser.check_directory_molecular_dynamics_parser(vasp_path):
+        pos_vises.append('Molecular Dynamics')
+        envisionpy.hdf5parser.mol_dynamic_parser('moldyn' + current_dataset + '.hdf5', vasp_path)
+    if envisionpy.hdf5parser.check_directory_elf(vasp_path):
+        pos_vises.append('ELF')
+        envisionpy.hdf5parser.force_parser('elf' + current_dataset + '.hdf5', vasp_path)
+    if envisionpy.hdf5parser.check_directory_charge(vasp_path):
+        pos_vises.append('Charge')
+        envisionpy.hdf5parser.charge('charge' + current_dataset + '.hdf5', vasp_path)
+    if envisionpy.hdf5parser.check_directory_unitcell(vasp_path):
+        pos_vises.append('Atom Positions')
+        envisionpy.hdf5parser.unitcell('atom' + current_dataset + '.hdf5', vasp_path)
+    if envisionpy.hdf5parser.check_directory_bandstructure(vasp_path):
+        pos_vises.append('BandStructure')
+        envisionpy.hdf5parser.bandstructure('band2d' + current_dataset + '.hdf5', vasp_path)
+        pos_vises.append('BandStructure 3D')
+        envisionpy.hdf5parser.bandstructure('band3d' + current_dataset + '.hdf5', vasp_path)
+    #if envisionpy.hdf5parser.check_directory_fermi(vasp_path):
+    #    pos_vises.append('Fermi Surface')
+    #    envisionpy.hdf5parser.fermi_parser('fermi' + current_dataset + '.hdf5', vasp_path)
     # Följt av if satser för alla parsers.
     set_dataset_to_vises_and_dir(vasp_path, pos_vises)
 
