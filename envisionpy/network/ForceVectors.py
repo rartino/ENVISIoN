@@ -11,17 +11,18 @@ class ForceVectors(Decoration):
     '''
     Manages a subnetwork for atom force rendering.
     '''
-    def __init__(self, inviwoApp, hdf5_path, hdf5_output, xpos=0, ypos=0, inviwo=False):
+    def __init__(self, inviwoApp, hdf5_path, hdf5_output, xpos=0, ypos=0, inviwo=True):
         Decoration.__init__(self, inviwoApp)
         self.atom_radii = []
         self.atom_names = []
+        self.atom_color = []
         self.nAtomTypes = 0
+        self.radii = 0.1
         self.inviwo = inviwo
         self.atomprocessors = {}
         self.setup_network(hdf5_path, hdf5_output, xpos, ypos, bool)
         self.toggle_full_mesh(True)
-        print(self.atomprocessors)
-        self.set_radius()
+
 
     @staticmethod
     def valid_hdf5(hdf5_file):
@@ -66,9 +67,21 @@ class ForceVectors(Decoration):
 # ------- Property control functions -------
 
     def set_radius(self, radius = 0.5):
-        for processor, radii in self.atomprocessors.items():
-            mesh = self.get_processor(processor)
-            mesh.scale.value = radii*2*radius
+        for i in range(self.nAtomTypes):
+            structureMesh = self.get_processor('UnitcellMesh')
+            structureMesh.getPropertyByIdentifier('radius{0}'.format(i)).value = (self.atom_radii[i]/10)*radius
+
+    def set_opacity(self, value = 1):
+        for i in range(self.nAtomTypes):
+            structureMesh = self.get_processor('UnitcellMesh')
+            current = structureMesh.getPropertyByIdentifier('color{0}'.format(i)).value
+            structureMesh.getPropertyByIdentifier('color{0}'.format(i)).value = inviwopy.glm.vec4(current[0],current[1],current[2],value)
+
+    def set_color(self, null):
+        for i, color in enumerate(self.atom_color):
+            structureMesh = self.get_processor('UnitcellMesh')
+            current = structureMesh.getPropertyByIdentifier('color{0}'.format(i)).value
+            structureMesh.getPropertyByIdentifier('color{0}'.format(i)).value = inviwopy.glm.vec4(color[0],color[1],color[2],current[3])
 
     def set_atom_radius(self, radius, index=None):
         structureMesh = self.get_processor('UnitcellMesh')
@@ -89,20 +102,18 @@ class ForceVectors(Decoration):
     def show_vectors(self):
         meshRenderer = self.get_processor('UnitcellRenderer')
         vectorRenderer = self.get_processor('VectorRenderer')
-        atomRenderer = self.get_processor('AtomRenderer')
-        if self.inviwo:
-            self.network.addConnection(vectorRenderer.getOutport('image'),meshRenderer.getInport('imageInport'))
-        else:
-            self.network.addConnection(vectorRenderer.getOutport('image'),atomRenderer.getInport('imageInport'))
+
+
+        self.network.addConnection(vectorRenderer.getOutport('image'),meshRenderer.getInport('imageInport'))
+
 
     def hide_vectors(self):
         meshRenderer = self.get_processor('UnitcellRenderer')
         vectorRenderer = self.get_processor('VectorRenderer')
-        atomRenderer = self.get_processor('AtomRenderer')
-        if self.inviwo:
-            self.network.removeConnection(vectorRenderer.getOutport('image'),meshRenderer.getInport('imageInport'))
-        else:
-            self.network.removeConnection(vectorRenderer.getOutport('image'),atomRenderer.getInport('imageInport'))
+
+
+        self.network.removeConnection(vectorRenderer.getOutport('image'),meshRenderer.getInport('imageInport'))
+
 
     def hide_atoms(self):
         return self.set_atom_radius(0)
@@ -133,7 +144,6 @@ class ForceVectors(Decoration):
         self.network.addConnection(vectorRenderer.getOutport('image'),meshRenderer.getInport('imageInport'))
         self.network.addLink(vectorRenderer.camera, meshRenderer.camera)
         self.network.addLink(meshRenderer.camera, vectorRenderer.camera)
-        print(bool)
         with h5py.File(hdf5_path, "r") as h5:
             strucMesh.basis.value = inviwopy.glm.mat3(
                 1, 0, 0,
@@ -163,6 +173,7 @@ class ForceVectors(Decoration):
                     name = element_names.get(element, 'Unknown')
                     color = element_colors.get(element, (0.5, 0.5, 0.5, 1.0))
                     radius = atomic_radii.get(element, 0.5)
+                    self.atom_color.append(color)
                     self.atom_names.append(name)
                     self.atom_radii.append(radius)
                     y = list(color)
@@ -172,11 +183,11 @@ class ForceVectors(Decoration):
                     self.network.addConnection(hdf5_output, coordReader.getInport('inport'))
                     self.network.addConnection(coordReader.getOutport('outport'), strucMesh.getInport('coordinates'))
                     coordReader.path.value = base_group + '/Atoms/' + key
+                    self.nAtomTypes += 1
                     if strucMesh.getPropertyByIdentifier('radius{0}'.format(i)) == None:
                             continue
                     strucMesh_radius_property = strucMesh.getPropertyByIdentifier('radius{0}'.format(i))
                     strucMesh_radius_property.maxValue = 10
-                    print(radius)
                     strucMesh_radius_property.value = radius/30
                     strucMesh_color_property = strucMesh.getPropertyByIdentifier('color{0}'.format(i))
                     strucMesh_color_property.value = inviwopy.glm.vec4(color[0],color[1],color[2],color[3])
@@ -184,29 +195,28 @@ class ForceVectors(Decoration):
                     strucMesh_atom_property.value = 0
                     strucMesh_atom_property.minValue = 0
                     strucMesh_atom_property.maxValue = 0
-                    self.nAtomTypes += 1
-            else:
-                atomRenderer = self.add_processor('org.inviwo.GeometryRenderGL', 'AtomRenderer', xpos+7, ypos+9)
-                self.network.removeConnection(meshRenderer.getOutport('image'), background.getInport('inport'))
-                self.network.addConnection(vectorRenderer.getOutport('image'),atomRenderer.getInport('imageInport'))
 
-                self.network.addConnection(atomRenderer.getOutport('image'),background.getInport('inport'))
-                self.network.addLink(atomRenderer.camera, meshRenderer.camera)
-                self.network.addLink(meshRenderer.camera, atomRenderer.camera)
-                for i,key in enumerate(list(h5[base_group + "/Atoms"].keys())):
-                    element = h5[base_group + "/Atoms/"+key].attrs['element']
-                    color = element_colors.get(element, (0.5, 0.5, 0.5, 1.0))
-                    radius = atomic_radii.get(element, 0.5)
-                    for p,n in enumerate(h5[base_group + "/Atoms/"+key]):
-                        meshCreate = self.add_processor('org.inviwo.MeshCreator', '{0} {1} {2}'.format(p, i, "boll"), xpos, ypos)
-                        self.network.addConnection(meshCreate.getOutport('outport'), atomRenderer.getInport('geometry'))
-                        self.network.addLink(meshCreate.camera, meshRenderer.camera)
-                        self.network.addLink(meshRenderer.camera, meshCreate.camera)
-                        meshCreate.meshType.selectedIndex = 13
-                        meshCreate.scale.value = radius/30
-                        meshCreate.color.value = inviwopy.glm.vec4(color[0],color[1],color[2],0.7)
-                        meshCreate.position1.value = inviwopy.glm.vec3(n[0]-0.5, n[1]-0.5, n[2]-0.5)
-                        self.atomprocessors[meshCreate.identifier] = meshCreate.scale.value
+            #else:
+            #    atomRenderer = self.add_processor('org.inviwo.GeometryRenderGL', 'AtomRenderer', xpos+7, ypos+9)
+            #    self.network.removeConnection(meshRenderer.getOutport('image'), background.getInport('inport'))
+            #    self.network.addConnection(vectorRenderer.getOutport('image'),atomRenderer.getInport('imageInport'))
+#
+#                self.network.addConnection(atomRenderer.getOutport('image'),background.getInport('inport'))
+#                self.network.addLink(atomRenderer.camera, meshRenderer.camera)
+#                self.network.addLink(meshRenderer.camera, atomRenderer.camera)
+#                for i,key in enumerate(list(h5[base_group + "/Atoms"].keys())):
+#                    element = h5[base_group + "/Atoms/"+key].attrs['element']
+#                    color = element_colors.get(element, (0.5, 0.5, 0.5, 1.0))
+#                    radius = atomic_radii.get(element, 0.5)
+#                    for p,n in enumerate(h5[base_group + "/Atoms/"+key]):
+#                        meshCreate = self.add_processor('org.inviwo.MeshCreator', '{0} {1} {2}'.format(p, i, "boll"), xpos, ypos)
+#                        self.network.addConnection(meshCreate.getOutport('outport'), atomRenderer.getInport('geometry'))
+#                        self.network.addLink(meshCreate.camera, meshRenderer.camera)
+#                        self.network.addLink(meshRenderer.camera, meshCreate.camera)
+#                        meshCreate.meshType.selectedIndex = 13
+#                        meshCreate.scale.value = radius/30
+#                        meshCreate.color.value = inviwopy.glm.vec4(color[0],color[1],color[2],0.7)
+##                        self.atomprocessors[meshCreate.identifier] = meshCreate.scale.value
 
         self.decoration_outport = vectorRenderer.getOutport('image')
         self.decoration_inport = vectorRenderer.getInport('imageInport')
