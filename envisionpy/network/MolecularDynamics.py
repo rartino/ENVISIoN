@@ -29,8 +29,8 @@ class MolecularDynamics(Decoration):
         self.speed = 16
         self.setup_network(hdf5_path, hdf5_output, xpos, ypos)
 
-        if inviwo:
-            self.set_atom_radius(0.12)
+        #if inviwo:
+        #    self.set_atom_radius(0.12)
         self.toggle_full_mesh(True)
 
 
