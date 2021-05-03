@@ -1,6 +1,6 @@
 force_parser
-forcedata2.hdf5
-/home/adame/ENVISIoN/ENVISIoN/unit_testing/resources/LiC_pair_corr_func
+forcedata1.hdf5
+/home/adame/ENVISIoN/ENVISIoN/unit_testing/resources/Cu_band_CUB
 bandstructure
 /home/adame/ENVISIoN/ENVISIoN/ElectronUI/../GUI.hdf5
 /home/adame/ENVISIoN/ENVISIoN/ElectronUI/../unit_testing/resources/TiPO4_ELF

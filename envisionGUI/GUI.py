@@ -29,11 +29,17 @@ sg.theme('DarkGrey14')
 #                         Variables and Globals                             #
 # ------------------------------------------------------------------------- #
 
+allow_simultaneous_visualisations = True
+allow_simultaneous_visualisations_over_datasets = True
 current_dataset = None
 current_folder = None
+number_of_buttons = 4
+number_of_sliders = 4
+number_of_comboboxes = 4
 max_datasets = 5
 dataset_dir = {}
 dataset_vises = {}
+active_vises = {}
 
 visualisations = {'Force' : 'force',
                   'Molecular Dynamics' : 'moldyn',
@@ -45,16 +51,95 @@ visualisations = {'Force' : 'force',
                   'Fermi Surface' : 'fermi',
                   'Atom Positions' : 'atom'}
 
+visualisations_button_tuple = tuple([i for i in visualisations.keys()])
+
+force_attr = {'button0' : 'Toggle Canvas',
+              'button1' : 'Toggle Force Vectors',
+              'slider': {'Set Radius': [(0,100), 50]}}
+
+moldyn_atttr = {'button0' : 'Toggle Canvas',
+                'button1' : 'Play/Pause',
+                'slider': {'Set Radius': [(0,100), 50],
+                           'Set Speed': [(0,100), 50],
+                           'Set Opacity': [(0,100), 100]}}
+
+pcf_attr = {'button0' : 'Toggle Canvas'}
+
+band2d_attr = {'button0' : 'Toggle Canvas'}
+
+band3d_attr = {'button0' : 'Toggle Canvas'}
+
+volume_attr = {'button0' : 'Toggle Canvas',
+               'button1' : 'Toggle ISO',
+               'button2' : 'Toggle Slice Canvas',
+               'button3' : 'Toggle Slice Plane',
+               'combo' : {'Shading Mode' : ['No Shading', 'Ambient', 'Diffuse',
+                                            'Specular', 'Blinn Phong', 'Phong'],
+                          'Volume Selection' : ['/0', '/1', '/final']},
+               'slider': {'ISO Surface Value': [(0,100), 50],
+                          'Slice Plane Height': [(0,100), 50]}}
+
+atom_attr = {'button0' : 'Toggle Canvas'}
+
+vis_attributes = {'Force' : force_attr,
+                  'Molecular Dynamics' : moldyn_atttr,
+                  'PCF' : pcf_attr,
+                  'BandStructure' : band2d_attr,
+                  'BandStructure 3D' : band3d_attr,
+                  'Charge' : volume_attr,
+                  'ELF' : volume_attr,
+                  'Fermi Surface' : volume_attr,
+                  'Atom Positions' : atom_attr}
+
 # ------------------------------------------------------------------------- #
 #                       Functions that set up the GUI                       #
 # ------------------------------------------------------------------------- #
+def setup_option_buttons(return_keys = False):
+    if not return_keys:
+        return [[sg.Button(i, key = 'opt' + str(i), visible = False)]
+                 for i in range(number_of_buttons)]
+    else:
+        return tuple('opt' + str(i) for i in range(number_of_buttons))
+
+def setup_combo_boxes(return_keys = False):
+    if not return_keys:
+        combo_row = []
+        for i in range(number_of_comboboxes):
+            combo_row.append([sg.Text('Combo' + str(i), key = 'com' + \
+                                      str(i) + 't',
+                                      visible = False, size = (18, 1))])
+            combo_row.append([sg.Combo([str(i)], key = 'com' + str(i),
+                                       visible = False,
+                                       readonly = True, enable_events = True)])
+        return combo_row
+    else:
+        return tuple('com' + str(i) for i in range(number_of_comboboxes))
+
+def setup_sliders(return_keys = False):
+    if not return_keys:
+        slider_row = []
+        for i in range(number_of_sliders):
+            slider_row.append([sg.Slider(range = (0, 100), key = 'sli' + str(i),
+                                         visible = False,
+                                         orientation = 'horizontal',
+                                         resolution = 5,
+                                         default_value = 50, size = (15,20),
+                                         enable_events = True,
+                                         disable_number_display = True)])
+            slider_row.append([sg.Text('Slider' + str(i), key = 'sli' + str(i) + \
+                                       't', visible = False,
+                     size = (30,2))])
+        return slider_row
+    else:
+        return tuple('sli' + str(i) for i in range(number_of_sliders))
 
 def setup_datasets(return_keys = False):
-    global dataset_dir, dataset_vises
+    global dataset_dir, dataset_vises, active_vises
     if not return_keys:
         for i in range(max_datasets):
             dataset_dir['data' + str(i)] = None
             dataset_vises['data' + str(i)] = None
+            active_vises['data' + str(i)] = []
         return [[sg.Button('Empty Dataset', key = 'data' + str(i),
                            visible = True, size = (18, 3),
                            enable_events = True)]
@@ -136,6 +221,7 @@ def get_selected_folder():
 
 def set_selected_folder(values):
     global current_folder
+    print(current_folder)
     current_folder = values['foldload']
     window.FindElement('foldloadtext').Update('Currently Selected: \n' +
     current_folder.rsplit('/', 1)[-1], visible = True)
@@ -157,17 +243,84 @@ def parse(vasp_path, current_dataset):
     # Följt av if satser för alla parsers.
     set_dataset_to_vises_and_dir(vasp_path, pos_vises)
 
-def clear_hdf5(current_dataset):
-    try:
-        test = os.listdir(path_to_current_folder + '/../envisionGUI/')
-        print(test)
-        for item in test:
-            if item.endswith(current_dataset + ".hdf5"):
-                os.remove(os.path.join(path_to_current_folder + '/../envisionGUI',item))
-        return True
-    except:
-        print('Couldnt remove')
+def clear_hdf5(current_dataset, exit = False):
+    if not exit:
+        try:
+            test = os.listdir(path_to_current_folder + '/../envisionGUI/')
+            print(test)
+            for item in test:
+                if item.endswith(current_dataset + ".hdf5"):
+                    os.remove(os.path.join(path_to_current_folder + '/../envisionGUI',item))
+            return True
+        except:
+            print('Couldnt remove')
+    else:
+        try:
+            test = os.listdir(path_to_current_folder + '/../envisionGUI/')
+            print(test)
+            for item in test:
+                if item.endswith(".hdf5"):
+                    os.remove(os.path.join(path_to_current_folder + '/../envisionGUI',item))
+            return True
+        except:
+            print('Couldnt remove')
 
+
+
+
+
+def clear_options():
+    b=0
+    c=0
+    s=0
+    while b < number_of_buttons:
+        window.FindElement('opt' + str(b)).Update(visible = False,
+                           button_color = 'green')
+        b += 1
+    while c < number_of_comboboxes:
+        window.FindElement('com' + str(c)).Update(visible = False)
+        window.FindElement('com' + str(c) + 't').Update(visible = False)
+        c += 1
+    while s < number_of_sliders:
+        window.FindElement('sli' + str(s) + 't').Update(visible = False)
+        window.FindElement('sli' + str(s)).Update(visible = False)
+        s += 1
+    return True
+
+# ------------------------------------------------------------------------- #
+#               Functions that control the visualisations                   #
+# ------------------------------------------------------------------------- #
+
+def handle_visualisation_request(event, current_dataset):
+    hdf5_file = visualisations[event] + current_dataset + '.hdf5'
+    hdf5_file_name = visualisations[event] + current_dataset
+    print(active_vises[current_dataset])
+    if event in tuple(active_vises[current_dataset]):
+        try:
+            stop_visualisation(hdf5_file_name, visualisations[event])
+            active_vises[current_dataset].remove(event)
+        except:
+            pass
+    else:
+        start_visualisation(hdf5_file_name, hdf5_file, visualisations[event])
+        active_vises[current_dataset].append(event)
+    print(active_vises[current_dataset])
+    print(hdf5_file)
+
+def start_visualisation(filename, file, type):
+    envisionMain.update()
+    send_request('init_manager', [file])
+    envisionMain.update()
+    send_request('start_visualisation', [filename, type])
+    envisionMain.update()
+
+def stop_visualisation(filename, type):
+    try:
+        envisionMain.update()
+        send_request('stop_visualisation', [filename, type])
+        envisionMain.update()
+    except:
+        pass
 
 # ------------------------------------------------------------------------- #
 #            Functions that control the look of visualisations              #
@@ -354,10 +507,14 @@ def set_standard_parameters(file, type):
 #                             Layout Settings                               #
 # ------------------------------------------------------------------------- #
 
-layout = [[sg.Frame(layout = setup_datasets(), title = ''),
-           sg.Frame(layout = setup_folderloader(), title = '',
-           vertical_alignment = 'bottom')],
-          [sg.Frame(layout = setup_vis_buttons(), title = '')]]
+layout = [[ sg.Frame(layout = setup_datasets(), title = ''),
+            sg.Frame(layout = setup_folderloader(), title = '',
+            vertical_alignment = 'bottom')],
+          [ sg.Frame(layout = setup_vis_buttons(), title = '')],
+          [[sg.Frame(layout = setup_option_buttons(), title = ''),
+            sg.Frame(layout = setup_sliders(), title = ''),
+            sg.Frame(layout = setup_combo_boxes(), title = '')]],
+          [ sg.Button('Test', key = 't')]]
 
 
 window = sg.Window('',layout)
@@ -379,6 +536,13 @@ while True:
     if event in setup_datasets(True):
         set_selected_dataset(event)
         switch_dataset(event)
+    if (event in visualisations_button_tuple and current_folder != None
+                                            and current_dataset != None):
+        handle_visualisation_request(event, current_dataset)
+    if event == 't':
+        print(dataset_dir)
+        print(dataset_vises)
     if event in (sg.WINDOW_CLOSED, 'Exit'):
+        clear_hdf5(current_dataset, True)
         break
 window.close()
