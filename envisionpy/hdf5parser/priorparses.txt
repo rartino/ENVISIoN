@@ -1,6 +1,6 @@
 force_parser
-forcedata0.hdf5
-/home/labb/ENVISIoN/ENVISIoN/unit_testing/resources/FCC-Cu
+forcedata1.hdf5
+/home/adame/ENVISIoN/ENVISIoN/unit_testing/resources/Cu_band_CUB
 bandstructure
 /home/adame/ENVISIoN/ENVISIoN/ElectronUI/../GUI.hdf5
 /home/adame/ENVISIoN/ENVISIoN/ElectronUI/../unit_testing/resources/TiPO4_ELF
