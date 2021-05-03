@@ -20,11 +20,11 @@ HDF5_FILE = path_to_current_folder + "/../md_test.hdf5"
 
 
 #parse the VASP-file for molecular dynamics
-#envisionpy.hdf5parser.mol_dynamic_parser(HDF5_FILE, VASP_DIR)
+envisionpy.hdf5parser.mol_dynamic_parser(HDF5_FILE, VASP_DIR)
 
 #clear any old network
 inviwopy.app.network.clear()
 
 #Initialize inviwo network
-visManager = VisualisationManager(HDF5_FILE, inviwopy.app)
+visManager = VisualisationManager(HDF5_FILE, inviwopy.app, True)
 visManager.start("molecular_dynamics")

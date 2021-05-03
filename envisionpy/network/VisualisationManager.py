@@ -22,7 +22,7 @@ class VisualisationManager():
     '''
     Class for managing one visualisation instance from a single HDF5 file.
     '''
-    def __init__(self, hdf5_path, inviwoApp, inviwo = False):
+    def __init__(self, hdf5_path, inviwoApp, inviwo = True):
         print("Initialising VisMan")
         self.app = inviwoApp
         self.network = inviwoApp.network
@@ -75,7 +75,10 @@ class VisualisationManager():
         #        self.available_visualisations.append("moldyn")
             if len(set(['charge', 'elf', 'fermi', 'parchg']) & set(self.available_visualisations)) > 0:
                 self.available_visualisations.append('multi')
-
+### Legacy information about old ENVISON GUI, add appendix in användarmanual, teknisk doku,
+### Ta bort installationssteg som är kopplat till gamla GUI
+### Add legacy instruction at end of readme.rst
+###
     def start(self, vis_type, bool = True, *args):
         # Start a new main visualisation.
         subnetwork = self.get_subnetwork(vis_type, bool, *args)
