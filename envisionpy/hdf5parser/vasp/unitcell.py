@@ -235,7 +235,7 @@ def _find_elements(fileobj, elements, vasp_dir):
 
 def check_directory_unitcell(vasp_path):
     if Path(vasp_path).joinpath('POTCAR').exists() and Path(vasp_path).joinpath('POSCAR').exists():
-        return True            
+        return True
     return False
 
 

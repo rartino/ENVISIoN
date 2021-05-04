@@ -147,7 +147,7 @@ def _parse_pcdat(h5file, vasp_file, vasp_dir):
     return pcdat_data
 
 def check_directory_pcf(vasp_path):
-    if Path(vasp_path).joinpath('PCDAT').exists():  #and Path(vasp_path).joinpath('INCAR').exists():
+    if Path(vasp_path).joinpath('PCDAT').exists() and Path(vasp_path).joinpath('POSCAR').exists():
         return True
     return False
 
