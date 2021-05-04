@@ -70,6 +70,7 @@ def _parse_lattype(vasp_dir):
             match = False
             found_lattype = []
             for line in f:
+
                 match = lattype_re.search(line)
                 if match:
                     found_lattype = match.group()
@@ -154,7 +155,6 @@ def _symmetry_retriever(vasp_dir):
                         ['\u0393', 'L', 'M', 'N', 'R', 'X', 'Y', 'Z']]
 
     found_points = _parse_kpoints(vasp_dir)
-    print(found_points)
     found_lattype = _parse_lattype(vasp_dir)
     result_points = []
     result_symb = []
@@ -267,7 +267,6 @@ def bandstructure(h5file, vasp_dir):
         return False
 
     parsed_coords, parsed_symbols = _symmetry_retriever(vasp_dir)
-    print(parsed_coords)
     if parsed_coords:
         _write_bandstruct(h5file, band_data, kval_list, parsed_symbols, parsed_coords)
         print('Band structure data was parsed successfully.')

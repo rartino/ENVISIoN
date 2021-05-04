@@ -19,7 +19,7 @@ def send_request(rtype, data):
 envisionMain = EnvisionMain()
 envisionMain.update()
 #envisionMain.parse_ELK("CuFeS2", "testEMT.hdf5",["Unitcell"])
-envisionMain.parse_vasp("TiPO4_bandstructure", "testEMT.hdf5","All")
+envisionMain.parse_vasp("FCC-Cu", "testEMT.hdf5",["Fermi surface"])
 envisionMain.update()
 #send_request('init_manager', ['testEMT.hdf5'])
 #envisionMain.update()

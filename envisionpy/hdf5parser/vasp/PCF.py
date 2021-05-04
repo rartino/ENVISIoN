@@ -41,6 +41,7 @@ import sys
 import h5py
 import numpy as np
 import inspect
+from pathlib import Path
 
 path_to_current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 sys.path.insert(0, os.path.expanduser(path_to_current_dir))
@@ -145,6 +146,12 @@ def _parse_pcdat(h5file, vasp_file, vasp_dir):
 
     return pcdat_data
 
+def check_directory_pcf(vasp_path):
+    if Path(vasp_path).joinpath('PCDAT').exists():  #and Path(vasp_path).joinpath('INCAR').exists():
+        return True
+    return False
+
+
 
 def paircorrelation(h5file, vasp_dir):
     #   The function which script from inviwo will call with the command:  envision.parser.vasp.paircorrelation(PATH_TO_HDF5, PATH_TO_VASP_CALC)
@@ -169,7 +176,7 @@ def paircorrelation(h5file, vasp_dir):
             if "/PairCorrelationFunc" in h5:
                 print("Already parsed. Skipping.")
                 return False
-    
+
     # See if APACO and NPACO is set, otherwise default value is used.
     incar_file = os.path.join(vasp_dir, "INCAR")
     incar_data = _parse_incar(h5file, incar_file)
@@ -203,4 +210,3 @@ def paircorrelation(h5file, vasp_dir):
     except FileNotFoundError:
         print("PCDAT-file not found.")
         return False
-

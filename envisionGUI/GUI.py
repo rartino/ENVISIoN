@@ -257,9 +257,12 @@ def parse(vasp_path, current_dataset):
         envisionpy.hdf5parser.bandstructure('band2d' + current_dataset + '.hdf5', vasp_path)
         pos_vises.append('BandStructure 3D')
         envisionpy.hdf5parser.bandstructure('band3d' + current_dataset + '.hdf5', vasp_path)
-    #if envisionpy.hdf5parser.check_directory_fermi(vasp_path):
-    #    pos_vises.append('Fermi Surface')
-    #    envisionpy.hdf5parser.fermi_parser('fermi' + current_dataset + '.hdf5', vasp_path)
+    if envisionpy.hdf5parser.check_directory_fermi(vasp_path):
+        pos_vises.append('Fermi Surface')
+        envisionpy.hdf5parser.fermi_parser('fermi' + current_dataset + '.hdf5', vasp_path)
+    if envisionpy.hdf5parser.check_directory_pcf(vasp_path):
+        pos_vises.append('PCF')
+        envisionpy.hdf5parser.paircorrelation('pcf' + current_dataset + '.hdf5', vasp_path)
     # Följt av if satser för alla parsers.
     set_dataset_to_vises_and_dir(vasp_path, pos_vises)
 

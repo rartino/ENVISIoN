@@ -59,6 +59,7 @@ def _parse_coordinates(fileobj, count, transform=False, matrix=None):
     try:
         coords_list = []
         match = _find_line(coordinates_re, fileobj)
+
         while match:
             coords = [float(coordinate) for coordinate in match.groups()]
             if transform:
@@ -140,10 +141,9 @@ def _find_elements(fileobj, elements, vasp_dir):
     return elements, atoms
 
 def check_directory_force_parser(vasp_dir):
-    if os.path.exists(vasp_dir + '/POTCAR') and os.path.exists(vasp_dir + '/POSCAR'):
+    if os.path.exists(vasp_dir + '/POTCAR') and os.path.exists(vasp_dir + '/POSCAR') and os.path.exists(vasp_dir + '/OUTCAR'):
         return True
-    else:
-        return False
+    return False
 
 
 def force_parser(h5file, vasp_dir, inviwo = False, elements=None, poscar_equiv='POSCAR'):
