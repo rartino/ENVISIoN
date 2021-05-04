@@ -32,7 +32,9 @@ vectors = True
 toggle_iso = True
 slice_plane = True
 current_dataset = None
+current_dataset_is_hdf5 = None
 current_folder = None
+current_file = None
 current_vis = None
 current_vis_key = None
 current_vis_hdf5 = None
@@ -42,6 +44,7 @@ number_of_comboboxes = 4
 max_datasets = 5
 dataset_dir = {}
 dataset_vises = {}
+dataset_if_hdf5 = {}
 current_vises = {}
 
 visualisations = {'Force' : 'force',
@@ -53,6 +56,16 @@ visualisations = {'Force' : 'force',
                   'ELF' : 'elf',
                   'Fermi Surface' : 'fermi',
                   'Atom Positions' : 'atom'}
+
+visualisations_reverse = {'force' : 'Force',
+                  'molecular_dynamics' : 'Molecular Dynamics',
+                  'pcf' : 'PCF',
+                  'band2d' : 'BandStructure',
+                  'band3d' : 'BandStructure 3D',
+                  'charge' : 'Charge',
+                  'elf' : 'ELF',
+                  'fermi' : 'Fermi Surface',
+                  'atom' : 'Atom Positions'}
 
 visualisations_button_tuple = tuple([i for i in visualisations.keys()])
 
@@ -144,9 +157,10 @@ def setup_datasets(return_keys = False):
             dataset_dir['data' + str(i)] = None
             dataset_vises['data' + str(i)] = None
             current_vises['data' + str(i)] = []
+            dataset_if_hdf5['data' + str(i)] = None
         return [[sg.Button('Empty Dataset', key = 'data' + str(i),
                            visible = True, size = (18, 3),
-                           enable_events = True)]
+                           enable_events = True, button_color = 'darkgrey')]
                  for i in range(max_datasets)]
     else:
         return tuple('data' + str(i) for i in range(max_datasets))
@@ -164,6 +178,20 @@ def setup_folderloader(return_key = False):
                            enable_events = True, key = 'parsefolder')]
                 ]
 
+def setup_fileloader(return_key = False):
+    if not return_key:
+        return [[sg.Text('Note: Loading HDF5-files\ndirectly is not\nwell supported', visible = True, key = 'text',
+                 size = (18,4))],
+                [sg.FileBrowse(button_text = 'Choose a HDF5-file',
+                                 initial_folder = path_to_current_folder + '/../ENVISIoN',
+                                 enable_events = True, key = 'fileload',
+                                 size = (18,2), file_types = (('*.hdf5', '.hdf5'),))],
+                [sg.Text('', visible = False, key = 'fileloadtext',
+                         size = (18,3))],
+                [sg.Button('Load selected file \nin to dataset', size = (18,2),
+                           enable_events = True, key = 'loadfile')]
+                ]
+
 def setup_vis_buttons():
     button_row = []
     temp_row1 = []
@@ -172,9 +200,9 @@ def setup_vis_buttons():
     vis_first_half = list(visualisations.keys())[:half_vis]
     vis_last_half = list(visualisations.keys())[half_vis:]
     for i in vis_first_half:
-        temp_row1.append(sg.Button(i))
+        temp_row1.append(sg.Button(i, button_color = 'lightgrey', disabled = True))
     for i in vis_last_half:
-        temp_row2.append(sg.Button(i))
+        temp_row2.append(sg.Button(i, button_color = 'lightgrey', disabled = True))
     button_row.append(temp_row1)
     button_row.append(temp_row2)
     return button_row
@@ -191,13 +219,18 @@ def set_selected_dataset(event):
             current_dataset = i
         else:
             window.FindElement(i).Update(visible = True,
-                                         button_color = ("#fafbfc", "#155398"))
+                                         button_color = ("#fafbfc", "darkgrey"))
 
-def set_dataset_to_vises_and_dir(vasp_path = None, current_visualisations = None):
-    global dataset_dir, dataset_vises, visualisations, current_dataset
+def set_dataset_to_vises_and_dir(vasp_path = None, current_visualisations = None, hdf5 = False):
+    global dataset_dir, dataset_vises, visualisations, current_dataset, current_dataset_is_hdf5
     dataset_dir[current_dataset] = vasp_path
     dataset_vises[current_dataset] = current_visualisations
-    window.FindElement(current_dataset).Update(current_folder.rsplit('/', 1)[-1])
+    if hdf5:
+        dataset_if_hdf5[current_dataset] = current_file
+        window.FindElement(current_dataset).Update(current_file.rsplit('/', 1)[-1])
+    else:
+        dataset_if_hdf5[current_dataset] = None
+        window.FindElement(current_dataset).Update(current_folder.rsplit('/', 1)[-1])
     for key, value in visualisations.items():
         if key in dataset_vises[current_dataset]:
             window.FindElement(key).Update(disabled = False, button_color = 'green')
@@ -245,6 +278,18 @@ def parse(vasp_path, current_dataset):
     #    envisionpy.hdf5parser.fermi_parser('fermi' + current_dataset + '.hdf5', vasp_path)
     # Följt av if satser för alla parsers.
     set_dataset_to_vises_and_dir(vasp_path, pos_vises)
+
+def load_hdf5_file(hdf5_path, current_dataset):
+    init = send_request('init_manager', [hdf5_path])
+    init = init['data'][2]
+    print(hdf5_path)
+    envisionMain.update()
+    pos_vises = []
+    for key, value in visualisations.items():
+        if value in init:
+            pos_vises.append(key)
+    set_dataset_to_vises_and_dir(hdf5_path, pos_vises, True)
+    print(pos_vises)
 
 def clear_hdf5(current_dataset, exit = False):
     if not exit:
@@ -340,19 +385,31 @@ def get_selected_folder():
 
 def set_selected_folder(values):
     global current_folder
-    print(current_folder)
     current_folder = values['foldload']
     window.FindElement('foldloadtext').Update('Currently Selected: \n' +
     current_folder.rsplit('/', 1)[-1], visible = True)
 
+def set_selected_file(values):
+    global current_file
+    current_file = values['fileload']
+    window.FindElement('fileloadtext').Update('Currently Selected: \n' +
+    current_file.rsplit('/', 1)[-1], visible = True)
+
 def get_loaded_datasets():
     return tuple([i for i in dataset_dir.values() if i != None])
 
-def handle_visualisation_request(event, current_dataset):
-    hdf5_file = visualisations[event] + current_dataset + '.hdf5'
-    hdf5_file_name = visualisations[event] + current_dataset
+def handle_visualisation_request(event, current_dataset, hdf5 = False):
+    if dataset_if_hdf5[current_dataset] == None:
+        hdf5_file = visualisations[event] + current_dataset + '.hdf5'
+        hdf5_file_name = visualisations[event] + current_dataset
+    else:
+        hdf5_file = dataset_if_hdf5[current_dataset]
+        hdf5_file_name = dataset_if_hdf5[current_dataset].rsplit('.hdf5')[0]
+        hdf5_file_name = hdf5_file_name.rsplit('/', 1)[-1]
+        print()
     if event not in current_vises[current_dataset]:
         print(current_vises[current_dataset])
+        print(hdf5_file_name + ' ' + hdf5_file + ' ' + visualisations[event])
         start_visualisation(hdf5_file_name, hdf5_file, visualisations[event])
         current_vises[current_dataset].append(event)
     print(current_vises[current_dataset])
@@ -378,11 +435,15 @@ def stop_visualisation(filename, type):
 
 def set_current(event, current_dataset):
     global current_vis_hdf5, current_vis, current_vis_key
-
-    current_vis_hdf5 = visualisations[event] + current_dataset
-    current_vis = visualisations[event]
-    current_vis_key = str([vis for vis,val in visualisations.items() if val == current_vis][0])
-
+    if dataset_if_hdf5[current_dataset] == None:
+        current_vis_hdf5 = visualisations[event] + current_dataset
+        current_vis = visualisations[event]
+        current_vis_key = str([vis for vis,val in visualisations.items() if val == current_vis][0])
+    else:
+        current_vis_hdf5 = dataset_if_hdf5[current_dataset].rsplit('.hdf5')[0]
+        current_vis_hdf5 = current_vis_hdf5.rsplit('/', 1)[-1]
+        current_vis = visualisations[event]
+        current_vis_key = str([vis for vis,val in visualisations.items() if val == current_vis][0])
 def stop_selected(current_vis_hdf5, current_vis):
     try:
         current_vises[current_dataset].remove(str([vis for vis,val in visualisations.items() if val == current_vis][0]))
@@ -587,12 +648,18 @@ def set_standard_parameters(file, type):
 
 layout = [[ sg.Frame(layout = setup_datasets(), title = ''),
             sg.Frame(layout = setup_folderloader(), title = '',
-            vertical_alignment = 'bottom')],
-          [ sg.Frame(layout = setup_vis_buttons(), title = '')],
-          [[sg.Frame(layout = setup_option_buttons(), title = ''),
-            sg.Frame(layout = setup_sliders(), title = ''),
-            sg.Frame(layout = setup_combo_boxes(), title = '')]],
-          [ sg.Button('Test', key = 't'), sg.Button('Stop Visualisation', key = 'stop')]]
+            vertical_alignment = 'bottom'),
+            sg.Frame(layout = setup_fileloader(), title = '',
+            vertical_alignment = 'bottom'),
+            ],
+          [ sg.Frame(layout = setup_vis_buttons(), title = '', border_width = 0)],
+          [[sg.Frame(layout = setup_option_buttons(), title = '', border_width = 0),
+            sg.Frame(layout = setup_sliders(), title = '', border_width = 0),
+            sg.Frame(layout = setup_combo_boxes(), title = '', border_width = 0)]],
+          [ sg.Button('Stop Currently Selected Visualisation',
+            key = 'stop', button_color = 'red'),
+            sg.Text('FPS:'),
+            sg.Text('             ', key = 'fps')]]
 
 
 window = sg.Window('',layout)
@@ -621,19 +688,25 @@ slider_to_function = {'ISO Surface Value' : set_iso_surface,
 # ------------------------------------------------------------------------- #
 
 while True:
+    start = time.time()
     envisionMain.update()
-    event, values = window.read(timeout = 10)
+    event, values = window.read(timeout = 20)
     if event == 'foldload':
         set_selected_folder(values)
-
+    if event == 'fileload':
+        set_selected_file(values)
     if (event == 'parsefolder' and current_folder != None
                                and current_folder not in get_loaded_datasets()
                                and current_dataset != None):
         parse(current_folder, current_dataset)
+    if (event == 'loadfile' and current_file != None
+                            and current_file not in get_loaded_datasets()
+                            and current_dataset != None):
+        load_hdf5_file(current_file, current_dataset)
     if event in setup_datasets(True):
         set_selected_dataset(event)
         switch_dataset(event)
-    if (event in visualisations_button_tuple and current_folder != None
+    if (event in visualisations_button_tuple and (current_folder != None or current_file != None)
                                             and current_dataset != None):
         switch_dataset(current_dataset)
         set_selected(event)
@@ -642,13 +715,15 @@ while True:
         handle_visualisation_request(event, current_dataset)
         set_current(event, current_dataset)
         set_standard_parameters(current_vis_hdf5, current_vis)
-    if event == 'stop':
-        print('stopping')
+    if (event == 'stop' and (current_folder != None or current_file != None)
+                                            and current_dataset != None):
         unset_selected(current_vis)
         stop_selected(current_vis_hdf5, current_vis)
         clear_options()
     if event == 't':
-        print(current_vises)
+        print(dataset_if_hdf5)
+        print(current_dataset)
+
     if event in setup_option_buttons(True):
         button_to_function[window.FindElement(event).get_text()](current_vis_hdf5,
                                                                  current_vis)
@@ -665,4 +740,6 @@ while True:
     if event in (sg.WINDOW_CLOSED, 'Exit'):
         clear_hdf5(current_dataset, True)
         break
+    end = time.time()
+    window.FindElement('fps').Update(str(round(1/(end - start), 1)))
 window.close()

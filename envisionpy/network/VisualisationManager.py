@@ -63,11 +63,9 @@ class VisualisationManager():
             if PCFNetworkHandler.valid_hdf5(file):
                 self.available_visualisations.append("pcf")
             if ForceVectors.valid_hdf5(file):
-                self.available_visualisations.append("test")
+                self.available_visualisations.append("force")
             if MolecularDynamics.valid_hdf5(file):                           #MD
                 self.available_visualisations.append("molecular_dynamics")
-            if Test.valid_hdf5(file):
-                self.available_visualisations.append("force")
             #Det här behöver ändras från Test.valid_hdf5 till force.valid_hdf5
             #och animation.valid_hdf5
         #    if Test.valid_hdf5(file):
@@ -174,8 +172,6 @@ class VisualisationManager():
 
         elif vis_type == "dos":
             subnetwork = DensityOfStates(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
-        elif vis_type == "test":
-            subnetwork = Test(self.app, self.hdf5_path, self.hdf5Output, 0, 3)
         elif vis_type == "multi":
             subnetwork = MultiVolume(self.app, self.hdf5_path, self.hdf5Output, 30, 3)
             for t in ['charge', 'elf']:
