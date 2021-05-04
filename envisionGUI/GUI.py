@@ -12,11 +12,6 @@ import envisionpy
 from envisionpy.hdf5parser import *
 import threading
 import queue
-from yaml import load, dump
-#try:
-#    from yaml import CLoader as Loader, CDumper as Dumper
-#except ImportError:
-#    from yaml import Loader, Dumper
 
 def send_request(rtype, data):
     return envisionMain.handle_request({'type': rtype, 'parameters': data})
@@ -31,18 +26,26 @@ sg.theme('DarkGrey14')
 
 allow_simultaneous_visualisations = True
 allow_simultaneous_visualisations_over_datasets = True
+canvas = True
+slice_canvas = False
+vectors = True
+toggle_iso = True
+slice_plane = True
 current_dataset = None
 current_folder = None
+current_vis = None
+current_vis_key = None
+current_vis_hdf5 = None
 number_of_buttons = 4
 number_of_sliders = 4
 number_of_comboboxes = 4
 max_datasets = 5
 dataset_dir = {}
 dataset_vises = {}
-active_vises = {}
+current_vises = {}
 
 visualisations = {'Force' : 'force',
-                  'Molecular Dynamics' : 'moldyn',
+                  'Molecular Dynamics' : 'molecular_dynamics',
                   'PCF' : 'pcf',
                   'BandStructure' : 'band2d',
                   'BandStructure 3D' : 'band3d',
@@ -55,7 +58,8 @@ visualisations_button_tuple = tuple([i for i in visualisations.keys()])
 
 force_attr = {'button0' : 'Toggle Canvas',
               'button1' : 'Toggle Force Vectors',
-              'slider': {'Set Radius': [(0,100), 50]}}
+              'slider': {'Set Radius': [(0,100), 50],
+                         'Set Opacity': [(0,100), 100]}}
 
 moldyn_atttr = {'button0' : 'Toggle Canvas',
                 'button1' : 'Play/Pause',
@@ -134,12 +138,12 @@ def setup_sliders(return_keys = False):
         return tuple('sli' + str(i) for i in range(number_of_sliders))
 
 def setup_datasets(return_keys = False):
-    global dataset_dir, dataset_vises, active_vises
+    global dataset_dir, dataset_vises, current_vises
     if not return_keys:
         for i in range(max_datasets):
             dataset_dir['data' + str(i)] = None
             dataset_vises['data' + str(i)] = None
-            active_vises['data' + str(i)] = []
+            current_vises['data' + str(i)] = []
         return [[sg.Button('Empty Dataset', key = 'data' + str(i),
                            visible = True, size = (18, 3),
                            enable_events = True)]
@@ -200,34 +204,8 @@ def set_dataset_to_vises_and_dir(vasp_path = None, current_visualisations = None
         else:
             window.FindElement(key).Update(disabled = True, button_color = 'lightgrey')
 
-
-
-def switch_dataset(event):
-    global dataset_dir, dataset_vises
-    if dataset_dir[event] != None and dataset_vises[event] != None:
-        for key, value in visualisations.items():
-            if key in dataset_vises[event]:
-                window.FindElement(key).Update(disabled = False, button_color = 'green')
-            else:
-                window.FindElement(key).Update(disabled = True, button_color = 'lightgrey')
-    elif dataset_dir[event] == None:
-        for key in visualisations.keys():
-            window.FindElement(key).Update(disabled = True, button_color = 'lightgrey')
-    else:
-        pass
-
-def get_selected_folder():
-    return current_folder
-
-def set_selected_folder(values):
-    global current_folder
-    print(current_folder)
-    current_folder = values['foldload']
-    window.FindElement('foldloadtext').Update('Currently Selected: \n' +
-    current_folder.rsplit('/', 1)[-1], visible = True)
-
-def get_loaded_datasets():
-    return tuple([i for i in dataset_dir.values() if i != None])
+def console_message(str):
+    pass
 
 
 # ------------------------------------------------------------------------- #
@@ -242,13 +220,18 @@ def parse(vasp_path, current_dataset):
         envisionpy.hdf5parser.force_parser('force' + current_dataset + '.hdf5', vasp_path)
     if envisionpy.hdf5parser.check_directory_molecular_dynamics_parser(vasp_path):
         pos_vises.append('Molecular Dynamics')
-        envisionpy.hdf5parser.mol_dynamic_parser('moldyn' + current_dataset + '.hdf5', vasp_path)
+        envisionpy.hdf5parser.mol_dynamic_parser('molecular_dynamics' + current_dataset + '.hdf5', vasp_path)
     if envisionpy.hdf5parser.check_directory_elf(vasp_path):
         pos_vises.append('ELF')
-        envisionpy.hdf5parser.force_parser('elf' + current_dataset + '.hdf5', vasp_path)
+        envisionpy.hdf5parser.elf('elf' + current_dataset + '.hdf5', vasp_path)
     if envisionpy.hdf5parser.check_directory_charge(vasp_path):
-        pos_vises.append('Charge')
-        envisionpy.hdf5parser.charge('charge' + current_dataset + '.hdf5', vasp_path)
+        if envisionpy.hdf5parser.check_directory_unitcell(vasp_path):
+            pos_vises.append('Charge')
+            envisionpy.hdf5parser.charge('charge' + current_dataset + '.hdf5', vasp_path)
+            envisionpy.hdf5parser.unitcell('charge' + current_dataset + '.hdf5', vasp_path)
+        else:
+            pos_vises.append('Charge')
+            envisionpy.hdf5parser.charge('charge' + current_dataset + '.hdf5', vasp_path)
     if envisionpy.hdf5parser.check_directory_unitcell(vasp_path):
         pos_vises.append('Atom Positions')
         envisionpy.hdf5parser.unitcell('atom' + current_dataset + '.hdf5', vasp_path)
@@ -285,10 +268,6 @@ def clear_hdf5(current_dataset, exit = False):
         except:
             print('Couldnt remove')
 
-
-
-
-
 def clear_options():
     b=0
     c=0
@@ -307,41 +286,115 @@ def clear_options():
         s += 1
     return True
 
+
 # ------------------------------------------------------------------------- #
 #               Functions that control the visualisations                   #
 # ------------------------------------------------------------------------- #
+def create_vis_attributes(attr):
+    clear_options()
+    button_count = 0
+    combo_count = 0
+    slider_count = 0
+    for key, value in attr.items():
+        if 'button' in key:
+            window.FindElement('opt' +
+                               str(button_count)).Update(text = value,
+                               visible = True, button_color = 'green')
+            button_count += 1
+        elif 'combo' in key:
+            for key1, value1 in value.items():
+                window.FindElement('com' + str(combo_count) +
+                                   't').Update(value = key1, visible = True)
+                window.FindElement('com' +
+                                   str(combo_count)).Update(values = value1,
+                                   visible = True)
+                combo_count += 1
+        elif 'slider' in key:
+            for key2, value2 in value.items():
+                window.FindElement('sli' + str(slider_count) +
+                                   't').Update(value = key2 + ': ' +
+                                   str(value2[1]/100), visible = True)
+                window.FindElement('sli' +
+                                   str(slider_count)).Update(range = value2[0],
+                                   value = value2[1], visible = True,
+                                   disabled = False)
+                slider_count += 1
+    return
+
+def switch_dataset(event):
+    global dataset_dir, dataset_vises
+    if dataset_dir[event] != None and dataset_vises[event] != None:
+        for key, value in visualisations.items():
+            if key in dataset_vises[event]:
+                window.FindElement(key).Update(disabled = False, button_color = 'green')
+            else:
+                window.FindElement(key).Update(disabled = True, button_color = 'lightgrey')
+    elif dataset_dir[event] == None:
+        for key in visualisations.keys():
+            window.FindElement(key).Update(disabled = True, button_color = 'lightgrey')
+    else:
+        pass
+
+def get_selected_folder():
+    return current_folder
+
+def set_selected_folder(values):
+    global current_folder
+    print(current_folder)
+    current_folder = values['foldload']
+    window.FindElement('foldloadtext').Update('Currently Selected: \n' +
+    current_folder.rsplit('/', 1)[-1], visible = True)
+
+def get_loaded_datasets():
+    return tuple([i for i in dataset_dir.values() if i != None])
 
 def handle_visualisation_request(event, current_dataset):
     hdf5_file = visualisations[event] + current_dataset + '.hdf5'
     hdf5_file_name = visualisations[event] + current_dataset
-    print(active_vises[current_dataset])
-    if event in tuple(active_vises[current_dataset]):
-        try:
-            stop_visualisation(hdf5_file_name, visualisations[event])
-            active_vises[current_dataset].remove(event)
-        except:
-            pass
-    else:
+    if event not in current_vises[current_dataset]:
+        print(current_vises[current_dataset])
         start_visualisation(hdf5_file_name, hdf5_file, visualisations[event])
-        active_vises[current_dataset].append(event)
-    print(active_vises[current_dataset])
+        current_vises[current_dataset].append(event)
+    print(current_vises[current_dataset])
     print(hdf5_file)
 
 def start_visualisation(filename, file, type):
     envisionMain.update()
     send_request('init_manager', [file])
     envisionMain.update()
+    print(filename)
+    print(type)
     send_request('start_visualisation', [filename, type])
     envisionMain.update()
 
 def stop_visualisation(filename, type):
     try:
+
         envisionMain.update()
         send_request('stop_visualisation', [filename, type])
         envisionMain.update()
     except:
         pass
 
+def set_current(event, current_dataset):
+    global current_vis_hdf5, current_vis, current_vis_key
+
+    current_vis_hdf5 = visualisations[event] + current_dataset
+    current_vis = visualisations[event]
+    current_vis_key = str([vis for vis,val in visualisations.items() if val == current_vis][0])
+
+def stop_selected(current_vis_hdf5, current_vis):
+    try:
+        current_vises[current_dataset].remove(str([vis for vis,val in visualisations.items() if val == current_vis][0]))
+        stop_visualisation(current_vis_hdf5, current_vis)
+    except:
+        pass
+
+def set_selected(event):
+    window.FindElement(event).Update(button_color = 'darkgreen', disabled = True)
+
+def unset_selected(event):
+    window.FindElement(current_vis_key).Update(button_color = 'green', disabled = False)
 # ------------------------------------------------------------------------- #
 #            Functions that control the look of visualisations              #
 # ------------------------------------------------------------------------- #
@@ -349,6 +402,7 @@ def stop_visualisation(filename, type):
 def toggle_canvas(file, type):
     global canvas
     #try:
+    print(file + type)
     if canvas:
         envisionMain.update()
         send_request('visualisation_request', [file, type, "hide", []])
@@ -374,7 +428,7 @@ def set_shading_mode(file, type, key):
 def set_color(file, type, key):
     try:
        send_request("visualisation_request",
-                    [file, type, "set_color", [colors[key]]])
+                    [file, type, "set_color", [key]])
     except:
        console_message('Could not set color')
 
@@ -522,6 +576,10 @@ def set_standard_parameters(file, type):
         set_opacity(file, type, 1)
     except:
         pass
+    try:
+        set_color(file, type, [1,1,1])
+    except:
+        pass
 
 # ------------------------------------------------------------------------- #
 #                             Layout Settings                               #
@@ -534,10 +592,29 @@ layout = [[ sg.Frame(layout = setup_datasets(), title = ''),
           [[sg.Frame(layout = setup_option_buttons(), title = ''),
             sg.Frame(layout = setup_sliders(), title = ''),
             sg.Frame(layout = setup_combo_boxes(), title = '')]],
-          [ sg.Button('Test', key = 't')]]
+          [ sg.Button('Test', key = 't'), sg.Button('Stop Visualisation', key = 'stop')]]
 
 
 window = sg.Window('',layout)
+
+button_to_function = {'Toggle Canvas' : toggle_canvas,
+                    'Toggle Force Vectors' : toggle_force_vectors,
+                    'Play/Pause' : play_pause,
+                    'Change Color' : unfinished,
+                    'Toggle ISO' : toggle_iso_surface,
+                    'Toggle Slice Canvas' : toggle_slice_canvas,
+                    'Toggle Slice Plane' : toggle_slice_plane}
+
+combo_to_function = {'Shading Mode' : set_shading_mode,
+                     'Volume Selection' : set_volume_selection,
+                     'Color' : set_color}
+
+slider_to_function = {'ISO Surface Value' : set_iso_surface,
+                      'Slice Plane Height' : set_slice_plane_height,
+                      'Set Radius' : set_radius,
+                      'Set Speed' : set_animation_speed,
+                      'Set Opacity' : set_opacity}
+
 
 # ------------------------------------------------------------------------- #
 #                               Event Loop                                  #
@@ -558,10 +635,33 @@ while True:
         switch_dataset(event)
     if (event in visualisations_button_tuple and current_folder != None
                                             and current_dataset != None):
+        switch_dataset(current_dataset)
+        set_selected(event)
+        create_vis_attributes(vis_attributes[event])
+        print(event)
         handle_visualisation_request(event, current_dataset)
+        set_current(event, current_dataset)
+        set_standard_parameters(current_vis_hdf5, current_vis)
+    if event == 'stop':
+        print('stopping')
+        unset_selected(current_vis)
+        stop_selected(current_vis_hdf5, current_vis)
+        clear_options()
     if event == 't':
-        print(dataset_dir)
-        print(dataset_vises)
+        print(current_vises)
+    if event in setup_option_buttons(True):
+        button_to_function[window.FindElement(event).get_text()](current_vis_hdf5,
+                                                                 current_vis)
+    if event in setup_combo_boxes(True):
+        combo_to_function[window.FindElement(event + 't').get()](current_vis_hdf5,
+                                                                 current_vis, values[event])
+    if event in setup_sliders(True):
+        window.FindElement(event + 't').Update(value =
+                          (window.FindElement(event + 't').get().split(':'))[0]
+                          + ': ' + str(round(values[event])/100))
+        slider_to_function[window.FindElement(event +
+                                        't').get().split(':')[0]](current_vis_hdf5,
+                                                                  current_vis, round(values[event])/100)
     if event in (sg.WINDOW_CLOSED, 'Exit'):
         clear_hdf5(current_dataset, True)
         break
