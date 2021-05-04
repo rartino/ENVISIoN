@@ -190,7 +190,7 @@ def check_directory_fermi(vasp_path):
         with Path(vasp_path).joinpath('OUTCAR').open('r') as f:
             lines = f.readlines()
             for i, line in enumerate(lines):
-                if 'E-fermi' in line:
+                if 'KPOINTS' and 'fermi-surface' in line:
                     return True
     return False
 
@@ -251,7 +251,6 @@ def fermi_parser(hdf_file_path, vasp_dir_path):
         nelectrons, nkpoints, nbands = [int(v) for v in re.findall(r'[\d]+', lines[5])]
 
         kpoints = np.zeros(shape=(nkpoints, 4))
-        print(kpoints)
         evalues = np.zeros(shape=(nkpoints, nbands, nspin), dtype=np.float32)
 
 
@@ -269,7 +268,7 @@ def fermi_parser(hdf_file_path, vasp_dir_path):
                 band_index = int(regex[0])
                 values = [float(v) for v in regex[1:1+nspin:]]
                 evalues[kpoint_index - 1, band_index - 1, :] = values
-                
+
 
     # derive dimensions from unique kpoints
     nkpoints_x = len(set(kpoints[:, 0]))

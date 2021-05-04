@@ -234,10 +234,9 @@ def _find_elements(fileobj, elements, vasp_dir):
     return elements, atoms
 
 def check_directory_unitcell(vasp_path):
-	if Path(vasp_path).joinpath('POTCAR').exists() and Path(vasp_path).joinpath('POSCAR').exists():
-		return True
-	else:
-		return False
+    if Path(vasp_path).joinpath('POTCAR').exists() and Path(vasp_path).joinpath('POSCAR').exists():
+        return True
+    return False
 
 
 def unitcell(h5file, vasp_dir, elements=None, poscar_equiv='POSCAR'):

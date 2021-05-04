@@ -1,7 +1,7 @@
 from .vasp.volume import charge, elf, check_directory_elf, check_directory_charge
 from .vasp.bandstructure import bandstructure, check_directory_bandstructure
 from .vasp.parchg import parchg
-from .vasp.PCF import paircorrelation
+from .vasp.PCF import paircorrelation, check_directory_pcf
 from .vasp.doscar import dos
 from .vasp.unitcell import unitcell, check_directory_unitcell
 from .vasp.fermiEnergy import fermi_energy
