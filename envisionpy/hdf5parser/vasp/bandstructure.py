@@ -302,9 +302,6 @@ def bandstructure(h5file, vasp_dir):
     parsed_coords, parsed_symbols = _symmetry_retriever(vasp_dir)
     if not parsed_coords:
         parsed_coords, parsed_symbols = symmetry_retriever2(vasp_dir)
-        print(parsed_coords)
-        print(parsed_symbols)
-        print("________________________________________")
     if parsed_coords:
         _write_bandstruct(h5file, band_data, kval_list, parsed_symbols, parsed_coords)
         print('Band structure data was parsed successfully.')
