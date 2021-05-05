@@ -167,14 +167,14 @@ def setup_datasets(return_keys = False):
 
 def setup_folderloader(return_key = False):
     if not return_key:
-        return [[sg.FolderBrowse(button_text = 'Choose VASP-directory',
+        return [[sg.FolderBrowse(button_text = 'Choose VASP-directory or ELK-directory',
                                  initial_folder = path_to_current_folder +
                                  '/../unit_testing/resources',
                                  enable_events = True, key = 'foldload',
-                                 size = (18,2))],
+                                 size = (20,2))],
                 [sg.Text('', visible = False, key = 'foldloadtext',
-                         size = (18,3))],
-                [sg.Button('Parse Selected \n Folder', size = (18,2),
+                         size = (20,3))],
+                [sg.Button('Parse Selected \n Folder', size = (20,2),
                            enable_events = True, key = 'parsefolder')]
                 ]
 
@@ -279,6 +279,10 @@ def parse(vasp_path, current_dataset):
     if envisionpy.hdf5parser.check_directory_pcf(vasp_path):
         pos_vises.append('PCF')
         envisionpy.hdf5parser.paircorrelation('pcf' + current_dataset + '.hdf5', vasp_path)
+    if envisionpy.hdf5parser.check_directory_unitcell_elk(vasp_path):
+        pos_vises.append('Atom Positions')
+        envisionpy.hdf5parser.unitcell_parser('atom' + current_dataset + '.hdf5', vasp_path)
+
     # Följt av if satser för alla parsers.
     set_dataset_to_vises_and_dir(vasp_path, pos_vises)
 

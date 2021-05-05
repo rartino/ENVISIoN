@@ -10,7 +10,7 @@ from .vasp.force_parser import force_parser, check_directory_force_parser
 from .vasp.molecular_dynamics_parser import mol_dynamic_parser
 from .vasp.molecular_dynamics_parser import check_directory_molecular_dynamics_parser
 from .vasp.check_for_parse import has_been_parsed
-from .ELK.unitcell_parser import unitcell_parser
+from .ELK.unitcell_parser import unitcell_parser, check_directory_unitcell_elk
 from .vasp.bandstructure_combo import bandstructure_combo
 from .vasp.bandstructure_combo import bandstructure_combo3d
 

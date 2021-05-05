@@ -6,6 +6,12 @@ import re
 import numpy as np
 import h5py
 from h5writer import _write_basis, _write_scaling_factor, _write_coordinates
+from pathlib import Path
+
+def check_directory_unitcell_elk(ELK_path):
+    if Path(ELK_path).joinpath('EQATOMS.OUT').exists() and Path(ELK_path).joinpath('INFO.OUT').exists():
+        return True
+    return False
 
 def find_elements( ELK_dir):
     elements = []
