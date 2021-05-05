@@ -81,6 +81,9 @@ def _parse_lattype(vasp_dir):
         return []
     return found_lattype
 
+
+
+
 def _parse_kpoints(vasp_dir):
     """Retrives coordinates from KPOINTS file
     and removes duplicates.
@@ -117,6 +120,31 @@ def _parse_kpoints(vasp_dir):
     cleaned_coords = [sorted_coords[i] for i in range(len(sorted_coords)) if i == 0 or sorted_coords[i] != sorted_coords[i-1]]
 
     return cleaned_coords
+
+
+def parse_symmetry_symbols(vasp_dir):
+    kpoints_file_path = Path(vasp_dir).joinpath('KPOINTS')
+    try:
+        with open(kpoints_file_path, "r") as f:
+            lines = f.readlines()
+            for line in lines:
+                if "k-points for bandstructure" in line:
+                    symmetry_symbols_line = line.replace("k-points for bandstructure ", "").replace("-", " ").replace("\n", "")
+                    symmetry_symbols_list = sorted(list(set(symmetry_symbols_line.split(" "))))
+                    for x in range(len(symmetry_symbols_list)):
+                        if symmetry_symbols_list[x] == "G":
+                            symmetry_symbols_list[x] = '\u0393'
+                    return symmetry_symbols_list
+                if "Band structure" in line:
+                    symmetry_symbols_line = line.replace("Band structure ", "").replace("-", " ").replace("\n", "")
+                    symmetry_symbols_list = sorted(list(set(symmetry_symbols_line.split(" "))))
+                    for x in range(len(symmetry_symbols_list)):
+                        if symmetry_symbols_list[x] == "G":
+                            symmetry_symbols_list[x] = '\u0393'
+                    symmetry_symbols_list = list(filter(("").__ne__, symmetry_symbols_list))
+                    return symmetry_symbols_list
+    except StopIteration:
+        pass # if EOF is reached here
 
 def _symmetry_retriever(vasp_dir):
     """Compares input from OUTCAR and KPOINTS with stored
@@ -179,6 +207,11 @@ def _symmetry_retriever(vasp_dir):
                 result_symb = symmetry_symbols[i]
                 return result_points, result_symb
     return result_points, result_symb
+
+def symmetry_retriever2(vasp_dir):
+    symmetry_points =_parse_kpoints(vasp_dir)
+    symmetry_symbols = parse_symmetry_symbols(vasp_dir)
+    return symmetry_points, symmetry_symbols
 
 def bandstruct_parse(file_object):
     """
@@ -267,6 +300,11 @@ def bandstructure(h5file, vasp_dir):
         return False
 
     parsed_coords, parsed_symbols = _symmetry_retriever(vasp_dir)
+    if not parsed_coords:
+        parsed_coords, parsed_symbols = symmetry_retriever2(vasp_dir)
+        print(parsed_coords)
+        print(parsed_symbols)
+        print("________________________________________")
     if parsed_coords:
         _write_bandstruct(h5file, band_data, kval_list, parsed_symbols, parsed_coords)
         print('Band structure data was parsed successfully.')
@@ -278,10 +316,18 @@ def bandstructure(h5file, vasp_dir):
         return False
 
 def check_directory_bandstructure(vasp_path):
-    if Path(vasp_path).joinpath('EIGENVAL').exists() and Path(vasp_path).joinpath('OUTCAR').exists() and Path(vasp_path).joinpath('KPOINTS').exists(): # and Path(vasp_path).joinpath('DOSCAR').exists():
-        result_points, result_symb = _symmetry_retriever(vasp_path)
-        if result_points:
-            return True
-        else:
-            return False
+    if Path(vasp_path).joinpath('EIGENVAL').exists() and Path(vasp_path).joinpath('OUTCAR').exists() and Path(vasp_path).joinpath('KPOINTS').exists():#and Path(vasp_path).joinpath('DOSCAR').exists():
+        with Path(vasp_path).joinpath('OUTCAR').open('r') as f:
+            lines = f.readlines()
+            for i, line in enumerate(lines):
+                if 'KPOINTS' and 'bandstructure' in line:
+                    return True
+                elif 'KPOINTS' and "Band structure" in line:
+                    return True
     return False
+        #result_points, result_symb = _symmetry_retriever(vasp_path)
+        #if result_points:
+        #    return True
+        #else:
+        #    return False
+    #return False
