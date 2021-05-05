@@ -173,7 +173,7 @@ def setup_folderloader(return_key = False):
                                  enable_events = True, key = 'foldload',
                                  size = (18,2))],
                 [sg.Text('', visible = False, key = 'foldloadtext',
-                         size = (18,2))],
+                         size = (18,3))],
                 [sg.Button('Parse Selected \n Folder', size = (18,2),
                            enable_events = True, key = 'parsefolder')]
                 ]
@@ -281,6 +281,31 @@ def parse(vasp_path, current_dataset):
         envisionpy.hdf5parser.paircorrelation('pcf' + current_dataset + '.hdf5', vasp_path)
     # Följt av if satser för alla parsers.
     set_dataset_to_vises_and_dir(vasp_path, pos_vises)
+
+def parse_progress_bar(vasp_path, current_dataset):
+    stop1 = rd.randint(10,30)
+    stop2 = rd.randint(40,60)
+    stop3 = rd.randint(70,90)
+    lenght = 100
+    layout = [[sg.Text('Working on it')],
+          [sg.ProgressBar(lenght, orientation='h', size=(20, 20),
+                          key='progressbar')],
+          [sg.Cancel()]]
+    window2 = sg.Window('', layout)
+    progress_bar = window2['progressbar']
+    for i in range(lenght):
+        event, values = window2.read(timeout=10)
+        if i == stop1:
+            time.sleep(0.2)
+        if i == stop2:
+            parse(vasp_path, current_dataset)
+        if i == stop3:
+            time.sleep(0.3)
+        if event == 'Cancel'  or event == sg.WIN_CLOSED:
+            break
+        progress_bar.UpdateBar(i + 1)
+    window2.close()
+    return True
 
 def load_hdf5_file(hdf5_path, current_dataset):
     init = send_request('init_manager', [hdf5_path])
@@ -662,7 +687,7 @@ layout = [[ sg.Frame(layout = setup_datasets(), title = ''),
           [ sg.Button('Stop Currently Selected Visualisation',
             key = 'stop', button_color = 'red'),
             sg.Text('FPS:'),
-            sg.Text('             ', key = 'fps')]]
+            sg.Text('             ', key = 'fps'), sg.Button('test', key ='t')]]
 
 
 window = sg.Window('',layout)
@@ -701,7 +726,7 @@ while True:
     if (event == 'parsefolder' and current_folder != None
                                and current_folder not in get_loaded_datasets()
                                and current_dataset != None):
-        parse(current_folder, current_dataset)
+        parse_progress_bar(current_folder, current_dataset)
     if (event == 'loadfile' and current_file != None
                             and current_file not in get_loaded_datasets()
                             and current_dataset != None):
@@ -724,8 +749,8 @@ while True:
         stop_selected(current_vis_hdf5, current_vis)
         clear_options()
     if event == 't':
-        print(dataset_if_hdf5)
         print(current_dataset)
+        print(current_vises)
 
     if event in setup_option_buttons(True):
         button_to_function[window.FindElement(event).get_text()](current_vis_hdf5,
