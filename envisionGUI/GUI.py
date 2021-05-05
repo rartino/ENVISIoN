@@ -314,7 +314,6 @@ def parse_progress_bar(vasp_path, current_dataset):
 def load_hdf5_file(hdf5_path, current_dataset):
     init = send_request('init_manager', [hdf5_path])
     init = init['data'][2]
-    print(hdf5_path)
     envisionMain.update()
     pos_vises = []
     for key, value in visualisations.items():

@@ -26,7 +26,10 @@ class ForceVectors(Decoration):
 
     @staticmethod
     def valid_hdf5(hdf5_file):
-        return hdf5_file.get("UnitCell") != None
+        if hdf5_file.get("UnitCell") != None and hdf5_file.get("Forces") != None:
+            return True
+        return False
+
 
     def valid_visualisations(self):
         return ['charge', 'elf', 'parchg', 'force']

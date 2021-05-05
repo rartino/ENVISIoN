@@ -54,7 +54,7 @@ class PCFNetworkHandler(LinePlotNetworkHandler):
 
     @staticmethod
     def valid_hdf5(hdf5_file):
-        return True
+        return hdf5_file.get("PairCorrelationFunc") != None
 # ------------------------------------------
 # ------- Network building functions -------
 
