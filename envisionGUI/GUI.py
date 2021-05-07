@@ -677,7 +677,9 @@ def set_standard_parameters(file, type):
 #                             Layout Settings                               #
 # ------------------------------------------------------------------------- #
 
-layout = [[ sg.Frame(layout = setup_datasets(), title = ''),
+layout = [[sg.Text('ENVISIoN GUI v0.4', justification = 'center',
+         font = ("Helvetica", 40, 'bold', 'italic'))],
+         [ sg.Frame(layout = setup_datasets(), title = ''),
             sg.Frame(layout = setup_folderloader(), title = '',
             vertical_alignment = 'bottom'),
             sg.Frame(layout = setup_fileloader(), title = '',
