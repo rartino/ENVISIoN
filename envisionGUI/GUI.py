@@ -248,6 +248,7 @@ def console_message(str):
 def parse(vasp_path, current_dataset):
     clear_hdf5(current_dataset)
     pos_vises = []
+    #vasp
     if envisionpy.hdf5parser.check_directory_force_parser(vasp_path):
         pos_vises.append('Force')
         envisionpy.hdf5parser.force_parser('force' + current_dataset + '.hdf5', vasp_path)
@@ -279,9 +280,13 @@ def parse(vasp_path, current_dataset):
     if envisionpy.hdf5parser.check_directory_pcf(vasp_path):
         pos_vises.append('PCF')
         envisionpy.hdf5parser.paircorrelation('pcf' + current_dataset + '.hdf5', vasp_path)
+        #elk
     if envisionpy.hdf5parser.check_directory_unitcell_elk(vasp_path):
         pos_vises.append('Atom Positions')
         envisionpy.hdf5parser.unitcell_parser('atom' + current_dataset + '.hdf5', vasp_path)
+    if envisionpy.hdf5parser.check_directory_force_elk(vasp_path):
+        pos_vises.append('Force')
+        envisionpy.hdf5parser.parse_force_elk('force' + current_dataset + '.hdf5', vasp_path)
 
     # Följt av if satser för alla parsers.
     set_dataset_to_vises_and_dir(vasp_path, pos_vises)
