@@ -287,6 +287,9 @@ def parse(vasp_path, current_dataset):
     if envisionpy.hdf5parser.check_directory_force_elk(vasp_path):
         pos_vises.append('Force')
         envisionpy.hdf5parser.parse_force_elk('force' + current_dataset + '.hdf5', vasp_path)
+    if envisionpy.hdf5parser.check_directory_elf_elk(vasp_path):
+        pos_vises.append('ELF')
+        envisionpy.hdf5parser.parse_elf('elf' + current_dataset + '.hdf5', vasp_path)
 
     # Följt av if satser för alla parsers.
     set_dataset_to_vises_and_dir(vasp_path, pos_vises)
