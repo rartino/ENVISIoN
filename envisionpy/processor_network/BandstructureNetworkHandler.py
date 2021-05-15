@@ -1,6 +1,7 @@
 #  ENVISIoN
 #
-#  Copyright (c) 2019 Jesper Ericsson
+#  Copyright (c) 2019-2021 Jesper Ericsson, Gabriel Anderberg, Didrik Axén,
+#  Adam Engman, Kristoffer Gubberud Maras, Joakim Stenborg
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -24,6 +25,16 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 ##############################################################################################
+#  Alterations to this file by Gabriel Anderberg, Didrik Axén,
+#  Adam Engman, Kristoffer Gubberud Maras, Joakim Stenborg
+#
+#  To the extent possible under law, the person who associated CC0 with
+#  the alterations to this file has waived all copyright and related
+#  or neighboring rights to the alterations made to this file.
+#
+#  You should have received a copy of the CC0 legalcode along with
+#  this work.  If not, see
+#  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 # TODO: add hdf5 validation
 
@@ -54,7 +65,7 @@ class BandstructureNetworkHandler(LinePlotNetworkHandler):
     @staticmethod
     def valid_hdf5(hdf5_file):
         return hdf5_file.get("BandStructure") != None
-        
+
 
     def stop_vis(self, vis_type = None):
         print('Stopping 2d')
