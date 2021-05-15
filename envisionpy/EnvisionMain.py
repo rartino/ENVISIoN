@@ -1,6 +1,7 @@
 #  ENVISIoN
 #
-#  Copyright (c) 2019 Jesper Ericsson
+#  Copyright (c) 2019-2021 Jesper Ericsson, Gabriel Anderberg, Didrik Axén,  Adam Engman,
+##  Kristoffer Gubberud Maras, Joakim Stenborg
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
