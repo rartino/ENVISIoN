@@ -1,7 +1,9 @@
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2017 Fredrik Segerhammar, Anton Hjert and Abdullatif Ismail
+#  Copyright (c) 2017-2021 Fredrik Segerhammar, Anton Hjert and Abdullatif Ismail
+#  Gabriel Anderberg, Didrik Axén,  Adam Engman, Kristoffer Gubberud Maras,
+#  Joakim Stenborg
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without

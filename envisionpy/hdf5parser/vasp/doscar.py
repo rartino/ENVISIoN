@@ -1,7 +1,9 @@
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2017-2018 Fredrik Segerhammar, Anders Rehult, Marian Brännvall
+#  Copyright (c) 2017-2020 Fredrik Segerhammar, Anders Rehult, Marian Brännvall
+#  Gabriel Anderberg, Didrik Axén,  Adam Engman, Kristoffer Gubberud Maras,
+#  Joakim Stenborg
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
