@@ -42,7 +42,7 @@ class HandlerAlreadyExistError(EnvisionError):
 
 class InvalidRequestError(EnvisionError):
     ''' Error used for invalid requests, such as invalid parameters.
-        Should generate an alert so user knows something did not work. 
+        Should generate an alert so user knows something did not work.
     '''
     pass
 

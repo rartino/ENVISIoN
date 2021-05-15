@@ -1,6 +1,6 @@
 ##  ENVISIoN
 ##
-##  Copyright (c) 2021 Gabriel Anderberg, Didrik Axén,  Adam Engman,
+##  Copyright (c) 2021 Gabriel Anderberg, Didrik Axén, Adam Engman,
 ##  Kristoffer Gubberud Maras, Joakim Stenborg
 ##  All rights reserved.
 ##

@@ -21,6 +21,7 @@ ENVISIoN is licenced under `BSD 2-Clause “Simplified” License </LICENSE>`__.
 | © 2018 - Elvis Jakobsson
 | © 2019 - Linda Le, Abdullatif Ismail, Anton Hjert, Lloyd Kizito, Jesper Ericsson.
 | © 2020 - Alexander Vevstad, Amanda Aasa, Amanda Svennblad, Daniel Thomas, Lina Larsson, Olav Berg.
+| © 2021 - Gabriel Anderberg, Didrik Axén, Adam Engman, Kristoffer Gubberud Maras, Joakim Stenborg
 | © 2017 – 2019 - Johan Jönsson
 | © 2020 - Joel Davidsson
 | © 2017 – 2021 - Rickard Armiento
@@ -63,7 +64,7 @@ Install dependencies for ENVISIoN::
     python3 python3-pip \
     git \
     python3-numpy python3-h5py python3-pybind11 python3-scipy python3-regex \
-    npm 
+    npm
 
 Install dependencies for building Inviwo::
 
@@ -77,7 +78,7 @@ Install dependencies for building Inviwo::
         libxinerama-dev libxcursor-dev
 
 Check that you have access to Qt 5.12 or later by this command::
-  
+
   qmake --version
 
 ..
@@ -114,7 +115,7 @@ Create a conda environment with the needed dependencies::
   conda create --name envision python=3 git pybind11 \
         numpy scipy matplotlib markdown regex wxpython \
 	h5py hdf5 libpng libtiff jpeg cmake \
-        nodejs "qt>=5.12" "cmake>=3.12.0" -c conda-forge 
+        nodejs "qt>=5.12" "cmake>=3.12.0" -c conda-forge
   conda activate envision
 
   qtchooser -install envision "$CONDA_PREFIX/bin/qmake"
@@ -127,7 +128,7 @@ Verify version numbers of installed dependencies
 ------------------------------------------------
 
 Check that you have access to Qt 5.3 or later by this command::
-  
+
   qmake --version
 
 ..
@@ -151,8 +152,8 @@ Create a directory under your home directory to build ENVISIoN::
 
   mkdir ~/ENVISIoN
   cd ~/ENVISIoN
-  
-Note: 
+
+Note:
 
 * You may of course build ENVISIoN in any directory of your choosing.
   However, the instructions below assumes the above path, which you will have to adjust accordingly.
@@ -163,12 +164,12 @@ Download ENVISIoN and install the electron-based gui dependencies::
   cd ENVISIoN
   npm install
 
-Note: 
+Note:
 
 * This places the ENVISIoN source code in the directory `~/ENVISIoN/ENVISIoN`, which is intended.
 
-* The last command may issue security warnings. 
-  It should still be possible to build and run ENVISIoN despite these warnings, 
+* The last command may issue security warnings.
+  It should still be possible to build and run ENVISIoN despite these warnings,
   and you may want to do so the first time you try to build ENVISIoN to avoid unexpected build issues.)
 
 Build the ENVISIoN-enabled Inviwo
@@ -180,9 +181,9 @@ Download and checkout the correct version of the Inviwo source::
   git clone https://github.com/inviwo/inviwo
   cd inviwo
   git checkout v0.9.11
-  
+
 Install the Inviwo submodule dependencies (note: one repository has moved, which the first line fixes)::
-  
+
   sed -i 's%https://github.com/live-clones/hdf5.git%https://github.com/HDFGroup/hdf5.git%' .gitmodules
   git submodule update --init --recursive
 
@@ -202,13 +203,13 @@ Normal builds should use the following steps to execute the cmake build of inviw
 However, the subsection below presents an alternative build that rather than the system compilers uses compulers installed by Anaconda.
 
 If you are using a Qt that is not the one provided by the system,
-you now need to select the version you want the build to use. 
-*You do not need to do this if you just installed Qt via the system package manager.* 
+you now need to select the version you want the build to use.
+*You do not need to do this if you just installed Qt via the system package manager.*
 However, if you followed the instructions to install dependencies via Anaconda above, you want to select the `envision` qt version.
 Select a Qt version by the following commands::
 
   qtchooser -l
-  export QT_SELECT=<qt version>    
+  export QT_SELECT=<qt version>
   eval `qtchooser --print-env`
 
 Configure and build Inviwo (change /inviwo and /inviwo-build paths based on desired directories)::
@@ -236,7 +237,7 @@ Configure and build Inviwo (change /inviwo and /inviwo-build paths based on desi
 
 Note:
 
-* The number in `make -j4` is the number of simultaneous build processes to run. 
+* The number in `make -j4` is the number of simultaneous build processes to run.
   Usually the best choice is the number of CPU cores in your build system.
 
 * If you are running into build errors, re-run make with `make -j1` to make sure
@@ -247,9 +248,9 @@ Alternative: cmake build using system compilers with Anaconda libraries
 
 In difference to the above build, this build tries to satisfy as many of the library dependencies as possible with Anaconda, rather than use system libraries.
 
-Note: 
+Note:
 
-* The last time we tested this installation path, it did not work but gave a late-stage compilation error. 
+* The last time we tested this installation path, it did not work but gave a late-stage compilation error.
   This will be investigated in the future.
 
 Add the necessery libraries to the conda environment::
@@ -266,7 +267,7 @@ Add the necessery libraries to the conda environment::
 .. comment:
 
         We once had these:
- 
+
         #mesa-libgl-devel-cos6-x86_64 #pyopengl libselinux
 
 
@@ -293,7 +294,7 @@ Setup cmake the following way::
     -DCMAKE_C_COMPILER="gcc-8" \
     -DCMAKE_CXX_COMPILER="g++-8" \
     -DCMAKE_CXX_FLAGS="-isystem '$HOME/anaconda3/envs/envision/include'" \
-    -DCMAKE_C_FLAGS="-isystem '$HOME/anaconda3/envs/envision/include'" \     
+    -DCMAKE_C_FLAGS="-isystem '$HOME/anaconda3/envs/envision/include'" \
     -DBUILD_SHARED_LIBS=ON \
     -DIVW_USE_EXTERNAL_IMG=ON \
     -DIVW_EXTERNAL_MODULES="$HOME/ENVISIoN/ENVISIoN/inviwo/modules" \
@@ -312,9 +313,9 @@ Setup cmake the following way::
 Alternative 2: cmake build using Anaconda libraries and compilers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Note: 
+Note:
 
-* The last time we tested this installation path, it did not work but gave a late-stage compilation error. 
+* The last time we tested this installation path, it did not work but gave a late-stage compilation error.
   This will be investigated in the future.
 
 First add the necessary libraries to the conda environment by following the `conda install` command in the previous section.

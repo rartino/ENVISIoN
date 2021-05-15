@@ -1,8 +1,10 @@
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2017-2019 Josef Adamsson, Robert Cranston, David Hartman, Denise Härnström,
+#  Copyright (c) 2017-2021 Josef Adamsson, Robert Cranston, David Hartman, Denise Härnström,
 #  Fredrik Segerhammar, Anders Rehult, Viktor Bernholtz, Elvis Jakobsson, Abdullatif Ismail, Linda Le
+#  Gabriel Anderberg, Didrik Axén,  Adam Engman, Kristoffer Gubberud Maras,
+#  Joakim Stenborg
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -40,6 +42,18 @@
 ##############################################################################################
 #
 #  Alterations to this file by Daniel Thomas
+#
+#  To the extent possible under law, the person who associated CC0 with
+#  the alterations to this file has waived all copyright and related
+#  or neighboring rights to the alterations made to this file.
+#
+#  You should have received a copy of the CC0 legalcode along with
+#  this work.  If not, see
+#  <http://creativecommons.org/publicdomain/zero/1.0/>.
+##############################################################################################
+#
+#  Alterations to this file by Gabriel Anderberg, Didrik Axén,
+#  Adam Engman, Kristoffer Gubberud Maras, Joakim Stenborg
 #
 #  To the extent possible under law, the person who associated CC0 with
 #  the alterations to this file has waived all copyright and related
