@@ -558,7 +558,7 @@ During summer 2020 the development was continued by Jesper Ericsson, primarily t
 2021
 ----
 
-ENVISIoN was further developed during the spring term of 2020 as part of the same course by: Gabriel Anderberg, Didrik Axén, Adam Engman, Kristoffer Gubberud Maras and Joakim Stenborg
+ENVISIoN was further developed during the spring term of 2021 as part of the same course by: Gabriel Anderberg, Didrik Axén, Adam Engman, Kristoffer Gubberud Maras and Joakim Stenborg
 The project was supervised by Rickard Armiento (requisitioner and expert), Marian Brännvall (head supervisor), and Peter Steneteg (expert). The course examiner was Per Sandström.
 
 .. comment
