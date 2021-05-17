@@ -1,6 +1,7 @@
 #  ENVISIoN
 #
-#  Copyright (c) 2019 Jesper Ericsson
+#  Copyright (c)  2019-2021 Jesper Ericsson, Gabriel Anderberg, Didrik Axén,
+#  Adam Engman, Kristoffer Gubberud Maras, Joakim Stenborg
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -24,6 +25,16 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 ##############################################################################################
+#  Alterations to this file by Gabriel Anderberg, Didrik Axén,
+#  Adam Engman, Kristoffer Gubberud Maras, Joakim Stenborg
+#
+#  To the extent possible under law, the person who associated CC0 with
+#  the alterations to this file has waived all copyright and related
+#  or neighboring rights to the alterations made to this file.
+#
+#  You should have received a copy of the CC0 legalcode along with
+#  this work.  If not, see
+#  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 
 import sys,os,inspect
@@ -44,7 +55,7 @@ class PCFNetworkHandler(LinePlotNetworkHandler):
     def __init__(self, hdf5_path, inviwoApp):
         LinePlotNetworkHandler.__init__(self, inviwoApp)
         self.setup_PCF_network(hdf5_path)
-    
+
     def get_ui_data(self):
     # Return data required to fill user interface
         return [
@@ -52,6 +63,9 @@ class PCFNetworkHandler(LinePlotNetworkHandler):
             LinePlotNetworkHandler.get_ui_data(self)
             ]
 
+    @staticmethod
+    def valid_hdf5(hdf5_file):
+        return hdf5_file.get("PairCorrelationFunc") != None
 # ------------------------------------------
 # ------- Network building functions -------
 
@@ -71,7 +85,7 @@ class PCFNetworkHandler(LinePlotNetworkHandler):
 
             ypos += 150
             function_to_dataframe = self.get_processor("Function to dataframe")
-            
+
             ypos_tmp = ypos-75
             xpos_tmp = xpos
 
@@ -111,7 +125,7 @@ class PCFNetworkHandler(LinePlotNetworkHandler):
 
             # Set processor properties
             path_selection.selection.value = "/PairCorrelationFunc"
-            # 
+            #
 
             # if Elements are in h5, parsing is using _write_pcdat_multicol else _write_pcdat_onecol is used.
             for processor_count in range(len(HDF5_to_func_list)):

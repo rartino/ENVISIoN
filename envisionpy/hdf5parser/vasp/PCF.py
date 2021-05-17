@@ -1,7 +1,8 @@
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2019 Linda Le
+#  Copyright (c) 2019 Linda Le, Gabriel Anderberg, Didrik Axén,
+#  Adam Engman, Kristoffer Gubberud Maras, Joakim Stenborg
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -35,12 +36,24 @@
 #  You should have received a copy of the CC0 legalcode along with
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
+###############################################################################
+#  Alterations to this file by Gabriel Anderberg, Didrik Axén,
+#  Adam Engman, Kristoffer Gubberud Maras, Joakim Stenborg
+#
+#  To the extent possible under law, the person who associated CC0 with
+#  the alterations to this file has waived all copyright and related
+#  or neighboring rights to the alterations made to this file.
+#
+#  You should have received a copy of the CC0 legalcode along with
+#  this work.  If not, see
+#  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import os
 import sys
 import h5py
 import numpy as np
 import inspect
+from pathlib import Path
 
 path_to_current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 sys.path.insert(0, os.path.expanduser(path_to_current_dir))
@@ -145,6 +158,17 @@ def _parse_pcdat(h5file, vasp_file, vasp_dir):
 
     return pcdat_data
 
+def check_directory_pcf(vasp_path):
+    if Path(vasp_path).joinpath('POSCAR').exists() and Path(vasp_path).joinpath('PCDAT').exists():
+        with open(os.path.join(vasp_path, "PCDAT"), "r") as f:
+            if len(f.readlines()) > 11:
+                return True
+    else:
+        return False
+
+
+
+
 
 def paircorrelation(h5file, vasp_dir):
     #   The function which script from inviwo will call with the command:  envision.parser.vasp.paircorrelation(PATH_TO_HDF5, PATH_TO_VASP_CALC)
@@ -169,7 +193,7 @@ def paircorrelation(h5file, vasp_dir):
             if "/PairCorrelationFunc" in h5:
                 print("Already parsed. Skipping.")
                 return False
-    
+
     # See if APACO and NPACO is set, otherwise default value is used.
     incar_file = os.path.join(vasp_dir, "INCAR")
     incar_data = _parse_incar(h5file, incar_file)
@@ -203,4 +227,3 @@ def paircorrelation(h5file, vasp_dir):
     except FileNotFoundError:
         print("PCDAT-file not found.")
         return False
-

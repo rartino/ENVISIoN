@@ -1,7 +1,9 @@
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2017-2018 Fredrik Segerhammar, Anders Rehult, Marian Brännvall
+#  Copyright (c) 2017-2020 Fredrik Segerhammar, Anders Rehult, Marian Brännvall
+#  Gabriel Anderberg, Didrik Axén,  Adam Engman, Kristoffer Gubberud Maras,
+#  Joakim Stenborg
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -35,6 +37,17 @@
 #  You should have received a copy of the CC0 legalcode along with
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
+#############################################################################################
+#  Alterations to this file by Gabriel Anderberg, Didrik Axén,
+#  Adam Engman, Kristoffer Gubberud Maras, Joakim Stenborg
+#
+#  To the extent possible under law, the person who associated CC0 with
+#  the alterations to this file has waived all copyright and related
+#  or neighboring rights to the alterations made to this file.
+#
+#  You should have received a copy of the CC0 legalcode along with
+#  this work.  If not, see
+#  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 
 import os,sys
@@ -46,6 +59,7 @@ import h5py
 import numpy as np
 from h5writer import _write_dos
 from incar import *
+from check_for_parse import has_been_parsed
 
 def dos_line(f, ndos):
     """
@@ -57,7 +71,7 @@ def dos_line(f, ndos):
 	    File object containing data in DOSCAR file
         ndos: int
 		Number of lines in f to be parsed
-		
+
         Returns
         -------
         data : list
@@ -91,7 +105,7 @@ def parse_doscar(h5file,vasp_file):
 	String containing path to HDF-file
     vasp_file : str
 	String containing path to DOSCAR file
-		
+
     Returns
     -------
     total : list
@@ -107,7 +121,7 @@ def parse_doscar(h5file,vasp_file):
     """
     total = []
     partial = []
-    
+
     # Parse file.
     with open(vasp_file, "r") as f:
         line = next(f)
@@ -161,7 +175,7 @@ def parse_doscar(h5file,vasp_file):
                             total = [ "Energy", "DOS(up)", "DOS(dwn)", "Integrated-DOS(up)", "Integrated-DOS(dwn)" ]
                         else:
                             total = [ "Energy", "DOS", "Integrated-DOS" ]
-                                        
+
         total_data, line_length = dos_line(f, header["ndos"])
         if not total:
             print("Because INCAR data was not written to the hdf5 file the data of the DOS cannot be specified.")
@@ -221,6 +235,6 @@ def dos(h5file, vasp_dir):
         for i in range(len(partial_list[0][0])):
             partial_list[0][0][i] -= fermi_energy
     _write_dos(h5file, total, partial, total_data, partial_list, fermi_energy)
-    
+
     print('Density of states data was parsed successfully.')
     return True

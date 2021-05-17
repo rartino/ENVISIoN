@@ -1,6 +1,7 @@
 #  ENVISIoN
 #
-#  Copyright (c) 2019 Jesper Ericsson
+#  Copyright (c)  2019-2021 Jesper Ericsson, Gabriel Anderberg, Didrik Axén,
+#  Adam Engman, Kristoffer Gubberud Maras, Joakim Stenborg
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -24,6 +25,16 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 ##############################################################################################
+#  Alterations to this file by Gabriel Anderberg, Didrik Axén,
+#  Adam Engman, Kristoffer Gubberud Maras, Joakim Stenborg
+#
+#  To the extent possible under law, the person who associated CC0 with
+#  the alterations to this file has waived all copyright and related
+#  or neighboring rights to the alterations made to this file.
+#
+#  You should have received a copy of the CC0 legalcode along with
+#  this work.  If not, see
+#  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import sys,os,inspect
 # path_to_current_folder = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -71,17 +82,29 @@ class LinePlotNetworkHandler(NetworkHandler):
             graphCanvas = self.get_processor('graphCanvas')
         except ProcessorNotFoundError:
             graphCanvas = None
-        
+
         # If already in correct mode dont do anything
         if (graphCanvas and enable) or (not graphCanvas and not enable):
             return
 
         if enable:
             graphCanvas = self.add_processor('org.inviwo.CanvasGL', 'graphCanvas', 25*7, 525)
-            graphCanvas.inputSize.dimensions.value = inviwopy.glm.ivec2(500, 500)       
+            graphCanvas.inputSize.dimensions.value = inviwopy.glm.ivec2(500, 500)
             self.network.addConnection(self.get_processor("Title text").getOutport('outport'), graphCanvas.getInport('inport'))
         else:
             self.remove_processor('graphCanvas')
+
+    def show(self):
+        try:
+            self.get_processor('graphCanvas').widget.show()
+        except:
+            pass
+
+    def hide(self):
+        try:
+            self.get_processor('graphCanvas').widget.hide()
+        except:
+            pass
 
     def set_y_selection_type(self, option):
     # Set the type for date selection for Y datasets
@@ -134,7 +157,7 @@ class LinePlotNetworkHandler(NetworkHandler):
     def toggle_grid(self, enable):
         plotter = self.get_processor("Line plot")
         plotter.enable_grid.value = enable
-    
+
     def set_grid_size(self, width):
         plotter = self.get_processor("Line plot")
         plotter.grid_width.value = width
@@ -149,7 +172,7 @@ class LinePlotNetworkHandler(NetworkHandler):
     def set_n_labels(self, n):
         plotter = self.get_processor("Line plot")
         plotter.label_number.value = n
-    
+
     # ------------------------------------------------
     # -------- Value getting functions for UI --------
     # ------------------------------------------------
@@ -182,7 +205,7 @@ class LinePlotNetworkHandler(NetworkHandler):
 
     def get_y_labels_enabled(self):
         return self.get_processor("Line plot").show_y_labels.value
-    
+
     def get_label_n(self):
         return self.get_processor("Line plot").label_number.value
 
@@ -196,7 +219,7 @@ class LinePlotNetworkHandler(NetworkHandler):
 
     def get_available_datasets(self):
         plotter = self.get_processor("Line plot")
-        return plotter.xSelectionProperty.identifiers   
+        return plotter.xSelectionProperty.identifiers
     # def get_grid_width(self):
     #     pass
 
@@ -251,14 +274,14 @@ class LinePlotNetworkHandler(NetworkHandler):
 
         canvas = self.add_processor("org.inviwo.CanvasGL", "graphCanvas", xpos, ypos)
         self.network.addConnection(title_text.getOutport('outport'), canvas.getInport('inport'))
-        
+
         # Start modifying properties.
         # path_selection_processor.selection.value = '/Bandstructure/Bands'
         # HDF5_to_function_processor.yPathSelectionProperty.value = '/Energy'
         # line_plot_processor.allYSelection.value = True
         background.bgColor1.value = inviwopy.glm.vec4(1)
         background.bgColor2.value = inviwopy.glm.vec4(1)
-        canvas.inputSize.dimensions.value = inviwopy.glm.size2_t(900, 700) 
+        canvas.inputSize.dimensions.value = inviwopy.glm.size2_t(900, 700)
         canvas.widget.show()
 
         # if has_fermi_energy:

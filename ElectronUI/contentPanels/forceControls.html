@@ -1,0 +1,123 @@
+<!--   ENVISIoN
+
+ Copyright (c) 2021 Gabriel Anderberg, Didrik Axén,  Adam Engman,
+ Kristoffer Gubberud Maras, Joakim Stenborg
+ All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
+
+ 1. Redistributions of source code must retain the above copyright notice, this
+ list of conditions and the following disclaimer.
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the documentation
+ and/or other materials provided with the distribution.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#############################################################################-->
+
+<!-- Form-check that the user can fill in if he/she wants to see
+    the canvas
+<div class="form-check">
+  <input type="checkbox" class="form-check-input" id="VISTYPE_showCheck">
+  <label class="form-check-label" for="VISTYPE_showCheck">Show separate canvas</label>
+</div>
+
+<br>
+<h5> Force vectors
+ </h5>-->
+
+ <div class="form-check">
+   <input type="checkbox" class="form-check-input" id="VISTYPE_vectorCheck">
+   <label class="form-check-label" for="VISTYPE_vectorCheck">Disable force vectors</label>
+ </div>
+
+ <div class="form-check">
+   <input type="checkbox" class="form-check-input" id="VISTYPE_showCheck">
+   <label class="form-check-label" for="VISTYPE_showCheck">Hide canvas</label>
+ </div>
+
+
+
+<!-- Form-check that the user can check if they want to visualise Force-forces
+    or not
+<div class="form-check">
+  <input type="checkbox" class="form-check-input" id="VISTYPE_forceCheck">
+  <label class="form-check-label" for="VISTYPE_forceCheck">Disable force vectors</label>
+</div> -->
+
+<!-- Form control range that the user can drag to adjust the size of
+    the force-forces
+<table>
+  <td><label for="VISTYPE_forceSize">force sizes </label></td>
+  <td><input class="form-control-range" type="range" min="0" max="1" step="0.05" value="0.5" id="VISTYPE_forceSize" onchange="updateTextInput(this.value);"></td>
+  <td><input class="form-control" type="text" placeholder="0.5" id="VISTYPE_forceText" style="max-width:60px;"></td>
+</table>-->
+
+<script>
+
+    //Script that updates the value on the grid. Might not be necessary
+    //function updateTextInput(val) {
+    //      document.getElementById('VISTYPE_showText').value=val;
+    //    }
+
+    //Script that handles the opening and closing of the canvas
+    $(document).ready(function () {
+      $("#VISTYPE_vectorCheck").on('change', function() {
+        if ($(this).is(':checked'))
+          send_request('visualisation_request', [activeDatasetID, "force", "hide_vectors", []]);
+        else
+          send_request('visualisation_request', [activeDatasetID, "force", "show_vectors", []]);
+      });
+
+});
+
+    $(document).ready(function () {
+        $("#VISTYPE_showCheck").on('change', function() {
+            if ($(this).is(':checked'))
+                send_request('visualisation_request', [activeDatasetID, "force", "hide", []]);
+            else
+                send_request('visualisation_request', [activeDatasetID, "force", "show", []]);
+  });
+
+});
+
+//    $(document).ready(function () {
+//        $("#VISTYPE_vectorCheck").on('change', function() {
+//            if ($(this).is(':checked'))
+//                send_request('visualisation_request', [activeDatasetID, "force", "hide", []]);
+//            else
+//                send_request('visualisation_request', [activeDatasetID, "force", "show", []]);
+//        });
+
+//});
+    //Script that handles turning the force-force visualisation on or off
+    // $("#VISTYPE_forceCheck").on('change', function() {
+      // if ($("#VISTYPE_forceCheck").is(':checked'))
+        //send_request("visualisation_request", [activeDatasetID, "force", "hide");
+    //   else
+    //    send_request("visualisation_request", [activeDatasetID, "VISTYPE", "hide_forces");
+      // });
+
+    //Script that changes the size of the force-forces
+//    $("#VISTYPE_forceSize,#VISTYPE_forceText").on('change input keydown keyup mousedown mouseup select contextmenu drop', function() {
+//      let value = $(this).val();
+//      $("#VISTYPE_forceSize,#VISTYPE_forceText").val(value);
+//      if (value == "") value = 0.5;
+//      else value = parseFloat(value);
+//      send_request("visualisation_request", [activeDatasetID, "VISTYPE", "set_force_size", [value]]);
+//    });
+
+
+
+</script>

@@ -1,4 +1,30 @@
-
+<!--   ENVISIoN
+##
+##  Copyright (c) 2021 Gabriel Anderberg, Didrik Axén,  Adam Engman,
+##  Kristoffer Gubberud Maras, Joakim Stenborg
+##  All rights reserved.
+##
+##  Redistribution and use in source and binary forms, with or without
+##  modification, are permitted provided that the following conditions are met:
+##
+##  1. Redistributions of source code must retain the above copyright notice, this
+##  list of conditions and the following disclaimer.
+##  2. Redistributions in binary form must reproduce the above copyright notice,
+##  this list of conditions and the following disclaimer in the documentation
+##  and/or other materials provided with the distribution.
+##
+##  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+##  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+##  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+##  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+##  ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+##  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+##  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+##  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+##  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+##  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+##
+## ##########################################################################################-->
 
 <h3 id="datasetName">DATASET NAME</h3>
 
@@ -82,6 +108,28 @@
 <div id="dosSettings" class="visualisationPanel" data-type="dos">
 </div> -->
 
+<!-- force-->
+
+<!-- forces -->
+<div class="form-check visStart" data-type="force">
+    <input class="form-check-input visCheck" type="checkbox" value="" id="forceCheck">
+    <label class="form-check-label" for="forceCheck">
+      Force
+    </label>
+</div>
+<div id="forceSettings" class="visualisationPanel" data-type="force">
+</div>
+
+<!-- molecular dynamics -->
+<div class="form-check visStart" data-type="moldyn">
+    <input class="form-check-input visCheck" type="checkbox" value="" id="moldynCheck">
+    <label class="form-check-label" for="moldynCheck">
+      Molecular Dynamics
+    </label>
+</div>
+<div id="moldynSettings" class="visualisationPanel" data-type="moldyn">
+</div>
+
 
 
 <script>
@@ -89,16 +137,16 @@
 
   function disableVisControls(){
     $(".visualisationPanel").hide();
-    $(".visCheck").prop("disabled", true); 
+    $(".visCheck").prop("disabled", true);
   }
-    
+
     $(document).ready(function () {
       $(".visStart").on("change", function(){
         let started = $(this).find(".form-check-input").is(":checked");
         let type = $(this).data("type");
         let panelDiv = $(this).next(".visualisationPanel");
         $(this).find(".form-check-input").prop("disabled", true);
-        
+
         if (started) {
           send_request('start_visualisation', [activeDatasetID, type]);
         }
@@ -114,13 +162,13 @@
         div.find(".form-check-input").prop("disabled", false);
         div.next(".visualisationPanel").show();
       });
-      
+
       set_response_callback('stop_visualisation', function(identifier, type){
         let div = $(".visStart").filter("[data-type="+type+"]");
         div.find(".form-check-input").prop("disabled", false);
         div.next(".visualisationPanel").hide();
       });
-      
+
       set_response_callback('get_ui_data', function(available_vis_types, active_vis_types, ui_data) {
         // Response to requested ui data. Reload all the UI elements with data from active visualisation.
         let divs = $(".visStart");
@@ -164,6 +212,16 @@
         let html = $(this).html();
         html = html.replace(/VISTYPE/g, 'band') // Replace VISTYPE to avoid duplicate ids.
         $("#bandSettings").append(html);
+      });
+      $('<div id="loaded-content" />').load("contentPanels/forceControls.html", function () {
+        let html = $(this).html();
+        html = html.replace(/VISTYPE/g, 'force') // Replace VISTYPE to avoid duplicate ids.
+        $("#forceSettings").append(html);
+      });
+      $('<div id="loaded-content" />').load("contentPanels/moldynControls.html", function () {
+        let html = $(this).html();
+        html = html.replace(/VISTYPE/g, 'moldyn') // Replace VISTYPE to avoid duplicate ids.
+        $("#moldynSettings").append(html);
       });
 
       $("#multiSettings").load("contentPanels/multiVolumeControls.html");

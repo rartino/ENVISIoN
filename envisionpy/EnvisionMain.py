@@ -1,6 +1,7 @@
 #  ENVISIoN
 #
-#  Copyright (c) 2019 Jesper Ericsson
+#  Copyright (c) 2019-2021 Jesper Ericsson, Gabriel Anderberg, Didrik Axén,  Adam Engman,
+##  Kristoffer Gubberud Maras, Joakim Stenborg
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -78,7 +79,12 @@ class EnvisionMain():
             "dos": envisionpy.hdf5parser.dos,
             "Density of states": envisionpy.hdf5parser.dos,
             "fermisurface": envisionpy.hdf5parser.fermi_parser,
-            "Fermi surface": envisionpy.hdf5parser.fermi_parser
+            "Fermi surface": envisionpy.hdf5parser.fermi_parser,
+            "Force": envisionpy.hdf5parser.force_parser,
+            "Molecular dynamics": envisionpy.hdf5parser.mol_dynamic_parser
+        }
+        self.parse_functions_ELK = {
+            "Unitcell": envisionpy.hdf5parser.unitcell_parser
         }
 
     def update(self):
@@ -141,12 +147,32 @@ class EnvisionMain():
                 "Bandstructure",
                 "Pair correlation function",
                 "Density of states",
-                "Fermi surface"]
+                "Fermi surface",
+                "Force",
+                "Molecular dynamics"]
 
         parse_statuses = {}
         for parse_type in parse_types:
             try:
                 parse_statuses[parse_type] = self.parse_functions[parse_type](hdf5_path, vasp_path)
+            except Exception:
+                parse_statuses[parse_type] = False
+                print("Parser {} could not be parsed some functions may not work.".format(parse_type))
+
+        return [parse_statuses]
+
+    def parse_ELK(self, ELK_path, hdf5_path, parse_types):
+        if parse_types != 'All' and not all(elem in self.parse_functions_ELK for elem in parse_types):
+            raise EnvisionError('Invalid parse type.')
+
+
+        if parse_types == "All":
+            parse_types = ["Unitcell"]
+
+        parse_statuses = {}
+        for parse_type in parse_types:
+            try:
+                parse_statuses[parse_type] = self.parse_functions_ELK[parse_type](hdf5_path, ELK_path)
             except Exception:
                 parse_statuses[parse_type] = False
                 print("Parser {} could not be parsed some functions may not work.".format(parse_type))
@@ -164,7 +190,7 @@ class EnvisionMain():
             n += 1
         visualisationManager = VisualisationManager(hdf5_path, self.app)
         self.visualisation_managers[identifier] = visualisationManager
-        return [identifier, hdf5_path, visualisationManager.available_visualisations] 
+        return [identifier, hdf5_path, visualisationManager.available_visualisations]
 
     def close_manager(self, identifier):
         if identifier not in self.visualisation_managers:
@@ -173,10 +199,10 @@ class EnvisionMain():
         del self.visualisation_managers[identifier]
         return identifier
 
-    def start_visualisation(self, identifier, vis_type):
+    def start_visualisation(self, identifier, vis_type, bool = True):
         if identifier not in self.visualisation_managers:
             raise EnvisionError('No visualisation manager with id:'+identifier+" has been initialized.")
-        self.visualisation_managers[identifier].start(vis_type)
+        self.visualisation_managers[identifier].start(vis_type, bool)
         return [identifier, vis_type]
 
     def stop_visualisation(self, identifier, vis_type):
@@ -186,6 +212,7 @@ class EnvisionMain():
         return [identifier, vis_type]
 
     def visualisation_request(self, identifier, vis_type, function_name, param_list=[]):
+        print(param_list)
         if identifier not in self.visualisation_managers:
             return False
         return self.visualisation_managers[identifier].call_subnetwork(vis_type, function_name, param_list)
@@ -194,9 +221,9 @@ class EnvisionMain():
         for manager in self.visualisation_managers.values():
             manager.reset_canvas_positions(start_x, start_y)
             start_y += 500
-            
 
-        
+
+
     def get_ui_data(self, identifier):
         if identifier not in self.visualisation_managers:
             return False

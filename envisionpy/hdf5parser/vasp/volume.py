@@ -1,7 +1,9 @@
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2017-2018 Fredrik Segerhammar, Marian Brännvall, Anders Rehult
+#  Copyright (c) 2017-2021 Fredrik Segerhammar, Marian Brännvall, Anders Rehult
+#  Gabriel Anderberg, Didrik Axén,  Adam Engman, Kristoffer Gubberud Maras,
+#  Joakim Stenborg
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -35,6 +37,17 @@
 #  You should have received a copy of the CC0 legalcode along with
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
+##################################################################################
+#  Alterations to this file by Gabriel Anderberg, Didrik Axén,
+#  Adam Engman, Kristoffer Gubberud Maras, Joakim Stenborg
+#
+#  To the extent possible under law, the person who associated CC0 with
+#  the alterations to this file has waived all copyright and related
+#  or neighboring rights to the alterations made to this file.
+#
+#  You should have received a copy of the CC0 legalcode along with
+#  this work.  If not, see
+#  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import os,sys
 import inspect
@@ -45,6 +58,7 @@ import itertools
 import h5py
 import re
 import numpy as np
+from pathlib import Path
 from h5writer import _write_volume, _write_basis, _write_scaling_factor
 from unitcell import _parse_lattice
 
@@ -89,7 +103,7 @@ def parse_volume(vasp_file, volume):
 
 def volume(h5file, hdfgroup, vasp_dir, vasp_file):
 	"""
-	Reads volume data from  vasp_file, either CHG or ELFCAR, 
+	Reads volume data from  vasp_file, either CHG or ELFCAR,
         and stores it in an HDF-file.
 
 	Parameters
@@ -108,7 +122,7 @@ def volume(h5file, hdfgroup, vasp_dir, vasp_file):
 	bool
 		True if volume file was parsed, False otherwise.
 	"""
-	
+
 	if os.path.isfile(h5file):
 		with h5py.File(h5file, 'r') as h5:
 			if '/{}'.format(hdfgroup) in h5:
@@ -135,6 +149,9 @@ def volume(h5file, hdfgroup, vasp_dir, vasp_file):
 	print(vasp_file + ' was parsed successfully.')
 	return True
 
+
+
+
 def charge(h5file, vasp_dir):
 	"""
 	Reads CHG and stores the data in an HDF-file.
@@ -153,6 +170,7 @@ def charge(h5file, vasp_dir):
 	"""
 	return volume(h5file, 'CHG', vasp_dir, 'CHG')
 
+
 def elf(h5file, vasp_dir):
 	"""
 	Reads ELFCAR and stores the data in an HDF-file.
@@ -169,3 +187,15 @@ def elf(h5file, vasp_dir):
 		True if ELFCAR file was parsed, False otherwise.
 	"""
 	return volume(h5file, 'ELF', vasp_dir, 'ELFCAR')
+
+def check_directory_charge(vasp_path):
+	if Path(vasp_path).joinpath('CHG').exists() and Path(vasp_path).joinpath('POSCAR').exists():
+		return True
+	else:
+		return False
+
+def check_directory_elf(vasp_path):
+	if Path(vasp_path).joinpath('ELFCAR').exists() and Path(vasp_path).joinpath('POSCAR').exists():
+		return True
+	else:
+		return False

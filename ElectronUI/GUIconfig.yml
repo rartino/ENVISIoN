@@ -1,0 +1,237 @@
+VARIABLES:
+  active_dataset: false
+  active_vis: ''
+  canvas: true
+  slice_canvas: false
+  vectors: true
+  toggle_iso: true
+  slice_plane: true
+  number_of_buttons: 4
+  number_of_comboboxes: 4
+  number_of_sliders: 4
+DICTIONARIES:
+  envisionMain_equivalent:
+    Force : force
+    MolecularDynamics : molecular_dynamics
+    AtomPositions : atom
+    Charge : charge
+    ELF : elf
+    Dos : dos
+    FermiVolume : fermi
+    PCF : pcf
+    BandStructure3D : band3d
+    BandStructure : band2d
+
+  colors:
+    Red:
+      - 1
+      - 0
+      - 0
+    Green:
+      - 0
+      - 1
+      - 0
+    Blue:
+      - 0
+      - 0
+      - 1
+    White:
+      - 1
+      - 1
+      - 1
+    Black:
+      - 0
+      - 0
+      - 0
+
+  parsers:
+    /../unit_testing/resources/TiPO4_bandstructure :
+      - Force
+      - AtomPositions
+    /../unit_testing/resources/NaCl_charge_density :
+      - Force
+      - Charge
+      - AtomPositions
+    /../unit_testing/resources/Cu_band_CUB :
+      - Force
+      - Charge
+      - AtomPositions
+      - BandStructure3D
+      - BandStructure
+    /../unit_testing/resources/CuFeS2_band_CBT2 :
+      - Force
+      - Charge
+      - AtomPositions
+    /../unit_testing/resources/partial_charges :
+      - Force
+      - Charge
+      - AtomPositions
+    /../unit_testing/resources/TiO2_band_TET :
+      - Force
+      - Charge
+      - AtomPositions
+    /../unit_testing/resources/TiPO4_DoS :
+      - Force
+      - Dos
+      - AtomPositions
+    /../unit_testing/resources/TiPO4_ELF :
+      - Force
+      - ELF
+      - AtomPositions
+    /../unit_testing/resources/FCC-Cu :
+      - FermiVolume
+    /../unit_testing/resources/MD/VASP/Al_300K :
+      - MolecularDynamics
+      - AtomPositions
+    /../unit_testing/resources/LiC_pair_corr_func :
+      - PCF
+
+  tooltips:
+    TiPO4_bandstructure : |
+                           Contains 48 atoms
+                           8 Titanium, 8 Phosphorus, 32 Oxygen
+    NaCl_charge_density : |
+                           Contains 8 atoms
+                           4 Sodium, 4 Chlorine
+    Cu_band_CUB :          Contains 1 Copper atom
+    CuFeS2_band_CBT2 :    |
+                           Contains 8 atoms
+                           2 Copper, 2 Iron, 4 Sulfur
+    partial_charges :      Contains 2 Carbon atoms
+    TiO2_band_TET :       |
+                           Contains 6 atoms
+                           4 Oxygen, 2 Titanium
+    TiPO4_DoS :           |
+                           Contains 48 atoms
+                           8 Titanium, 8 Phosphorus, 32 Oxygen
+    TiPO4_ELF :           |
+                           Contains 48 atoms
+                           8 Titanium, 8 Phosphorus, 32 Oxygen
+    FCC-Cu :              Contains 1 Copper atom
+
+    Al_300K :             Contains 32 Aluminium atoms
+
+    LiC_pair_corr_func : TBD
+  ATTRIBUTES:
+    force_attr:
+      button0 : Toggle Canvas
+      button1 : Toggle Force Vectors
+      slider:
+        Set Radius:
+          - !!python/tuple [0,100]
+          - 50
+    moldyn_attr:
+      button0 : Toggle Canvas
+      button1 : Play/Pause
+      slider:
+        Set Radius:
+          - !!python/tuple [0,100]
+          - 50
+        Set Speed:
+          - !!python/tuple [0,100]
+          - 50
+        Set Opacity:
+          - !!python/tuple [0,100]
+          - 100
+      combo:
+        Color:
+          - Red
+          - Green
+          - Blue
+          - White
+          - Black
+    atom_attr:
+      button0 : Toggle Canvas
+    charge_attr:
+      button0 : Toggle Canvas
+      button1 : Toggle ISO
+      button2 : Toggle Slice Canvas
+      button3 : Toggle Slice Plane
+      combo:
+        Shading Mode :
+          - No Shading
+          - Ambient
+          - Diffuse
+          - Specular
+          - Blinn Phong
+          - Phong
+        Volume Selection :
+          - '/0'
+          - '/1'
+          - '/final'
+      slider:
+        ISO Surface Value :
+          - !!python/tuple [0,100]
+          - 50
+        Slice Plane Height :
+          - !!python/tuple [0,100]
+          - 50
+    elf_attr:
+      button0 : Toggle Canvas
+      button1 : Toggle ISO
+      button2 : Toggle Slice Canvas
+      button3 : Toggle Slice Plane
+      combo:
+        Shading Mode :
+          - No Shading
+          - Ambient
+          - Diffuse
+          - Specular
+          - Blinn Phong
+          - Phong
+        Volume Selection :
+          - '/0'
+          - '/1'
+          - '/final'
+      slider:
+        ISO Surface Value :
+          - !!python/tuple [0,100]
+          - 50
+        Slice Plane Height :
+          - !!python/tuple [0,100]
+          - 50
+    band3d_attr:
+      button0 : Toggle Canvas
+    band_attr:
+      button0 : Toggle Canvas
+    dos_attr:
+      button0 : Toggle Canvas
+    pcf_attr:
+      button0 : Toggle Canvas
+    fermi_attr:
+      button0 : Toggle Canvas
+      button1 : Toggle ISO
+      button2 : Toggle Slice Canvas
+      button3 : Toggle Slice Plane
+      combo:
+        Shading Mode :
+          - No Shading
+          - Ambient
+          - Diffuse
+          - Specular
+          - Blinn Phong
+          - Phong
+        Volume Selection :
+          - '/0'
+          - '/1'
+          - '/final'
+      slider:
+        ISO Surface Value :
+          - !!python/tuple [0,100]
+          - 50
+        Slice Plane Height :
+          - !!python/tuple [0,100]
+          - 50
+
+LISTS:
+  visualisations:
+    - Force
+    - MolecularDynamics
+    - AtomPositions
+    - Charge
+    - ELF
+    - Dos
+    - FermiVolume
+    - PCF
+    - BandStructure3D
+    - BandStructure

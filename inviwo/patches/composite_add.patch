@@ -1,0 +1,23 @@
+diff --git a/modules/python3/bindings/src/pynetwork.cpp b/modules/python3/bindings/src/pynetwork.cpp
+index aff33bec1..c3de14051 100644
+--- a/modules/python3/bindings/src/pynetwork.cpp
++++ b/modules/python3/bindings/src/pynetwork.cpp
+@@ -37,7 +37,7 @@
+ #include <inviwo/core/network/processornetwork.h>
+ #include <inviwo/core/ports/port.h>
+ #include <inviwo/core/ports/inport.h>
+-
++#include <inviwo/core/processors/compositeprocessorutils.h>
+ #include <inviwopy/vectoridentifierwrapper.h>
+
+ namespace py = pybind11;
+@@ -148,6 +148,8 @@ void exposeNetwork(py::module &m) {
+                 filename, [&](ExceptionContext ec) { throw; });  // is this the correct way of re
+                                                                  // throwing (we just want to pass
+                                                                  // the exception on to python)
+-        });
++        })
++
++        .def("replaceSelectionWithCompositeProcessor", [](ProcessorNetwork *pn) {util::replaceSelectionWithCompositeProcessor(*pn);});
+ }
+ }  // namespace inviwo

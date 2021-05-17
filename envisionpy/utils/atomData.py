@@ -117,7 +117,8 @@ element_names = {
     'Mc' : 'Moscovium',
     'Lv' : 'Livermorium',
     'Ts' : 'Tennessine',
-    'Og' : 'Oganesson'
+    'Og' : 'Oganesson',
+    'Fo' : 'Force'
 }
 
 # Colors from http://jmol.sourceforge.net/jscolors/
@@ -230,7 +231,8 @@ element_colors = {
     'Sg' : (0.8509803921568627, 0.0, 0.27058823529411763, 1.0),
     'Bh' : (0.8784313725490196, 0.0, 0.2196078431372549, 1.0),
     'Hs' : (0.9019607843137255, 0.0, 0.1803921568627451, 1.0),
-    'Mt' : (0.9215686274509803, 0.0, 0.14901960784313725, 1.0)
+    'Mt' : (0.9215686274509803, 0.0, 0.14901960784313725, 1.0),
+    'Fo' : (0, 0, 0, 1.0)
 }
 
 # from https://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)
@@ -323,5 +325,6 @@ atomic_radii = {
     'U' : 1.75,
     'Np' : 1.75,
     'Pu' : 1.75,
-    'Am' : 1.75
+    'Am' : 1.75,
+    'Fo' : 0.2
 }

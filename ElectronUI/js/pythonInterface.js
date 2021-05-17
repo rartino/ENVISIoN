@@ -1,6 +1,7 @@
 //  ENVISIoN
 //
-//  Copyright (c) 2019 Jesper Ericsson
+//  Copyright (c) 2019-2021 Jesper Ericsson, Gabriel Anderberg, Didrik Axén, Adam Engman,
+//  Kristoffer Gubberud Maras, Joakim Stenborg
 //  All rights reserved.
 //
 //  Redistribution and use in source and binary forms, with or without
@@ -24,6 +25,16 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // ##############################################################################################
+//  Alterations to this file by Gabriel Anderberg, Didrik Axén,
+//  Adam Engman, Kristoffer Gubberud Maras, Joakim Stenborg
+//
+//  To the extent possible under law, the person who associated CC0 with
+//  the alterations to this file has waived all copyright and related
+//  or neighboring rights to the alterations made to this file.
+//
+//  You should have received a copy of the CC0 legalcode along with
+//  this work.  If not, see
+//  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 const spawn = require("child_process").spawn;
 const CONFIG = require("./config.json");
@@ -58,7 +69,7 @@ function start_python_process() {
     else {
         console.log("Python process already launched")
     }
-    
+
     // Send a ping every second to keep checking that python is responsive
     setInterval(()=>send_data('ping', nPings++), 1000)
 }
@@ -80,11 +91,12 @@ function send_data(tag, data) {
     var json_data = {tag: tag, data: data}
     var packet = JSON.stringify(json_data) + "\r\n";
     try{
-        if (CONFIG.logSentPackets && (tag != 'ping' || CONFIG.logPings)) 
+        if (CONFIG.logSentPackets && (tag != 'ping' || CONFIG.logPings))
             console.log("Sending packet: \n", packet)
 	    pythonProcess.stdin.write(packet)
 	}
     catch {
+        alert()
         pythonCrashed = true;
 		const options = {
 			type: "warning", title: "ENVISIoN has stopped working!",
@@ -106,7 +118,7 @@ function on_data_recieve(packet) {
             if ("tag" in json_data){
                 if (CONFIG.logRecievedPackets && (json_data['tag'] != 'pong' || CONFIG.logPings))
                     console.log("Packet recieved:\n", JSON.stringify(json_data))
-                
+
                 if (json_data["tag"] == "response"){
                     handle_response_packet(json_data["data"])
                     nResponses += 1;
@@ -121,7 +133,7 @@ function on_data_recieve(packet) {
                     let errorDesc = error[1].replace(/\\n/g, "\n");
                     let options = {
                         type: "error", title: "Request failed to resolve.",
-                        message: errorType + "\n" + errorDesc + "\n" + req 
+                        message: errorType + "\n" + errorDesc + "\n" + req
                     }
                     dialog.showMessageBox(options)
                 }
@@ -136,7 +148,7 @@ function on_data_recieve(packet) {
         }
 
         // Packet could not be decoded as json.
-        catch(err) { 
+        catch(err) {
             if (CONFIG.logPyPrint)
                 console.log("Python print: \n" + data[i])
         }

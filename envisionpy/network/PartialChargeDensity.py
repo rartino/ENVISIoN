@@ -6,15 +6,15 @@ from envisionpy.utils.exceptions import *
 from .baseNetworks.VolumeSubnetwork import VolumeSubnetwork
 
 
-# TODO: add self.volume_outport with a merged version of all the 
+# TODO: add self.volume_outport with a merged version of all the
 #       volumes. Use a VolumeCombiner processor and input all volumes
 #       add data divide by number of volumes. Output of this is volume_outport
 #       This will allow the visualisation to be used with the multi volume vis.
 
 class PartialChargeDensity(VolumeSubnetwork):
     '''
-    Manages a subnetwork for partial charge density visualisation. 
-    Makes use of a modified VolumeSubnetwork. Has a different volume selection than 
+    Manages a subnetwork for partial charge density visualisation.
+    Makes use of a modified VolumeSubnetwork. Has a different volume selection than
     the default VolumeSubnetwork implementation to allow selection of different bands
     and modes.
 
@@ -24,7 +24,7 @@ class PartialChargeDensity(VolumeSubnetwork):
         # Initialize a volume subnetwork with multichannel raycaster
         VolumeSubnetwork.__init__(self, inviwoApp, hdf5_path, hdf5_outport, xpos, ypos+6, True)
         self.set_hdf5_subpath('PARCHG/Bands')
-        
+
         # Available bands and modes in hdf5 file.
         self.available_bands = []
         self.available_modes = []
@@ -45,7 +45,7 @@ class PartialChargeDensity(VolumeSubnetwork):
         self.basis_props = []
         self.basis_3x3 = [[1,0,0],[0,1,0],[0,0,1]]
         self.basis_scale = 1
-        
+
         # Modify network for parchg visualisation.
         self.modify_network(hdf5_path, hdf5_outport, xpos, ypos)
         self.select_bands(band_list, mode_list, xpos+1, ypos)
@@ -93,9 +93,9 @@ class PartialChargeDensity(VolumeSubnetwork):
             self.get_tf_points(),
             [self.iso_enabled, self.iso_value, self.iso_color],
             [
-                sCanvas.widget.visibility, 
-                rc.positionindicator.enable.value, 
-                volumeSlice.planePosition.value.x, 
+                sCanvas.widget.visibility,
+                rc.positionindicator.enable.value,
+                volumeSlice.planePosition.value.x,
                 volumeSlice.trafoGroup.imageScale.value,
                 volumeSlice.trafoGroup.volumeWrapping.selectedDisplayName,
                 [volumeSlice.planeNormal.value.x, volumeSlice.planeNormal.value.y, volumeSlice.planeNormal.value.z]
@@ -176,7 +176,7 @@ class PartialChargeDensity(VolumeSubnetwork):
         for i in range(len(band_list)):
             if mode_list[i] == 'total' or mode_list[i] == 'magnetic':
                 volumeTotal = self.add_processor('org.inviwo.hdf5.ToVolume', str(i) + '_Band ' + str(band_list[i]) + ' ' + mode_list[i], xpos+7*(i+1), ypos+3)
-                
+
                 self.basis_props.append(volumeTotal.basisGroup.basis)
                 self.volume_processors.append(volumeTotal)
                 hdf5_inports.append(volumeTotal.getInport('inport'))
@@ -207,7 +207,7 @@ class PartialChargeDensity(VolumeSubnetwork):
         hdf5Path = self.get_processor('HDF5 path')
         merger = self.get_processor('VolumeMerger')
         volume_inports = [
-            merger.getInport('inputVolume'), merger.getInport('volume2'), 
+            merger.getInport('inputVolume'), merger.getInport('volume2'),
             merger.getInport('volume3'), merger.getInport('volume4')]
         for inport in hdf5_inports:
             self.network.addConnection(hdf5Path.getOutport('outport'), inport)
@@ -231,13 +231,13 @@ class PartialChargeDensity(VolumeSubnetwork):
 
     def modify_network(self, hdf5_path, hdf5_output, xpos, ypos):
         # Change the volume selection compared to the default volume network.
-        
+
         # Remove hdf5ToVolume processor.
         self.remove_processor('Hdf5Selection')
 
         # Create and connect volume merger.
         merger = self.add_processor('org.inviwo.VolumeMerger', 'VolumeMerger', xpos, ypos + 9)
-        
+
         isoRaycaster = self.get_processor('IsoRaycaster')
         boundingBox = self.get_processor('Volume Bounding Box')
         cubeProxy = self.get_processor('Cube Proxy Geometry')
@@ -253,5 +253,3 @@ class PartialChargeDensity(VolumeSubnetwork):
             self.network.addConnection(merger.getOutport('outputVolume'), isoRaycaster.getInport('volume'))
 
         self.set_hdf5_subpath('/PARCHG/Bands')
-        
-

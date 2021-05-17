@@ -1,3 +1,31 @@
+##  ENVISIoN
+##
+##  Copyright (c) 2021 Gabriel Anderberg, Didrik Axén,  Adam Engman,
+##  Kristoffer Gubberud Maras, Joakim Stenborg
+##  All rights reserved.
+##
+##  Redistribution and use in source and binary forms, with or without
+##  modification, are permitted provided that the following conditions are met:
+##
+##  1. Redistributions of source code must retain the above copyright notice, this
+##  list of conditions and the following disclaimer.
+##  2. Redistributions in binary form must reproduce the above copyright notice,
+##  this list of conditions and the following disclaimer in the documentation
+##  and/or other materials provided with the distribution.
+##
+##  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+##  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+##  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+##  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+##  ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+##  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+##  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+##  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+##  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+##  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+##
+## ##############################################################################################
+
 import inviwopy
 import numpy as np
 import h5py
@@ -30,7 +58,7 @@ class AtomPositions(Decoration):
         # Add a decoration by connecting data ports and linking properties.
         if vis_type not in self.valid_visualisations():
             raise EnvisionError('Invalid visualisation type ['+vis_type+'].')
-        
+
         self.other_subnetworks[vis_type] = other
 
         # Link needed properties between networks.
@@ -39,7 +67,7 @@ class AtomPositions(Decoration):
             self.network.addLink(self.camera_prop, other.camera_prop)
             other.camera_prop.invalidate()
             print(dir(self.camera_prop))
-        
+
         other.connect_decoration_ports(self.decoration_outport)
 
     def disconnect_decoration(self, other, vis_type):
@@ -98,7 +126,7 @@ class AtomPositions(Decoration):
         meshRenderer = self.add_processor('org.inviwo.SphereRenderer', 'UnitcellRenderer', xpos, ypos+6)
         background = self.add_processor('org.inviwo.Background', 'AtomBackground', xpos, ypos+9)
         canvas = self.add_processor('org.inviwo.CanvasGL', 'UnitcellCanvas', xpos, ypos+12)
-        
+
         canvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)
 
         self.network.addConnection(strucMesh.getOutport('mesh'), meshRenderer.getInport('geometry'))
@@ -131,13 +159,13 @@ class AtomPositions(Decoration):
             strucMesh.timestep.maxValue = 0
             for i,key in enumerate(list(h5[base_group + "/Atoms"].keys())):
                 element = h5[base_group + "/Atoms/"+key].attrs['element']
-                
+
                 name = element_names.get(element, 'Unknown')
                 color = element_colors.get(element, (0.5, 0.5, 0.5, 1.0))
                 radius = atomic_radii.get(element, 0.5)
                 self.atom_names.append(name)
                 self.atom_radii.append(radius)
-                
+
                 coordReader = self.add_processor('envision.CoordinateReader', '{0} {1}'.format(i,name), xpos-i*7, ypos)
                 self.network.addConnection(hdf5_output, coordReader.getInport('inport'))
                 self.network.addConnection(coordReader.getOutport('outport'), strucMesh.getInport('coordinates'))
@@ -161,6 +189,6 @@ class AtomPositions(Decoration):
                 self.nAtomTypes += 1
 
         self.decoration_outport = meshRenderer.getOutport('image')
-        # self.decoration_inport = 
+        # self.decoration_inport =
         self.decoration_inport = meshRenderer.getInport('imageInport')
         self.camera_prop = meshRenderer.camera

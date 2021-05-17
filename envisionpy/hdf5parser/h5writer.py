@@ -1,8 +1,10 @@
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2017-2019 Josef Adamsson, Robert Cranston, David Hartman, Denise Härnström,
+#  Copyright (c) 2017-2021 Josef Adamsson, Robert Cranston, David Hartman, Denise Härnström,
 #  Fredrik Segerhammar, Anders Rehult, Viktor Bernholtz, Elvis Jakobsson, Abdullatif Ismail, Linda Le
+#  Gabriel Anderberg, Didrik Axén,  Adam Engman, Kristoffer Gubberud Maras,
+#  Joakim Stenborg
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -27,7 +29,7 @@
 #
 ##############################################################################################
 #
-#  Alterations to this file by Anders Rehult, Viktor Bernholtz, Abdullatif Ismail, 
+#  Alterations to this file by Anders Rehult, Viktor Bernholtz, Abdullatif Ismail,
 #                               Anton Hjert and Linda Le
 #
 #  To the extent possible under law, the person who associated CC0 with
@@ -40,6 +42,18 @@
 ##############################################################################################
 #
 #  Alterations to this file by Daniel Thomas
+#
+#  To the extent possible under law, the person who associated CC0 with
+#  the alterations to this file has waived all copyright and related
+#  or neighboring rights to the alterations made to this file.
+#
+#  You should have received a copy of the CC0 legalcode along with
+#  this work.  If not, see
+#  <http://creativecommons.org/publicdomain/zero/1.0/>.
+##############################################################################################
+#
+#  Alterations to this file by Gabriel Anderberg, Didrik Axén,
+#  Adam Engman, Kristoffer Gubberud Maras, Joakim Stenborg
 #
 #  To the extent possible under law, the person who associated CC0 with
 #  the alterations to this file has waived all copyright and related
@@ -62,6 +76,7 @@ def _write_coordinates(h5file, atom_count, coordinates_list, elements, path):
         p=0
         for n in range(0,len(atom_count)):
             dataset_name = path+'/Atoms/'+format(n,'04d')
+
             h5.create_dataset(
                 dataset_name,
                 data=np.asarray(coordinates_list[p:atom_count[n]+p]),
@@ -71,6 +86,20 @@ def _write_coordinates(h5file, atom_count, coordinates_list, elements, path):
             p=p+atom_count[n]
     return
 
+def _write_forces(h5file, atom_count, force_list, path):
+    with h5py.File(h5file, "a") as h5:
+        p=0
+        for n in range(0,len(atom_count)):
+            dataset_name = path+'/Atoms/'+format(n,'04d')+"F"
+            h5.create_dataset(
+                dataset_name,
+                data=np.asarray(force_list[p:atom_count[n]+p]),
+                dtype=np.float32
+            )
+            p=p+atom_count[n]
+    return
+
+
 def _write_basis(h5file, basis):
     with h5py.File(h5file, "a") as h5:
         if not "/basis" in h5:
@@ -78,6 +107,7 @@ def _write_basis(h5file, basis):
     return
 
 def _write_scaling_factor(h5file, scaling_factor):
+    scaling_factor = 1
     with h5py.File(h5file, "a") as h5:
         if not "/scaling_factor" in h5:
             h5.create_dataset('/scaling_factor', data=scaling_factor, dtype=np.float32)
@@ -87,24 +117,41 @@ def _write_md(h5file, atom_count, coordinates_list, elements, step):
     with h5py.File(h5file, "a") as h5:
         p=0
         for n in range(0,len(atom_count)):
-            dataset_name = '/MD/Atoms/'+format(n,'04d')
-            if step == 0:
-                h5.create_dataset(
-                    dataset_name,
-                    data=np.asarray(coordinates_list[p:atom_count[n]+p]),
-                    dtype=np.float32,
-                    maxshape=(None, 3)
-                )
-                h5[dataset_name].attrs["element"] = elements[n]
-                h5[dataset_name].attrs["atoms"] = atom_count[n]
-                p=p+atom_count[n]
-            else:
-                dataset = h5[dataset_name]
-                dataset.resize((step+1)*atom_count[n],axis=0)
-                start = step*atom_count[n]
-                dataset[start:] = np.asarray(coordinates_list[p:atom_count[n]+p])
-                p=p+atom_count[n]
+            dataset_name = '/MD/Atoms/'+format(step,'04d')+ "/" + elements[n]
+            h5.create_dataset(
+                dataset_name,
+                data=np.asarray(coordinates_list[p:atom_count[n]+p]),
+                dtype=np.float32,
+                maxshape=(None, 3)
+            )
+            h5[dataset_name].attrs["element"] = elements[n]
+            h5[dataset_name].attrs["atoms"] = atom_count[n]
+            p=p+atom_count[n]
     return
+
+
+#def _write_md(h5file, atom_count, coordinates_list, elements, step):
+#    with h5py.File(h5file, "a") as h5:
+#        p=0
+#        for n in range(0,len(atom_count)):
+#            dataset_name = '/MD/Atoms/'+format(n,'04d')
+#            if step == 0:
+#                h5.create_dataset(
+#                    dataset_name,
+#                    data=np.asarray(coordinates_list[p:atom_count[n]+p]),
+#                    dtype=np.float32,
+#                    maxshape=(None, 3)
+#                )
+#                h5[dataset_name].attrs["element"] = elements[n]
+#                h5[dataset_name].attrs["atoms"] = atom_count[n]
+#                p=p+atom_count[n]
+#            else:
+#                dataset = h5[dataset_name]
+#                dataset.resize((step+1)*atom_count[n],axis=0)
+#                start = step*atom_count[n]
+#                dataset[start:] = np.asarray(coordinates_list[p:atom_count[n]+p])
+#                p=p+atom_count[n]
+#    return
 
 def _write_steps(h5file, steps):
     with h5py.File(h5file, "a") as h5:
@@ -155,7 +202,7 @@ def _write_fermisurface(h5file, kval_list, fermi_energy, reciprocal_lattice_vect
             h5.create_dataset('/FermiSurface/KPoints/{}/Coordinates'.format(i),
                               data = np.array(kval_list[i].coordinates),
                               dtype = np.float32)
-            
+
         if '/FermiEnergy' in h5:
             print('Fermi energy already parsed. Skipping.')
         else:
@@ -217,7 +264,7 @@ def _write_volume(h5file, i, array, data_dim, hdfgroup):
 
             # Inviwo requires arrays to be above a certain size.
             # Volumes in hdf5 below 48x48x48 will not be detected
-            # Larger interpolated volume dimensions make slice look better. 
+            # Larger interpolated volume dimensions make slice look better.
             # 128 seem to be a good choice between size and looks.
             scale = 128/min(data_dim)
             if scale > 1:
@@ -385,10 +432,3 @@ def _write_pcdat_onecol(h5file, pcdat_data, APACO_val, NPACO_val):
 
 
     return None
-        
-
-
-
-
-
-

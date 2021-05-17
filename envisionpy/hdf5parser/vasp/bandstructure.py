@@ -1,7 +1,9 @@
 #
 #  ENVISIoN
 #
-#  Copyright (c) 2017 Fredrik Segerhammar, Anton Hjert and Abdullatif Ismail
+#  Copyright (c) 2017-2021 Fredrik Segerhammar, Anton Hjert and Abdullatif Ismail
+#  Gabriel Anderberg, Didrik Axén,  Adam Engman, Kristoffer Gubberud Maras,
+#  Joakim Stenborg
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -35,6 +37,17 @@
 #  You should have received a copy of the CC0 legalcode along with
 #  this work.  If not, see
 #  <http://creativecommons.org/publicdomain/zero/1.0/>.
+#################################################################################
+#  Alterations to this file by Gabriel Anderberg, Didrik Axén,
+#  Adam Engman, Kristoffer Gubberud Maras, Joakim Stenborg
+#
+#  To the extent possible under law, the person who associated CC0 with
+#  the alterations to this file has waived all copyright and related
+#  or neighboring rights to the alterations made to this file.
+#
+#  You should have received a copy of the CC0 legalcode along with
+#  this work.  If not, see
+#  <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 import os,sys
 import inspect
@@ -45,6 +58,8 @@ import h5py
 from h5writer import _write_bandstruct
 from fermiEnergy import fermi_energy_parser
 from unitcell import _find_line, coordinates_re
+from check_for_parse import has_been_parsed
+from pathlib import Path
 
 line_reg_int = re.compile(r'^( *[+-]?[0-9]+){3} *$')
 line_reg_float = re.compile(r'( *[+-]?[0-9]*\.[0-9]+(?:[eE][+-]?[0-9]+)? *){4}')
@@ -55,7 +70,7 @@ def _parse_lattype(vasp_dir):
     ----------
     vasp_dir : string
         string containing path to VASP-files
-    
+
     Returns
     -------
     found_lattype : string
@@ -68,6 +83,7 @@ def _parse_lattype(vasp_dir):
             match = False
             found_lattype = []
             for line in f:
+
                 match = lattype_re.search(line)
                 if match:
                     found_lattype = match.group()
@@ -78,8 +94,11 @@ def _parse_lattype(vasp_dir):
         return []
     return found_lattype
 
+
+
+
 def _parse_kpoints(vasp_dir):
-    """Retrives coordinates from KPOINTS file 
+    """Retrives coordinates from KPOINTS file
     and removes duplicates.
 
     Parameters
@@ -115,14 +134,39 @@ def _parse_kpoints(vasp_dir):
 
     return cleaned_coords
 
+
+def parse_symmetry_symbols(vasp_dir):
+    kpoints_file_path = Path(vasp_dir).joinpath('KPOINTS')
+    try:
+        with open(kpoints_file_path, "r") as f:
+            lines = f.readlines()
+            for line in lines:
+                if "k-points for bandstructure" in line:
+                    symmetry_symbols_line = line.replace("k-points for bandstructure ", "").replace("-", " ").replace("\n", "")
+                    symmetry_symbols_list = sorted(list(set(symmetry_symbols_line.split(" "))))
+                    for x in range(len(symmetry_symbols_list)):
+                        if symmetry_symbols_list[x] == "G":
+                            symmetry_symbols_list[x] = '\u0393'
+                    return symmetry_symbols_list
+                if "Band structure" in line:
+                    symmetry_symbols_line = line.replace("Band structure ", "").replace("-", " ").replace("\n", "")
+                    symmetry_symbols_list = sorted(list(set(symmetry_symbols_line.split(" "))))
+                    for x in range(len(symmetry_symbols_list)):
+                        if symmetry_symbols_list[x] == "G":
+                            symmetry_symbols_list[x] = '\u0393'
+                    symmetry_symbols_list = list(filter(("").__ne__, symmetry_symbols_list))
+                    return symmetry_symbols_list
+    except StopIteration:
+        pass # if EOF is reached here
+
 def _symmetry_retriever(vasp_dir):
-    """Compares input from OUTCAR and KPOINTS with stored 
-    coordinates and symbols to find a match. Retrieves the 
-    matched combination. The symmetry_points and 
-    symmetry_symbols variables contains high symmetry data 
-    in the following order: 
+    """Compares input from OUTCAR and KPOINTS with stored
+    coordinates and symbols to find a match. Retrieves the
+    matched combination. The symmetry_points and
+    symmetry_symbols variables contains high symmetry data
+    in the following order:
     [CUB, BCC, FCC, TET, HEX, ORC, TRI1a/TRI2a, TRI1b/TRI2b]
-    
+
     Parameters
     ----------
     vasp_dir : str
@@ -136,21 +180,21 @@ def _symmetry_retriever(vasp_dir):
         list of matched symmetry symbols
     """
 
-    symmetry_points = [[[0.0, 0.0, 0.0], [0.5, 0.5, 0.0], [0.5, 0.5, 0.5], [0.0, 0.5, 0.0]], 
-                       [[0.0, 0.0, 0.0], [0.5, -0.5, 0.5], [0.25, 0.25, 0.25], [0.0, 0.0, 0.5]], 
-                       [[0.0, 0.0, 0.0], [0.375, 0.375, 0.75], [0.5, 0.5, 0.5], [0.625, 0.25, 0.625], [0.5, 0.25, 0.75], [0.5, 0.0, 0.5]], 
-                       [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5], [0.5, 0.5, 0.0], [0.0, 0.5, 0.5], [0.0, 0.5, 0.0], [0.0, 0.0, 0.5]], 
-                       [[0.0, 0.0, 0.0], [0.0, 0.0, 0.5], [0.33333, 0.33333, 0.5], [0.33333, 0.33333, 0.0], [0.5, 0.0, 0.5], [0.5, 0.0, 0.0]], 
-                       [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5], [0.5, 0.5, 0.0], [0.0, 0.5, 0.5], [0.5, 0.0, 0.5], [0.5, 0.0, 0.0], [0.0, 0.5, 0.0], [0.0, 0.0, 0.5]], 
-                       [[0.0, 0.0, 0.0], [0.5, 0.5, 0.0], [0.0, 0.5, 0.5], [0.5, 0.0, 0.5], [0.5, 0.5, 0.5], [0.5, 0.0, 0.0], [0.0, 0.5, 0.0], [0.0, 0.0, 0.5]], 
+    symmetry_points = [[[0.0, 0.0, 0.0], [0.5, 0.5, 0.0], [0.5, 0.5, 0.5], [0.0, 0.5, 0.0]],
+                       [[0.0, 0.0, 0.0], [0.5, -0.5, 0.5], [0.25, 0.25, 0.25], [0.0, 0.0, 0.5]],
+                       [[0.0, 0.0, 0.0], [0.375, 0.375, 0.75], [0.5, 0.5, 0.5], [0.625, 0.25, 0.625], [0.5, 0.25, 0.75], [0.5, 0.0, 0.5]],
+                       [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5], [0.5, 0.5, 0.0], [0.0, 0.5, 0.5], [0.0, 0.5, 0.0], [0.0, 0.0, 0.5]],
+                       [[0.0, 0.0, 0.0], [0.0, 0.0, 0.5], [0.33333, 0.33333, 0.5], [0.33333, 0.33333, 0.0], [0.5, 0.0, 0.5], [0.5, 0.0, 0.0]],
+                       [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5], [0.5, 0.5, 0.0], [0.0, 0.5, 0.5], [0.5, 0.0, 0.5], [0.5, 0.0, 0.0], [0.0, 0.5, 0.0], [0.0, 0.0, 0.5]],
+                       [[0.0, 0.0, 0.0], [0.5, 0.5, 0.0], [0.0, 0.5, 0.5], [0.5, 0.0, 0.5], [0.5, 0.5, 0.5], [0.5, 0.0, 0.0], [0.0, 0.5, 0.0], [0.0, 0.0, 0.5]],
                        [[0.0, 0.0, 0.0], [0.5, -0.5, 0.0], [0.0, 0.0, 0.5], [-0.5, -0.5, 0.5], [0.0, -0.5, 0.5], [0.0, -0.5, 0.0], [0.5, 0.0, 0.0], [-0.5, 0.0, 0.5]]]
 
-    symmetry_symbols = [['\u0393', 'M', 'R', 'X'], ['\u0393', 'H', 'P', 'N'], ['\u0393', 'K', 'L', 'U', 'W', 'X'], 
-                        ['\u0393', 'A', 'M', 'R', 'X', 'Z'], ['\u0393', 'A', 'H', 'K', 'L', 'M'], 
-                        ['\u0393', 'R', 'S', 'T', 'U', 'X', 'Y', 'Z'], 
-                        ['\u0393', 'L', 'M', 'N', 'R', 'X', 'Y', 'Z'], 
+    symmetry_symbols = [['\u0393', 'M', 'R', 'X'], ['\u0393', 'H', 'P', 'N'], ['\u0393', 'K', 'L', 'U', 'W', 'X'],
+                        ['\u0393', 'A', 'M', 'R', 'X', 'Z'], ['\u0393', 'A', 'H', 'K', 'L', 'M'],
+                        ['\u0393', 'R', 'S', 'T', 'U', 'X', 'Y', 'Z'],
+                        ['\u0393', 'L', 'M', 'N', 'R', 'X', 'Y', 'Z'],
                         ['\u0393', 'L', 'M', 'N', 'R', 'X', 'Y', 'Z']]
-    
+
     found_points = _parse_kpoints(vasp_dir)
     found_lattype = _parse_lattype(vasp_dir)
     result_points = []
@@ -176,6 +220,11 @@ def _symmetry_retriever(vasp_dir):
                 result_symb = symmetry_symbols[i]
                 return result_points, result_symb
     return result_points, result_symb
+
+def symmetry_retriever2(vasp_dir):
+    symmetry_points =_parse_kpoints(vasp_dir)
+    symmetry_symbols = parse_symmetry_symbols(vasp_dir)
+    return symmetry_points, symmetry_symbols
 
 def bandstruct_parse(file_object):
     """
@@ -220,9 +269,12 @@ def bandstruct_parse(file_object):
     return band_data, kval_list
 
 
+
+
+
 def bandstructure(h5file, vasp_dir):
     """
-    Parses band structure data from EIGENVAL and 
+    Parses band structure data from EIGENVAL and
     high symmetry data from OUTCAR and KPOINTS
 
     Parameters
@@ -235,8 +287,8 @@ def bandstructure(h5file, vasp_dir):
     Returns
     -------
     bool
-        Return True if KPOINTS and 
-        EIGENVAL and OUTCAR was parsed, 
+        Return True if KPOINTS and
+        EIGENVAL and OUTCAR was parsed,
         False otherwise
 
     """
@@ -259,8 +311,10 @@ def bandstructure(h5file, vasp_dir):
     except OSError:
         print('EIGENVAL file not in directory. Skipping.')
         return False
-    
+
     parsed_coords, parsed_symbols = _symmetry_retriever(vasp_dir)
+    if not parsed_coords:
+        parsed_coords, parsed_symbols = symmetry_retriever2(vasp_dir)
     if parsed_coords:
         _write_bandstruct(h5file, band_data, kval_list, parsed_symbols, parsed_coords)
         print('Band structure data was parsed successfully.')
@@ -268,5 +322,22 @@ def bandstructure(h5file, vasp_dir):
     elif not parsed_coords and os.path.isfile(os.path.join(vasp_dir, 'KPOINTS')) and os.path.isfile(os.path.join(vasp_dir, 'OUTCAR')):
         print('Cannot interpret data in KPOINTS or OUTCAR')
         return False
-    else: 
+    else:
         return False
+
+def check_directory_bandstructure(vasp_path):
+    if Path(vasp_path).joinpath('EIGENVAL').exists() and Path(vasp_path).joinpath('OUTCAR').exists() and Path(vasp_path).joinpath('KPOINTS').exists():#and Path(vasp_path).joinpath('DOSCAR').exists():
+        with Path(vasp_path).joinpath('OUTCAR').open('r') as f:
+            lines = f.readlines()
+            for i, line in enumerate(lines):
+                if 'KPOINTS' and 'bandstructure' in line:
+                    return True
+                elif 'KPOINTS' and "Band structure" in line:
+                    return True
+    return False
+        #result_points, result_symb = _symmetry_retriever(vasp_path)
+        #if result_points:
+        #    return True
+        #else:
+        #    return False
+    #return False
