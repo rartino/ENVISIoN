@@ -1,17 +1,23 @@
 \section{Start ENVISIoN or Inviwo}
 \label{sec: start envision}
 \subsection{Start ENVISIoN}
-When the building for Inviwo with ENVISIoN is finished, we can start the application's graphical user interface. If you have structured the file system as explained in section ... and section ..., the start up of the application should be the same on every operating system. Open up a terminal or command window and navigate to the ENVISIoN folder located in the ENVISIoN directory. When you stand in .../ENVISIoN/ENVISIoN, execute the following command in the terminal:
+When the building for Inviwo with ENVISIoN is finished, we can start the application's graphical user interface. If you have structured the file system as explained in section 2 and section 3, the start up of the application should be the same on every operating system. Open up a terminal or command window and execute the following command in the terminal:
 
 \begin{lstlisting}[frame = single, breaklines = true]
-    npm run start
+    python3 ~/ENVISIoN/ENVISIoN/envisionGUI/GUI.py
 \end{lstlisting}
 
-The application ENVISIoN should start and the GUI will pop up. For further instruction concering ENVISIoN's GUI, see section \ref{sec:GUI}.
+The application ENVISIoN should start and the GUI will pop up. For further instruction concering ENVISIoN's GUI, see section \ref{sec:newGUI}.
 
 \subsection{Start Inviwo}
-During the development of ENVISIoN it can be an advantage to use only Inviwo and its graphical user interface. If the installation of ENVISIoN with Inviwo is made correctly, open a terminal or command window and navigate to the ENVISIoN directory. Then, type in the following command in the terminal:
+During the development of ENVISIoN it can be an advantage to use only Inviwo and its graphical user interface. If the installation of ENVISIoN with Inviwo is made correctly, open a terminal or command window and navigate to the ENVISIoN directory: 
 
 \begin{lstlisting}[frame = single, breaklines = true]
-    ./inviwo-build/bin/inviwo
+    cd ~ENVISIoN/ENVISIoN
+\end{lstlisting}
+
+Then, type in the following command in the terminal to start Inviwo:
+
+\begin{lstlisting}[frame = single, breaklines = true]
+    inviwo-build/bin/inviwo
 \end{lstlisting}

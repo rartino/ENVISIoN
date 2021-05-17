@@ -1,9 +1,7 @@
-\section{How to build Inviwo with ENVISIoN on Ubuntu
-18.04 LTS}
+\section{How to build Inviwo with ENVISIoN on Ubuntu Linux 20.04}
 
 \label{ch:install}
-These instructions show how to build Inviwo and ENVISIoN on Ubuntu
-18.04 LTS.
+These instructions show how to build Inviwo and ENVISIoN on Ubuntu Linux 20.04.
 
 \subsection{Install git}
 Start by installing git, which will be used to fetch ENVISIoN in the
@@ -12,48 +10,146 @@ next step.
     sudo apt install git
 \end{lstlisting}
 
-\subsection{Download ENVISIoN}
-Go to your home folder and clone ENVISIoN from Github. This guide will
-assume that both ENVISIoN and Inviwo will be placed directly under the
-home folder.
+\subsection{Install dependencies}
+Install the dependencies for ENVISIoN: 
+\begin{lstlisting}[frame = single, breaklines = true]
+  sudo apt install \
+    python3 python3-pip \
+    git \
+    python3-numpy python3-h5py python3-pybind11 \
+    python3-scipy python3-regex \
+    npm
+\end{lstlisting}
+
+Install the dependencies for building Inviwo: 
+\begin{lstlisting}[frame = single, breaklines = true]
+    sudo apt install \
+      build-essential gcc-8 g++-8 cmake git freeglut3-dev xorg-dev \
+      openexr zlib1g zlib1g-dev \
+      qt5-default qttools5-dev qttools5-dev-tools \
+      python3 python3-pip \
+      libjpeg-dev libtiff-dev libqt5svg5-dev libtirpc-dev libhdf5-dev
+      libpng-dev libglu1-mesa-dev libxrandr-dev \
+      libxinerama-dev libxcursor-dev
+\end{lstlisting}
+
+Check that you have access to Qt 5.12 or later: 
+\begin{lstlisting}[frame = single, breaklines = true]
+    qmake --version
+\end{lstlisting}
+
+If you need to upgrade Qt, you can do the following:
+\begin{lstlisting}[frame = single, breaklines = true]
+    wget http://download.qt.io/official_releases/qt/5.12/5.12.2/qt-opensource-linux-x64-5.12.2.run
+    chmod +x qt-opensource-linux-x64-5.12.2.run
+    sudo ./qt-opensource-linux-x64-5.12.2.run
+    qtchooser -install opt-qt5.12.2 /opt/Qt5.12.2/5.12.2/gcc_64/bin/qmake
+\end{lstlisting}
+
+Check that you have access to cmake 3.12.0 or later by the following command:
+\begin{lstlisting}[frame = single, breaklines = true]
+    cmake --version
+\end{lstlisting}
+
+\subsection{Setup ENVISIoN}
+You may build ENVISIoN in whatever directory you want. However, this guide will assume that you build it under your home directory. 
+
+Create a directory under your home directory to build ENVISIoN:
+
 \begin{lstlisting}[frame = single, breaklines=true]
-    cd
+    mkdir ~/ENVISIoN
+    cd ~/ENVISIoN
+\end{lstlisting}
+
+Download ENVISIoN and install the electron-based gui dependencies:
+
+\begin{lstlisting}[frame = single, breaklines=true]
     git clone https://github.com/rartino/ENVISIoN
+    cd ENVISIoN
+    npm install
 \end{lstlisting}
 
-\subsection{Prepare Inviwo using the ENVISIoN install script}
-ENVISIoN provides an install script for Ubuntu 18.04 LTS. Executing
-the installation script will install all required dependencies, clone
-Inviwo from Github and configure the Inviwo build.
+\subsection{Build Inviwo}
+Download and checkout the correct version of the Inviwo source:
 
-The script should \emph{NOT} be run as root, but as your own user and
-it will ask for your password when it needs root rights. It is
-possible that the script will ask for other user input during the
-process, if that's the case, just accept the default.
-\begin{lstlisting}[frame = single, breaklines = true]
-    cd ~/ENVISIoN/scripts
-    ./install.sh /home/$USER/ENVISIoN /home/$USER/inviwo
+\begin{lstlisting}[frame = single, breaklines=true]
+    cd ~/ENVISIoN
+    git clone https://github.com/inviwo/inviwo
+    cd inviwo
+    git checkout v0.9.11
 \end{lstlisting}
 
-Once the installation script has run, it prints build instructions.
-Follow the instructions and start the build. The instructions will
-tell you to \emph{cd} to the build directory and execute make.
+Install the Inviwo submodule dependencies:
 
-An easy way to modify the build settings, if needed, is to install
-the cmake curses gui and run it in the build directory.
-
-To install the cmake gui:
-\begin{lstlisting}[frame = single, breaklines = true]
-    sudo apt install cmake-curses-gui
+\begin{lstlisting}[frame = single, breaklines=true]
+    sed -i 's%https://github.com/live-clones/hdf5.git%https://github.com/HDFGroup/hdf5.git%' .gitmodules
+    git submodule update --init --recursive
 \end{lstlisting}
 
-Running cmake in the build directory:
-\begin{lstlisting}[frame = single, breaklines = true]
-    cd ~/inviwo/build
-    ccmake .
+Apply the ENVISIoN patches to Inviwo:
+
+\begin{lstlisting}[frame = single, breaklines=true]
+    git apply \
+        "$HOME/ENVISIoN/ENVISIoN/inviwo/patches/deppack_fix.patch" \
+        "$HOME/ENVISIoN/ENVISIoN/inviwo/patches/filesystem_env.patch" \
+        "$HOME/ENVISIoN/ENVISIoN/inviwo/patches/ftl_fix.patch" \
+        "$HOME/ENVISIoN/ENVISIoN/inviwo/patches/transferfunction_extras.patch"
+\end{lstlisting}
+\newpage
+\subsection{Cmake build using system compilers}
+Choose the correct Qt version by the following commands:
+
+\begin{lstlisting}[frame = single, breaklines=true]
+    qtchooser -l
+    export QT_SELECT=<qt version>
+    eval `qtchooser --print-env`
 \end{lstlisting}
 
-When in the GUI, press ``Configure'' to apply the current configuration, ``Generate'' to generate build files and \emph{q} to quit. If settings have changed, it is possible that you will need to press ``Configure'' more
-than once before the ``Genereate'' option becomes available.
+Configure and build Inviwo:
 
-After having generated the build files, the project can now be rebuilt with the new settings by executing \emph{make} like earlier.
+\begin{lstlisting}[frame = single, breaklines=true]
+    cd ~/ENVISIoN
+    mkdir inviwo-build
+    cd inviwo-build/
+    cmake -G "Unix Makefiles" \
+      -DCMAKE_C_COMPILER="gcc-8" \
+      -DCMAKE_CXX_COMPILER="g++-8" \
+      -DBUILD_SHARED_LIBS=ON \
+      -DIVW_USE_EXTERNAL_IMG=ON \
+      -DIVW_EXTERNAL_MODULES="$HOME/ENVISIoN/ENVISIoN/inviwo/modules" \
+      -DIVW_MODULE_CRYSTALVISUALIZATION=ON \
+      -DIVW_MODULE_GRAPH2D=ON \
+      -DIVW_MODULE_HDF5=ON \
+      -DIVW_USE_EXTERNAL_HDF5=ON \
+      -DIVW_MODULE_PYTHON3=ON \
+      -DIVW_MODULE_PYTHON3QT=ON \
+      -DIVW_MODULE_QTWIDGETS=ON \
+      -DIVW_PACKAGE_PROJECT=ON \
+      -DIVW_PACKAGE_INSTALLER=ON \
+      -S ../inviwo -B ./
+    make -j4
+\end{lstlisting}
+
+\emph{Note:}
+\begin{itemize}
+     \item The number in make -j4 is the number of simultaneous build processes to run. Usually the best choice is the number of CPU cores in your build system.
+     \item If you are running into build errors, re-run make with make -j1 to make sure that the last printout pertains to the actual error.
+\end{itemize}
+
+\subsection{Verify that the build works correctly}
+Start Inviwo to make sure it is built correctly:
+
+\begin{lstlisting}[frame = single, breaklines=true]
+    cd ~/ENVISIoN
+    inviwo-build/bin/inviwo
+\end{lstlisting}
+
+Quit Inviwo and start the ENVISIoN GUI to see that it works:
+
+\begin{lstlisting}[frame = single, breaklines=true]
+    cd ~/ENVISIoN/ENVISIoN
+    export INVIWO_HOME="$HOME/ENVISIoN/inviwo-build/bin"
+    npm start
+\end{lstlisting}
+
+\newpage

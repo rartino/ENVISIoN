@@ -10,7 +10,7 @@ Another requirement for a successful visualization of the bandstructure of a bri
 
 \begin{figure}[H]
     \centering
-    \includegraphics[scale = 0.53]{images/usermanual_band_TET.png}
+    \includegraphics[scale = 0.53]{Images/usermanual_band_TET.png}
     \caption{KPOINTS-file for bandstructure calculation of a TET brillouin zone.}
     \label{fig:VASP_band}
 \end{figure}
@@ -23,7 +23,7 @@ When choosing to visualize fermi-surfaces, make sure that you use the format sho
 
 \begin{figure}[H]
     \centering
-    \includegraphics[scale = 0.55]{images/usermanual_fermisurface.png}
+    \includegraphics[scale = 0.55]{Images/usermanual_fermisurface.png}
     \caption{KPOINTS-file for fermi-surface visualization.}
     \label{fig:VASP_fermisurface}
 \end{figure}
@@ -39,7 +39,7 @@ For the unitcell visualization, it is very important how you have written the PO
 
 \begin{figure}[H]
     \centering
-    \includegraphics[scale = 0.48]{images/usermanual_unit_TET.png}
+    \includegraphics[scale = 0.48]{Images/usermanual_unit_TET.png}
     \caption{In this example with the crystal TiO2, the POSCAR-file has Oxygen written as the first atomic species (red box) and hence the common POTCAR has the pseudopotentials of Oxygen atoms concat first and the pseudopotentials of titanium atoms second.}
     \label{fig:VASP_unit}
 \end{figure}
@@ -48,7 +48,7 @@ To successfully visualize the unitcell, the user has to make sure that there is 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[scale = 0.50]{images/usermanual_unit_TET_2.png}
+    \includegraphics[scale = 0.50]{Images/usermanual_unit_TET_2.png}
     \caption{Example of the correct format of POSCAR-file with the crystal TiO2.}
     \label{fig:VASP_unit_1}
 \end{figure}
@@ -64,3 +64,34 @@ To ensure an error-free visualization of DOS, follow the directions mentioned in
 Make sure that the VASP-files POTCAR, POSCAR and CHG are available in your VASP-directory before you decide to visualize the electron density. In the VASP-file INCAR, make sure that LCHARG flag is not set to False, in order to force VASP to write into the CHG-file during the VASP-run. Also make sure that ISYM flag in the VASP-file INCAR is not set to -1 before a VASP-run, which is done for the fermi-surface visualization, as this can cause a wrong visualization of the electron density.\\
 
 To ensure an error-free visualization of electron density, follow the directions mentioned in the section \emph{\nameref{section_unit}}, since unitcell data is acquired simultaneously with electron density data with the VASP parser for electron density visualization.
+
+\subsection{Preparing for force visualization}
+Make sure the VASP-files POSCAR and OUTCAR are available in your VASP-directory before visualising force vectors. If these two files are present and in unchanged condition the force vector visualisation should commence non-erroneously.
+
+Notice that in many VASP-directories the forces acting on atoms will be zero, in these cases the vectors will instead be represented as discs in the middle of the atoms, analogous to having a length of zero.
+
+\subsection{Preparing for molecular dynamics visualization}
+Make sure that the VASP-files POSCAR, OUTCAR and XDATCAR are available in your VASP-directory before you decide to visualize the molecular dynamics. The IBRION flag has to be set to 0 in the VASP-file OUTCAR for the visualization to run, it's the IBRION flag that decides if  molecular dynamics is possible or not. The NSW flag in the OUTCAR file will be the amount of time steps for the visualization, check if this seems to be correct. \\
+
+The XDATCAR file should contain data for the positions of each atom for all the time steps, if something is wrong with the XDATCAR file the IBRION flag in the OUTCAR flag probably is not set to the correct value for molecular dynamics. From the POSCAR file you will receive data about the elements and the amount of each sort of atom.   
+
+\newpage
+
+\section{Preparing ELK-files before starting ENVISIoN}
+Before visualizations can be made of input data from ELK, the user have to make sure that the correct ELK-files are provided and made in the correct format for the visualization that the user wants to run.
+
+\subsection{Preparing for unitcell visualization}
+
+Make sure that the ELK-files INFO.OUT and EQATOMS.OUT are available in your ELK-directory before you decide to visualize the unitcell. If thees two files exist the visualization should be able to run.  
+
+\subsection{Preparing for force visualization}
+
+To run a force visualization task nr 2 must be run when elk performs calculations. Look in the elk.in and confirm that this is done. Make sure the ELK-files INFO.OUT and EQATOMS.OUT are available in your ELK-directory before visualising force vectors. If these two files are present in unchanged condition and task nr 2 has bean preformed the force vector visualisation should commence non-erroneously. If the forces acting on atoms is zero the vectors will instead be represented as discs in the middle of the atoms, analogous to having a length of zero. 
+
+\subsection{Preparing for elf visualization}
+To run a elf visualization task nr 53 must be run when elk performs calculations. Look in the elk.in and confirm that this is done. Make sure the ELK-files INFO.OUT and ELF3D.OUT are available in your ELK-directory before visualising elf. If these two files are present in unchanged condition and task nr 53 has bean preformed the elf visualisation should commence non-erroneously.
+
+
+
+\newpage
+
