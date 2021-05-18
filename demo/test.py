@@ -12,7 +12,7 @@ HDF5_FILE = path_to_current_folder + "/../demo_force2.hdf5"
 try:
     os.remove(HDF5_FILE)
 except:
-    print("no habla espanol")
+    print("Somthing went wrong")
 
 envisionpy.hdf5parser.force_parser(HDF5_FILE, VASP_DIR)
 

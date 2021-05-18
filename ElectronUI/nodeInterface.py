@@ -41,7 +41,7 @@ import queue
 def send_packet(tag, data):
 # Package data into JSON-string-packet and send it via printing.
     packet = json.dumps({"tag": tag, "data": data})
-    print(packet)
+    #print(packet)
     sys.stdout.flush()
 
 def decode_packet(packet):
@@ -66,7 +66,7 @@ def main():
             # send_packet("Debug", "Packet recieved")
             packet = decode_packet(input_queue.get())
             if packet['tag'] == 'request':
-                try: 
+                try:
                     response = envisionMain.handle_request(packet['data'])
                     send_packet('response', response)
                 except EnvisionError as e: # non critical error envision should still function.
@@ -104,4 +104,3 @@ send_packet("status", ["envision started"])
 
 
 main()
-    
