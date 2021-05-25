@@ -67,3 +67,4 @@ def test_parse_force():
 
     # cleanup
     os.remove(PATH_TO_HDF5)
+test_parse_force()
