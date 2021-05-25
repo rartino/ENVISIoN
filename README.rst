@@ -65,7 +65,12 @@ Install dependencies for ENVISIoN::
     git \
     python3-numpy python3-h5py python3-pybind11 python3-scipy python3-regex \
     npm
+    
+Install dependencies for ENVISIoN GUI::
 
+    pip3 install pysimplegui
+    sudo apt-get install python3-tk
+  
 Install dependencies for building Inviwo::
 
   sudo apt install \
@@ -102,7 +107,7 @@ Install system packages required by Anaconda. Follow the `instructions here <htt
 
   sudo apt install libgl1-mesa-glx libegl1-mesa libxrandr2 \
                    libxrandr2 libxss1 libxcursor1 libxcomposite1 \
-	           libasound2 libxi6 libxtst6
+	           libasound2 libxi6 libxtst6 python3-tk
 
 Furthermore, even with Anaconda, there are some additional system packages needed for building Inviwo::
 
@@ -114,7 +119,7 @@ Create a conda environment with the needed dependencies::
 
   conda create --name envision python=3 git pybind11 \
         numpy scipy matplotlib markdown regex wxpython \
-	h5py hdf5 libpng libtiff jpeg cmake \
+	h5py hdf5 libpng libtiff jpeg cmake pysimplegui \
         nodejs "qt>=5.12" "cmake>=3.12.0" -c conda-forge
   conda activate envision
 
@@ -380,17 +385,11 @@ For more details on how to use the ENVISIoN application than given here, see the
 Starting ENVISIoN in GUI mode
 -----------------------------
 
-If ENVISIoN was installed from binaries, it should be possible to start simply by::
+If ENVISIoN was built using the instructions in this document, start it this way::
 
-  envision
-
-You should now see the main window from where ENVISIoN can be controlled.
-
-If ENVISIoN was build from source using the instructions in this document, start it this way::
-
-  cd ~/ENVISIoN/ENVISIoN
+  cd ~/ENVISIoN/ENVISIoN/envisionGUI
   export INVIWO_HOME="$HOME/ENVISIoN/inviwo-build/bin"
-  npm start
+  python3 gui.py
 
 Using ENVISIoN from inside the Inviwo GUI
 -----------------------------------------
@@ -419,6 +418,22 @@ Running an ENVISIoN visualisation from the Inviwo GUI is done by the following s
 
 A visualisation should now start.
 The visualisation can now be configured using the Inviwo network editor.
+
+Starting ENVISIoN in Legacy GUI mode
+-----------------------------
+
+If ENVISIoN was installed from binaries, it should be possible to start simply by::
+
+  envision
+
+You should now see the main window from where ENVISIoN can be controlled.
+
+If ENVISIoN was build from source using the instructions in this document, start it this way::
+
+  cd ~/ENVISIoN/ENVISIoN
+  export INVIWO_HOME="$HOME/ENVISIoN/inviwo-build/bin"
+  npm start
+
 
 Setup a development environment
 ===============================

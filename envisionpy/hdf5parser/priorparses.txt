@@ -1,6 +1,20 @@
 force_parser
+<<<<<<< HEAD
 forcedata1.hdf5
 /home/adame/ENVISIoN/ENVISIoN/unit_testing/resources/TiO2_band_TET
+=======
+<<<<<<< HEAD
+forcedata0.hdf5
+<<<<<<< HEAD
+/home/labb/ENVISIoN/ENVISIoN/unit_testing/resources/TiPO4_ELF
+=======
+forcedata1.hdf5
+/home/labb/ENVISIoN/ENVISIoN/unit_testing/resources/partial_charges
+>>>>>>> 2c52309... Added and updated BSD 2-Clause to files
+=======
+/home/labb/ENVISIoN/ENVISIoN/unit_testing/resources/TiPO4_bandstructure
+>>>>>>> d22ef84... last minute changes
+>>>>>>> 721632bce12c7be2d3d8b21d2e7a033a368445d7
 bandstructure
 /home/adame/ENVISIoN/ENVISIoN/ElectronUI/../GUI.hdf5
 /home/adame/ENVISIoN/ENVISIoN/ElectronUI/../unit_testing/resources/TiPO4_ELF

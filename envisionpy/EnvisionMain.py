@@ -111,7 +111,7 @@ class EnvisionMain():
         self.app.update()
         self.app.network.clear()
 
-        print(dir(self.app))
+        #print(dir(self.app))
 
     def handle_request(self, request):
         # Request should be a dictionary with a string specifying a function in 'type'
@@ -212,7 +212,6 @@ class EnvisionMain():
         return [identifier, vis_type]
 
     def visualisation_request(self, identifier, vis_type, function_name, param_list=[]):
-        print(param_list)
         if identifier not in self.visualisation_managers:
             return False
         return self.visualisation_managers[identifier].call_subnetwork(vis_type, function_name, param_list)

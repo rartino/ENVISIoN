@@ -74,7 +74,7 @@ class ForceVectors(Decoration):
             self.network.addLink(other.camera_prop, self.camera_prop)
             self.network.addLink(self.camera_prop, other.camera_prop)
             other.camera_prop.invalidate()
-            print(dir(self.camera_prop))
+            #print(dir(self.camera_prop))
 
         other.connect_decoration_ports(self.decoration_outport)
 
