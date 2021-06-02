@@ -24,6 +24,7 @@ ENVISIoN is licenced under `BSD 2-Clause “Simplified” License </LICENSE>`__.
 | © 2021 - Gabriel Anderberg, Didrik Axén, Adam Engman, Kristoffer Gubberud Maras, Joakim Stenborg
 | © 2017 – 2019 - Johan Jönsson
 | © 2020 - Joel Davidsson
+| © 2020 - Marian Brännvall
 | © 2017 – 2021 - Rickard Armiento
 
 For more details about the contributions and devlopment history of ENVISIoN, see `Contributors`_.
@@ -65,12 +66,12 @@ Install dependencies for ENVISIoN::
     git \
     python3-numpy python3-h5py python3-pybind11 python3-scipy python3-regex \
     npm
-    
+
 Install dependencies for ENVISIoN GUI::
 
     pip3 install pysimplegui
     sudo apt-get install python3-tk
-  
+
 Install dependencies for building Inviwo::
 
   sudo apt install \
