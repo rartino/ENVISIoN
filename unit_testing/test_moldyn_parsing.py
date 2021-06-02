@@ -66,3 +66,4 @@ def test_parse_md():
 
     # cleanup
     os.remove(PATH_TO_HDF5)
+test_parse_md()

@@ -356,13 +356,13 @@ def load_hdf5_file(hdf5_path, current_dataset):
         if value in init:
             pos_vises.append(key)
     set_dataset_to_vises_and_dir(hdf5_path, pos_vises, True)
-    print(pos_vises)
+    #print(pos_vises)
 
 def clear_hdf5(current_dataset, exit = False):
     if not exit:
         try:
             test = os.listdir(path_to_current_folder + '/../envisionGUI/')
-            print(test)
+            #print(test)
             for item in test:
                 if item.endswith(current_dataset + ".hdf5"):
                     os.remove(os.path.join(path_to_current_folder + '/../envisionGUI',item))
@@ -372,7 +372,7 @@ def clear_hdf5(current_dataset, exit = False):
     else:
         try:
             test = os.listdir(path_to_current_folder + '/../envisionGUI/')
-            print(test)
+            #print(test)
             for item in test:
                 if item.endswith(".hdf5"):
                     os.remove(os.path.join(path_to_current_folder + '/../envisionGUI',item))
@@ -473,21 +473,21 @@ def handle_visualisation_request(event, current_dataset, hdf5 = False):
         hdf5_file = dataset_if_hdf5[current_dataset]
         hdf5_file_name = dataset_if_hdf5[current_dataset].rsplit('.hdf5')[0]
         hdf5_file_name = hdf5_file_name.rsplit('/', 1)[-1]
-        print()
+    #    print()
     if event not in current_vises[current_dataset]:
-        print(current_vises[current_dataset])
-        print(hdf5_file_name + ' ' + hdf5_file + ' ' + visualisations[event])
+    #    print(current_vises[current_dataset])
+    #    print(hdf5_file_name + ' ' + hdf5_file + ' ' + visualisations[event])
         start_visualisation(hdf5_file_name, hdf5_file, visualisations[event])
         current_vises[current_dataset].append(event)
-    print(current_vises[current_dataset])
-    print(hdf5_file)
+    #print(current_vises[current_dataset])
+    #print(hdf5_file)
 
 def start_visualisation(filename, file, type):
     envisionMain.update()
     send_request('init_manager', [file])
     envisionMain.update()
-    print(filename)
-    print(type)
+    #print(filename)
+    #print(type)
     send_request('start_visualisation', [filename, type])
     envisionMain.update()
 
@@ -530,7 +530,7 @@ def unset_selected(event):
 def toggle_canvas(file, type):
     global canvas
     #try:
-    print(file + type)
+    #print(file + type)
     if canvas:
         envisionMain.update()
         send_request('visualisation_request', [file, type, "hide", []])
@@ -780,7 +780,7 @@ while True:
         switch_dataset(current_dataset)
         set_selected(event)
         create_vis_attributes(vis_attributes[event])
-        print(event)
+    #    print(event)
         handle_visualisation_request(event, current_dataset)
         set_current(event, current_dataset)
         set_standard_parameters(current_vis_hdf5, current_vis)

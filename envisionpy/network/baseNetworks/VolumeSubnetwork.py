@@ -7,7 +7,7 @@ from .Subnetwork import Subnetwork
 
 class VolumeSubnetwork(Subnetwork):
     '''
-    Manages a subnetwork for generic volume rendering. 
+    Manages a subnetwork for generic volume rendering.
     Not used directly in any visualisation but inherited by others.
     Used for charge density, ELF, fermi surface, partial charge, visualisations.
     '''
@@ -19,12 +19,12 @@ class VolumeSubnetwork(Subnetwork):
         self.iso_enabled = False
         self.iso_color = [1, 1, 1, 1]
         self.iso_value = 0.5
-        
+
         self.setup_network(hdf5_path, hdf5_outport, xpos, ypos)
-        
+
         self.set_texture_wrap_mode(2)
         self.set_slice_background(
-            inviwopy.glm.vec4(0,0,0,1), 
+            inviwopy.glm.vec4(0,0,0,1),
             inviwopy.glm.vec4(1,1,1,1),3,0)
         self.clear_tf()
         self.set_plane_normal()
@@ -59,9 +59,9 @@ class VolumeSubnetwork(Subnetwork):
             self.get_tf_points(),
             [self.iso_enabled, self.iso_value, self.iso_color],
             [
-                sCanvas.widget.visibility, 
-                rc.positionindicator.enable.value, 
-                volumeSlice.planePosition.value.x, 
+                sCanvas.widget.visibility,
+                rc.positionindicator.enable.value,
+                volumeSlice.planePosition.value.x,
                 volumeSlice.trafoGroup.imageScale.value,
                 volumeSlice.trafoGroup.volumeWrapping.selectedDisplayName,
                 [volumeSlice.planeNormal.value.x, volumeSlice.planeNormal.value.y, volumeSlice.planeNormal.value.z]
@@ -104,7 +104,7 @@ class VolumeSubnetwork(Subnetwork):
             volumeSlice.tfGroup.transferFunction.add(point[0], inviwopy.glm.vec4(point[1][0], point[1][1], point[1][2], 1))
         if self.transperancy_before and len(tf_points) > 0 and tf_points[0][0] != 0:
             volumeSlice.tfGroup.transferFunction.add(0.99*tf_points[0][0], inviwopy.glm.vec4(1.0, 1.0, 1.0, 1.0))
-   
+
     def clear_tf(self):
     # Clears the transfer function of all points
         Raycaster = self.get_processor('Raycaster')
@@ -259,15 +259,15 @@ class VolumeSubnetwork(Subnetwork):
         col_1 = background.bgColor1.value
         col_2 = background.bgColor2.value
         return [
-            [col_1.r, col_1.g, col_1.b], 
-            [col_2.r, col_2.g, col_2.b], 
+            [col_1.r, col_1.g, col_1.b],
+            [col_2.r, col_2.g, col_2.b],
             style]
 
 # ------------------------------------------
 # ------- Network building functions -------
 
     def set_basis(self, basis_3x3, scale=1):
-        print(basis_3x3)
+        #print(basis_3x3)
         basis_4x4 = np.identity(4)
         basis_4x4[:3,:3] = basis_3x3
         basis_4x4 = np.multiply(scale, basis_4x4)
@@ -290,8 +290,8 @@ class VolumeSubnetwork(Subnetwork):
         # Flashing canvas forces network update to refresh options.
         # Without this inviwo will not always detect and select the proper volume.
         vis = self.get_processor('VolumeCanvas').widget.visibility
-        self.hide() if vis else self.show() 
-        self.show() if vis else self.hide() 
+        self.hide() if vis else self.show()
+        self.show() if vis else self.hide()
 
         hdf5Path = self.get_processor('HDF5 path')
         hdf5Path.selection.selectedValue = path
@@ -299,7 +299,7 @@ class VolumeSubnetwork(Subnetwork):
     def set_volume_selection(self, key):
         # vis = self.get_processor('VolumeCanvas').widget.visibility
         # self.hide()
-        # self.show() 
+        # self.show()
         # self.show() if vis else self.hide() # Flashing canvas forces network update to refresh options.
         hdf5Vol = self.get_processor('Hdf5Selection')
         hdf5Vol.volumeSelection.selectedValue = key
@@ -312,7 +312,7 @@ class VolumeSubnetwork(Subnetwork):
         self.network.addConnection(hdf5Path.getOutport('outport'), hdf5Volume.getInport('inport'))
 
         # Setup volume rendering
-        boundingBox = self.add_processor('org.inviwo.VolumeBoundingBox', 'Volume Bounding Box', xpos+8, ypos+6)    
+        boundingBox = self.add_processor('org.inviwo.VolumeBoundingBox', 'Volume Bounding Box', xpos+8, ypos+6)
         meshRenderer = self.add_processor('org.inviwo.GeometryRenderGL', 'Mesh Renderer', xpos+8, ypos+9)
         cubeProxy = self.add_processor('org.inviwo.CubeProxyGeometry', 'Cube Proxy Geometry', xpos+1, ypos+6)
         entryExit = self.add_processor('org.inviwo.EntryExitPoints', 'EntryExitPoints', xpos+1, ypos+9)
@@ -350,7 +350,7 @@ class VolumeSubnetwork(Subnetwork):
             self.network.addLink(meshRenderer.camera, isoRaycaster.camera)
 
         # Setup slice rendering
-        volumeSlice = self.add_processor('org.inviwo.VolumeSliceGL', 'VolumeSlice', xpos-7, ypos+12)   
+        volumeSlice = self.add_processor('org.inviwo.VolumeSliceGL', 'VolumeSlice', xpos-7, ypos+12)
         sliceBackground = self.add_processor('org.inviwo.Background', 'SliceBackground', xpos-7, ypos+15)
         sliceCanvas = self.add_processor('org.inviwo.CanvasGL', 'SliceCanvas', xpos-7, ypos+18)
         self.network.addConnection(hdf5Volume.getOutport('outport'), volumeSlice.getInport('volume'))
@@ -383,8 +383,8 @@ class VolumeSubnetwork(Subnetwork):
         hfRender.terrainShadingMode.selectedDisplayName = 'Color Texture'
         hfRender.lighting.shadingMode.selectedDisplayName = 'No Shading'
 
-        sliceCanvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500) 
-        volumeCanvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500) 
+        sliceCanvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)
+        volumeCanvas.inputSize.dimensions.value = inviwopy.glm.size2_t(500, 500)
 
         self.image_outport = raycaster.getOutport('outport')
         self.decoration_outport = hfRender.getOutport('image')
