@@ -24,7 +24,7 @@ ENVISIoN is licenced under `BSD 2-Clause “Simplified” License </LICENSE>`__.
 | © 2021 - Gabriel Anderberg, Didrik Axén, Adam Engman, Kristoffer Gubberud Maras, Joakim Stenborg
 | © 2017 – 2019 - Johan Jönsson
 | © 2020 - Joel Davidsson
-| © 2020 - Marian Brännvall
+| © 2021 - Marian Brännvall
 | © 2017 – 2021 - Rickard Armiento
 
 For more details about the contributions and devlopment history of ENVISIoN, see `Contributors`_.
