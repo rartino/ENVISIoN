@@ -79,7 +79,7 @@ Install dependencies for building Inviwo::
         openexr zlib1g zlib1g-dev \
         qt5-default qttools5-dev qttools5-dev-tools \
         python3 python3-pip \
-        libjpeg-dev libtiff-dev libqt5svg5-dev libtirpc-dev libhdf5-dev
+        libjpeg-dev libtiff-dev libqt5svg5-dev libtirpc-dev libhdf5-dev \
         libpng-dev libglu1-mesa-dev libxrandr-dev \
         libxinerama-dev libxcursor-dev
 
